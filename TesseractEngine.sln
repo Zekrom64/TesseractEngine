@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Core", "TesseractEngine-Core\TesseractEngine-Core.csproj", "{BE8692B9-BF35-4166-8A9F-26B558D5674E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-SDL2", "TesseractEngine-SDL2\TesseractEngine-SDL2.csproj", "{0D6DDD5A-7147-4BAD-A30E-7B6D77FC08B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GL", "TesseractEngine-GL\TesseractEngine-GL.csproj", "{DA38E1CA-7A05-4AE8-84A8-3F239AE64B1E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generated", "Generated", "{AB5AA6A5-E78C-4A77-9867-4A351C77B51D}"
+	ProjectSection(SolutionItems) = preProject
+		Generated\glenums.out.txt = Generated\glenums.out.txt
+		Generated\glenums.txt = Generated\glenums.txt
+		Generated\glew.h = Generated\glew.h
+		Generated\glgen.lua = Generated\glgen.lua
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Vulkan", "TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj", "{C2F385DD-5DB6-4C92-9660-434B60A4A56F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE8692B9-BF35-4166-8A9F-26B558D5674E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE8692B9-BF35-4166-8A9F-26B558D5674E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE8692B9-BF35-4166-8A9F-26B558D5674E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE8692B9-BF35-4166-8A9F-26B558D5674E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D6DDD5A-7147-4BAD-A30E-7B6D77FC08B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D6DDD5A-7147-4BAD-A30E-7B6D77FC08B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D6DDD5A-7147-4BAD-A30E-7B6D77FC08B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D6DDD5A-7147-4BAD-A30E-7B6D77FC08B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA38E1CA-7A05-4AE8-84A8-3F239AE64B1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA38E1CA-7A05-4AE8-84A8-3F239AE64B1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA38E1CA-7A05-4AE8-84A8-3F239AE64B1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA38E1CA-7A05-4AE8-84A8-3F239AE64B1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8475FECF-9DFC-451F-8479-B2C4085201EA}
+	EndGlobalSection
+EndGlobal
