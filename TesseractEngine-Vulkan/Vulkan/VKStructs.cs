@@ -1408,15 +1408,24 @@ namespace Tesseract.Vulkan {
 		public VKSamplerAddressMode AddressModeV { get => addressModeV; init { addressModeV = value; } }
 		private readonly VKSamplerAddressMode addressModeW;
 		public VKSamplerAddressMode AddressModeW { get => addressModeW; init { addressModeW = value; } }
-		public float MipLodBias;
-		public VkBool32 AnisotropyEnable;
-		public float MaxAnisotropy;
-		public VkBool32 CompareEnable;
-		public VKCompareOp CompareOp;
-		public float MinLod;
-		public float MaxLod;
-		public VKBorderColor BorderColor;
-		public VkBool32 UnnormalizedCoordinates;
+		private readonly float mipLodBias;
+		public float MipLodBias { get => mipLodBias; init => mipLodBias = value; }
+		private readonly VkBool32 anisotropyEnable;
+		public bool AnisotropyEnable { get => anisotropyEnable; init => anisotropyEnable = value; }
+		private readonly float maxAnisotropy;
+		public float MaxAnisotropy { get => maxAnisotropy; init => maxAnisotropy = value; }
+		private readonly VkBool32 compareEnable;
+		public VkBool32 CompareEnable { get => compareEnable; init => compareEnable = value; }
+		private readonly VKCompareOp compareOp;
+		public VKCompareOp CompareOp { get => compareOp; init => compareOp = value; }
+		private readonly float minLod;
+		public float MinLod { get => minLod; init => minLod = value; }
+		private readonly float maxLod;
+		public float MaxLod { get => maxLod; init => maxLod = value; }
+		private readonly VKBorderColor borderColor;
+		public VKBorderColor BorderColor { get => borderColor; init => borderColor = value; }
+		private readonly VkBool32 unnormalizedCoordinates;
+		public VkBool32 UnnormalizedCoordinates { get => unnormalizedCoordinates; init => unnormalizedCoordinates = value; }
 
 	}
 

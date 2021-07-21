@@ -224,7 +224,7 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glDebugMessageCallbackARB([MarshalAs(UnmanagedType.FunctionPtr)] GLDebugProcARB callback, IntPtr userParam);
+	public delegate void PFN_glDebugMessageCallbackARB([MarshalAs(UnmanagedType.FunctionPtr)] GLDebugProc callback, IntPtr userParam);
 	public delegate void PFN_glDebugMessageControlARB(GLenum source, GLenum type, GLenum severity, GLsizei count, [NativeType("const GLuint*")] IntPtr ids, GLboolean enabled);
 	public delegate void PFN_glDebugMessageInsertARB(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, [NativeType("const GLchar*")] IntPtr buf);
 	public delegate void PFN_glGetDebugMessageLogARB(GLuint count, GLsizei bufSize, [NativeType("GLenum*")] IntPtr sources, [NativeType("GLenum*")] IntPtr types, [NativeType("GLuint*")] IntPtr ids, [NativeType("GLenum*")] IntPtr severities, [NativeType("GLsizei*")] IntPtr lengths, [NativeType("GLchar*")] IntPtr messageLog);

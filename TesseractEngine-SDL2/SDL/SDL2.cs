@@ -358,7 +358,7 @@ namespace Tesseract.SDL {
 		/// <returns>Window with ID, or null</returns>
 		public static SDLWindow GetWindowFromID(uint id) {
 			IntPtr ptr = Functions.SDL_GetWindowFromID(id);
-			return ptr == IntPtr.Zero ? null : new SDLWindow(new UnmanagedPointer<SDL_Window>(ptr));
+			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
 
 		/// <summary>
@@ -367,7 +367,7 @@ namespace Tesseract.SDL {
 		/// <returns>Window with grabbed input or null</returns>
 		public static SDLWindow GetGrabbedWindow() {
 			IntPtr ptr = Functions.SDL_GetGrabbedWindow();
-			return ptr == IntPtr.Zero ? null : new SDLWindow(new UnmanagedPointer<SDL_Window>(ptr));
+			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
 
 	}

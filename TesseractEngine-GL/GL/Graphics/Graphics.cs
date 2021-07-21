@@ -200,6 +200,7 @@ namespace Tesseract.GL.Graphics {
 				SparseAddressSpaceSize = 0; // TODO: Sparse resources
 				MaxBoundSets = uint.MaxValue; // Technically no limit since OpenGL's binding works differently
 
+				/*
 				int maxPerStageSamplers = Math.Min(
 					gl.GL11.GetInteger(GLEnums.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS),
 					gl.GL11.GetInteger(GLEnums.GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS)
@@ -209,6 +210,7 @@ namespace Tesseract.GL.Graphics {
 				gl.GL11.GetInteger(GLEnums.GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS),
 					gl.GL11.GetInteger(GLEnums.GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS),
 				);
+				*/
 
 				MaxGeometryOutputVertices = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_GEOMETRY_OUTPUT_VERTICES);
 				MaxGeometryTotalOutputComponents = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS);
