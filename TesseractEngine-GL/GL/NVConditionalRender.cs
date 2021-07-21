@@ -11,15 +11,15 @@ namespace Tesseract.GL {
 	public class NVConditionalRenderFunctions {
 
 		public delegate void PFN_glBeginConditionalRender(uint id, uint mode);
-		[ExternFunction(Names = new string[] { "glBeginConditionalRenderNV", "glBeginConditionalRenderNVX" })]
+		[ExternFunction(AltNames = new string[] { "glBeginConditionalRenderNV", "glBeginConditionalRenderNVX" })]
 		public PFN_glBeginConditionalRender glBeginConditionalRender;
 		public delegate void PFN_glEndConditionalRender();
-		[ExternFunction(Names = new string[] { "glEndConditionalRenderNV", "glEndConditionalRenderNVX" })]
+		[ExternFunction(AltNames = new string[] { "glEndConditionalRenderNV", "glEndConditionalRenderNVX" })]
 		public PFN_glEndConditionalRender glEndConditionalRender;
 
 	}
 
-	public class NVConditionalRender {
+	public class NVConditionalRender : IGLObject {
 
 		public GL GL { get; }
 		public NVConditionalRenderFunctions Functions { get; }

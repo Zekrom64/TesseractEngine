@@ -9,25 +9,22 @@ using Tesseract.GL.Native;
 
 namespace Tesseract.GL {
 
-	public class GL12 : IGLObject {
+	public class GL12 : GL11 {
 
-		public GL GL { get; }
-		public GL12Functions Functions { get; }
+		public GL12Functions FunctionsGL12 { get; } = new();
 
-		public GL12(GL gl, IGLContext context) {
-			GL = gl;
-			Functions = new GL12Functions();
-			Library.LoadFunctions(name => context.GetGLProcAddress(name), Functions);
+		public GL12(GL gl, IGLContext context) : base(gl, context) {
+			Library.LoadFunctions(context.GetGLProcAddress, FunctionsGL12);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTexSubImage3D(GLTextureTarget target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) => Functions.glCopyTexSubImage3D((uint)target, level, xoffset, yoffset, zoffset, x, y, width, height);
+		public void CopyTexSubImage3D(GLTextureTarget target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) => FunctionsGL12.glCopyTexSubImage3D((uint)target, level, xoffset, yoffset, zoffset, x, y, width, height);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawRangeElements(GLDrawMode mode, uint start, uint end, int count, GLIndexType type, IntPtr indices = default) => Functions.glDrawRangeElements((uint)mode, start, end, count, (uint)type, indices);
+		public void DrawRangeElements(GLDrawMode mode, uint start, uint end, int count, GLIndexType type, IntPtr indices = default) => FunctionsGL12.glDrawRangeElements((uint)mode, start, end, count, (uint)type, indices);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage3D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int depth, int border, GLFormat format, GLTextureType type, IntPtr pixels = default) => Functions.glTexImage3D((uint)target, level, (int)internalFormat, width, height, depth, border, (uint)format, (uint)type, pixels);
+		public void TexImage3D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int depth, int border, GLFormat format, GLTextureType type, IntPtr pixels = default) => FunctionsGL12.glTexImage3D((uint)target, level, (int)internalFormat, width, height, depth, border, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void TexImage3D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int depth, int border, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
@@ -48,7 +45,7 @@ namespace Tesseract.GL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage3D(GLTextureTarget target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, GLFormat format, GLTextureType type, IntPtr pixels) => Functions.glTexSubImage3D((uint)target, level, xoffset, yoffset, zoffset, width, height, depth, (uint)format, (uint)type, pixels);
+		public void TexSubImage3D(GLTextureTarget target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, GLFormat format, GLTextureType type, IntPtr pixels) => FunctionsGL12.glTexSubImage3D((uint)target, level, xoffset, yoffset, zoffset, width, height, depth, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void TexSubImage3D<T>(GLTextureTarget target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {

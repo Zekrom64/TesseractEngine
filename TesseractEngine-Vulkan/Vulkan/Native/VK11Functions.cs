@@ -47,27 +47,27 @@ namespace Tesseract.Vulkan.Native {
 	public delegate void PFN_vkCmdSetDeviceMask(VkCommandBuffer commandBuffer, uint deviceMask);
 	public delegate void PFN_vkCmdDispatchBase(VkCommandBuffer commandBuffer, uint baseGroupX, uint baseGroupY, uint baseGroupZ, uint groupCountX, uint groupCountY, uint groupCountZ);
 	public delegate VKResult PFN_vkEnumeratePhysicalDeviceGroups(VkInstance instance, out uint physicalDeviceGroupCount, [NativeType("VkPhysicalDeviceGroupProperties*")] IntPtr pPhysicalDeviceGroupProperties);
-	public delegate void PFN_vkGetImageMemoryRequirements2(VkDevice device, [In] ref VKImageMemoryRequirementsInfo2 info, out VKMemoryRequirements2 memoryRequirements);
-	public delegate void PFN_vkGetBufferMemoryRequirements2(VkDevice device, [In] ref VKBufferMemoryRequirementsInfo2 info, out VKMemoryRequirements2 memoryRequirements);
-	public delegate void PFN_vkGetImageSparseMemoryRequirements2(VkDevice device, [In] ref VKImageSparseMemoryRequirementsInfo2 info, out uint SparseMemoryRequirementCount, [NativeType("VkSparseImageMemoryRequirements2*")] IntPtr pSparseMemoryRequirements);
+	public delegate void PFN_vkGetImageMemoryRequirements2(VkDevice device, in VKImageMemoryRequirementsInfo2 info, out VKMemoryRequirements2 memoryRequirements);
+	public delegate void PFN_vkGetBufferMemoryRequirements2(VkDevice device, in VKBufferMemoryRequirementsInfo2 info, out VKMemoryRequirements2 memoryRequirements);
+	public delegate void PFN_vkGetImageSparseMemoryRequirements2(VkDevice device, in VKImageSparseMemoryRequirementsInfo2 info, out uint SparseMemoryRequirementCount, [NativeType("VkSparseImageMemoryRequirements2*")] IntPtr pSparseMemoryRequirements);
 	public delegate void PFN_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceFeatures2 features);
 	public delegate void PFN_vkGetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceProperties2 properties);
 	public delegate void PFN_vkGetPhysicalDeviceFormatProperties2(VkPhysicalDevice physicalDevice, VKFormat format, out VKFormatProperties2 formatProperties);
-	public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice physicalDevice, [In] ref VKPhysicalDeviceImageFormatInfo2 imageFormatInfo, out VKImageFormatProperties2 imageFormatProperties);
+	public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceImageFormatInfo2 imageFormatInfo, out VKImageFormatProperties2 imageFormatProperties);
 	public delegate void PFN_vkGetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDevice physicalDevice, out uint queueFamilyPropertyCount, [NativeType("VkQueueFamilyProperties2")] IntPtr queueFamilyProperties);
 	public delegate void PFN_vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceMemoryProperties2 memoryProperties);
-	public delegate void PFN_vkGetPhysicalDeviceSparseImageFormatProperties2(VkPhysicalDevice physicalDevice, [In] ref VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, out uint propertyCount, [NativeType("VkSparseImageFormatProperties2*")] IntPtr pProperties);
+	public delegate void PFN_vkGetPhysicalDeviceSparseImageFormatProperties2(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, out uint propertyCount, [NativeType("VkSparseImageFormatProperties2*")] IntPtr pProperties);
 	public delegate void PFN_vkTrimCommandPool(VkDevice device, VkCommandPool commandPool, VKCommandPoolTrimFlags flags);
-	public delegate void PFN_vkGetDeviceQueue2(VkDevice device, [In] ref VKDeviceQueueInfo2 queueInfo, out VkQueue queue);
-	public delegate VKResult PFN_vkCreateSamplerYcbcrConversion(VkDevice device, [In] ref VKSamplerYcbcrConversionInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSamplerYcbcrConversion ycbcrConversion);
+	public delegate void PFN_vkGetDeviceQueue2(VkDevice device, in VKDeviceQueueInfo2 queueInfo, out VkQueue queue);
+	public delegate VKResult PFN_vkCreateSamplerYcbcrConversion(VkDevice device, in VKSamplerYcbcrConversionInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSamplerYcbcrConversion ycbcrConversion);
 	public delegate void PFN_vkDestroySamplerYcbcrConversion(VkDevice device, VkSamplerYcbcrConversion ycbcrConversion, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-	public delegate VKResult PFN_vkCreateDescriptorUpdateTemplate(VkDevice device, [In] ref VKDescriptorUpdateTemplateCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDescriptorUpdateTemplate descriptorUpdateTemplate);
+	public delegate VKResult PFN_vkCreateDescriptorUpdateTemplate(VkDevice device, in VKDescriptorUpdateTemplateCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDescriptorUpdateTemplate descriptorUpdateTemplate);
 	public delegate void PFN_vkDestroyDescriptorUpdateTemplate(VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
 	public delegate void PFN_vkUpdateDescriptorSetWithTemplate(VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, IntPtr pData);
-	public delegate void PFN_vkGetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice physicalDevice, [In] ref VKPhysicalDeviceExternalBufferInfo info, out VKExternalBufferProperties externalBufferProperties);
-	public delegate void PFN_vkGetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice physicalDevice, [In] ref VKPhysicalDeviceExternalFenceInfo info, out VKExternalFenceProperties externalFenceProperties);
-	public delegate void PFN_vkGetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice physicalDevice, [In] ref VKPhysicalDeviceExternalSemaphoreInfo info, out VKExternalSemaphoreProperties externalSemaphoreProperties);
-	public delegate void PFN_vkGetDescriptorSetLayoutSupport(VkDevice device, [In] ref VKDescriptorSetLayoutCreateInfo createInfo, out VKDescriptorSetLayoutSupport support);
+	public delegate void PFN_vkGetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalBufferInfo info, out VKExternalBufferProperties externalBufferProperties);
+	public delegate void PFN_vkGetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalFenceInfo info, out VKExternalFenceProperties externalFenceProperties);
+	public delegate void PFN_vkGetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalSemaphoreInfo info, out VKExternalSemaphoreProperties externalSemaphoreProperties);
+	public delegate void PFN_vkGetDescriptorSetLayoutSupport(VkDevice device, in VKDescriptorSetLayoutCreateInfo createInfo, out VKDescriptorSetLayoutSupport support);
 
 	public class VK11Functions {
 

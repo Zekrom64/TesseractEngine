@@ -8,25 +8,23 @@ using Tesseract.Core.Native;
 using Tesseract.GL.Native;
 
 namespace Tesseract.GL {
-	public class GL15 : IGLObject {
 
-		public GL GL { get; }
-		public GL15Functions Functions { get; }
+	public class GL15 : GL14 {
 
-		public GL15(GL gl, IGLContext context) {
-			GL = gl;
-			Functions = new GL15Functions();
-			Library.LoadFunctions(name => context.GetGLProcAddress(name), Functions);
+		public GL15Functions FunctionsGL15 { get; } = new();
+
+		public GL15(GL gl, IGLContext context) : base(gl, context) {
+			Library.LoadFunctions(context.GetGLProcAddress, FunctionsGL15);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BeginQuery(GLQueryTarget target, uint id) => Functions.glBeginQuery((uint)target, id);
+		public void BeginQuery(GLQueryTarget target, uint id) => FunctionsGL15.glBeginQuery((uint)target, id);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindBuffer(GLBufferTarget target, uint id) => Functions.glBindBuffer((uint)target, id);
+		public void BindBuffer(GLBufferTarget target, uint id) => FunctionsGL15.glBindBuffer((uint)target, id);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BufferData(GLBufferTarget target, nint size, IntPtr data, GLBufferUsage usage) => Functions.glBufferData((uint)target, size, data, (uint)usage);
+		public void BufferData(GLBufferTarget target, nint size, IntPtr data, GLBufferUsage usage) => FunctionsGL15.glBufferData((uint)target, size, data, (uint)usage);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BufferData<T>(GLBufferTarget target, GLBufferUsage usage, in ReadOnlySpan<T> data) where T : unmanaged {
@@ -47,7 +45,7 @@ namespace Tesseract.GL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BufferSubData(GLBufferTarget target, nint offset, nint size, IntPtr data) => Functions.glBufferSubData((uint)target, offset, size, data);
+		public void BufferSubData(GLBufferTarget target, nint offset, nint size, IntPtr data) => FunctionsGL15.glBufferSubData((uint)target, offset, size, data);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BufferSubData<T>(GLBufferTarget target, nint offset, in ReadOnlySpan<T> data) where T : unmanaged {
@@ -68,13 +66,13 @@ namespace Tesseract.GL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DeleteBuffers(int n, IntPtr buffers) => Functions.glDeleteBuffers(n, buffers);
+		public void DeleteBuffers(int n, IntPtr buffers) => FunctionsGL15.glDeleteBuffers(n, buffers);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteBuffers(in ReadOnlySpan<uint> buffers) {
 			unsafe {
 				fixed(uint* pBuffers = buffers) {
-					Functions.glDeleteBuffers(buffers.Length, (IntPtr)pBuffers);
+					FunctionsGL15.glDeleteBuffers(buffers.Length, (IntPtr)pBuffers);
 				}
 			}
 		}
@@ -83,19 +81,26 @@ namespace Tesseract.GL {
 		public void DeleteBuffers(params uint[] buffers) {
 			unsafe {
 				fixed (uint* pBuffers = buffers) {
-					Functions.glDeleteBuffers(buffers.Length, (IntPtr)pBuffers);
+					FunctionsGL15.glDeleteBuffers(buffers.Length, (IntPtr)pBuffers);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DeleteQueries(int n, IntPtr ids) => Functions.glDeleteQueries(n, ids);
+		public void DeleteBuffers(uint buffer) {
+			unsafe {
+				FunctionsGL15.glDeleteBuffers(1, (IntPtr)(&buffer));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void DeleteQueries(int n, IntPtr ids) => FunctionsGL15.glDeleteQueries(n, ids);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteQueries(in ReadOnlySpan<uint> ids) {
 			unsafe {
 				fixed (uint* pIds = ids) {
-					Functions.glDeleteQueries(ids.Length, (IntPtr)pIds);
+					FunctionsGL15.glDeleteQueries(ids.Length, (IntPtr)pIds);
 				}
 			}
 		}
@@ -104,22 +109,29 @@ namespace Tesseract.GL {
 		public void DeleteQueries(params uint[] ids) {
 			unsafe {
 				fixed (uint* pIds = ids) {
-					Functions.glDeleteQueries(ids.Length, (IntPtr)pIds);
+					FunctionsGL15.glDeleteQueries(ids.Length, (IntPtr)pIds);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void EndQuery(GLQueryTarget target) => Functions.glEndQuery((uint)target);
+		public void DeleteQueries(uint query) {
+			unsafe {
+				FunctionsGL15.glDeleteQueries(1, (IntPtr)(&query));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GenBuffers(int n, IntPtr buffers) => Functions.glGenBuffers(n, buffers);
+		public void EndQuery(GLQueryTarget target) => FunctionsGL15.glEndQuery((uint)target);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void GenBuffers(int n, IntPtr buffers) => FunctionsGL15.glGenBuffers(n, buffers);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<uint> GenBuffers(in Span<uint> buffers) {
 			unsafe {
 				fixed (uint* pBuffers = buffers) {
-					Functions.glGenBuffers(buffers.Length, (IntPtr)pBuffers);
+					FunctionsGL15.glGenBuffers(buffers.Length, (IntPtr)pBuffers);
 				}
 			}
 			return buffers;
@@ -130,23 +142,23 @@ namespace Tesseract.GL {
 			uint[] buffers = new uint[n];
 			unsafe {
 				fixed (uint* pBuffers = buffers) {
-					Functions.glGenBuffers(buffers.Length, (IntPtr)pBuffers);
+					FunctionsGL15.glGenBuffers(buffers.Length, (IntPtr)pBuffers);
 				}
 			}
 			return buffers;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint GenBuffer() => GenBuffers(stackalloc uint[1])[0];
+		public uint GenBuffers() => GenBuffers(stackalloc uint[1])[0];
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GenQueries(int n, IntPtr ids) => Functions.glGenQueries(n, ids);
+		public void GenQueries(int n, IntPtr ids) => FunctionsGL15.glGenQueries(n, ids);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<uint> GenQueries(in Span<uint> ids) {
 			unsafe {
 				fixed (uint* pIds = ids) {
-					Functions.glGenQueries(ids.Length, (IntPtr)pIds);
+					FunctionsGL15.glGenQueries(ids.Length, (IntPtr)pIds);
 				}
 			}
 			return ids;
@@ -157,20 +169,20 @@ namespace Tesseract.GL {
 			uint[] ids = new uint[n];
 			unsafe {
 				fixed (uint* pIds = ids) {
-					Functions.glGenQueries(n, (IntPtr)pIds);
+					FunctionsGL15.glGenQueries(n, (IntPtr)pIds);
 				}
 			}
 			return ids;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint GenQuery() => GenQueries(stackalloc uint[1])[0];
+		public uint GenQueries() => GenQueries(stackalloc uint[1])[0];
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetBufferParameteri(GLBufferTarget target, GLBufferParameter pname) {
 			unsafe {
 				int param = 0;
-				Functions.glGetBufferParamteriv((uint)target, (uint)pname, (IntPtr)(&param));
+				FunctionsGL15.glGetBufferParamteriv((uint)target, (uint)pname, (IntPtr)(&param));
 				return param;
 			}
 		}
@@ -179,19 +191,19 @@ namespace Tesseract.GL {
 		public IntPtr GetBufferPointer(GLBufferTarget target, GLGetBufferPointer pname) {
 			unsafe {
 				IntPtr param = IntPtr.Zero;
-				Functions.glGetBufferPointerv((uint)target, (uint)pname, (IntPtr)(&param));
+				FunctionsGL15.glGetBufferPointerv((uint)target, (uint)pname, (IntPtr)(&param));
 				return param;
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetBufferSubData(GLBufferTarget target, nint offset, nint size, IntPtr data) => Functions.glGetBufferSubData((uint)target, offset, size, data);
+		public void GetBufferSubData(GLBufferTarget target, nint offset, nint size, IntPtr data) => FunctionsGL15.glGetBufferSubData((uint)target, offset, size, data);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<T> GetBufferSubData<T>(GLBufferTarget target, nint offset, in Span<T> data) where T : unmanaged {
 			unsafe {
 				fixed(T* pData = data) {
-					Functions.glGetBufferSubData((uint)target, offset, (nint)sizeof(T) * data.Length, (IntPtr)pData);
+					FunctionsGL15.glGetBufferSubData((uint)target, offset, (nint)sizeof(T) * data.Length, (IntPtr)pData);
 				}
 			}
 			return data;
@@ -201,7 +213,7 @@ namespace Tesseract.GL {
 		public T[] GetBufferSubData<T>(GLBufferTarget target, nint offset, T[] data) where T : unmanaged {
 			unsafe {
 				fixed (T* pData = data) {
-					Functions.glGetBufferSubData((uint)target, offset, (nint)sizeof(T) * data.Length, (IntPtr)pData);
+					FunctionsGL15.glGetBufferSubData((uint)target, offset, (nint)sizeof(T) * data.Length, (IntPtr)pData);
 				}
 			}
 			return data;
@@ -214,46 +226,46 @@ namespace Tesseract.GL {
 		public int GetQueryObjecti(uint id, GLGetQueryObject pname) {
 			unsafe {
 				int value = 0;
-				Functions.glGetQueryObjectiv(id, (uint)pname, (IntPtr)(&value));
+				FunctionsGL15.glGetQueryObjectiv(id, (uint)pname, (IntPtr)(&value));
 				return value;
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetQueryObjecti(uint id, GLGetQueryObject pname, nint offset) => Functions.glGetQueryObjectiv(id, (uint)pname, offset);
+		public void GetQueryObjecti(uint id, GLGetQueryObject pname, nint offset) => FunctionsGL15.glGetQueryObjectiv(id, (uint)pname, offset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public uint GetQueryObjectui(uint id, GLGetQueryObject pname) {
 			unsafe {
 				uint value = 0;
-				Functions.glGetQueryObjectuiv(id, (uint)pname, (IntPtr)(&value));
+				FunctionsGL15.glGetQueryObjectuiv(id, (uint)pname, (IntPtr)(&value));
 				return value;
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetQueryObjectui(uint id, GLGetQueryObject pname, nint offset) => Functions.glGetQueryObjectuiv(id, (uint)pname, offset);
+		public void GetQueryObjectui(uint id, GLGetQueryObject pname, nint offset) => FunctionsGL15.glGetQueryObjectuiv(id, (uint)pname, offset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetQueryi(GLGetQueryTarget target, GLGetQuery pname) {
 			unsafe {
 				int value = 0;
-				Functions.glGetQueryiv((uint)target, (uint)pname, (IntPtr)(&value));
+				FunctionsGL15.glGetQueryiv((uint)target, (uint)pname, (IntPtr)(&value));
 				return value;
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsBuffer(uint buffer) => Functions.glIsBuffer(buffer) != 0;
+		public bool IsBuffer(uint buffer) => FunctionsGL15.glIsBuffer(buffer) != 0;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsQuery(uint id) => Functions.glIsQuery(id) != 0;
+		public bool IsQuery(uint id) => FunctionsGL15.glIsQuery(id) != 0;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IntPtr MapBuffer(GLBufferTarget target, GLMapAccess access) => Functions.glMapBuffer((uint)target, (uint)access);
+		public IntPtr MapBuffer(GLBufferTarget target, GLMapAccess access) => FunctionsGL15.glMapBuffer((uint)target, (uint)access);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool UnmapBuffer(GLBufferTarget target) => Functions.glUnmapBuffer((uint)target) != 0;
+		public bool UnmapBuffer(GLBufferTarget target) => FunctionsGL15.glUnmapBuffer((uint)target) != 0;
 
 	}
 }

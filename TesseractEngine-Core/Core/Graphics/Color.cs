@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
 
@@ -20,7 +21,8 @@ namespace Tesseract.Core.Graphics {
 		public new Vector4 Normalized { get; set; }
 
 	}
-	
+
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Color3b : ITuple3<byte>, IColor {
 
 		public byte R;
@@ -73,6 +75,7 @@ namespace Tesseract.Core.Graphics {
 		Vector4 IReadOnlyColor.Normalized => Normalized;
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Color4b : ITuple4<byte>, IColor {
 
 		public byte R;
@@ -124,9 +127,14 @@ namespace Tesseract.Core.Graphics {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Color4f : ITuple4<float>, IColor {
 
 		public Vector4 Vector;
+
+		public Color4f(ITuple4<float> tuple) {
+			Vector = new(tuple.X, tuple.Y, tuple.Z, tuple.W);
+		}
 
 		public Color4f(Vector4 vector) {
 			Vector = vector;
@@ -182,9 +190,9 @@ namespace Tesseract.Core.Graphics {
 
 	public static class Colors {
 
-		public static Color4f Average(IReadOnlyColor c1, IReadOnlyColor c2) => new((c1.Normalized + c2.Normalized) * 0.5f);
+		public static Color4f Average(this IReadOnlyColor c1, IReadOnlyColor c2) => new((c1.Normalized + c2.Normalized) * 0.5f);
 
-		public static Color4f Mix(IReadOnlyColor c1, IReadOnlyColor c2, float ratio) => new((c1.Normalized * ratio) + (c2.Normalized * (1.0f - ratio)));
+		public static Color4f Mix(this IReadOnlyColor c1, IReadOnlyColor c2, float ratio) => new((c1.Normalized * ratio) + (c2.Normalized * (1.0f - ratio)));
 
 	}
 

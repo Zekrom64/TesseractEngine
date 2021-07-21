@@ -265,6 +265,16 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A pixel format with 32-bit signed floating point red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32A32SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
 		/// A pixel format with a 16-bit unsigned normalized depth channel.
 		/// </summary>
 		public static readonly PixelFormat D16UNorm = DefineUnpackedFormat(

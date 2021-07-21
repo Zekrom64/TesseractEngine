@@ -51,24 +51,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format of the texture view that will be used by this attachment.
 		/// </summary>
-		public PixelFormat Format { get; set; }
+		public PixelFormat Format { get; init; }
 
 		/// <summary>
 		/// The number of samples that will be used with this attachment
 		/// </summary>
-		public int Samples { get; set; }
+		public int Samples { get; init; }
 
-		public AttachmentLoadOp LoadOp { get; set; }
+		public AttachmentLoadOp LoadOp { get; init; }
 
-		public AttachmentStoreOp StoreOp { get; set; }
+		public AttachmentStoreOp StoreOp { get; init; }
 
-		public AttachmentLoadOp StencilLoadOp { get; set; }
+		public AttachmentLoadOp StencilLoadOp { get; init; }
 
-		public AttachmentStoreOp StencilStoreOp { get; set; }
+		public AttachmentStoreOp StencilStoreOp { get; init; }
 
-		public TextureLayout InitialLayout { get; set; }
+		public TextureLayout InitialLayout { get; init; }
 
-		public TextureLayout FinalLayout { get; set; }
+		public TextureLayout FinalLayout { get; init; }
 
 	}
 
@@ -77,9 +77,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	public struct RenderPassAttachmentReference {
 
-		public uint Attachment { get; set; }
+		public uint Attachment { get; init; }
 
-		public TextureLayout Layout { get; set; }
+		public TextureLayout Layout { get; init; }
 
 	}
 
@@ -88,43 +88,57 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The type of pipeline that will be bound.
 		/// </summary>
-		public PipelineType PipelineBindType { get; }
+		public PipelineType PipelineBindType { get; init; }
 
 		/// <summary>
 		/// The list of
 		/// </summary>
-		public RenderPassAttachmentReference[] InputAttachments { get; set; }
+		public RenderPassAttachmentReference[] InputAttachments { get; init; }
 
-		public RenderPassAttachmentReference[] ColorAttachments { get; set; }
+		public RenderPassAttachmentReference[] ColorAttachments { get; init; }
 
-		public RenderPassAttachmentReference[] ResolveAttachments { get; set; }
+		public RenderPassAttachmentReference[] ResolveAttachments { get; init; }
 
-		public RenderPassAttachmentReference? DepthStencilAttachment { get; set; }
+		public RenderPassAttachmentReference? DepthStencilAttachment { get; init; }
 
-		public RenderPassAttachmentReference[] PreserveAttachments { get; set; }
+		public RenderPassAttachmentReference[] PreserveAttachments { get; init; }
 
 	}
 
 	public struct RenderPassDependency {
 
-		public uint SrcSubpass { get; set; }
+		public uint SrcSubpass { get; init; }
 
-		public uint DstSubpass { get; set; }
+		public uint DstSubpass { get; init; }
 
-		public PipelineStage SrcStages { get; set; }
+		public PipelineStage SrcStages { get; init; }
 
-		public PipelineStage DstStages { get; set; }
+		public PipelineStage DstStages { get; init; }
 
 	}
 
-	public struct RenderPassCreateInfo {
+	public readonly ref struct RenderPassCreateInfo {
 
-		public RenderPassAttachment[] Attachments { get; set; }
+		public ReadOnlySpan<RenderPassAttachment> Attachments { get; init; }
 
-		public RenderPassSubpass[] Subpasses { get; set; }
+		public ReadOnlySpan<RenderPassSubpass> Subpasses { get; init; }
 
-		public RenderPassDependency[] Dependencies { get; set; }
+		public ReadOnlySpan<RenderPassDependency> Dependencies { get; init; }
 
+	}
+
+	/// <summary>
+	/// Enumeration of types of subpass contents.
+	/// </summary>
+	public enum SubpassContents {
+		/// <summary>
+		/// The contents of the subpass are recorded inline in the command stream.
+		/// </summary>
+		Inline,
+		/// <summary>
+		/// The contents of the subpass are recorded in secondary command buffers that are executed from the command stream.
+		/// </summary>
+		SecondaryCommandBuffers
 	}
 
 }

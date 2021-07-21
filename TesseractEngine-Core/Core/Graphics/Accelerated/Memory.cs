@@ -106,6 +106,80 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
+	/// Memory access type bitmask.
+	/// </summary>
+	public enum MemoryAccess {
+		/// <summary>
+		/// Memory read of indirect draw parameters.
+		/// </summary>
+		IndirectCommandRead = 0x00001,
+		/// <summary>
+		/// Memory read of vertex indices.
+		/// </summary>
+		IndexRead = 0x00002,
+		/// <summary>
+		/// Memory read of vertex attributes.
+		/// </summary>
+		VertexAttributeRead = 0x00004,
+		/// <summary>
+		/// Memory read of a uniform buffer.
+		/// </summary>
+		UniformRead = 0x00008,
+		/// <summary>
+		/// Memory read of an input attachment.
+		/// </summary>
+		InputAttachmentRead = 0x00010,
+		/// <summary>
+		/// Memory read from a shader (uniform/shader storage buffers, texel fetches/samples).
+		/// </summary>
+		ShaderRead = 0x00020,
+		/// <summary>
+		/// Memory write from a shader (shader storage buffers or images).
+		/// </summary>
+		ShaderWrite = 0x00040,
+		/// <summary>
+		/// Mmeory read of a color attachment.
+		/// </summary>
+		ColorAttachmentRead = 0x00080,
+		/// <summary>
+		/// Memory write to a color attachment.
+		/// </summary>
+		ColorAttachmentWrite = 0x00100,
+		/// <summary>
+		/// Memory read from a depth/stencil attachment.
+		/// </summary>
+		DepthStencilAttachmentRead = 0x00200,
+		/// <summary>
+		/// Memory write to a depth/stencil attachment.
+		/// </summary>
+		DepthStencilAttachmentWrite = 0x00400,
+		/// <summary>
+		/// Memory read by a transfer operation (copies/blits).
+		/// </summary>
+		TransferRead = 0x00800,
+		/// <summary>
+		/// Memory write by a transfer operation (copies/blits).
+		/// </summary>
+		TransferWrite = 0x01000,
+		/// <summary>
+		/// Memory read by the host.
+		/// </summary>
+		HostRead = 0x02000,
+		/// <summary>
+		/// Memory write by the host.
+		/// </summary>
+		HostWrite = 0x04000,
+		/// <summary>
+		/// Generic memory read, targeting all read operations.
+		/// </summary>
+		MemoryRead = 0x08000,
+		/// <summary>
+		/// Generic memory write, targeting all write operations.
+		/// </summary>
+		MemoryWrite = 0x10000
+	}
+
+	/// <summary>
 	/// <para>
 	/// A buffer is a contiguous region of memory accessible by the GPU. Buffers may be mapped to
 	/// allow a host to access them or they may be only GPU accessible. Buffer contents are referenced
@@ -189,45 +263,45 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Buffer creation information.
 	/// </summary>
-	public struct BufferCreateInfo {
+	public record BufferCreateInfo {
 
 		/// <summary>
 		/// The size of the buffer.
 		/// </summary>
-		public ulong Size { get; set; }
+		public ulong Size { get; init; }
 
 		/// <summary>
 		/// The required usages of the buffer.
 		/// </summary>
-		public BufferUsage Usage { get; set; }
+		public BufferUsage Usage { get; init; }
 
 		/// <summary>
 		/// Explicit memory binding information for the buffer, or <c>null</c> to let the backend
 		/// decide how memory should be bound for the buffer.
 		/// </summary>
-		public IMemoryBinding MemoryBinding { get; set; }
+		public IMemoryBinding MemoryBinding { get; init; }
 
 		/// <summary>
 		/// The required memory mapping flags to support.
 		/// </summary>
-		public MemoryMapFlags MapFlags { get; set; }
+		public MemoryMapFlags MapFlags { get; init; }
 
 	}
 
 	/// <summary>
 	/// A buffer binding stores a buffer and memory range within it to bind to.
 	/// </summary>
-	public struct BufferBinding {
+	public record BufferBinding {
 
 		/// <summary>
 		/// The buffer to bind.
 		/// </summary>
-		public IBuffer Buffer { get; set; }
+		public IBuffer Buffer { get; init; }
 
 		/// <summary>
 		/// The memory range within the buffer to bind.
 		/// </summary>
-		public MemoryRange Range { get; set; }
+		public MemoryRange Range { get; init; }
 
 	}
 

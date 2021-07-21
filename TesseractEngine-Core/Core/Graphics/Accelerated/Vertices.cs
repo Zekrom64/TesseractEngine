@@ -181,10 +181,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		PerInstance
 	}
 
+	/// <summary>
+	/// A vertex binding describes how groups of one or more vertex attributes are fetched from a vertex buffer.
+	/// </summary>
 	public struct VertexBinding : IEquatable<VertexBinding> {
 
+		/// <summary>
+		/// The index of the vertex buffer to fetch attributes from.
+		/// </summary>
 		public uint Binding;
+		/// <summary>
+		/// The stride between groups of attributes in the vertex buffer.
+		/// </summary>
 		public uint Stride;
+		/// <summary>
+		/// The rate at which groups of attributes are fetched from the vertex buffer.
+		/// </summary>
 		public VertexInputRate InputRate;
 
 		public bool Equals(VertexBinding binding) =>
@@ -205,11 +217,26 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
+	/// <summary>
+	/// A vertex format describes how a set of vertex attributes are ordered and fetched from a set of vertex bindings.
+	/// </summary>
 	public class VertexFormat : IEquatable<VertexFormat> {
 
+		/// <summary>
+		/// The collection of vertex attributes used in the format.
+		/// </summary>
 		public readonly IReadOnlyCollection<VertexAttrib> Attributes;
+
+		/// <summary>
+		/// The collection of vertex bindings used in the format.
+		/// </summary>
 		public readonly IReadOnlyCollection<VertexBinding> Bindings;
 
+		/// <summary>
+		/// Creates a vertex format using the given collections of attributes and bindings.
+		/// </summary>
+		/// <param name="attribs">Vertex attributes in the format</param>
+		/// <param name="bindings">Vertex bindings in the format</param>
 		public VertexFormat(IReadOnlyCollection<VertexAttrib> attribs, IReadOnlyCollection<VertexBinding> bindings) {
 			Attributes = new List<VertexAttrib>(attribs);
 			Bindings = new List<VertexBinding>(bindings);
@@ -243,10 +270,18 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
+	/// <para>
 	/// A vertex array is an object that stores a vertex format and binding information
 	/// for vertex and index buffers. Once created the vertex array cannot be modified, and
 	/// changes to the drawn geometry should be done either using draw indirection or by
 	/// modifying the underlying vertex and index buffers.
+	/// </para>
+	/// <para>
+	/// Note that vertex format information still must be associated with pipelines during
+	/// their creation as some APIs require it. No explicit test is performed when vertex arrays
+	/// are bound to check if their vertex format matches that of the bound pipeline, and
+	/// doing so with different vertex arrays will cause undefined behavior.
+	/// </para>
 	/// </summary>
 	public interface IVertexArray : IDisposable {
 

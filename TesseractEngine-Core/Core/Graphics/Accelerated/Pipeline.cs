@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -60,9 +61,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		FragmentShader = 0x00000080,
 		/// <summary>
-		/// 
+		/// Pipeline stage for early fragment tests before fragment shading is performed.
 		/// </summary>
 		EarlyFragmentTests = 0x00000100,
+		/// <summary>
+		/// Pipeline stage for late fragment tests after fragment shading is performed.
+		/// </summary>
 		LateFragmentTests = 0x00000200,
 		/// <summary>
 		/// Pipeline stage where final color values are written back to color attachments and multisampling resolve
@@ -101,16 +105,30 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Pipeline layout creation information.
 	/// </summary>
-	public struct PipelineLayoutCreateInfo {
+	public record PipelineLayoutCreateInfo {
 
 	}
 
-	public interface IPipelineCache : IDisposable { }
+	public interface IPipelineCache : IDisposable {
+	
+		/// <summary>
+		/// The data stored by the current pipeline cache.
+		/// </summary>
+		public byte[] Data { get; }
+	
+	}
 
 	/// <summary>
 	/// Pipeline cache creation information.
 	/// </summary>
-	public struct PipelineCacheCreateInfo { }
+	public record PipelineCacheCreateInfo {
+
+		/// <summary>
+		/// The initial data to create the pipeline cache with.
+		/// </summary>
+		public byte[] InitialData { get; init; }
+	
+	}
 
 	/// <summary>
 	/// A pipeline object specifies how drawing and dispatch commands issued to the GPU are processed.
@@ -120,66 +138,68 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// The information for a single shader stage for a pipeline.
 	/// </summary>
-	public struct PipelineShaderStageInfo {
+	public record PipelineShaderStageInfo {
 
 		/// <summary>
 		/// The type of shader stage this information is for.
 		/// </summary>
-		public ShaderType Type { get; set; }
+		public ShaderType Type { get; init; }
 
 		/// <summary>
 		/// The shader to use for this shader stage.
 		/// </summary>
-		public IShader Shader { get; set; }
+		[NotNull]
+		public IShader Shader { get; init; }
 
 		/// <summary>
 		/// The name of the entry point for this shader stage in the shader object.
 		/// If the entry point is the default value of <c>null</c> it is assumed that
 		/// the entry point is called "<c>main</c>".
 		/// </summary>
-		public string EntryPoint { get; set; }
+		[NotNull]
+		public string EntryPoint { get; init; } = "main";
 
 	}
 
 	/// <summary>
 	/// The stencil test state for a pipeline.
 	/// </summary>
-	public struct PipelineStencilState {
+	public record PipelineStencilState {
 
 		/// <summary>
 		/// The stencil operation to perform if the stencil test fails.
 		/// </summary>
-		public StencilOp FailOp { get; set; }
+		public StencilOp FailOp { get; init; }
 
 		/// <summary>
 		/// The stencil operation to perform if the depth and stencil test pass.
 		/// </summary>
-		public StencilOp PassOp { get; set; }
+		public StencilOp PassOp { get; init; }
 
 		/// <summary>
 		/// The stencil operation to perform if the stencil test passes but the depth test fails.
 		/// </summary>
-		public StencilOp DepthFailOp { get; set; }
+		public StencilOp DepthFailOp { get; init; }
 
 		/// <summary>
 		/// The comparison operation to perform for the stencil test.
 		/// </summary>
-		public CompareOp CompareOp { get; set; }
+		public CompareOp CompareOp { get; init; }
 
 		/// <summary>
 		/// The bitwise mask to apply to values before comparison.
 		/// </summary>
-		public uint CompareMask { get; set; }
+		public uint CompareMask { get; init; }
 
 		/// <summary>
 		/// The bitwise mask specifying which bits are written back to the stencil buffer.
 		/// </summary>
-		public uint WriteMask { get; set; }
+		public uint WriteMask { get; init; }
 
 		/// <summary>
 		/// Reference value used in stencil comparison.
 		/// </summary>
-		public uint Reference { get; set; }
+		public uint Reference { get; init; }
 
 		public override int GetHashCode() {
 			int hash = ((int)FailOp) ^ (((int)PassOp) << 3) ^ (((int)DepthFailOp) << 6) ^ (((int)CompareOp) << 9);
@@ -191,47 +211,91 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
-	public struct PipelineColorAttachmentState {
+	/// <summary>
+	/// The pipeline state information for a color attachment.
+	/// </summary>
+	public record PipelineColorAttachmentState {
 
-		public bool BlendEnable { get; set; }
+		/// <summary>
+		/// If color blending is enabled, otherwise the source color values are passed through unmodified.
+		/// </summary>
+		public bool BlendEnable { get; init; }
 
-		public BlendFactor SrcColorBlendFactor { get; set; }
+		/// <summary>
+		/// The blending equation to use if blending is enabled.
+		/// </summary>
+		public BlendEquation BlendEquation { get; init; }
 
-		public BlendFactor DstColorBlendFactor { get; set; }
-
-		public BlendOp ColorBlendOp { get; set; }
-
-		public BlendFactor SrcAlphaBlendFactor { get; set; }
-
-		public BlendFactor DstAlphaBlendFactor { get; set; }
-
-		public BlendOp AlphaBlendOp { get; set; }
-
-		public ColorComponent ColorWriteMask { get; set; }
+		/// <summary>
+		/// Bitmask of color components that will be written to the destination.
+		/// </summary>
+		public ColorComponent ColorWriteMask { get; init; }
 
 		public override int GetHashCode() {
-			int hash = ((int)SrcColorBlendFactor) ^ (((int)DstColorBlendFactor) << 4) ^ (((int)SrcAlphaBlendFactor) << 8) ^ (((int)DstAlphaBlendFactor) << 12);
-			hash ^= ((int)ColorBlendOp) | (((int)AlphaBlendOp) << 3) | (((int)ColorWriteMask) << 6);
+			int hash = ((int)BlendEquation.SrcRGB) ^ (((int)BlendEquation.DstRGB) << 4) ^ (((int)BlendEquation.SrcAlpha) << 8) ^ (((int)BlendEquation.DstAlpha) << 12);
+			hash ^= ((int)BlendEquation.RGBOp) | (((int)BlendEquation.AlphaOp) << 3) | (((int)ColorWriteMask) << 6);
 			if (BlendEnable) hash = ~hash;
 			return hash;
 		}
 
 	}
 
+	/// <summary>
+	/// Enumeration of pipeline dynamic state properties.
+	/// </summary>
 	public enum PipelineDynamicState {
+		/// <summary>
+		/// The viewport(s) may be dynamically modified.
+		/// </summary>
 		Viewport,
+		/// <summary>
+		/// The scissor region(s) may be dynamically modified.
+		/// </summary>
 		Scissor,
+		/// <summary>
+		/// The width of lines may be dynamically modified.
+		/// </summary>
 		LineWidth,
+		/// <summary>
+		/// The depth bias amount may be dynamically modified.
+		/// </summary>
 		DepthBias,
+		/// <summary>
+		/// The blend color constant may be dynamically modified.
+		/// </summary>
 		BlendConstants,
+		/// <summary>
+		/// The depth bounds may be dynamically modified.
+		/// </summary>
 		DepthBounds,
+		/// <summary>
+		/// The stencil test compare mask may be dynamically modified.
+		/// </summary>
 		StencilCompareMask,
+		/// <summary>
+		/// The stencil test write mask may be dynamically modified.
+		/// </summary>
 		StencilWriteMask,
+		/// <summary>
+		/// The stencil test reference value may be dynamically modified.
+		/// </summary>
 		StencilReference,
 		// TODO: VK_EXT_extended_dynamic_state
+		/// <summary>
+		/// The culling mode may be dynamically modified.
+		/// </summary>
 		CullMode,
+		/// <summary>
+		/// The front face mode may be dynamically modified.
+		/// </summary>
 		FrontFace,
+		/// <summary>
+		/// The draw mode may be dynamically modified.
+		/// </summary>
 		DrawMode,
+		/// <summary>
+		/// The depth test may be dynamically enabled or disabled.
+		/// </summary>
 		DepthTest,
 		DepthWriteEnable,
 		DepthCompareOp,
@@ -253,223 +317,268 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Pipeline creation information that may be dynamically variable. 
 	/// </summary>
-	public struct PipelineDynamicCreateInfo {
+	public record PipelineDynamicCreateInfo {
 
 		// Vertex input state
 
 		/// <summary>
 		/// The format that vertex attributes are fetched into the pipeline from vertex buffers.
 		/// </summary>
-		public VertexFormat VertexFormat { get; set; }
+		[NotNull]
+		public VertexFormat VertexFormat { get; init; }
 
 		// Input assembly state
 
 		/// <summary>
 		/// The drawing mode of primitives rendered by the pipeline.
 		/// </summary>
-		public DrawMode DrawMode { get; set; }
+		public DrawMode DrawMode { get; init; } = DrawMode.TriangleList;
 
 		/// <summary>
 		/// If vertex indices of -1 can be used to restart rendering of compound draw modes (ie. strips, fans, lists).
 		/// </summary>
-		public bool PrimitiveRestartEnable { get; set; }
+		public bool PrimitiveRestartEnable { get; init; }
 
 		// Tessellation state
 
 		/// <summary>
 		/// The number of control points for every patch for tessellation.
 		/// </summary>
-		public uint? PatchControlPoints { get; set; }
+		public uint? PatchControlPoints { get; init; }
 
 		// Viewport state
 
 		/// <summary>
 		/// The viewports used by this pipeline. Ignored if <see cref="PipelineDynamicState.Viewport"/> is specified.
 		/// </summary>
-		public Viewport[] Viewports { get; set; }
+		public Viewport[] Viewports { get; init; }
 
 		/// <summary>
 		/// The scissors used by this pipeline. Ignored if <see cref="PipelineDynamicState.Scissor"/> is specified.
 		/// </summary>
-		public Recti[] Scissors { get; set; }
+		public Recti[] Scissors { get; init; }
 
 		// Rasterization state
 
 		/// <summary>
 		/// If geometry should be discarded instead of being passed to the rasterizer.
 		/// </summary>
-		public bool RasterizerDiscardEnable { get; set; }
+		public bool RasterizerDiscardEnable { get; init; }
 
 		/// <summary>
 		/// The culling mode of the pipeline.
 		/// </summary>
-		public CullMode CullMode { get; set; }
+		public CullFace CullMode { get; init; }
 
 		/// <summary>
 		/// The front face specification for culling.
 		/// </summary>
-		public FrontFace FrontFace { get; set; }
+		public FrontFace FrontFace { get; init; }
 
 		/// <summary>
 		/// The width of generated lines when in drawing and polygon modes which generate lines.
 		/// </summary>
-		public float LineWidth { get; set; }
+		public float LineWidth { get; init; }
 
 		/// <summary>
 		/// If depth biasing is enabled.
 		/// </summary>
-		public bool DepthBiasEnable { get; set; }
+		public bool DepthBiasEnable { get; init; }
 
 		// Depth/stencil state
 
 		/// <summary>
 		/// If depth testing is enabled.
 		/// </summary>
-		public bool DepthTestEnable { get; set; }
+		public bool DepthTestEnable { get; init; }
 
 		/// <summary>
 		/// If writes to the depth buffer are enabled.
 		/// </summary>
-		public bool DepthWriteEnable { get; set; }
+		public bool DepthWriteEnable { get; init; }
 
 		/// <summary>
 		/// The comparison to use when performing the depth test.
 		/// </summary>
-		public CompareOp DepthCompareOp { get; set; }
+		public CompareOp DepthCompareOp { get; init; }
 
 		/// <summary>
 		/// If depth bounds testing is enabled.
 		/// </summary>
-		public bool DepthBoundsTestEnable { get; set; }
+		public bool DepthBoundsTestEnable { get; init; }
 
 		/// <summary>
 		/// If stencil testing is enabled.
 		/// </summary>
-		public bool StencilTestEnable { get; set; }
+		public bool StencilTestEnable { get; init; }
 
 		/// <summary>
 		/// The stencil state for front-facing geometry.
 		/// </summary>
-		public PipelineStencilState FrontStencilState { get; set; }
+		[NotNull]
+		public PipelineStencilState FrontStencilState { get; init; }
 
 		/// <summary>
 		/// The stencil state for back-facing geometry.
 		/// </summary>
-		public PipelineStencilState BackStencilState { get; set; }
+		[NotNull]
+		public PipelineStencilState BackStencilState { get; init; }
 
 		/// <summary>
 		/// The minimum value for depth bounds testing.
 		/// </summary>
-		public float MinDepthBounds { get; set; }
+		public float MinDepthBounds { get; init; }
 
 		/// <summary>
 		/// The maximum value for depth bounds testing.
 		/// </summary>
-		public float MaxDepthBounds { get; set; }
+		public float MaxDepthBounds { get; init; }
 
 		// Color blend state
 
 		/// <summary>
 		/// The logic operation to perform on color attachments.
 		/// </summary>
-		public LogicOp LogicOp { get; set; }
+		public LogicOp LogicOp { get; init; }
 
 		/// <summary>
 		/// The blend constant values to use for color blending.
 		/// </summary>
-		public Vector4 BlendConstant { get; set; }
+		public Vector4 BlendConstant { get; init; }
 
 	}
 
-	public struct PipelineGraphicsCreateInfo {
+	/// <summary>
+	/// Graphics pipeline creation information.
+	/// </summary>
+	public record PipelineGraphicsCreateInfo {
 		
 		// Shader state
 
-		public PipelineShaderStageInfo[] Shaders { get; set; }
+		/// <summary>
+		/// The set of shader stages to use.
+		/// </summary>
+		[NotNull]
+		public PipelineShaderStageInfo[] Shaders { get; init; }
 
 		// Viewport state
 
 		/// <summary>
 		/// The number of viewports used by this pipeline. Ignored if <see cref="PipelineDynamicState.Viewport"/> is not specified.
 		/// </summary>
-		public uint? ViewportCount { get; set; }
+		public uint? ViewportCount { get; init; }
 
 		/// <summary>
 		/// The number of scissors used by this pipeline. Ignored if <see cref="PipelineDynamicState.Scissor"/> is not specified.
 		/// </summary>
-		public uint? ScissorCount { get; set; }
+		public uint? ScissorCount { get; init; }
 
 		// Rasterization state
 
-		public bool DepthClampEnable { get; set; }
+		/// <summary>
+		/// If depth clamping is enabled.
+		/// </summary>
+		public bool DepthClampEnable { get; init; }
 
-		public PolygonMode PolygonMode { get; set; }
+		/// <summary>
+		/// The rasterization mode for polygons.
+		/// </summary>
+		public PolygonMode PolygonMode { get; init; }
 
-		public float DepthBiasConstantFactor { get; set; }
+		/// <summary>
+		/// The constant factor to bias depth values by.
+		/// </summary>
+		public float DepthBiasConstantFactor { get; init; }
 
-		public float DepthBiasClamp { get; set; }
+		/// <summary>
+		/// The absolute maximum value of depth bias to apply.
+		/// </summary>
+		public float DepthBiasClamp { get; init; }
 
-		public float DepthBiasSlopeFactor { get; set; }
+		/// <summary>
+		/// The constant factor to scale depth values by.
+		/// </summary>
+		public float DepthBiasSlopeFactor { get; init; }
 
 		// Color blend state
 
-		public bool LogicOpEnable { get; set; }
+		/// <summary>
+		/// If color logic is enabled.
+		/// </summary>
+		public bool LogicOpEnable { get; init; }
 
-		public PipelineColorAttachmentState[] Attachments { get; set; }
+		/// <summary>
+		/// The list of color attachments bound to the pipeline.
+		/// </summary>
+		[NotNull]
+		public PipelineColorAttachmentState[] Attachments { get; init; }
 
 		// Dynamic state
 
-		public PipelineDynamicCreateInfo DynamicInfo { get; set; }
+		/// <summary>
+		/// The initial dynamic state to create the pipeline with.
+		/// </summary>
+		[NotNull]
+		public PipelineDynamicCreateInfo DynamicInfo { get; init; }
 
-		public PipelineDynamicState[] DynamicState { get; set; }
+		/// <summary>
+		/// The list of dynamic properties the pipeline has.
+		/// </summary>
+		[NotNull]
+		public PipelineDynamicState[] DynamicState { get; init; } = Array.Empty<PipelineDynamicState>();
 
 	}
 
-	public struct PipelineComputeCreateInfo {
+	/// <summary>
+	/// Compute pipeline creation information.
+	/// </summary>
+	public record PipelineComputeCreateInfo {
 
 		/// <summary>
 		/// The compute shader binding.
 		/// </summary>
-		public PipelineShaderStageInfo Shader { get; set; } 
+		[NotNull]
+		public PipelineShaderStageInfo Shader { get; init; } 
 
 	}
 
 	/// <summary>
 	/// Pipeline creation information.
 	/// </summary>
-	public struct PipelineCreateInfo {
+	public record PipelineCreateInfo {
 
 		/// <summary>
 		/// The pipeline cache to generate this pipeline from.
 		/// </summary>
-		public IPipelineCache Cache { get; set; }
+		public IPipelineCache Cache { get; init; }
 
 		/// <summary>
 		/// The layout of the pipeline.
 		/// </summary>
-		public IPipelineLayout Layout { get; set; }
+		[NotNull]
+		public IPipelineLayout Layout { get; init; }
 
 		/// <summary>
 		/// Graphics pipeline creation information.
 		/// </summary>
-		public PipelineGraphicsCreateInfo? GraphicsInfo { get; set; }
+		public PipelineGraphicsCreateInfo GraphicsInfo { get; init; }
 
 		/// <summary>
 		/// Compute pipeline creation information.
 		/// </summary>
-		public PipelineComputeCreateInfo? ComputeInfo { get; set; }
+		public PipelineComputeCreateInfo ComputeInfo { get; init; }
 
 		/// <summary>
 		/// A base pipeline to create the pipeline from. Providing a base pipeline may make pipeline creation and binding
 		/// more efficient for congruent pipelines.
 		/// </summary>
-		public IPipeline BasePipeline { get; set; }
+		public IPipeline BasePipeline { get; init; }
 
 		/// <summary>
 		/// The index of the creation information for the base pipeline similar to <see cref="BasePipeline"/>.
 		/// This is only checked during bulk creation of pipelines.
 		/// </summary>
-		public int? BasePipelineIndex { get; set; }
+		public int? BasePipelineIndex { get; init; }
 
 	}
 
@@ -489,12 +598,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Creation information for a pipeline set.
 	/// </summary>
-	public struct PipelineSetCreateInfo {
+	public record PipelineSetCreateInfo {
 
 		/// <summary>
 		/// The pipeline creation information.
 		/// </summary>
-		public PipelineCreateInfo CreateInfo { get; set; }
+		[NotNull]
+		public PipelineCreateInfo CreateInfo { get; init; }
 
 	}
 

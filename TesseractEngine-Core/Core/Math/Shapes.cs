@@ -30,6 +30,11 @@ namespace Tesseract.Core.Math {
 		public Vector2i Position;
 		public Vector2i Size;
 
+		public int X0 => Position.X;
+		public int Y0 => Position.Y;
+		public int X1 => Position.X + Size.X;
+		public int Y1 => Position.Y + Size.Y;
+
 		public Recti(int x, int y, int w, int h) {
 			Position = new Vector2i(x, y);
 			Size = new Vector2i(w, h);

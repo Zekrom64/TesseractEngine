@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Tesseract.Core.Math;
+
+namespace Tesseract.Core.Graphics.Accelerated {
+
+	public interface IFramebuffer : IDisposable {
+
+		public Vector2i Size { get; }
+
+		public uint Layers { get; }
+
+	}
+
+	public readonly ref struct FramebufferCreateInfo {
+
+		public IRenderPass RenderPass { get; init; }
+
+		public ReadOnlySpan<ITextureView> Attachments { get; init; }
+
+		public Vector2i Size { get; init; }
+
+		public uint Layers { get; init; }
+
+	}
+
+}

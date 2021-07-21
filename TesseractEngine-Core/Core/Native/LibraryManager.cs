@@ -20,7 +20,7 @@ namespace Tesseract.Core.Native {
 
 	public class ExternFunctionAttribute : Attribute {
 
-		public string[] Names { get; init; }
+		public string[] AltNames { get; init; }
 
 		public ExternFunctionAttribute() { }
 
@@ -34,8 +34,8 @@ namespace Tesseract.Core.Native {
 				Type delegateType = field.FieldType;
 				string name = field.Name;
 				IntPtr pfn = loader(name);
-				if (pfn == IntPtr.Zero && efa?.Names != null) {
-					foreach(string altname in efa.Names) {
+				if (pfn == IntPtr.Zero && efa?.AltNames != null) {
+					foreach(string altname in efa.AltNames) {
 						pfn = loader(altname);
 						if (pfn != IntPtr.Zero) break;
 					}

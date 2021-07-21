@@ -42,9 +42,16 @@ namespace Tesseract.Vulkan {
 
 	using VkSamplerYcbcrConversion = UInt64;
 	using VkDescriptorUpdateTemplate = UInt64;
+	
+	/* Notes:
+	 * 
+	 *     Some structs are passed as 'in' to native methods, equivalent to passing by const pointer. However,
+	 *   to avoid expensive defensive copies these structs are readonly. To maintain field order
+	 */
 
 	// Vulkan 1.0
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKApplicationInfo {
 
 		public VKStructureType Type;
@@ -59,24 +66,32 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKInstanceCreateInfo {
 
-	public struct VKInstanceCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKInstanceCreateFlagBits Flags;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKInstanceCreateFlagBits flags;
+		public VKInstanceCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly IntPtr applicationInfo;
 		[NativeType("const VkApplicationInfo*")]
-		public IntPtr ApplicationInfo;
-		public uint EnabledLayerCount;
+		public IntPtr ApplicationInfo { get => applicationInfo; init { applicationInfo = value; } }
+		private readonly uint enabledLayerCount;
+		public uint EnabledLayerCount { get => enabledLayerCount; init { enabledLayerCount = value; } }
+		private readonly IntPtr enabledLayerNames;
 		[NativeType("const char* const*")]
-		public IntPtr EnabledLayerNames;
-		public uint EnabledExtensionCount;
+		public IntPtr EnabledLayerNames { get => enabledLayerNames; init { enabledLayerNames = value; } }
+		private readonly uint enabledExtensionCount;
+		public uint EnabledExtensionCount { get => enabledExtensionCount; init { enabledExtensionCount = value; } }
+		private readonly IntPtr enabledExtensionNames;
 		[NativeType("const char* const*")]
-		public IntPtr EnabledExtensionNames;
+		public IntPtr EnabledExtensionNames { get => enabledExtensionNames; init { enabledExtensionNames = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAllocationCallbacks {
 
 		public IntPtr UserData;
@@ -93,7 +108,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceFeatures {
 
 		public VkBool32 RobustBufferAccess;
@@ -152,7 +167,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKFormatProperties {
 
 		public VKFormatFeatureFlagBits LinearTilingFeatures;
@@ -161,7 +176,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExtent3D : ITuple3<uint> {
 
 		public uint Width;
@@ -208,7 +223,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageFormatProperties {
 
 		public VKExtent3D MaxExtent;
@@ -219,7 +234,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceLimits {
 
 		public uint MaxImageDimension1D;
@@ -382,7 +397,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSparseProperties {
 
 		public VkBool32 ResidencyStandard2DBlockShape;
@@ -393,7 +408,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceProperties {
 
 		public uint APIVersion;
@@ -412,7 +427,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKQueueFamilyProperties {
 
 		public VKQueueFlagBits QueueFlags;
@@ -422,7 +437,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryType {
 
 		public VKMemoryPropertyFlagBits PropertyFlags;
@@ -430,7 +445,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryHeap {
 
 		public VkDeviceSize Size;
@@ -438,7 +453,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMemoryProperties {
 
 		public uint MemoryTypeCount;
@@ -452,7 +467,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceQueueCreateInfo {
 
 		public VKStructureType Type;
@@ -465,27 +480,37 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKDeviceCreateInfo {
 
-	public struct VKDeviceCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKDeviceCreateFlagBits Flags;
-		public uint QueueCreateInfoCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKDeviceCreateFlagBits flags;
+		public VKDeviceCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly uint queueCreateInfoCount;
+		public uint QueueCreateInfoCount { get => queueCreateInfoCount; init { queueCreateInfoCount = value; } }
+		private readonly IntPtr queueCreateInfos;
 		[NativeType("const VkDeviceQueueCreateInfo*")]
-		public IntPtr QueueCreateInfos;
-		public uint EnabledLayerCount;
+		public IntPtr QueueCreateInfos { get => queueCreateInfos; init { queueCreateInfos = value; } }
+		private readonly uint enabledLayerCount;
+		public uint EnabledLayerCount { get => enabledLayerCount; init { enabledLayerCount = value; } }
+		private readonly IntPtr enabledLayerNames;
 		[NativeType("const char* const*")]
-		public IntPtr EnabledLayerNames;
-		public uint EnabledExtensionCount;
+		public IntPtr EnabledLayerNames { get => enabledLayerNames; init { enabledLayerNames = value; } }
+		private readonly uint enabledExtensionCount;
+		public uint EnabledExtensionCount { get => enabledExtensionCount; init { enabledExtensionCount = value; } }
+		private readonly IntPtr enabledExtensionNames;
 		[NativeType("const char* const*")]
-		public IntPtr EnabledExtensionNames;
+		public IntPtr EnabledExtensionNames { get => enabledExtensionNames; init { enabledExtensionNames = value; } }
+		private readonly IntPtr enabledFeatures;
 		[NativeType("const VkPhysicalDeviceFeatures*")]
-		public IntPtr EnabledFeatures;
+		public IntPtr EnabledFeatures { get => enabledFeatures; init { enabledFeatures = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExtensionProperties {
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
@@ -495,7 +520,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKLayerProperties {
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
@@ -509,7 +534,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubmitInfo {
 
 		public VKStructureType Type;
@@ -528,17 +553,21 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKMemoryAllocateInfo {
 
-	public struct VKMemoryAllocateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VkDeviceSize AllocationSize;
-		public uint MemoryTypeIndex;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VkDeviceSize allocationSize;
+		public VkDeviceSize AllocationSize { get => allocationSize; init { allocationSize = value; } }
+		private readonly uint memoryTypeIndex;
+		public uint MemoryTypeIndex { get => memoryTypeIndex; init { memoryTypeIndex = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMappedMemoryRange {
 
 		public VKStructureType Type;
@@ -549,7 +578,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryRequirements {
 
 		public VkDeviceSize Size;
@@ -558,7 +587,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageFormatProperties {
 
 		public VKImageAspectFlagBits AspectMask;
@@ -567,7 +596,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageMemoryRequirements {
 
 		public VKSparseImageFormatProperties FormatProperties;
@@ -578,7 +607,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseMemoryBind {
 
 		public VkDeviceSize ResourceOffset;
@@ -589,7 +618,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseBufferMemoryBindInfo {
 
 		public VkBuffer Buffer;
@@ -599,7 +628,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageOpaqueMemoryBindInfo {
 
 		public VkImage Image;
@@ -609,7 +638,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageSubresource {
 
 		public VKImageAspectFlagBits AspectMask;
@@ -618,7 +647,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKOffset3D : ITuple3<int> {
 
 		public int X;
@@ -663,7 +692,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageMemoryBind {
 
 		public VKImageSubresource Subresource;
@@ -675,7 +704,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageMemoryBindInfo {
 
 		public VkImage Image;
@@ -685,7 +714,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindSparseInfo {
 
 		public VKStructureType Type;
@@ -708,96 +737,141 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKFenceCreateInfo {
 
-	public struct VKFenceCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKFenceCreateFlagBits Flags;
-
-	}
-
-
-	public struct VKSemaphoreCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKSemaphoreCreateFlagBits Flags;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKFenceCreateFlagBits flags;
+		public VKFenceCreateFlagBits Flags { get => flags; init { flags = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKSemaphoreCreateInfo {
 
-	public struct VKEventCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKEventCreateFlagBits Flags;
-
-	}
-
-
-	public struct VKQueryPoolCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKQueryPoolCreateFlagBits Flags;
-		public VKQueryType QueryType;
-		public uint QueryCount;
-		public VKQueryPipelineStatisticFlagBits PipelineStatistics;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKSemaphoreCreateFlagBits flags;
+		public VKSemaphoreCreateFlagBits Flags { get => flags; init { flags = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKEventCreateInfo {
 
-	public struct VKBufferCreateInfo {
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKEventCreateFlagBits flags;
+		public VKEventCreateFlagBits Flags { get => flags; init { flags = value; } }
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKBufferCreateFlagBits Flags;
-		public VkDeviceSize Size;
-		public VKBufferUsageFlagBits Usage;
-		public VKSharingMode SharingMode;
-		public uint QueueFamilyIndexCount;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKQueryPoolCreateInfo {
+
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKQueryPoolCreateFlagBits flags;
+		public VKQueryPoolCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VKQueryType queryType;
+		public VKQueryType QueryType { get => queryType; init { queryType = value; } }
+		private readonly uint queryCount;
+		public uint QueryCount { get => queryCount; init { queryCount = value; } }
+		private readonly VKQueryPipelineStatisticFlagBits pipelineStatistics;
+		public VKQueryPipelineStatisticFlagBits PipelineStatistics { get => pipelineStatistics; init { pipelineStatistics = value; } }
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKBufferCreateInfo {
+
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKBufferCreateFlagBits flags;
+		public VKBufferCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VkDeviceSize size;
+		public VkDeviceSize Size { get => size; init { size = value; } }
+		private readonly VKBufferUsageFlagBits usage;
+		public VKBufferUsageFlagBits Usage { get => usage; init { usage = value; } }
+		private readonly VKSharingMode sharingMode;
+		public VKSharingMode SharingMode { get => sharingMode; init { sharingMode = value; } }
+		private readonly uint queueFamilyIndexCount;
+		public uint QueueFamilyIndexCount { get => queueFamilyIndexCount; init { queueFamilyIndexCount = value; } }
+		private readonly IntPtr queueFamilyIndices;
 		[NativeType("const uint32_t*")]
-		public IntPtr QueueFamilyIndices;
+		public IntPtr QueueFamilyIndices { get => queueFamilyIndices; init { queueFamilyIndices = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKBufferViewCreateInfo {
 
-	public struct VKBufferViewCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKBufferViewCreateFlagBits Flags;
-		public VkBuffer Buffer;
-		public VKFormat Format;
-		public VkDeviceSize Offset;
-		public VkDeviceSize Range;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKBufferViewCreateFlagBits flags;
+		public VKBufferViewCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VkBuffer buffer;
+		public VkBuffer Buffer { get => buffer; init { buffer = value; } }
+		private readonly VKFormat format;
+		public VKFormat Format { get => format; init { format = value; } }
+		private readonly VkDeviceSize offset;
+		public VkDeviceSize Offset { get => offset; init { offset = value; } }
+		private readonly VkDeviceSize range;
+		public VkDeviceSize Range { get => range; init { range = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKImageCreateInfo {
 
-	public struct VKImageCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKImageCreateFlagBits Flags;
-		public VKImageType ImageType;
-		public VKFormat Format;
-		public VKExtent3D Extent;
-		public uint MipLevels;
-		public uint ArrayLayers;
-		public VKSampleCountFlagBits Samples;
-		public VKImageTiling Tiling;
-		public VKImageUsageFlagBits Usage;
-		public VKSharingMode SharingMode;
-		public uint QueueFamilyIndexCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKImageCreateFlagBits flags;
+		public VKImageCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VKImageType imageType;
+		public VKImageType ImageType { get => imageType; init { imageType = value; } }
+		private readonly VKFormat format;
+		public VKFormat Format { get => format; init { format = value; } }
+		private readonly VKExtent3D extent;
+		public VKExtent3D Extent { get => extent; init { extent = value; } }
+		private readonly uint mipLevels;
+		public uint MipLevels { get => mipLevels; init { mipLevels = value; } }
+		private readonly uint arrayLayers;
+		public uint ArrayLayers { get => arrayLayers; init { arrayLayers = value; } }
+		private readonly VKSampleCountFlagBits samples;
+		public VKSampleCountFlagBits Samples { get => samples; init { samples = value; } }
+		private readonly VKImageTiling tiling;
+		public VKImageTiling Tiling { get => tiling; init { tiling = value; } }
+		private readonly VKImageUsageFlagBits usage;
+		public VKImageUsageFlagBits Usage { get => usage; init { usage = value; } }
+		private readonly VKSharingMode sharingMode;
+		public VKSharingMode SharingMode { get => sharingMode; init { sharingMode = value; } }
+		private readonly uint queueFamilyIndexCount;
+		public uint QueueFamilyIndexCount { get => queueFamilyIndexCount; init { queueFamilyIndexCount = value; } }
+		private readonly IntPtr queueFamilyIndices;
 		[NativeType("const uint32_t*")]
-		public IntPtr QueueFamilyIndices;
-		public VKImageLayout InitialLayout;
+		public IntPtr QueueFamilyIndices { get => queueFamilyIndices; init { queueFamilyIndices = value; } }
+		private readonly VKImageLayout initialLayout;
+		public VKImageLayout InitialLayout { get => initialLayout; init { initialLayout = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubresourceLayout {
 
 		public VkDeviceSize Offset;
@@ -808,7 +882,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKComponentMapping {
 
 		public VKComponentSwizzle R;
@@ -818,7 +892,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageSubresourceRange {
 
 		public VKImageAspectFlagBits AspectMask;
@@ -829,44 +903,62 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKImageViewCreateInfo {
 
-	public struct VKImageViewCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKImageViewCreateFlagBits Flags;
-		public VkImage Image;
-		public VKImageViewType ViewType;
-		public VKFormat Format;
-		public VKComponentMapping Components;
-		public VKImageSubresourceRange SubresourceRange;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next; 
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKImageViewCreateFlagBits flags;
+		public VKImageViewCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VkImage image;
+		public VkImage Image { get => image; init { image = value; } }
+		private readonly VKImageViewType viewType;
+		public VKImageViewType ViewType { get => viewType; init { viewType = value; } }
+		private readonly VKFormat format;
+		public VKFormat Format { get => format; init { format = value; } }
+		private readonly VKComponentMapping components;
+		public VKComponentMapping Components { get => components; init { components = value; } }
+		private readonly VKImageSubresourceRange subresourceRange;
+		public VKImageSubresourceRange SubresourceRange { get => subresourceRange; init { subresourceRange = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKShaderModuleCreateInfo {
 
-	public struct VKShaderModuleCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKShaderModuleCreateFlagBits Flags;
-		public nuint CodeSize;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKShaderModuleCreateFlagBits flags;
+		public VKShaderModuleCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly nuint codeSize;
+		public nuint CodeSize { get => codeSize; init { codeSize = value; } }
+		private readonly IntPtr code;
 		[NativeType("const uint32_t*")]
-		public IntPtr Code;
+		public IntPtr Code { get => code; init { code = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKPipelineCacheCreateInfo {
 
-	public struct VKPipelineCacheCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKPipelineCacheCreateFlagBits Flags;
-		public nuint InitialDataSize;
-		public IntPtr InitialData;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKPipelineCacheCreateFlagBits flags;
+		public VKPipelineCacheCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly nuint initialDataSize;
+		public nuint InitialDataSize { get => initialDataSize; init { initialDataSize = value; } }
+		private readonly IntPtr initialData;
+		public IntPtr InitialData { get => initialData; init { initialData = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSpecializationMapEntry {
 
 		public uint ConstantID;
@@ -875,7 +967,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSpecializationInfo {
 
 		public uint MapEntryCount;
@@ -886,7 +978,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineShaderStageCreateInfo {
 
 		public VKStructureType Type;
@@ -901,7 +993,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKVertexInputBindingDescription {
 
 		public uint Binding;
@@ -910,7 +1002,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKVertexInputAttributeDescription {
 
 		public uint Location;
@@ -920,7 +1012,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineVertexInputStateCreateInfo {
 
 		public VKStructureType Type;
@@ -935,7 +1027,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineInputAssemblyStateCreateInfo {
 
 		public VKStructureType Type;
@@ -946,7 +1038,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineTessellationStateCreateInfo {
 
 		public VKStructureType Type;
@@ -956,7 +1048,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKViewport {
 
 		public float X;
@@ -968,7 +1060,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKOffset2D : ITuple2<int> {
 
 		public int X;
@@ -1008,7 +1100,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExtent2D : ITuple2<uint> {
 
 		public uint Width;
@@ -1049,7 +1141,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRect2D {
 
 		public VKOffset2D Offset;
@@ -1057,7 +1149,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineViewportStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1071,7 +1163,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineRasterizationStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1090,7 +1182,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineMultisampleStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1106,7 +1198,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKStencilOpState {
 
 		public VKStencilOp FailOp;
@@ -1119,7 +1211,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineDepthStencilStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1137,7 +1229,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineColorBlendAttachmentState {
 
 		public VkBool32 BlendEnable;
@@ -1151,7 +1243,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineColorBlendStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1178,7 +1270,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineDynamicStateCreateInfo {
 
 		public VKStructureType Type;
@@ -1190,55 +1282,81 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKGraphicsPipelineCreateInfo {
 
-	public struct VKGraphicsPipelineCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKPipelineCreateFlagBits Flags;
-		public uint StageCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKPipelineCreateFlagBits flags;
+		public VKPipelineCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly uint stageCount;
+		public uint StageCount { get => stageCount; init { stageCount = value; } }
+		private readonly IntPtr stages;
 		[NativeType("const VkPipelineShaderStageCreateInfo*")]
-		public IntPtr Stages;
+		public IntPtr Stages { get => stages; init { stages = value; } }
+		private readonly IntPtr vertexInputState;
 		[NativeType("const VkPipelineVertexInputStateCreateInfo*")]
-		public IntPtr VertexInputState;
+		public IntPtr VertexInputState { get => vertexInputState; init { vertexInputState = value; } }
+		private readonly IntPtr inputAssemblyState;
 		[NativeType("const VkPipelineInputAssemblyStateCreateInfo*")]
-		public IntPtr InputAssemblyState;
+		public IntPtr InputAssemblyState { get => inputAssemblyState; init { inputAssemblyState = value; } }
+		private readonly IntPtr tessellationState;
 		[NativeType("const VkPipelineTessellationStateCreateInfo*")]
-		public IntPtr TessellationState;
+		public IntPtr TessellationState { get => tessellationState; init { tessellationState = value; } }
+		private readonly IntPtr viewportState;
 		[NativeType("const VkPipelineViewportStateCreateInfo*")]
-		public IntPtr ViewportState;
+		public IntPtr ViewportState { get => viewportState; init { viewportState = value; } }
+		private readonly IntPtr rasterizationState;
 		[NativeType("const VkPipelineRasterizationStateCreateInfo*")]
-		public IntPtr RasterizationState;
+		public IntPtr RasterizationState { get => rasterizationState; init { rasterizationState = value; } }
+		private readonly IntPtr multisampleState;
 		[NativeType("const VkPipelineMultisampleStateCreateInfo*")]
-		public IntPtr MultisampleState;
+		public IntPtr MultisampleState { get => multisampleState; init { multisampleState = value; } }
+		private readonly IntPtr depthStencilState;
 		[NativeType("const VkPipelineDepthStencilStateCreateInfo*")]
-		public IntPtr DepthStencilState;
+		public IntPtr DepthStencilState { get => depthStencilState; init { depthStencilState = value; } }
+		private readonly IntPtr colorBlendState;
 		[NativeType("const VkPipelineColorBlendStateCreateInfo*")]
-		public IntPtr ColorBlendState;
+		public IntPtr ColorBlendState { get => colorBlendState; init { colorBlendState = value; } }
+		private readonly IntPtr dynamicState;
 		[NativeType("const VkPipelineDynamicStateCreateInfo*")]
-		public IntPtr DynamicState;
-		public VkPipelineLayout Layout;
-		public VkRenderPass RenderPass;
-		public uint Subpass;
-		public VkPipeline BasePipelineHandle;
-		public int BasePipelineIndex;
+		public IntPtr DynamicState { get => dynamicState; init { dynamicState = value; } }
+		private readonly VkPipelineLayout layout;
+		public VkPipelineLayout Layout { get => layout; init { layout = value; } }
+		private readonly VkRenderPass renderPass;
+		public VkRenderPass RenderPass { get => renderPass; init { renderPass = value; } }
+		private readonly uint subpass;
+		public uint Subpass { get => subpass; init { subpass = value; } }
+		private readonly VkPipeline basePipelineHandle;
+		public VkPipeline BasePipelineHandle { get => basePipelineHandle; init { basePipelineHandle = value; } }
+		private readonly int basePipelineIndex;
+		public int BasePipelineIndex { get => basePipelineIndex; init { basePipelineIndex = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKComputePipelineCreateInfo {
 
-	public struct VKComputePipelineCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKPipelineCreateFlagBits Flags;
-		public VKPipelineShaderStageCreateInfo Stage;
-		public VkPipelineLayout Layout;
-		public VkPipeline BasePipelineHandle;
-		public int BasePipelineIndex;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKPipelineCreateFlagBits flags;
+		public VKPipelineCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VKPipelineShaderStageCreateInfo stage;
+		public VKPipelineShaderStageCreateInfo Stage { get => stage; init { stage = value; } }
+		private readonly VkPipelineLayout layout;
+		public VkPipelineLayout Layout { get => layout; init { layout = value; } }
+		private readonly VkPipeline basePipelineHandle;
+		public VkPipeline BasePipelineHandle { get => basePipelineHandle; init { basePipelineHandle = value; } }
+		private readonly int basePipelineIndex;
+		public int BasePipelineIndex { get => basePipelineIndex; init { basePipelineIndex = value; } }
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPushConstantRange {
 
 		public VKShaderStageFlagBits StageFlags;
@@ -1247,33 +1365,49 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKPipelineLayoutCreateInfo {
 
-	public struct VKPipelineLayoutCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKPipelineLayoutCreateFlagBits Flags;
-		public uint SetLayoutCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKPipelineLayoutCreateFlagBits flags;
+		public VKPipelineLayoutCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly uint setLayoutCount;
+		public uint SetLayoutCount { get => setLayoutCount; init { setLayoutCount = value; } }
+		private readonly IntPtr setLayouts;
 		[NativeType("const VkDescriptorSetLayout*")]
-		public IntPtr SetLayouts;
-		public uint PushConstantRangeCount;
+		public IntPtr SetLayouts { get => setLayouts; init { setLayouts = value; } }
+		private readonly uint pushConstantRangeCount;
+		public uint PushConstantRangeCount { get => pushConstantRangeCount; init { pushConstantRangeCount = value; } }
+		private readonly IntPtr pushConstantRanges;
 		[NativeType("const VkPushConstantRange*")]
-		public IntPtr PushConstantRanges;
+		public IntPtr PushConstantRanges { get => pushConstantRanges; init { pushConstantRanges = value; } }
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public readonly struct VKSamplerCreateInfo {
 
-	public struct VKSamplerCreateInfo {
-
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKSamplerCreateFlagBits Flags;
-		public VKFilter MagFilter;
-		public VKFilter MinFilter;
-		public VKSamplerMipmapMode MipmapMode;
-		public VKSamplerAddressMode AddressModeU;
-		public VKSamplerAddressMode AddressModeV;
-		public VKSamplerAddressMode AddressModeW;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init { type = value; } }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init { next = value; } }
+		private readonly VKSamplerCreateFlagBits flags;
+		public VKSamplerCreateFlagBits Flags { get => flags; init { flags = value; } }
+		private readonly VKFilter magFilter;
+		public VKFilter MagFilter { get => magFilter; init { magFilter = value; } }
+		private readonly VKFilter minFilter;
+		public VKFilter MinFilter { get => minFilter; init { minFilter = value; } }
+		private readonly VKSamplerMipmapMode mipmapMode;
+		public VKSamplerMipmapMode MipmapMode { get => MipmapMode; init { mipmapMode = value; } }
+		private readonly VKSamplerAddressMode addressModeU;
+		public VKSamplerAddressMode AddressModeU { get => addressModeU; init { addressModeU = value; } }
+		private readonly VKSamplerAddressMode addressModeV;
+		public VKSamplerAddressMode AddressModeV { get => addressModeV; init { addressModeV = value; } }
+		private readonly VKSamplerAddressMode addressModeW;
+		public VKSamplerAddressMode AddressModeW { get => addressModeW; init { addressModeW = value; } }
 		public float MipLodBias;
 		public VkBool32 AnisotropyEnable;
 		public float MaxAnisotropy;
@@ -1286,7 +1420,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetLayoutBinding {
 
 		public uint Binding;
@@ -1298,7 +1432,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetLayoutCreateInfo {
 
 		public VKStructureType Type;
@@ -1310,7 +1444,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorPoolSize {
 
 		public VKDescriptorType Type;
@@ -1318,7 +1452,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorPoolCreateInfo {
 
 		public VKStructureType Type;
@@ -1331,7 +1465,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetAllocateInfo {
 
 		public VKStructureType Type;
@@ -1343,7 +1477,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorImageInfo {
 
 		public VkSampler Sampler;
@@ -1352,7 +1486,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorBufferInfo {
 
 		public VkBuffer Buffer;
@@ -1361,7 +1495,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKWriteDescriptorSet {
 
 		public VKStructureType Type;
@@ -1380,7 +1514,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKCopyDescriptorSet {
 
 		public VKStructureType Type;
@@ -1395,7 +1529,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKFramebufferCreateInfo {
 
 		public VKStructureType Type;
@@ -1411,7 +1545,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentDescription {
 
 		public VKAttachmentDescriptionFlagBits Flags;
@@ -1426,7 +1560,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentReference {
 
 		public uint Attachment;
@@ -1434,7 +1568,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassDescription {
 
 		public VKSubpassDescriptionFlagBits Flags;
@@ -1455,7 +1589,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassDependency {
 
 		public uint SrcSubpass;
@@ -1468,7 +1602,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassCreateInfo {
 
 		public VKStructureType Type;
@@ -1486,7 +1620,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKCommandPoolCreateInfo {
 
 		public VKStructureType Type;
@@ -1496,7 +1630,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKCommandBufferAllocateInfo {
 
 		public VKStructureType Type;
@@ -1507,7 +1641,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKCommandBufferInheritanceInfo {
 
 		public VKStructureType Type;
@@ -1521,7 +1655,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKCommandBufferBeginInfo {
 
 		public VKStructureType Type;
@@ -1532,7 +1666,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferCopy {
 
 		public VkDeviceSize SrcOffset;
@@ -1541,7 +1675,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageSubresourceLayers {
 
 		public VKImageAspectFlagBits AspectMask;
@@ -1551,7 +1685,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageCopy {
 
 		public VKImageSubresourceLayers SrcSubresource;
@@ -1562,7 +1696,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageBlit {
 
 		public VKImageSubresourceLayers SrcSubresource;
@@ -1588,7 +1722,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferImageCopy {
 
 		public VkDeviceSize BufferOffset;
@@ -1612,7 +1746,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKClearDepthStencilValue {
 
 		public float Depth;
@@ -1630,7 +1764,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKClearAttachment {
 
 		public VKImageAspectFlagBits AspectMask;
@@ -1639,7 +1773,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKClearRect {
 
 		public VKRect2D Rect;
@@ -1648,7 +1782,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageResolve {
 
 		public VKImageSubresourceLayers SrcSubresource;
@@ -1659,7 +1793,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryBarrier {
 
 		public VKStructureType Type;
@@ -1669,7 +1803,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferMemoryBarrier {
 
 		public VKStructureType Type;
@@ -1684,7 +1818,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageMemoryBarrier {
 
 		public VKStructureType Type;
@@ -1700,7 +1834,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassBeginInfo {
 
 		public VKStructureType Type;
@@ -1714,7 +1848,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDispatchIndirectCommand {
 
 		public uint X;
@@ -1723,7 +1857,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDrawIndexedIndirectCommand {
 
 		public uint IndexCount;
@@ -1734,7 +1868,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDrawIndirectCommand {
 
 		public uint VertexCount;
@@ -1744,7 +1878,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBaseOutStructure {
 
 		public VKStructureType Type;
@@ -1753,7 +1887,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBaseInStructure {
 
 		public VKStructureType Type;
@@ -1764,7 +1898,7 @@ namespace Tesseract.Vulkan {
 
 	// Vulkan 1.1
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSubgroupProperties {
 
 		public VKStructureType Type;
@@ -1776,7 +1910,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindBufferMemoryInfo {
 
 		public VKStructureType Type;
@@ -1787,7 +1921,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindImageMemoryInfo {
 
 		public VKStructureType Type;
@@ -1798,7 +1932,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDevice16BitStorageFeatures {
 
 		public VKStructureType Type;
@@ -1810,7 +1944,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryDedicatedRequirements {
 
 		public VKStructureType Type;
@@ -1820,7 +1954,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryDedicatedAllocateInfo {
 
 		public VKStructureType Type;
@@ -1830,7 +1964,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryAllocateFlagsInfo {
 
 		public VKStructureType Type;
@@ -1840,7 +1974,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceGroupRenderPassBeginInfo {
 
 		public VKStructureType Type;
@@ -1852,7 +1986,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceGroupCommandBufferBeginInfo {
 
 		public VKStructureType Type;
@@ -1861,7 +1995,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceGroupSubmitInfo {
 
 		public VKStructureType Type;
@@ -1878,7 +2012,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceGroupBindSparseInfo {
 
 		public VKStructureType Type;
@@ -1888,7 +2022,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindBufferMemoryDeviceGroupInfo {
 
 		public VKStructureType Type;
@@ -1899,7 +2033,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindImageMemoryDeviceGroupInfo {
 
 		public VKStructureType Type;
@@ -1913,7 +2047,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceGroupProperties {
 
 		public VKStructureType Type;
@@ -1925,7 +2059,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceGroupDeviceCreateInfo {
 
 		public VKStructureType Type;
@@ -1936,7 +2070,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferMemoryRequirementsInfo2 {
 
 		public VKStructureType Type;
@@ -1945,6 +2079,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageMemoryRequirementsInfo2 {
 
 		public VKStructureType Type;
@@ -1953,6 +2088,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageSparseMemoryRequirementsInfo2 {
 
 		public VKStructureType Type;
@@ -1961,6 +2097,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryRequirements2 {
 
 		public VKStructureType Type;
@@ -1969,6 +2106,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageMemoryRequirements2 {
 
 		public VKStructureType Type;
@@ -1977,6 +2115,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceFeatures2 {
 
 		public VKStructureType Type;
@@ -1985,6 +2124,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceProperties2 {
 
 		public VKStructureType Type;
@@ -1993,6 +2133,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKFormatProperties2 {
 
 		public VKStructureType Type;
@@ -2001,6 +2142,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageFormatProperties2 {
 
 		public VKStructureType Type;
@@ -2009,6 +2151,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceImageFormatInfo2 {
 
 		public VKStructureType SType;
@@ -2021,6 +2164,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKQueueFamilyProperties2 {
 
 		public VKStructureType Type;
@@ -2029,6 +2173,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMemoryProperties2 {
 
 		public VKStructureType Type;
@@ -2037,6 +2182,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageFormatProperties2 {
 
 		public VKStructureType Type;
@@ -2045,6 +2191,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSparseImageFormatInfo2 {
 
 		public VKStructureType SType;
@@ -2057,6 +2204,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDevicePointClippingProperties {
 
 		public VKStructureType Type;
@@ -2065,6 +2213,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKInputAttachmentAspectReference {
 
 		public uint Subpass;
@@ -2073,6 +2222,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassInputAttachmentAspectCreateInfo {
 
 		public VKStructureType Type;
@@ -2083,6 +2233,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageViewUsageCreateInfo {
 
 		public VKStructureType Type;
@@ -2091,6 +2242,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineTessellationDomainOriginStateCreateInfo {
 
 		public VKStructureType Type;
@@ -2099,6 +2251,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassMultiviewCreateInfo {
 
 		public VKStructureType Type;
@@ -2115,6 +2268,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMultiviewFeatures {
 
 		public VKStructureType Type;
@@ -2125,6 +2279,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMultiviewProperties {
 
 		public VKStructureType Type;
@@ -2134,6 +2289,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVariablePointersFeatures {
 
 		public VKStructureType Type;
@@ -2143,6 +2299,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceProtectedMemoryFeatures {
 
 		public VKStructureType Type;
@@ -2151,6 +2308,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceProtectedMemoryProperties {
 
 		public VKStructureType Type;
@@ -2159,6 +2317,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceQueueInfo2 {
 
 		public VKStructureType Type;
@@ -2169,6 +2328,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKProtectedSubmitInfo {
 
 		public VKStructureType Type;
@@ -2177,6 +2337,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSamplerYcbcrConversionCreateInfo {
 
 		public VKStructureType Type;
@@ -2192,6 +2353,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSamplerYcbcrConversionInfo {
 
 		public VKStructureType Type;
@@ -2200,6 +2362,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBindImagePlaneMemoryInfo {
 
 		public VKStructureType Type;
@@ -2208,6 +2371,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImagePlaneMemoryRequirementsInfo {
 
 		public VKStructureType Type;
@@ -2216,6 +2380,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSamplerYcbcrConversionFeatures {
 
 		public VKStructureType Type;
@@ -2224,6 +2389,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSamplerYcbcrConversionImageFormatProperties {
 
 		public VKStructureType Type;
@@ -2232,6 +2398,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorUpdateTemplateEntry {
 
 		public uint DstBinding;
@@ -2243,6 +2410,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorUpdateTemplateCreateInfo {
 
 		public VKStructureType Type;
@@ -2258,6 +2426,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalMemoryProperties {
 
 		public VKExternalMemoryFeatureFlagBits ExternalMemoryFeatureFlags;
@@ -2266,6 +2435,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceExternalImageFormatInfo {
 
 		public VKStructureType Type;
@@ -2274,6 +2444,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalImageFormatProperties {
 
 		public VKStructureType Type;
@@ -2282,6 +2453,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceExternalBufferInfo {
 
 		public VKStructureType Type;
@@ -2292,6 +2464,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalBufferProperties {
 
 		public VKStructureType Type;
@@ -2300,6 +2473,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceIDProperties {
 
 		public VKStructureType Type;
@@ -2315,6 +2489,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalMemoryImageCreateInfo {
 
 		public VKStructureType Type;
@@ -2323,6 +2498,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalMemoryBufferCreateInfo {
 
 		public VKStructureType Type;
@@ -2331,6 +2507,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExportMemoryAllocateInfo {
 
 		public VKStructureType Type;
@@ -2339,6 +2516,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceExternalFenceInfo {
 
 		public VKStructureType Type;
@@ -2347,6 +2525,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalFenceProperties {
 
 		public VKStructureType Type;
@@ -2357,6 +2536,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExportFenceCreateInfo {
 
 		public VKStructureType Type;
@@ -2365,6 +2545,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExportSemaphoreCreateInfo {
 
 		public VKStructureType Type;
@@ -2373,6 +2554,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceExternalSemaphoreInfo {
 
 		public VKStructureType Type;
@@ -2381,6 +2563,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExternalSemaphoreProperties {
 
 		public VKStructureType Type;
@@ -2391,6 +2574,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMaintenance3Properties {
 
 		public VKStructureType Type;
@@ -2400,6 +2584,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetLayoutSupport {
 
 		public VKStructureType Type;
@@ -2408,6 +2593,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceShaderDrawParametersFeatures {
 
 		public VKStructureType Type;
@@ -2418,6 +2604,7 @@ namespace Tesseract.Vulkan {
 
 	// Vulkan 1.2
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan11Features {
 
 		public VKStructureType Type;
@@ -2437,6 +2624,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan11Properties {
 
 		public VKStructureType Type;
@@ -2462,6 +2650,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan12Features {
 
 		public VKStructureType Type;
@@ -2516,6 +2705,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKConformanceVersion {
 
 		public byte Major;
@@ -2525,6 +2715,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan12Properties {
 
 		public VKStructureType Type;
@@ -2587,6 +2778,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageFormatListCreateInfo {
 
 		public VKStructureType Type;
@@ -2597,6 +2789,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentDescription2 {
 
 		public VKStructureType Type;
@@ -2613,6 +2806,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentReference2 {
 
 		public VKStructureType Type;
@@ -2623,6 +2817,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassDescription2 {
 
 		public VKStructureType Type;
@@ -2646,6 +2841,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassDependency2 {
 
 		public VKStructureType Type;
@@ -2661,6 +2857,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassCreateInfo2 {
 
 		public VKStructureType Type;
@@ -2681,6 +2878,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassBeginInfo {
 
 		public VKStructureType Type;
@@ -2689,6 +2887,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassEndInfo {
 
 		public VKStructureType Type;
@@ -2696,6 +2895,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDevice8BitStorageFeatures {
 
 		public VKStructureType Type;
@@ -2706,6 +2906,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceDriverProperties {
 
 		public VKStructureType Type;
@@ -2721,6 +2922,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceShaderAtomicInt64Features {
 
 		public VKStructureType Type;
@@ -2730,6 +2932,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceShaderFloat16Int8Features {
 
 		public VKStructureType Type;
@@ -2739,6 +2942,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceFloatControlsProperties {
 
 		public VKStructureType Type;
@@ -2763,6 +2967,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetLayoutBindingFlagsCreateInfo {
 
 		public VKStructureType Type;
@@ -2773,6 +2978,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceDescriptorIndexingFeatures {
 
 		public VKStructureType Type;
@@ -2800,6 +3006,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceDescriptorIndexingProperties {
 
 		public VKStructureType Type;
@@ -2829,6 +3036,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetVariableDescriptorCountAllocateInfo {
 
 		public VKStructureType Type;
@@ -2839,6 +3047,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDescriptorSetVariableDescriptorCountLayoutSupport {
 
 		public VKStructureType Type;
@@ -2847,6 +3056,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSubpassDescriptionDepthStencilResolve {
 
 		public VKStructureType Type;
@@ -2858,6 +3068,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceDepthStencilResolveProperties {
 
 		public VKStructureType Type;
@@ -2869,6 +3080,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceScalarBlockLayoutFeatures {
 
 		public VKStructureType Type;
@@ -2877,6 +3089,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageStencilUsageCreateInfo {
 
 		public VKStructureType Type;
@@ -2885,6 +3098,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSamplerReductionModeCreateInfo {
 
 		public VKStructureType Type;
@@ -2893,6 +3107,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSamplerFilterMinmaxProperties {
 
 		public VKStructureType Type;
@@ -2902,6 +3117,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkanMemoryModelFeatures {
 
 		public VKStructureType Type;
@@ -2912,6 +3128,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceImagelessFramebufferFeatures {
 
 		public VKStructureType Type;
@@ -2920,6 +3137,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKFramebufferAttachmentImageInfo {
 
 		public VKStructureType Type;
@@ -2935,6 +3153,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKFramebufferAttachmentsCreateInfo {
 
 		public VKStructureType Type;
@@ -2945,6 +3164,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRenderPassAttachmentBeginInfo {
 
 		public VKStructureType Type;
@@ -2955,6 +3175,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceUniformBufferStandardLayoutFeatures {
 
 		public VKStructureType Type;
@@ -2963,6 +3184,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceShaderSubgroupExtendedTypesFeatures {
 
 		public VKStructureType Type;
@@ -2971,6 +3193,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSeparateDepthStencilLayoutsFeatures {
 
 		public VKStructureType Type;
@@ -2979,6 +3202,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentReferenceStencilLayout {
 
 		public VKStructureType Type;
@@ -2987,6 +3211,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKAttachmentDescriptionStencilLayout {
 
 		public VKStructureType Type;
@@ -2996,6 +3221,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceHostQueryResetFeatures {
 
 		public VKStructureType Type;
@@ -3004,6 +3230,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceTimelineSemaphoreFeatures {
 
 		public VKStructureType Type;
@@ -3012,6 +3239,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceTimelineSemaphoreProperties {
 
 		public VKStructureType Type;
@@ -3020,6 +3248,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSemaphoreTypeCreateInfo {
 
 		public VKStructureType Type;
@@ -3029,6 +3258,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKTimelineSemaphoreSubmitInfo {
 
 		public VKStructureType Type;
@@ -3042,6 +3272,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSemaphoreWaitInfo {
 
 		public VKStructureType Type;
@@ -3055,6 +3286,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSemaphoreSignalInfo {
 
 		public VKStructureType Type;
@@ -3064,6 +3296,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceBufferDeviceAddressFeatures {
 
 		public VKStructureType Type;
@@ -3074,6 +3307,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferDeviceAddressInfo {
 
 		public VKStructureType Type;
@@ -3082,6 +3316,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKBufferOpaqueCaptureAddressCreateInfo {
 
 		public VKStructureType Type;
@@ -3090,6 +3325,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryOpaqueCaptureAddressAllocateInfo {
 
 		public VKStructureType Type;
@@ -3098,6 +3334,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VKDeviceMemoryOpaqueCaptureAddressInfo {
 
 		public VKStructureType Type;

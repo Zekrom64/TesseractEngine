@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Util;
+using System.Runtime.InteropServices;
 
 namespace Tesseract.Core.Math {
 
@@ -47,6 +48,7 @@ namespace Tesseract.Core.Math {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple2<T> : ITuple2<T> {
 
 		public T X { get; set; }
@@ -86,8 +88,13 @@ namespace Tesseract.Core.Math {
 
 		T IReadOnlyIndexer<int, T>.this[int key] => this[key];
 
+		public static implicit operator Tuple2<T>(ValueTuple<T,T> t) => new(t.Item1, t.Item2);
+
+		public static implicit operator ValueTuple<T,T>(Tuple2<T> t) => (t.X, t.Y);
+
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple3<T> : ITuple3<T> {
 
 		public T X { get; set; }
@@ -134,8 +141,13 @@ namespace Tesseract.Core.Math {
 
 		T IReadOnlyIndexer<int, T>.this[int key] => this[key];
 
+		public static implicit operator Tuple3<T>(ValueTuple<T,T,T> t) => new(t.Item1, t.Item2, t.Item3);
+
+		public static implicit operator ValueTuple<T,T,T>(Tuple3<T> t) => (t.X, t.Y, t.Z);
+
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple4<T> : ITuple4<T> {
 
 		public T X { get; set; }
@@ -188,6 +200,10 @@ namespace Tesseract.Core.Math {
 		}
 
 		T IReadOnlyIndexer<int, T>.this[int key] => this[key];
+
+		public static implicit operator Tuple4<T>(ValueTuple<T,T,T,T> t) => new(t.Item1, t.Item2, t.Item3, t.Item4);
+
+		public static implicit operator ValueTuple<T,T,T,T>(Tuple4<T> t) => (t.X, t.Y, t.Z, t.W);
 
 	}
 

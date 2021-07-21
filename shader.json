@@ -1,0 +1,39 @@
+{
+  "sources": {
+    "glsl": {
+      "vertex": "...",
+      "fragment": "..."
+    },
+    "spirv": {
+      "vertex": {
+        "path": "...",
+        "entry": "main"
+      },
+      "fragment": {
+        "path": "...",
+        "entry": "main"
+      }
+    }
+  },
+  "uniforms": {
+    "UGlobals": {
+      "type": "uniform_buffer",
+      "binding": 0,
+      "stages": [ "vertex" ]
+    }
+  },
+  "attributes": {
+    "inPosition": {
+      "type": "vec3",
+      "location": 0
+    },
+    "inTexCoord": {
+      "type": "vec2",
+      "location": 1
+    },
+    "inColor": {
+      "type": "vec3",
+      "location": 2
+    }
+  }
+}

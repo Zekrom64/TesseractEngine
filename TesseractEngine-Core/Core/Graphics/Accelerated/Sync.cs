@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -125,27 +126,49 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <returns></returns>
 		public bool HostPoll();
 
+		public class SyncAwaiter : INotifyCompletion {
+
+			private readonly ISync sync;
+			private readonly ulong timeout;
+
+			public bool IsComplete => sync.HostPoll();
+			
+			public void OnCompleted(Action continuation) {
+				Task.Run(continuation);
+			}
+
+			public bool GetResult() => sync.HostWait(timeout);
+
+			public SyncAwaiter(ISync sync, ulong timeout) {
+				this.sync = sync;
+				this.timeout = timeout;
+			}
+
+		}
+
+		public SyncAwaiter GetAwaiter(ulong timeout = ulong.MaxValue) => new(this, timeout);
+
 	}
 
 	/// <summary>
 	/// Sync object creation information structure.
 	/// </summary>
-	public struct SyncCreateInfo {
+	public record SyncCreateInfo {
 
 		/// <summary>
 		/// Required synchonrization granularity for the sync object.
 		/// </summary>
-		public SyncGranularity Granularity { get; set; }
+		public SyncGranularity Granularity { get; init; }
 
 		/// <summary>
 		///  Required synchronization direction for the sync object.
 		/// </summary>
-		public SyncDirection Direction { get; set; }
+		public SyncDirection Direction { get; init; }
 
 		/// <summary>
 		/// Bitmask of required features for the sync object.
 		/// </summary>
-		public SyncFeatures Features { get; set; }
+		public SyncFeatures Features { get; init; }
 
 	}
 

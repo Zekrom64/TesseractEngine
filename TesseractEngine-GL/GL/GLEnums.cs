@@ -193,6 +193,13 @@ namespace Tesseract.GL {
 		Uniform = GLEnums.GL_UNIFORM_BUFFER
 	}
 
+	public enum GLBufferRangeTarget : uint {
+		AtomicCounter = GLEnums.GL_ATOMIC_COUNTER_BUFFER,
+		TransformFeedback = GLEnums.GL_TRANSFORM_FEEDBACK_BUFFER,
+		Uniform = GLEnums.GL_UNIFORM_BUFFER,
+		ShaderStorage = GLEnums.GL_SHADER_STORAGE_BUFFER
+	}
+
 	public enum GLBufferUsage : uint {
 		StreamDraw = GLEnums.GL_STREAM_DRAW,
 		StreamRead = GLEnums.GL_STREAM_READ,
@@ -223,7 +230,8 @@ namespace Tesseract.GL {
 
 	public enum GLGetQueryObject : uint {
 		Result = GLEnums.GL_QUERY_RESULT,
-		ResultAvailable = GLEnums.GL_QUERY_RESULT_AVAILABLE
+		ResultNoWait = GLEnums.GL_QUERY_NO_WAIT,
+		ResultAvailable = GLEnums.GL_QUERY_RESULT_AVAILABLE,
 	}
 
 	public enum GLGetQueryTarget : uint {
@@ -232,13 +240,13 @@ namespace Tesseract.GL {
 		AnySamplesPassedConservative = GLEnums.GL_ANY_SAMPLES_PASSED_CONSERVATIVE,
 		PrimitivesGenerated = GLEnums.GL_PRIMITIVES_GENERATED,
 		TransformFeedbackPrimitivesWritten = GLEnums.GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN,
-		TimeElapsed = GLEnums.GL_TIME_ELAPSED,
-		Timestamp = GLEnums.GL_TIMESTAMP
+		TimeElapsed = GLEnums.GL_TIME_ELAPSED
 	}
 
 	public enum GLGetQuery : uint {
 		CurrentQuery = GLEnums.GL_CURRENT_QUERY,
-		CounterBits = GLEnums.GL_QUERY_COUNTER_BITS
+		CounterBits = GLEnums.GL_QUERY_COUNTER_BITS,
+		Timestamp = GLEnums.GL_TIMESTAMP
 	}
 
 	public enum GLMapAccess : uint {
@@ -288,7 +296,7 @@ namespace Tesseract.GL {
 		Max = GLEnums.GL_MAX
 	}
 
-	public enum GLClearMask : uint {
+	public enum GLBufferMask : uint {
 		Color = GLEnums.GL_COLOR_BUFFER_BIT,
 		Depth = GLEnums.GL_DEPTH_BUFFER_BIT,
 		Stencil = GLEnums.GL_STENCIL_BUFFER_BIT
@@ -334,6 +342,11 @@ namespace Tesseract.GL {
 		StencilTest = GLEnums.GL_STENCIL_TEST,
 		TextureCubeMapSeamless = GLEnums.GL_TEXTURE_CUBE_MAP_SEAMLESS,
 		ProgramPointSize = GLEnums.GL_PROGRAM_POINT_SIZE
+	}
+
+	public enum GLIndexedCapability : uint {
+		Blend = GLEnums.GL_BLEND,
+		ScissorTest = GLEnums.GL_SCISSOR_TEST
 	}
 
 	public enum GLDrawBuffer : uint {
@@ -607,19 +620,10 @@ namespace Tesseract.GL {
 		ByRegionNoWait = GLEnums.GL_QUERY_BY_REGION_NO_WAIT
 	}
 
-	public enum GLClampColorTarget : uint {
-		ClampReadColor = GLEnums.GL_CLAMP_READ_COLOR
-	}
-
 	public enum GLClearBuffer : uint {
 		Color = GLEnums.GL_COLOR,
 		Depth = GLEnums.GL_DEPTH,
 		Stencil = GLEnums.GL_STENCIL
-	}
-
-	public enum GLIndexedCapability : uint {
-		Blend = GLEnums.GL_BLEND,
-		ScissorTest = GLEnums.GL_SCISSOR_TEST
 	}
 
 	public enum GLGetVertexAttrib : uint {
@@ -637,9 +641,219 @@ namespace Tesseract.GL {
 		CurrentVertexAttrib = GLEnums.GL_CURRENT_VERTEX_ATTRIB
 	}
 
-	public enum GLFeedbackBufferMode : uint {
+	public enum GLMapAccessFlags : uint {
+		Read = GLEnums.GL_MAP_READ_BIT,
+		Write = GLEnums.GL_MAP_WRITE_BIT,
+		InvalidateRange = GLEnums.GL_MAP_INVALIDATE_RANGE_BIT,
+		InvalidateBuffer = GLEnums.GL_MAP_INVALIDATE_BUFFER_BIT,
+		FlushExplicit = GLEnums.GL_MAP_FLUSH_EXPLICIT_BIT,
+		Unsynchronized = GLEnums.GL_MAP_UNSYNCHRONIZED_BIT
+	}
+
+	public enum GLPatchParamteri : uint {
+		Vertices = GLEnums.GL_PATCH_VERTICES
+	}
+
+	public enum GLPatchParamterfv : uint {
+		DefaultInnerLevel = GLEnums.GL_PATCH_DEFAULT_INNER_LEVEL,
+		DefaultOuterLevel = GLEnums.GL_PATCH_DEFAULT_OUTER_LEVEL
+	}
+
+	public enum GLTransformFeedbackBufferMode : uint {
 		InterleavedAttribs = GLEnums.GL_INTERLEAVED_ATTRIBS,
 		SeparateAttribs = GLEnums.GL_SEPARATE_ATTRIBS
+	}
+
+	public enum GLClampColorTarget : uint {
+		VertexColor = GLEnums.GL_CLAMP_VERTEX_COLOR,
+		FragmentColor = GLEnums.GL_CLAMP_FRAGMENT_COLOR,
+		ReadColor = GLEnums.GL_CLAMP_READ_COLOR
+	}
+
+	public enum GLClampColorMode : uint {
+		FixedOnly = GLEnums.GL_FIXED_ONLY,
+		False = GLEnums.GL_FALSE,
+		True = GLEnums.GL_TRUE
+	}
+
+	public enum GLRenderbufferTarget : uint {
+		Renderbuffer = GLEnums.GL_RENDERBUFFER
+	}
+
+	public enum GLFramebufferTarget : uint {
+		Draw = GLEnums.GL_DRAW_FRAMEBUFFER,
+		Read = GLEnums.GL_READ_FRAMEBUFFER,
+		Framebuffer = GLEnums.GL_FRAMEBUFFER
+	}
+
+	public enum GLGetRenderbuffer : uint {
+		Width = GLEnums.GL_RENDERBUFFER_WIDTH,
+		Height = GLEnums.GL_RENDERBUFFER_HEIGHT,
+		InternalFormat = GLEnums.GL_RENDERBUFFER_INTERNAL_FORMAT,
+		RedSize = GLEnums.GL_RENDERBUFFER_RED_SIZE,
+		GreenSize = GLEnums.GL_RENDERBUFFER_GREEN_SIZE,
+		BlueSize = GLEnums.GL_RENDERBUFFER_BLUE_SIZE,
+		AlphaSize = GLEnums.GL_RENDERBUFFER_ALPHA_SIZE,
+		DepthSize = GLEnums.GL_RENDERBUFFER_DEPTH_SIZE,
+		StencilSize = GLEnums.GL_RENDERBUFFER_STENCIL_SIZE,
+		Samples = GLEnums.GL_RENDERBUFFER_SAMPLES
+	}
+
+	public enum GLFramebufferStatus : uint {
+		Complete = GLEnums.GL_FRAMEBUFFER_COMPLETE,
+		Undefined = GLEnums.GL_FRAMEBUFFER_UNDEFINED,
+		IncompleteAttachment = GLEnums.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT,
+		IncompleteMissingAttachment = GLEnums.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
+		Unsupported = GLEnums.GL_FRAMEBUFFER_UNSUPPORTED,
+		IncompleteMultisample = GLEnums.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+	}
+
+	public enum GLFramebufferAttachment : uint {
+		Color0 = GLEnums.GL_COLOR_ATTACHMENT0,
+		Color1 = GLEnums.GL_COLOR_ATTACHMENT1,
+		Color2 = GLEnums.GL_COLOR_ATTACHMENT2,
+		Color3 = GLEnums.GL_COLOR_ATTACHMENT3,
+		Color4 = GLEnums.GL_COLOR_ATTACHMENT4,
+		Color5 = GLEnums.GL_COLOR_ATTACHMENT5,
+		Color6 = GLEnums.GL_COLOR_ATTACHMENT6,
+		Color7 = GLEnums.GL_COLOR_ATTACHMENT7,
+		Color8 = GLEnums.GL_COLOR_ATTACHMENT8,
+		Color9 = GLEnums.GL_COLOR_ATTACHMENT9,
+		Color10 = GLEnums.GL_COLOR_ATTACHMENT10,
+		Color11 = GLEnums.GL_COLOR_ATTACHMENT11,
+		Color12 = GLEnums.GL_COLOR_ATTACHMENT12,
+		Color13 = GLEnums.GL_COLOR_ATTACHMENT13,
+		Color14 = GLEnums.GL_COLOR_ATTACHMENT14,
+		Color15 = GLEnums.GL_COLOR_ATTACHMENT15,
+		Depth = GLEnums.GL_DEPTH_ATTACHMENT,
+		Stencil = GLEnums.GL_STENCIL_ATTACHMENT
+	}
+
+	public enum GLGetFramebufferAttachment : uint {
+		RedSize = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
+		GreenSize = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE,
+		BlueSize = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE,
+		AlphaSize = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
+		DepthSize = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
+		ComponentType = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE,
+		ColorEncoding = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
+		TextureLevel = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL,
+		TextureCubeMapFace = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE,
+		Layered = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_LAYERED,
+		TextureLayer = GLEnums.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER
+	}
+
+	public enum GLFilter : uint {
+		Linear = GLEnums.GL_LINEAR,
+		Nearest = GLEnums.GL_NEAREST
+	}
+
+	public enum GLDebugSource : uint {
+		API = GLEnums.GL_DEBUG_SOURCE_API_ARB,
+		WindowSystem = GLEnums.GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB,
+		ShaderCompiler = GLEnums.GL_DEBUG_SOURCE_SHADER_COMPILER_ARB,
+		ThirdParty = GLEnums.GL_DEBUG_SOURCE_THIRD_PARTY_ARB,
+		Application = GLEnums.GL_DEBUG_SOURCE_APPLICATION_ARB,
+		Other = GLEnums.GL_DEBUG_SOURCE_OTHER
+	}
+
+	public enum GLDebugType : uint {
+		Error = GLEnums.GL_DEBUG_TYPE_ERROR_ARB,
+		DeprecatedBehavior = GLEnums.GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB,
+		UndefinedBehavior = GLEnums.GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB,
+		Portability = GLEnums.GL_DEBUG_TYPE_PORTABILITY_ARB,
+		Performance = GLEnums.GL_DEBUG_TYPE_PERFORMANCE_ARB,
+		Other = GLEnums.GL_DEBUG_TYPE_OTHER_ARB
+	}
+
+	public enum GLDebugSeverity : uint {
+		High = GLEnums.GL_DEBUG_SEVERITY_HIGH_ARB,
+		Medium = GLEnums.GL_DEBUG_SEVERITY_MEDIUM_ARB,
+		Low = GLEnums.GL_DEBUG_SEVERITY_LOW_ARB
+	}
+
+	public enum GLGetActiveUniform : uint {
+		Type = GLEnums.GL_UNIFORM_TYPE,
+		Size = GLEnums.GL_UNIFORM_SIZE,
+		NameLength = GLEnums.GL_UNIFORM_NAME_LENGTH,
+		BlockIndex = GLEnums.GL_UNIFORM_BLOCK_INDEX,
+		Offset = GLEnums.GL_UNIFORM_OFFSET,
+		ArrayStride = GLEnums.GL_UNIFORM_ARRAY_STRIDE,
+		MatrixStride = GLEnums.GL_UNIFORM_MATRIX_STRIDE,
+		IsRowMajor = GLEnums.GL_UNIFORM_IS_ROW_MAJOR,
+		AtomicCounterBufferIndex = GLEnums.GL_UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX
+	}
+
+	public enum GLGetActiveUniformBlock : uint {
+		Binding = GLEnums.GL_UNIFORM_BLOCK_BINDING,
+		DataSize = GLEnums.GL_UNIFORM_BLOCK_DATA_SIZE,
+		NameLength = GLEnums.GL_UNIFORM_BLOCK_NAME_LENGTH,
+		ActiveUniforms = GLEnums.GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,
+		ActiveUniformIndices = GLEnums.GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES,
+		ReferencedByVertexShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER,
+		ReferencedByTessControlShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER,
+		ReferencedByTessEvaluationShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER,
+		ReferencedByGeometryShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_GEOMETRY_SHADER,
+		ReferencedByFragmentShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER,
+		ReferencedByComputeShader = GLEnums.GL_UNIFORM_BLOCK_REFERENCED_BY_COMPUTE_SHADER
+	}
+
+	public enum GLProvokingVertexConvention : uint {
+		FirstVertex = GLEnums.GL_FIRST_VERTEX_CONVENTION,
+		LastVertex = GLEnums.GL_LAST_VERTEX_CONVENTION
+	}
+
+	public enum GLGetMutlisample : uint {
+		SamplePosition = GLEnums.GL_SAMPLE_POSITION
+	}
+
+	public enum GLSyncCondition : uint {
+		GPUCommandsComplete = GLEnums.GL_SYNC_GPU_COMMANDS_COMPLETE
+	}
+
+	public enum GLSyncFlags : uint {
+		FlushCommands = GLEnums.GL_SYNC_FLUSH_COMMANDS_BIT
+	}
+
+	public enum GLGetSync : uint {
+		ObjectType = GLEnums.GL_OBJECT_TYPE,
+		SyncStatus = GLEnums.GL_SYNC_STATUS,
+		SyncCondition = GLEnums.GL_SYNC_CONDITION,
+		SyncFlags = GLEnums.GL_SYNC_FLAGS
+	}
+
+	public enum GLProgramParameter : uint {
+		VerticesOut = GLEnums.GL_GEOMETRY_VERTICES_OUT,
+		InputType = GLEnums.GL_GEOMETRY_INPUT_TYPE,
+		OutputType = GLEnums.GL_GEOMETRY_OUTPUT_TYPE
+	}
+
+	public enum GLCubeMapFace : uint {
+		PositiveX = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		NegativeX = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		PositiveY = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		NegativeY = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		PositiveZ = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		NegativeZ = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	}
+
+	public enum GLQueryCounterTarget : uint {
+		Timestamp = GLEnums.GL_TIMESTAMP
+	}
+
+	public enum GLSamplerParameter : uint {
+		WrapS = GLEnums.GL_TEXTURE_WRAP_S,
+		WrapT = GLEnums.GL_TEXTURE_WRAP_T,
+		WrapR = GLEnums.GL_TEXTURE_WRAP_R,
+		MinFilter = GLEnums.GL_TEXTURE_MIN_FILTER,
+		MagFilter = GLEnums.GL_TEXTURE_MAG_FILTER,
+		BorderColor = GLEnums.GL_TEXTURE_BORDER_COLOR,
+		MinLOD = GLEnums.GL_TEXTURE_MIN_LOD,
+		MaxLOD = GLEnums.GL_TEXTURE_MAX_LOD,
+		LODBias = GLEnums.GL_TEXTURE_LOD_BIAS,
+		CompareMode = GLEnums.GL_TEXTURE_COMPARE_MODE,
+		CompareFunc = GLEnums.GL_TEXTURE_COMPARE_FUNC,
+		MaxAnisotropy = GLEnums.GL_TEXTURE_MAX_ANISOTROPY_EXT
 	}
 
 }

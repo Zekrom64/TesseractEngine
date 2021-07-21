@@ -31,6 +31,210 @@ namespace Tesseract.GL.Native {
 
 	public class GL11Functions {
 
+		public delegate void PFN_glAccum(GLenum op, GLfloat value);
+		public delegate void PFN_glAlphaFunc(GLenum func, GLclampf _ref);
+		public delegate GLboolean PFN_glAreTexturesResident(GLsizei n, [NativeType("const GLuint*")] IntPtr textures, [NativeType("GLboolean*")] IntPtr residences);
+		public delegate void PFN_glArrayElement(GLint i);
+		public delegate void PFN_glBegin(GLenum mode);
+		public delegate void PFN_glBindTexture(GLenum target, GLuint texture);
+		public delegate void PFN_glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, [NativeType("const GLubyte*")] IntPtr bitmap);
+		public delegate void PFN_glBlendFunc(GLenum sfactor, GLenum dfactor);
+		public delegate void PFN_glCallList(GLuint list);
+		public delegate void PFN_glCallLists(GLsizei n, GLenum type, IntPtr lists);
+		public delegate void PFN_glClear(GLbitfield mask);
+		public delegate void PFN_glClearAccum(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+		public delegate void PFN_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+		public delegate void PFN_glClearDepth(GLclampd depth);
+		public delegate void PFN_glClearIndex(GLfloat c);
+		public delegate void PFN_glClearStencil(GLint s);
+		public delegate void PFN_glClipPlane(GLenum plane, [NativeType("const GLdouble*")] IntPtr equation);
+		// glColor3/4*
+		/*
+		public delegate void PFN_glColor3b(GLbyte red, GLbyte green, GLbyte blue);
+		public delegate void PFN_glColor3bv([NativeType("const GLbyte*")] IntPtr v);
+		public delegate void PFN_glColor3d(GLdouble red, GLdouble green, GLdouble blue);
+		public delegate void PFN_glColor3dv([NativeType("const GLdouble*")] IntPtr v);
+		public delegate void PFN_glColor3f(GLfloat red, GLfloat green, GLfloat blue);
+		public delegate void PFN_glColor3fv([NativeType("const GLfloat*")] IntPtr v);
+		public delegate void PFN_glColor3i(GLint red, GLint green, GLint blue);
+		public delegate void PFN_glColor3iv([NativeType("const GLint*")] IntPtr v);
+		*/
+		public delegate void PFN_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+		public delegate void PFN_glColorMaterial(GLenum face, GLenum mode);
+		public delegate void PFN_glColorPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
+		public delegate void PFN_glCopyTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei border);
+		public delegate void PFN_glCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLsizei border);
+		public delegate void PFN_glCopyTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLint x, GLint y, GLsizei width);
+		public delegate void PFN_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+		public delegate void PFN_glCullFace(GLenum mode);
+		public delegate void PFN_glDeleteLists(GLuint list, GLsizei range);
+		public delegate void PFN_glDeleteTextures(GLsizei n, [NativeType("const GLuint*")] IntPtr textures);
+		public delegate void PFN_glDepthFunc(GLenum func);
+		public delegate void PFN_glDepthMask(GLboolean flag);
+		public delegate void PFN_glDepthRange(GLclampd zNear, GLclampd zFar);
+		public delegate void PFN_glDisable(GLenum cap);
+		public delegate void PFN_glDisableClientState(GLenum array);
+		public delegate void PFN_glDrawArrays(GLenum mode, GLint first, GLsizei count);
+		public delegate void PFN_glDrawBuffer(GLenum mode);
+		public delegate void PFN_glDrawElements(GLenum mode, GLsizei count, GLenum type, IntPtr indices);
+		public delegate void PFN_glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glEdgeFlag(GLboolean flag);
+		public delegate void PFN_glEdgeFlagPointer(GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glEnable(GLenum cap);
+		public delegate void PFN_glEnableClientState(GLenum array);
+		public delegate void PFN_glEnd();
+		public delegate void PFN_glEndList();
+		// glEvalCoord1/2*
+		public delegate void PFN_glEvalMesh1(GLenum mode, GLint i1, GLint i2);
+		public delegate void PFN_glEvalMesh2(GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2);
+		public delegate void PFN_glEvalPoint1(GLint i);
+		public delegate void PFN_glEvalPoint2(GLint i, GLint j);
+		public delegate void PFN_glFeedbackBuffer(GLsizei size, GLenum type, [NativeType("GLfloat*")] IntPtr buffer);
+		public delegate void PFN_glFinish();
+		public delegate void PFN_glFlush();
+		public delegate void PFN_glFogf(GLenum pname, GLfloat param);
+		public delegate void PFN_glFogfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glFogi(GLenum pname, GLint param);
+		public delegate void PFN_glFogiv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glFrontFace(GLenum mode);
+		public delegate void PFN_glFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+		public delegate GLuint PFN_glGenLists(GLsizei range);
+		public delegate void PFN_glGenTextures(GLsizei n, [NativeType("GLuint*")] IntPtr textures);
+		public delegate void PFN_glGetBooleanv(GLenum pname, [NativeType("GLboolean*")] IntPtr _params);
+		public delegate void PFN_glGetClipPlane(GLenum plane, [NativeType("GLdouble*")] IntPtr equation);
+		public delegate void PFN_glGetDoublev(GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
+		public delegate GLenum PFN_glGetError();
+		public delegate void PFN_glGetFloatv(GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetIntegerv(GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetLightfv(GLenum light, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetLightiv(GLenum light, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetMapdv(GLenum target, GLenum query, [NativeType("GLdouble*")] IntPtr v);
+		public delegate void PFN_glGetMapfv(GLenum target, GLenum query, [NativeType("GLfloat*")] IntPtr v);
+		public delegate void PFN_glGetMapiv(GLenum target, GLenum query, [NativeType("GLint*")] IntPtr v);
+		public delegate void PFN_glGetMaterialfv(GLenum face, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetMaterialiv(GLenum face, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetPixelMapfv(GLenum map, [NativeType("GLfloat*")] IntPtr values);
+		public delegate void PFN_glGetPixelMapuiv(GLenum map, [NativeType("GLuint*")] IntPtr values);
+		public delegate void PFN_glGetPixelMapusv(GLenum map, [NativeType("GLushort*")] IntPtr values);
+		public delegate void PFN_glGetPointerv(GLenum pname, [NativeType("void**")] IntPtr _params);
+		public delegate void PFN_glGetPolygonStipple([NativeType("GLubyte*")] IntPtr mask);
+		[return: NativeType("const GLubyte*")]
+		public delegate IntPtr PFN_glGetString(GLenum name);
+		public delegate void PFN_glGetTexEnvfv(GLenum target, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetTexEnviv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetTexGendv(GLenum coord, GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
+		public delegate void PFN_glGetTexGenfv(GLenum coord, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetTexGeniv(GLenum coord, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetTexParameterf(GLenum target, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetTexParameteri(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glHint(GLenum target, GLenum mode);
+		public delegate void PFN_glIndexMask(GLuint mask);
+		public delegate void PFN_glIndexPointer(GLenum type, GLsizei stride, IntPtr pointer);
+		// glIndex*
+		public delegate void PFN_glInitNames();
+		public delegate void PFN_glInterleavedArrays(GLenum format, GLsizei stride, IntPtr pointer);
+		public delegate GLboolean PFN_glIsEnabled(GLenum cap);
+		public delegate GLboolean PFN_glIsList(GLuint list);
+		public delegate GLboolean PFN_glIsTexture(GLuint texture);
+		public delegate void PFN_glLightModelf(GLenum pname, GLfloat param);
+		public delegate void PFN_glLightModelfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glLightModeli(GLenum pname, GLint param);
+		public delegate void PFN_glLightModeliv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glLightf(GLenum light, GLenum pname, GLfloat param);
+		public delegate void PFN_glLightfv(GLenum light, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glLighti(GLenum light, GLenum pname, GLint param);
+		public delegate void PFN_glLightiv(GLenum light, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glLineStipple(GLint factor, GLushort pattern);
+		public delegate void PFN_glLineWidth(GLfloat width);
+		public delegate void PFN_glListBase(GLuint _base);
+		public delegate void PFN_glLoadIdentity();
+		public delegate void PFN_glLoadMatrixd([NativeType("const GLdouble*")] IntPtr m);
+		public delegate void PFN_glLoadMatrixf([NativeType("const GLfloat*")] IntPtr m);
+		public delegate void PFN_glLoadName(GLuint name);
+		public delegate void PFN_glLogicOp(GLenum opcode);
+		// glMap1/2*
+		// glMapGrid1/2
+		public delegate void PFN_glMaterialf(GLenum face, GLenum pname, GLfloat param);
+		public delegate void PFN_glMaterialfv(GLenum face, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glMateriali(GLenum face, GLenum pname, GLint param);
+		public delegate void PFN_glMaterialiv(GLenum face, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glMatrixMode(GLenum mode);
+		public delegate void PFN_glMultMatrixd([NativeType("const GLdouble*")] IntPtr m);
+		public delegate void PFN_glMultMatrixf([NativeType("const GLfloat*")] IntPtr m);
+		public delegate void PFN_glNewList(GLuint list, GLenum mode);
+		// glNormal3*
+		public delegate void PFN_glNormalPointer(GLenum type, GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+		public delegate void PFN_glPassThrough(GLfloat token);
+		public delegate void PFN_glPixelMapfv(GLenum map, GLsizei mapsize, [NativeType("GLfloat*")] IntPtr values);
+		public delegate void PFN_glPixelMapuiv(GLenum map, GLsizei mapsize, [NativeType("GLuint*")] IntPtr values);
+		public delegate void PFN_glPixelMapusv(GLenum map, GLsizei mapsize, [NativeType("GLushort*")] IntPtr values);
+		public delegate void PFN_glPixelStoref(GLenum pname, GLfloat param);
+		public delegate void PFN_glPixelStorei(GLenum pname, GLint param);
+		public delegate void PFN_glPixelTransferf(GLenum pname, GLfloat param);
+		public delegate void PFN_glPixelTransferi(GLenum pname, GLint param);
+		public delegate void PFN_glPixelZoom(GLfloat xfactor, GLfloat yfactor);
+		public delegate void PFN_glPointSize(GLfloat size);
+		public delegate void PFN_glPolygonMode(GLenum face, GLenum mode);
+		public delegate void PFN_glPolygonOffset(GLfloat factor, GLfloat units);
+		public delegate void PFN_glPolygonStipple([NativeType("const GLubyte*")] IntPtr mask);
+		public delegate void PFN_glPopAttrib();
+		public delegate void PFN_glPopClientAttrib();
+		public delegate void PFN_glPopMatrix();
+		public delegate void PFN_glPopName();
+		public delegate void PFN_glPrioritizeTextures(GLsizei n, [NativeType("const GLuint*")] IntPtr textures, [NativeType("const GLclampf*")] IntPtr priorities);
+		public delegate void PFN_glPushAttrib(GLbitfield mask);
+		public delegate void PFN_glPushClientAttrib(GLbitfield mask);
+		public delegate void PFN_glPushMatrix();
+		public delegate void PFN_glPushName(GLuint name);
+		// glRasterPos2/3/4*
+		public delegate void PFN_glReadBuffer(GLenum mode);
+		public delegate void PFN_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glRectd(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2);
+		public delegate void PFN_glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+		public delegate void PFN_glRecti(GLint x1, GLint y1, GLint x2, GLint y2);
+		public delegate void PFN_glRects(GLshort x1, GLshort y1, GLshort x2, GLshort y2);
+		public delegate GLint PFN_glRenderMode(GLenum mode);
+		public delegate void PFN_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
+		public delegate void PFN_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+		public delegate void PFN_glScaled(GLdouble x, GLdouble y, GLdouble z);
+		public delegate void PFN_glScalef(GLfloat x, GLfloat y, GLfloat z);
+		public delegate void PFN_glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+		public delegate void PFN_glSelectBuffer(GLsizei size, [NativeType("GLuint*")] IntPtr buffer);
+		public delegate void PFN_glShadeModel(GLenum mode);
+		public delegate void PFN_glStencilFunc(GLenum func, GLint _ref, GLuint mask);
+		public delegate void PFN_glStencilMask(GLuint mask);
+		public delegate void PFN_glStencilOp(GLenum fail, GLenum zfail, GLenum zpass);
+		// glTexCoord1/2/3/4*
+		public delegate void PFN_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glTexEnvf(GLenum target, GLenum pname, GLfloat param);
+		public delegate void PFN_glTexEnvfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glTexEnvi(GLenum target, GLenum pname, GLint param);
+		public delegate void PFN_glTexEnviv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glTexGend(GLenum target, GLenum pname, GLdouble param);
+		public delegate void PFN_glTexGendv(GLenum target, GLenum pname, [NativeType("const GLdouble*")] IntPtr _params);
+		public delegate void PFN_glTexGenf(GLenum target, GLenum pname, GLfloat param);
+		public delegate void PFN_glTexGenfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glTexGeni(GLenum target, GLenum pname, GLint param);
+		public delegate void PFN_glTexGeniv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glTexImage1D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glTexParameterf(GLenum target, GLenum pname, GLfloat param);
+		public delegate void PFN_glTexParameterfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glTexParameteri(GLenum target, GLenum pname, GLint param);
+		public delegate void PFN_glTexParameteriv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		public delegate void PFN_glTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glTranslated(GLdouble x, GLdouble y, GLdouble z);
+		public delegate void PFN_glTranslatef(GLfloat x, GLfloat y, GLfloat z);
+		// glVertex2/3/4*
+		public delegate void PFN_glVertexPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+
 		public PFN_glAccum glAccum;
 		public PFN_glAlphaFunc glAlphaFunc;
 		public PFN_glAreTexturesResident glAreTexturesResident;
@@ -217,211 +421,12 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glAccum(GLenum op, GLfloat value);
-	public delegate void PFN_glAlphaFunc(GLenum func, GLclampf _ref);
-	public delegate GLboolean PFN_glAreTexturesResident(GLsizei n, [NativeType("const GLuint*")] IntPtr textures, [NativeType("GLboolean*")] IntPtr residences);
-	public delegate void PFN_glArrayElement(GLint i);
-	public delegate void PFN_glBegin(GLenum mode);
-	public delegate void PFN_glBindTexture(GLenum target, GLuint texture);
-	public delegate void PFN_glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, [NativeType("const GLubyte*")] IntPtr bitmap);
-	public delegate void PFN_glBlendFunc(GLenum sfactor, GLenum dfactor);
-	public delegate void PFN_glCallList(GLuint list);
-	public delegate void PFN_glCallLists(GLsizei n, GLenum type, IntPtr lists);
-	public delegate void PFN_glClear(GLbitfield mask);
-	public delegate void PFN_glClearAccum(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-	public delegate void PFN_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-	public delegate void PFN_glClearDepth(GLclampd depth);
-	public delegate void PFN_glClearIndex(GLfloat c);
-	public delegate void PFN_glClearStencil(GLint s);
-	public delegate void PFN_glClipPlane(GLenum plane, [NativeType("const GLdouble*")] IntPtr equation);
-	// glColor3/4*
-	/*
-	public delegate void PFN_glColor3b(GLbyte red, GLbyte green, GLbyte blue);
-	public delegate void PFN_glColor3bv([NativeType("const GLbyte*")] IntPtr v);
-	public delegate void PFN_glColor3d(GLdouble red, GLdouble green, GLdouble blue);
-	public delegate void PFN_glColor3dv([NativeType("const GLdouble*")] IntPtr v);
-	public delegate void PFN_glColor3f(GLfloat red, GLfloat green, GLfloat blue);
-	public delegate void PFN_glColor3fv([NativeType("const GLfloat*")] IntPtr v);
-	public delegate void PFN_glColor3i(GLint red, GLint green, GLint blue);
-	public delegate void PFN_glColor3iv([NativeType("const GLint*")] IntPtr v);
-	*/
-	public delegate void PFN_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-	public delegate void PFN_glColorMaterial(GLenum face, GLenum mode);
-	public delegate void PFN_glColorPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
-	public delegate void PFN_glCopyTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei border);
-	public delegate void PFN_glCopyTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLsizei border);
-	public delegate void PFN_glCopyTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLint x, GLint y, GLsizei width);
-	public delegate void PFN_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-	public delegate void PFN_glCullFace(GLenum mode);
-	public delegate void PFN_glDeleteLists(GLuint list, GLsizei range);
-	public delegate void PFN_glDeleteTextures(GLsizei n, [NativeType("const GLuint*")] IntPtr textures);
-	public delegate void PFN_glDepthFunc(GLenum func);
-	public delegate void PFN_glDepthMask(GLboolean flag);
-	public delegate void PFN_glDepthRange(GLclampd zNear, GLclampd zFar);
-	public delegate void PFN_glDisable(GLenum cap);
-	public delegate void PFN_glDisableClientState(GLenum array);
-	public delegate void PFN_glDrawArrays(GLenum mode, GLint first, GLsizei count);
-	public delegate void PFN_glDrawBuffer(GLenum mode);
-	public delegate void PFN_glDrawElements(GLenum mode, GLsizei count, GLenum type, IntPtr indices);
-	public delegate void PFN_glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glEdgeFlag(GLboolean flag);
-	public delegate void PFN_glEdgeFlagPointer(GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glEnable(GLenum cap);
-	public delegate void PFN_glEnableClientState(GLenum array);
-	public delegate void PFN_glEnd();
-	public delegate void PFN_glEndList();
-	// glEvalCoord1/2*
-	public delegate void PFN_glEvalMesh1(GLenum mode, GLint i1, GLint i2);
-	public delegate void PFN_glEvalMesh2(GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2);
-	public delegate void PFN_glEvalPoint1(GLint i);
-	public delegate void PFN_glEvalPoint2(GLint i, GLint j);
-	public delegate void PFN_glFeedbackBuffer(GLsizei size, GLenum type, [NativeType("GLfloat*")] IntPtr buffer);
-	public delegate void PFN_glFinish();
-	public delegate void PFN_glFlush();
-	public delegate void PFN_glFogf(GLenum pname, GLfloat param);
-	public delegate void PFN_glFogfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glFogi(GLenum pname, GLint param);
-	public delegate void PFN_glFogiv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glFrontFace(GLenum mode);
-	public delegate void PFN_glFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-	public delegate GLuint PFN_glGenLists(GLsizei range);
-	public delegate void PFN_glGenTextures(GLsizei n, [NativeType("GLuint*")] IntPtr textures);
-	public delegate void PFN_glGetBooleanv(GLenum pname, [NativeType("GLboolean*")] IntPtr _params);
-	public delegate void PFN_glGetClipPlane(GLenum plane, [NativeType("GLdouble*")] IntPtr equation);
-	public delegate void PFN_glGetDoublev(GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
-	public delegate GLenum PFN_glGetError();
-	public delegate void PFN_glGetFloatv(GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetIntegerv(GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetLightfv(GLenum light, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetLightiv(GLenum light, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetMapdv(GLenum target, GLenum query, [NativeType("GLdouble*")] IntPtr v);
-	public delegate void PFN_glGetMapfv(GLenum target, GLenum query, [NativeType("GLfloat*")] IntPtr v);
-	public delegate void PFN_glGetMapiv(GLenum target, GLenum query, [NativeType("GLint*")] IntPtr v);
-	public delegate void PFN_glGetMaterialfv(GLenum face, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetMaterialiv(GLenum face, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetPixelMapfv(GLenum map, [NativeType("GLfloat*")] IntPtr values);
-	public delegate void PFN_glGetPixelMapuiv(GLenum map, [NativeType("GLuint*")] IntPtr values);
-	public delegate void PFN_glGetPixelMapusv(GLenum map, [NativeType("GLushort*")] IntPtr values);
-	public delegate void PFN_glGetPointerv(GLenum pname, [NativeType("void**")] IntPtr _params);
-	public delegate void PFN_glGetPolygonStipple([NativeType("GLubyte*")] IntPtr mask);
-	[return: NativeType("const GLubyte*")]
-	public delegate IntPtr PFN_glGetString(GLenum name);
-	public delegate void PFN_glGetTexEnvfv(GLenum target, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetTexEnviv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetTexGendv(GLenum coord, GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
-	public delegate void PFN_glGetTexGenfv(GLenum coord, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetTexGeniv(GLenum coord, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetTexParameterf(GLenum target, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetTexParameteri(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glHint(GLenum target, GLenum mode);
-	public delegate void PFN_glIndexMask(GLuint mask);
-	public delegate void PFN_glIndexPointer(GLenum type, GLsizei stride, IntPtr pointer);
-	// glIndex*
-	public delegate void PFN_glInitNames();
-	public delegate void PFN_glInterleavedArrays(GLenum format, GLsizei stride, IntPtr pointer);
-	public delegate GLboolean PFN_glIsEnabled(GLenum cap);
-	public delegate GLboolean PFN_glIsList(GLuint list);
-	public delegate GLboolean PFN_glIsTexture(GLuint texture);
-	public delegate void PFN_glLightModelf(GLenum pname, GLfloat param);
-	public delegate void PFN_glLightModelfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glLightModeli(GLenum pname, GLint param);
-	public delegate void PFN_glLightModeliv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glLightf(GLenum light, GLenum pname, GLfloat param);
-	public delegate void PFN_glLightfv(GLenum light, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glLighti(GLenum light, GLenum pname, GLint param);
-	public delegate void PFN_glLightiv(GLenum light, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glLineStipple(GLint factor, GLushort pattern);
-	public delegate void PFN_glLineWidth(GLfloat width);
-	public delegate void PFN_glListBase(GLuint _base);
-	public delegate void PFN_glLoadIdentity();
-	public delegate void PFN_glLoadMatrixd([NativeType("const GLdouble*")] IntPtr m);
-	public delegate void PFN_glLoadMatrixf([NativeType("const GLfloat*")] IntPtr m);
-	public delegate void PFN_glLoadName(GLuint name);
-	public delegate void PFN_glLogicOp(GLenum opcode);
-	// glMap1/2*
-	// glMapGrid1/2
-	public delegate void PFN_glMaterialf(GLenum face, GLenum pname, GLfloat param);
-	public delegate void PFN_glMaterialfv(GLenum face, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glMateriali(GLenum face, GLenum pname, GLint param);
-	public delegate void PFN_glMaterialiv(GLenum face, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glMatrixMode(GLenum mode);
-	public delegate void PFN_glMultMatrixd([NativeType("const GLdouble*")] IntPtr m);
-	public delegate void PFN_glMultMatrixf([NativeType("const GLfloat*")] IntPtr m);
-	public delegate void PFN_glNewList(GLuint list, GLenum mode);
-	// glNormal3*
-	public delegate void PFN_glNormalPointer(GLenum type, GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-	public delegate void PFN_glPassThrough(GLfloat token);
-	public delegate void PFN_glPixelMapfv(GLenum map, GLsizei mapsize, [NativeType("GLfloat*")] IntPtr values);
-	public delegate void PFN_glPixelMapuiv(GLenum map, GLsizei mapsize, [NativeType("GLuint*")] IntPtr values);
-	public delegate void PFN_glPixelMapusv(GLenum map, GLsizei mapsize, [NativeType("GLushort*")] IntPtr values);
-	public delegate void PFN_glPixelStoref(GLenum pname, GLfloat param);
-	public delegate void PFN_glPixelStorei(GLenum pname, GLint param);
-	public delegate void PFN_glPixelTransferf(GLenum pname, GLfloat param);
-	public delegate void PFN_glPixelTransferi(GLenum pname, GLint param);
-	public delegate void PFN_glPixelZoom(GLfloat xfactor, GLfloat yfactor);
-	public delegate void PFN_glPointSize(GLfloat size);
-	public delegate void PFN_glPolygonMode(GLenum face, GLenum mode);
-	public delegate void PFN_glPolygonOffset(GLfloat factor, GLfloat units);
-	public delegate void PFN_glPolygonStipple([NativeType("const GLubyte*")] IntPtr mask);
-	public delegate void PFN_glPopAttrib();
-	public delegate void PFN_glPopClientAttrib();
-	public delegate void PFN_glPopMatrix();
-	public delegate void PFN_glPopName();
-	public delegate void PFN_glPrioritizeTextures(GLsizei n, [NativeType("const GLuint*")] IntPtr textures, [NativeType("const GLclampf*")] IntPtr priorities);
-	public delegate void PFN_glPushAttrib(GLbitfield mask);
-	public delegate void PFN_glPushClientAttrib(GLbitfield mask);
-	public delegate void PFN_glPushMatrix();
-	public delegate void PFN_glPushName(GLuint name);
-	// glRasterPos2/3/4*
-	public delegate void PFN_glReadBuffer(GLenum mode);
-	public delegate void PFN_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glRectd(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2);
-	public delegate void PFN_glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
-	public delegate void PFN_glRecti(GLint x1, GLint y1, GLint x2, GLint y2);
-	public delegate void PFN_glRects(GLshort x1, GLshort y1, GLshort x2, GLshort y2);
-	public delegate GLint PFN_glRenderMode(GLenum mode);
-	public delegate void PFN_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
-	public delegate void PFN_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
-	public delegate void PFN_glScaled(GLdouble x, GLdouble y, GLdouble z);
-	public delegate void PFN_glScalef(GLfloat x, GLfloat y, GLfloat z);
-	public delegate void PFN_glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
-	public delegate void PFN_glSelectBuffer(GLsizei size, [NativeType("GLuint*")] IntPtr buffer);
-	public delegate void PFN_glShadeModel(GLenum mode);
-	public delegate void PFN_glStencilFunc(GLenum func, GLint _ref, GLuint mask);
-	public delegate void PFN_glStencilMask(GLuint mask);
-	public delegate void PFN_glStencilOp(GLenum fail, GLenum zfail, GLenum zpass);
-	// glTexCoord1/2/3/4*
-	public delegate void PFN_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glTexEnvf(GLenum target, GLenum pname, GLfloat param);
-	public delegate void PFN_glTexEnvfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glTexEnvi(GLenum target, GLenum pname, GLint param);
-	public delegate void PFN_glTexEnviv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glTexGend(GLenum target, GLenum pname, GLdouble param);
-	public delegate void PFN_glTexGendv(GLenum target, GLenum pname, [NativeType("const GLdouble*")] IntPtr _params);
-	public delegate void PFN_glTexGenf(GLenum target, GLenum pname, GLfloat param);
-	public delegate void PFN_glTexGenfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glTexGeni(GLenum target, GLenum pname, GLint param);
-	public delegate void PFN_glTexGeniv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glTexImage1D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glTexParameterf(GLenum target, GLenum pname, GLfloat param);
-	public delegate void PFN_glTexParameterfv(GLenum target, GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glTexParameteri(GLenum target, GLenum pname, GLint param);
-	public delegate void PFN_glTexParameteriv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glTranslated(GLdouble x, GLdouble y, GLdouble z);
-	public delegate void PFN_glTranslatef(GLfloat x, GLfloat y, GLfloat z);
-	// glVertex2/3/4*
-	public delegate void PFN_glVertexPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
-
 	public class GL12Functions {
+
+		public delegate void PFN_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+		public delegate void PFN_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, IntPtr indices);
+		public delegate void PFN_glTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, IntPtr pixels);
+		public delegate void PFN_glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, IntPtr pixels);
 
 		public PFN_glCopyTexSubImage3D glCopyTexSubImage3D;
 		public PFN_glDrawRangeElements glDrawRangeElements;
@@ -430,12 +435,23 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-	public delegate void PFN_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, IntPtr indices);
-	public delegate void PFN_glTexImage3D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, IntPtr pixels);
-	public delegate void PFN_glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, IntPtr pixels);
-
 	public class GL13Functions {
+
+		public delegate void PFN_glActiveTexture(GLenum texture);
+		public delegate void PFN_glClientActiveTexture(GLenum texture);
+		public delegate void PFN_glCompressedTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLint border, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glCompressedTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glCompressedTexImage3D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glCompressedTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, IntPtr data);
+		public delegate void PFN_glGetCompressedTexImage(GLenum target, GLint lod, IntPtr img);
+		public delegate void PFN_glLoadTransposeMatrixd([NativeType("const GLdouble[16]")] IntPtr m);
+		public delegate void PFN_glLoadTransposeMatrixf([NativeType("const GLfloat[16]")] IntPtr m);
+		public delegate void PFN_glMultTransposeMatrixd([NativeType("const GLdouble[16]")] IntPtr m);
+		public delegate void PFN_glMultTransposeMatrixf([NativeType("const GLfloat[16]")] IntPtr m);
+		// glMultiTexCoord1/2/3/4*
+		public delegate void PFN_glSampleCoverage(GLclampf value, GLboolean invert);
 
 		public PFN_glActiveTexture glActiveTexture;
 		public PFN_glClientActiveTexture glClientActiveTexture;
@@ -454,23 +470,23 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glActiveTexture(GLenum texture);
-	public delegate void PFN_glClientActiveTexture(GLenum texture);
-	public delegate void PFN_glCompressedTexImage1D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLint border, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glCompressedTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glCompressedTexImage3D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glCompressedTexSubImage1D(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, IntPtr data);
-	public delegate void PFN_glGetCompressedTexImage(GLenum target, GLint lod, IntPtr img);
-	public delegate void PFN_glLoadTransposeMatrixd([NativeType("const GLdouble[16]")] IntPtr m);
-	public delegate void PFN_glLoadTransposeMatrixf([NativeType("const GLfloat[16]")] IntPtr m);
-	public delegate void PFN_glMultTransposeMatrixd([NativeType("const GLdouble[16]")] IntPtr m);
-	public delegate void PFN_glMultTransposeMatrixf([NativeType("const GLfloat[16]")] IntPtr m);
-	// glMultiTexCoord1/2/3/4*
-	public delegate void PFN_glSampleCoverage(GLclampf value, GLboolean invert);
-
 	public class GL14Functions {
+
+		public delegate void PFN_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+		public delegate void PFN_glBlendEquation(GLenum mode);
+		public delegate void PFN_glBlendFuncSeparate(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
+		public delegate void PFN_glFogCoordPointer(GLenum type, GLsizei stride, IntPtr pointer);
+		public delegate void PFN_glFogCoordd(GLdouble coord);
+		public delegate void PFN_glFogCoordf(GLfloat coord);
+		public delegate void PFN_glMultiDrawArrays(GLenum mode, [NativeType("const GLint*")] IntPtr first, [NativeType("const GLint*")] IntPtr count, GLsizei drawcount);
+		public delegate void PFN_glMultiDrawElements(GLenum mode, [NativeType("const GLsizei*")] IntPtr count, GLenum type, [NativeType("const void* const*")] IntPtr indices, GLsizei drawcount);
+		public delegate void PFN_glPointParameterf(GLenum pname, GLfloat param);
+		public delegate void PFN_glPointParameterfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
+		public delegate void PFN_glPointParameteri(GLenum pname, GLint param);
+		public delegate void PFN_glPointParameteriv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
+		// glSecondaryColor3*
+		public delegate void PFN_glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
+		// glWindowPos2/3*
 
 		public PFN_glBlendColor glBlendColor;
 		public PFN_glBlendEquation glBlendEquation;
@@ -488,23 +504,27 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-	public delegate void PFN_glBlendEquation(GLenum mode);
-	public delegate void PFN_glBlendFuncSeparate(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
-	public delegate void PFN_glFogCoordPointer(GLenum type, GLsizei stride, IntPtr pointer);
-	public delegate void PFN_glFogCoordd(GLdouble coord);
-	public delegate void PFN_glFogCoordf(GLfloat coord);
-	public delegate void PFN_glMultiDrawArrays(GLenum mode, [NativeType("const GLint*")] IntPtr first, [NativeType("const GLint*")] IntPtr count, GLsizei drawcount);
-	public delegate void PFN_glMultiDrawElements(GLenum mode, [NativeType("const GLsizei*")] IntPtr count, GLenum type, [NativeType("const void* const*")] IntPtr indices, GLsizei drawcount);
-	public delegate void PFN_glPointParameterf(GLenum pname, GLfloat param);
-	public delegate void PFN_glPointParameterfv(GLenum pname, [NativeType("const GLfloat*")] IntPtr _params);
-	public delegate void PFN_glPointParameteri(GLenum pname, GLint param);
-	public delegate void PFN_glPointParameteriv(GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	// glSecondaryColor3*
-	public delegate void PFN_glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, IntPtr pointer);
-	// glWindowPos2/3*
-
 	public class GL15Functions {
+
+		public delegate void PFN_glBeginQuery(GLenum target, GLuint id);
+		public delegate void PFN_glBindBuffer(GLenum target, GLuint buffer);
+		public delegate void PFN_glBufferData(GLenum target, GLsizeiptr size, IntPtr data, GLenum usage);
+		public delegate void PFN_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, IntPtr data);
+		public delegate void PFN_glDeleteBuffers(GLsizei n, [NativeType("const GLuint*")] IntPtr buffers);
+		public delegate void PFN_glDeleteQueries(GLsizei n, [NativeType("const GLuint*")] IntPtr ids);
+		public delegate void PFN_glEndQuery(GLenum target);
+		public delegate void PFN_glGenBuffers(GLsizei n, [NativeType("GLuint*")] IntPtr buffers);
+		public delegate void PFN_glGenQueries(GLsizei n, [NativeType("GLuint*")] IntPtr ids);
+		public delegate void PFN_glGetBufferParamteriv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetBufferPointerv(GLenum target, GLenum pname, [NativeType("void**")] IntPtr _params);
+		public delegate void PFN_glGetBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, IntPtr data);
+		public delegate void PFN_glGetQueryObjectiv(GLuint id, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetQueryObjectuiv(GLuint id, GLenum pname, [NativeType("GLuint*")] IntPtr _params);
+		public delegate void PFN_glGetQueryiv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate GLboolean PFN_glIsBuffer(GLuint buffer);
+		public delegate GLboolean PFN_glIsQuery(GLuint id);
+		public delegate IntPtr PFN_glMapBuffer(GLenum target, GLenum access);
+		public delegate GLboolean PFN_glUnmapBuffer(GLenum target);
 
 		public PFN_glBeginQuery glBeginQuery;
 		public PFN_glBindBuffer glBindBuffer;
@@ -528,27 +548,57 @@ namespace Tesseract.GL.Native {
 
 	}
 
-	public delegate void PFN_glBeginQuery(GLenum target, GLuint id);
-	public delegate void PFN_glBindBuffer(GLenum target, GLuint buffer);
-	public delegate void PFN_glBufferData(GLenum target, GLsizeiptr size, IntPtr data, GLenum usage);
-	public delegate void PFN_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, IntPtr data);
-	public delegate void PFN_glDeleteBuffers(GLsizei n, [NativeType("const GLuint*")] IntPtr buffers);
-	public delegate void PFN_glDeleteQueries(GLsizei n, [NativeType("const GLuint*")] IntPtr ids);
-	public delegate void PFN_glEndQuery(GLenum target);
-	public delegate void PFN_glGenBuffers(GLsizei n, [NativeType("GLuint*")] IntPtr buffers);
-	public delegate void PFN_glGenQueries(GLsizei n, [NativeType("GLuint*")] IntPtr ids);
-	public delegate void PFN_glGetBufferParamteriv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetBufferPointerv(GLenum target, GLenum pname, [NativeType("void**")] IntPtr _params);
-	public delegate void PFN_glGetBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, IntPtr data);
-	public delegate void PFN_glGetQueryObjectiv(GLuint id, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetQueryObjectuiv(GLuint id, GLenum pname, [NativeType("GLuint*")] IntPtr _params);
-	public delegate void PFN_glGetQueryiv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate GLboolean PFN_glIsBuffer(GLuint buffer);
-	public delegate GLboolean PFN_glIsQuery(GLuint id);
-	public delegate IntPtr PFN_glMapBuffer(GLenum target, GLenum access);
-	public delegate GLboolean PFN_glUnmapBuffer(GLenum target);
-
 	public class GL20Functions {
+
+		public delegate void PFN_glAttachShader(GLuint program, GLuint shader);
+		public delegate void PFN_glBindAttribLocation(GLuint program, GLuint index, [MarshalAs(UnmanagedType.LPStr)] string name);
+		public delegate void PFN_glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
+		public delegate void PFN_glCompileShader(GLuint shader);
+		public delegate GLuint PFN_glCreateProgram();
+		public delegate GLuint PFN_glCreateShader(GLenum type);
+		public delegate void PFN_glDeleteProgram(GLuint program);
+		public delegate void PFN_glDeleteShader(GLuint shader);
+		public delegate void PFN_glDetachShader(GLuint program, GLuint shader);
+		public delegate void PFN_glDisableVertexAttribArray(GLuint index);
+		public delegate void PFN_glDrawBuffers(GLsizei n, [NativeType("const GLenum*")] IntPtr bufs);
+		public delegate void PFN_glEnableVertexAttribArray(GLuint index);
+		public delegate void PFN_glGetActiveAttrib(GLuint program, GLuint index, GLsizei maxLength, out GLsizei length, out GLint size, out GLenum type, [NativeType("GLchar*")] IntPtr name);
+		public delegate void PFN_glGetActiveUniform(GLuint program, GLuint index, GLsizei maxLength, out GLsizei length, out GLint size, out GLenum type, [NativeType("GLchar*")] IntPtr name);
+		public delegate void PFN_glGetAttachedShaders(GLuint program, GLsizei maxCount, out GLsizei count, [NativeType("GLuint*")] IntPtr shaders);
+		public delegate GLint PFN_glGetAttribLocation(GLuint program, [MarshalAs(UnmanagedType.LPStr)] string name);
+		public delegate void PFN_glGetProgramInfoLog(GLuint program, GLsizei bufSize, out GLsizei length, [NativeType("GLchar*")] IntPtr infoLog);
+		public delegate void PFN_glGetProgramiv(GLuint program, GLenum pname, out GLint param);
+		public delegate void PFN_glGetShaderInfoLog(GLuint shader, GLsizei bufSize, out GLsizei length, [NativeType("GLchar*")] IntPtr infoLog);
+		public delegate void PFN_glGetShaderSource(GLuint obj, GLsizei maxLength, out GLsizei length, [NativeType("GLchar*")] IntPtr source);
+		public delegate void PFN_glGetShaderiv(GLuint shader, GLenum pname, out GLint param);
+		public delegate GLint PFN_glGetUniformLocation(GLuint program, [MarshalAs(UnmanagedType.LPStr)] string name);
+		public delegate void PFN_glGetUniformfv(GLuint program, GLint location, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetUniformiv(GLuint program, GLint location, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetVertexAttribPointerv(GLuint index, GLenum name, out IntPtr pointer);
+		public delegate void PFN_glGetVertexAttribdv(GLuint index, GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
+		public delegate void PFN_glGetVertexAttribfv(GLuint index, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
+		public delegate void PFN_glGetVertexAttribiv(GLuint index, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glIsProgram(GLuint program);
+		public delegate void PFN_glIsShader(GLuint shader);
+		public delegate void PFN_glLinkProgram(GLuint program);
+		public delegate void PFN_glShaderSource(GLuint shader, GLsizei count, [NativeType("const GLchar* const*")] IntPtr _string, [NativeType("const GLint*")] IntPtr length);
+		public delegate void PFN_glStencilFuncSeparate(GLenum frontfunc, GLenum backfunc, GLint _ref, GLuint mask);
+		public delegate void PFN_glStencilMasksSeparate(GLenum face, GLuint mask);
+		public delegate void PFN_glStencilOpSeparate(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
+		public delegate void PFN_glUniform1f(GLint location, GLfloat v0);
+		public delegate void PFN_glUniform1i(GLint location, GLint v0);
+		public delegate void PFN_glUniform2f(GLint location, GLfloat v0, GLfloat v1);
+		public delegate void PFN_glUniform2i(GLint location, GLint v0, GLint v1);
+		public delegate void PFN_glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+		public delegate void PFN_glUniform3i(GLint location, GLint v0, GLint v1, GLint v2);
+		public delegate void PFN_glUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+		public delegate void PFN_glUniform4i(GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+		public delegate void PFN_glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUseProgram(GLuint program);
+		public delegate void PFN_glValidateProgram(GLuint program);
+		public delegate void PFN_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, IntPtr pointer);
 
 		public PFN_glAttachShader glAttachShader;
 		public PFN_glBindAttribLocation glBindAttribLocation;
@@ -601,57 +651,14 @@ namespace Tesseract.GL.Native {
 		public PFN_glVertexAttribPointer glVertexAttribPointer;
 	}
 
-	public delegate void PFN_glAttachShader(GLuint program, GLuint shader);
-	public delegate void PFN_glBindAttribLocation(GLuint program, GLuint index, [MarshalAs(UnmanagedType.LPStr)] string name);
-	public delegate void PFN_glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
-	public delegate void PFN_glCompileShader(GLuint shader);
-	public delegate GLuint PFN_glCreateProgram();
-	public delegate GLuint PFN_glCreateShader(GLenum type);
-	public delegate void PFN_glDeleteProgram(GLuint program);
-	public delegate void PFN_glDeleteShader(GLuint shader);
-	public delegate void PFN_glDetachShader(GLuint program, GLuint shader);
-	public delegate void PFN_glDisableVertexAttribArray(GLuint index);
-	public delegate void PFN_glDrawBuffers(GLsizei n, [NativeType("const GLenum*")] IntPtr bufs);
-	public delegate void PFN_glEnableVertexAttribArray(GLuint index);
-	public delegate void PFN_glGetActiveAttrib(GLuint program, GLuint index, GLsizei maxLength, out GLsizei length, out GLint size, out GLenum type, [NativeType("GLchar*")] IntPtr name);
-	public delegate void PFN_glGetActiveUniform(GLuint program, GLuint index, GLsizei maxLength, out GLsizei length, out GLint size, out GLenum type, [NativeType("GLchar*")] IntPtr name);
-	public delegate void PFN_glGetAttachedShaders(GLuint program, GLsizei maxCount, out GLsizei count, [NativeType("GLuint*")] IntPtr shaders);
-	public delegate GLint PFN_glGetAttribLocation(GLuint program, [MarshalAs(UnmanagedType.LPStr)] string name);
-	public delegate void PFN_glGetProgramInfoLog(GLuint program, GLsizei bufSize, out GLsizei length, [NativeType("GLchar*")] IntPtr infoLog);
-	public delegate void PFN_glGetProgramiv(GLuint program, GLenum pname, out GLint param);
-	public delegate void PFN_glGetShaderInfoLog(GLuint shader, GLsizei bufSize, out GLsizei length, [NativeType("GLchar*")] IntPtr infoLog);
-	public delegate void PFN_glGetShaderSource(GLuint obj, GLsizei maxLength, out GLsizei length, [NativeType("GLchar*")] IntPtr source);
-	public delegate void PFN_glGetShaderiv(GLuint shader, GLenum pname, out GLint param);
-	public delegate GLint PFN_glGetUniformLocation(GLuint program, [MarshalAs(UnmanagedType.LPStr)] string name);
-	public delegate void PFN_glGetUniformfv(GLuint program, GLint location, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetUniformiv(GLuint program, GLint location, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetVertexAttribPointerv(GLuint index, GLenum name, out IntPtr pointer);
-	public delegate void PFN_glGetVertexAttribdv(GLuint index, GLenum pname, [NativeType("GLdouble*")] IntPtr _params);
-	public delegate void PFN_glGetVertexAttribfv(GLuint index, GLenum pname, [NativeType("GLfloat*")] IntPtr _params);
-	public delegate void PFN_glGetVertexAttribiv(GLuint index, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glIsProgram(GLuint program);
-	public delegate void PFN_glIsShader(GLuint shader);
-	public delegate void PFN_glLinkProgram(GLuint program);
-	public delegate void PFN_glShaderSource(GLuint shader, GLsizei count, [NativeType("const GLchar* const*")] IntPtr _string, [NativeType("const GLint*")] IntPtr length);
-	public delegate void PFN_glStencilFuncSeparate(GLenum frontfunc, GLenum backfunc, GLint _ref, GLuint mask);
-	public delegate void PFN_glStencilMasksSeparate(GLenum face, GLuint mask);
-	public delegate void PFN_glStencilOpSeparate(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-	public delegate void PFN_glUniform1f(GLint location, GLfloat v0);
-	public delegate void PFN_glUniform1i(GLint location, GLint v0);
-	public delegate void PFN_glUniform2f(GLint location, GLfloat v0, GLfloat v1);
-	public delegate void PFN_glUniform2i(GLint location, GLint v0, GLint v1);
-	public delegate void PFN_glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
-	public delegate void PFN_glUniform3i(GLint location, GLint v0, GLint v1, GLint v2);
-	public delegate void PFN_glUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
-	public delegate void PFN_glUniform4i(GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
-	public delegate void PFN_glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUseProgram(GLuint program);
-	public delegate void PFN_glValidateProgram(GLuint program);
-	public delegate void PFN_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, IntPtr pointer);
-
 	public class GL21Functions {
+
+		public delegate void PFN_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
+		public delegate void PFN_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
 
 		public PFN_glUniformMatrix2x3fv glUniformMatrix2x3fv;
 		public PFN_glUniformMatrix2x4fv glUniformMatrix2x4fv;
@@ -661,79 +668,7 @@ namespace Tesseract.GL.Native {
 		public PFN_glUniformMatrix4x3fv glUniformMatrix4x3fv;
 
 	}
-
-	public delegate void PFN_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, [NativeType("const GLfloat*")] IntPtr value);
-
-	public class GL30Functions {
-
-		public PFN_glBeginTransformFeedback glBeginTransformFeedback;
-		public PFN_glBindFragDataLocation glBindFragDataLocation;
-		public PFN_glClampColor glClampColor;
-		public PFN_glClearBufferfi glClearBufferfi;
-		public PFN_glClearBufferfv glClearBufferfv;
-		public PFN_glClearBufferiv glClearBufferiv;
-		public PFN_glClearBufferuiv glClearBufferuiv;
-		public PFN_glColorMaski glColorMaski;
-		public PFN_glDisablei glDisablei;
-		public PFN_glEnablei glEnablei;
-		public PFN_glEndTransformFeedback glEndTransformFeedback;
-		public PFN_glGetBooleani_v glGetBooleani_v;
-		public PFN_glGetFragDataLocation glGetFragDataLocation;
-		public PFN_glGetStringi glGetStringi;
-		public PFN_glGetTexParameteriiv glGetTexParameteriiv;
-		public PFN_glGetTexParameteriuiv glGetTexParameteriuiv;
-		public PFN_glGetTransformFeedbackVarying glGetTransformFeedbackVarying;
-		public PFN_glGetUniformuiv glGetUniformuiv;
-		public PFN_glGetVertexAttribiiv glGetVertexAttribiiv;
-		public PFN_glGetVertexAttribiuiv glGetVertexAttribiuiv;
-		public PFN_glIsEnabledi glIsEnabledi;
-		public PFN_glTexParameteriiv glTexParameteriiv;
-		public PFN_glTexParameteriuiv glTexParameteriuiv;
-		public PFN_glTransformFeedbackVaryings glTransformFeedbackVaryings;
-		public PFN_glUniform1ui glUniform1ui;
-		public PFN_glUniform2ui glUniform2ui;
-		public PFN_glUniform3ui glUniform3ui;
-		public PFN_glUniform4ui glUniform4ui;
-		public PFN_glVertexAttribiPointer glVertexAttribiPointer;
-
-	}
-
-	public delegate void PFN_glBeginTransformFeedback(GLenum primitiveMode);
-	public delegate void PFN_glBindFragDataLocation(GLuint program, GLuint colorNumber, [MarshalAs(UnmanagedType.LPStr)] string name);
-	public delegate void PFN_glClampColor(GLenum target, GLenum clamp);
-	public delegate void PFN_glClearBufferfi(GLenum buffer, GLint drawBuffer, GLfloat depth, GLint stencil);
-	public delegate void PFN_glClearBufferfv(GLenum buffer, GLint drawBuffer, [NativeType("const GLfloat*")] IntPtr value);
-	public delegate void PFN_glClearBufferiv(GLenum buffer, GLint drawBuffer, [NativeType("const GLint*")] IntPtr value);
-	public delegate void PFN_glClearBufferuiv(GLenum buffer, GLint drawBuffer, [NativeType("const GLuint*")] IntPtr value);
-	public delegate void PFN_glColorMaski(GLuint buf, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-	public delegate void PFN_glDisablei(GLenum cap, GLuint index);
-	public delegate void PFN_glEnablei(GLenum cap, GLuint index);
-	public delegate void PFN_glEndTransformFeedback();
-	public delegate void PFN_glGetBooleani_v(GLenum pname, GLuint index, out GLboolean data);
-	public delegate GLint PFN_glGetFragDataLocation(GLuint program, [MarshalAs(UnmanagedType.LPStr)] string name);
-	[return: NativeType("const GLubyte*")]
-	public delegate IntPtr PFN_glGetStringi(GLenum name, GLuint index);
-	public delegate void PFN_glGetTexParameteriiv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetTexParameteriuiv(GLenum target, GLenum pname, [NativeType("GLuint*")] IntPtr _params);
-	public delegate void PFN_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, out GLsizei length, out GLsizei size, out GLenum type, [NativeType("GLchar*")] IntPtr name);
-	public delegate void PFN_glGetUniformuiv(GLuint program, GLint location, [NativeType("GLuint*")] IntPtr _params);
-	public delegate void PFN_glGetVertexAttribiiv(GLuint index, GLenum pname, [NativeType("GLint*")] IntPtr _params);
-	public delegate void PFN_glGetVertexAttribiuiv(GLuint index, GLenum pname, [NativeType("GLuint*")] IntPtr _params);
-	public delegate GLboolean PFN_glIsEnabledi(GLenum cap, GLuint index);
-	public delegate void PFN_glTexParameteriiv(GLenum target, GLenum pname, [NativeType("const GLint*")] IntPtr _params);
-	public delegate void PFN_glTexParameteriuiv(GLenum target, GLenum pname, [NativeType("const GLuint*")] IntPtr _params);
-	public delegate void PFN_glTransformFeedbackVaryings(GLuint program, GLsizei count, [NativeType("const GLchar* const*")] IntPtr varyings, GLenum bufferMode);
-	public delegate void PFN_glUniform1ui(GLint location, GLuint v0);
-	public delegate void PFN_glUniform2ui(GLint location, GLuint v0, GLuint v1);
-	public delegate void PFN_glUniform3ui(GLint location, GLuint v0, GLuint v1, GLuint v2);
-	public delegate void PFN_glUniform4ui(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3);
-	public delegate void PFN_glVertexAttribiPointer(GLuint index, GLint size, GLenum type, GLsizei stride, IntPtr pointer);
-
+	
 	public class GL31Functions {
 
 		public PFN_glDrawArraysInstanced glDrawArraysInstanced;

@@ -17,7 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generated", "Generated", "{
 		Generated\glgen.lua = Generated\glgen.lua
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Vulkan", "TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj", "{C2F385DD-5DB6-4C92-9660-434B60A4A56F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Vulkan", "TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj", "{C2F385DD-5DB6-4C92-9660-434B60A4A56F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reference", "Reference", "{F6247136-5939-4C3C-B04D-FCE1AF08913B}"
+	ProjectSection(SolutionItems) = preProject
+		shader.json = shader.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

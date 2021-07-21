@@ -80,10 +80,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The total amount of memory this graphics instance has actually committed to it. If this statistic is not available this value is set to 0.
 		/// The precision of this value varies between implementation.
 		/// </summary>
-		public ulong TotalComittedMemory { get; }
-
-
-		public object this[string property] { get; }
+		public ulong TotalCommittedMemory { get; }
 
 	}
 
@@ -91,152 +88,152 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Flags for features whose support is hardware/driver dependent and must be specified
 	/// during graphics creation.
 	/// </summary>
-	public struct GraphicsHardwareFeatures {
+	public record GraphicsHardwareFeatures {
 
 		/// <summary>
 		/// Indicates buffer accesses by GPU commands are bounds-checked and will not cause undefined behavior when out of bounds access occurs.
 		/// </summary>
-		public bool RobustBufferAccess { get; set; }
+		public bool RobustBufferAccess { get; init; }
 
 		/// <summary>
 		/// The full 32-bit range of an index value is usable when 32-bit indices are specified. Otherwise, only up to 24-bits of the index value is guarenteed to be used.
 		/// </summary>
-		public bool FullDrawIndexUInt32 { get; set; }
+		public bool FullDrawIndexUInt32 { get; init; }
 
 		/// <summary>
 		/// Cube map textures with arrays may be created.
 		/// </summary>
-		public bool CubeMapArray { get; set; }
+		public bool CubeMapArray { get; init; }
 
 		/// <summary>
 		/// Attachment blending settings may be independently controlled. Otherwise, all attachments must have the same blending settings.
 		/// </summary>
-		public bool IndependentBlend { get; set; }
+		public bool IndependentBlend { get; init; }
 
 		/// <summary>
 		/// Geometry shaders may be used.
 		/// </summary>
-		public bool GeometryShader { get; set; }
+		public bool GeometryShader { get; init; }
 
 		/// <summary>
 		/// Tessellation sahders may be used.
 		/// </summary>
-		public bool TessellationShader { get; set; }
+		public bool TessellationShader { get; init; }
 
 		/// <summary>
 		/// A sample rate may be set for multisampling.
 		/// </summary>
-		public bool SampleRateShading { get; set; }
+		public bool SampleRateShading { get; init; }
 
 		/// <summary>
 		/// Blend operations may take two source values.
 		/// </summary>
-		public bool DualSrcBlend { get; set; }
+		public bool DualSrcBlend { get; init; }
 
 		/// <summary>
 		/// Color attachment logic operations are supported.
 		/// </summary>
-		public bool LogicOp { get; set; }
+		public bool LogicOp { get; init; }
 
 		/// <summary>
 		/// Draw indirect counts may be greater than 1, otherwise they can only be 1.
 		/// </summary>
-		public bool MultiDrawIndirect { get; set; }
+		public bool MultiDrawIndirect { get; init; }
 
 		/// <summary>
 		/// Draw indirects support unqie first instance parameters, otherwise they must be 0.
 		/// </summary>
-		public bool DrawIndirectFirstInstance { get; set; }
+		public bool DrawIndirectFirstInstance { get; init; }
 
 		/// <summary>
 		/// If depth clamping is supported.
 		/// </summary>
-		public bool DepthClamp { get; set; }
+		public bool DepthClamp { get; init; }
 
 		/// <summary>
 		/// If depth bias clamping is supported.
 		/// </summary>
-		public bool DepthBiasClamp { get; set; }
+		public bool DepthBiasClamp { get; init; }
 
 		/// <summary>
 		/// If polygon modes other than <see cref="PolygonMode.Fill"/> are supported.
 		/// </summary>
-		public bool FillModeNonSolid { get; set; }
+		public bool FillModeNonSolid { get; init; }
 
 		/// <summary>
 		/// If depth bounds tests are supported.
 		/// </summary>
-		public bool DepthBounds { get; set; }
+		public bool DepthBounds { get; init; }
 
 		/// <summary>
 		/// Line widths other than 1.0 are supported.
 		/// </summary>
-		public bool WideLines { get; set; }
+		public bool WideLines { get; init; }
 
 		/// <summary>
 		/// Point sizes greater than 1.0 are supported.
 		/// </summary>
-		public bool LargePoints { get; set; }
+		public bool LargePoints { get; init; }
 
 		/// <summary>
 		/// Alpha-to-one behavior is supported for multisampling.
 		/// </summary>
-		public bool AlphaToOne { get; set; }
+		public bool AlphaToOne { get; init; }
 
 		/// <summary>
 		/// Multiple independent viewports and scissors are supported.
 		/// </summary>
-		public bool MultiViewport { get; set; }
+		public bool MultiViewport { get; init; }
 
 		/// <summary>
 		/// Anisotropic filtering is supported.
 		/// </summary>
-		public bool SamplerAnisotropy { get; set; }
+		public bool SamplerAnisotropy { get; init; }
 
 		/// <summary>
 		/// ETC2 and EAC compressed formats are supported.
 		/// </summary>
-		public bool TextureCompressionETC2 { get; set; }
+		public bool TextureCompressionETC2 { get; init; }
 
 		/// <summary>
 		/// ASTC LDR compressed formats are supported.
 		/// </summary>
-		public bool TextureCompressionASTC { get; set; }
+		public bool TextureCompressionASTC { get; init; }
 
 		/// <summary>
 		/// BC compressed formats are supported.
 		/// </summary>
-		public bool TextureCompressionBC { get; set; }
+		public bool TextureCompressionBC { get; init; }
 
 		/// <summary>
 		/// Occlusion queries returning actual sample counts are supported.
 		/// </summary>
-		public bool OcclusionQueryPrecise { get; set; }
+		public bool OcclusionQueryPrecise { get; init; }
 
 		/// <summary>
 		/// If pipeline statistics queries are supported.
 		/// </summary>
-		public bool PipelineStatisticsQuery { get; set; }
+		public bool PipelineStatisticsQuery { get; init; }
 
 		/// <summary>
 		/// If vertex-processing shader stages (vertex, tessellation, geometry) support stores and atomic operations.
 		/// </summary>
-		public bool VertexPipelineStoresAndAtomics { get; set; }
+		public bool VertexPipelineStoresAndAtomics { get; init; }
 
 		/// <summary>
 		/// If fragment shaders support stores and atomics.
 		/// </summary>
-		public bool FragmentStoresAndAtomics { get; set; }
+		public bool FragmentStoresAndAtomics { get; init; }
 
 		/// <summary>
 		/// If the <c>PointSize</c> built-in is available in tessellation and geometry shader stages.
 		/// </summary>
-		public bool ShaderTessellationAndGeometryPointSize { get; set; }
+		public bool ShaderTessellationAndGeometryPointSize { get; init; }
 
 		/// <summary>
 		/// If extended SPIR-V image gather instructions are available.
 		/// </summary>
-		public bool ShaderImageGatherExtended { get; set; }
+		public bool ShaderImageGatherExtended { get; init; }
 
 		/// <summary>
 		/// Storage images may use the following formats:
@@ -265,122 +262,122 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <item>R8UInt</item>
 		/// </list>
 		/// </summary>
-		public bool ShaderStorageImageExtendedFormats { get; set; }
+		public bool ShaderStorageImageExtendedFormats { get; init; }
 
 		/// <summary>
 		/// If storage images may be multisampled.
 		/// </summary>
-		public bool ShaderStorageImageMultisample { get; set; }
+		public bool ShaderStorageImageMultisample { get; init; }
 
 		/// <summary>
 		/// If storage images can be read without specifying a format.
 		/// </summary>
-		public bool ShaderStorageImageReadWithoutFormat { get; set; }
+		public bool ShaderStorageImageReadWithoutFormat { get; init; }
 
 		/// <summary>
 		/// If storage images can be written without specifying a format.
 		/// </summary>
-		public bool ShaderStorageImageWriteWithoutFormat { get; set; }
+		public bool ShaderStorageImageWriteWithoutFormat { get; init; }
 
 		/// <summary>
 		/// If arrays of uniform buffers can be indexed by uniform variables.
 		/// </summary>
-		public bool ShaderUniformBufferArrayDynamicIndexing { get; set; }
+		public bool ShaderUniformBufferArrayDynamicIndexing { get; init; }
 
 		/// <summary>
 		/// If arrays of samplers or sampled images can be indexed by uniform variables.
 		/// </summary>
-		public bool ShaderSampledImageArrayDynamicIndexing { get; set; }
+		public bool ShaderSampledImageArrayDynamicIndexing { get; init; }
 
 		/// <summary>
 		/// If arrays of storage buffers can be indexed by uniform variables.
 		/// </summary>
-		public bool ShaderStorageBufferArrayDynamicIndexing { get; set; }
+		public bool ShaderStorageBufferArrayDynamicIndexing { get; init; }
 
 		/// <summary>
 		/// If arrays of storage images can be indexed by uniform variables.
 		/// </summary>
-		public bool ShaderStorageImageArrayDynamicIndexing { get; set; }
+		public bool ShaderStorageImageArrayDynamicIndexing { get; init; }
 
 		/// <summary>
 		/// If <c>ClipDistance</c> built-in values are supported by shader code.
 		/// </summary>
-		public bool ShaderClipDistance { get; set; }
+		public bool ShaderClipDistance { get; init; }
 
 		/// <summary>
 		/// If <c>CullDistance</c> built-in values are supported by shader code.
 		/// </summary>
-		public bool ShaderCullDistance { get; set; }
+		public bool ShaderCullDistance { get; init; }
 
 		/// <summary>
 		/// If 64-bit floats are supported by shaders.
 		/// </summary>
-		public bool ShaderFloat64 { get; set; }
+		public bool ShaderFloat64 { get; init; }
 
 		/// <summary>
 		/// If 64-bit integers are supported by shaders.
 		/// </summary>
-		public bool ShaderInt64 { get; set; }
+		public bool ShaderInt64 { get; init; }
 
 		/// <summary>
 		/// If 16-bit integers are supported by shaders.
 		/// </summary>
-		public bool ShaderInt16 { get; set; }
+		public bool ShaderInt16 { get; init; }
 
 		/// <summary>
 		/// If shaders can query residency information for shader resources.
 		/// </summary>
-		public bool ShaderResourceResidency { get; set; }
+		public bool ShaderResourceResidency { get; init; }
 
 		/// <summary>
 		/// If shaders can specify minimum level-of-detail values in image operations.
 		/// </summary>
-		public bool ShaderResourceMinLOD { get; set; }
+		public bool ShaderResourceMinLOD { get; init; }
 
 		/// <summary>
 		/// If sparse memory binding is supported.
 		/// </summary>
-		public bool SparseBinding { get; set; }
+		public bool SparseBinding { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for buffers.
 		/// </summary>
-		public bool SparseResidencyBuffer { get; set; }
+		public bool SparseResidencyBuffer { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 2D images with 1 sample per pixel.
 		/// </summary>
-		public bool SparseResidencyImage2D { get; set; }
+		public bool SparseResidencyImage2D { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 3D images with 1 sample per pixel.
 		/// </summary>
-		public bool SparseResidencyImage3D { get; set; }
+		public bool SparseResidencyImage3D { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 2D images with 2 samples per pixel.
 		/// </summary>
-		public bool SparseResidency2Samples { get; set; }
+		public bool SparseResidency2Samples { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 2D images with 4 samples per pixel.
 		/// </summary>
-		public bool SparseResidency4Samples { get; set; }
+		public bool SparseResidency4Samples { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 2D images with 8 samples per pixel.
 		/// </summary>
-		public bool SparseResidency8Samples { get; set; }
+		public bool SparseResidency8Samples { get; init; }
 
 		/// <summary>
 		/// If sparse memory residency is supported for 2D images with 16 samples per pixel.
 		/// </summary>
-		public bool SparseResidency16Samples { get; set; }
+		public bool SparseResidency16Samples { get; init; }
 
 		/// <summary>
 		/// If sparsely bound memory may be bound to multiple locations simultaneously.
 		/// </summary>
-		public bool SparseResidencyAliased { get; set; }
+		public bool SparseResidencyAliased { get; init; }
 
 		/*
 		/// <summary>
@@ -394,6 +391,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public bool InheritedQueries { get; set; }
 		*/
 
+		/// <summary>
+		/// If draw indirection is supported in some form.
+		/// </summary>
+		public bool DrawIndirect { get; init; }
+
 	}
 
 	public interface IGraphicsFeatures {
@@ -402,7 +404,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		/// <summary>
 		/// If multisampling uses "standard" sample locations (see the <see href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#primsrast-multisampling">
-		/// Vulkan Spec</see> for details on what standard locations are). This value may be false if the location of sample positions cannot be determined, but may match
+		/// Vulkan Spec</see> for details on what standard locations are). This value may be false if the location of sample positions cannot be determined, even if they may match
 		/// the standard locations.
 		/// </summary>
 		public bool StandardSampleLocations { get; }
@@ -417,36 +419,44 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public IReadOnlyIndexer<PipelineDynamicState,bool> SupportedDynamicStates { get; }
 
-		public bool this[string feature] { get; }
+		/// <summary>
+		/// If push constants are supported.
+		/// </summary>
+		public bool PushConstants { get; }
+
+		/// <summary>
+		/// If sub-views of a texture are supported.
+		/// </summary>
+		public bool TextureSubView { get; }
 
 	}
 
 	public interface IGraphicsLimits {
 
 		/// <summary>
-		/// Maximum dimension for a 1D image.
+		/// Maximum dimension for a 1D texture.
 		/// </summary>
-		public uint MaxImageDimension1D { get; }
+		public uint MaxTextureDimension1D { get; }
 
 		/// <summary>
-		/// Maximum dimensions for a 2D image.
+		/// Maximum dimensions for a 2D texture.
 		/// </summary>
 		public uint MaxImageDimension2D { get; }
 
 		/// <summary>
-		/// Maximum dimensions for a 3D image.
+		/// Maximum dimensions for a 3D texture.
 		/// </summary>
-		public uint MaxImageDimension3D { get; }
+		public uint MaxTextureDimension3D { get; }
 
 		/// <summary>
-		/// Maximum dimensions for cube map images.
+		/// Maximum dimensions for cube map textures.
 		/// </summary>
-		public uint MaxImageDimensionCube { get; }
+		public uint MaxTextureDimensionCube { get; }
 
 		/// <summary>
-		/// Maximum number of layers in arrayed images.
+		/// Maximum number of layers in arrayed textures.
 		/// </summary>
-		public uint MaxImageArrayLayers { get; }
+		public uint MaxTextureArrayLayers { get; }
 
 		/// <summary>
 		/// Maximum number of addressable texels in a buffer view.
@@ -646,12 +656,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The range of accepted values for the size of point geometry. The first value is the lower bound and the second is the upper.
 		/// </summary>
-		public Vector2 PointSizeRange { get; }
+		public (float, float) PointSizeRange { get; }
 
 		/// <summary>
 		/// The range of accepted values for the width of line geometry. The first value is the lower bound and the second is the upper.
 		/// </summary>
-		public Vector2 LineWidthRange { get; }
+		public (float, float) LineWidthRange { get; }
 
 		/// <summary>
 		/// Fraction specifying the granularity of point size values.
@@ -662,8 +672,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Fraction specifying the granularity of line width values.
 		/// </summary>
 		public float LineWidthGranularity { get; }
-
-		public object this[string limit] { get; }
 
 	}
 
@@ -688,17 +696,90 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public IGraphicsLimits Limits { get; }
 
+		//=================//
+		// Object Creation //
+		//=================//
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public IBuffer CreateBuffer(BufferCreateInfo createInfo);
 
-		public IBuffer CreateBuffer(in BufferCreateInfo createInfo);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo);
 
+		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo);
 
+		public IPipeline CreatePipeline(PipelineCreateInfo createInfo);
 
-		public IPipelineLayout CreatePipelineLayout(in PipelineLayoutCreateInfo createInfo);
+		//==============================//
+		// Command Buffers & Submission //
+		//==============================//
 
-		public IPipelineCache CreatePipelineCache(in PipelineCacheCreateInfo createInfo, Span<byte> initData);
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo);
 
-		public IPipeline CreatePipeline(in PipelineCreateInfo createInfo);
+		/// <summary>
+		/// Command buffer submission information.
+		/// </summary>
+		public readonly ref struct CommandBufferSubmitInfo {
+
+			/// <summary>
+			/// The command buffers to submit.
+			/// </summary>
+			public ReadOnlySpan<ICommandBuffer> CommandBuffer { get; init; }
+			
+			/// <summary>
+			/// List of sync objects to wait on and their respective pipeline stages.
+			/// </summary>
+			public ReadOnlySpan<(ISync, PipelineStage)> WaitSync { get; init; }
+
+			/// <summary>
+			/// List of sync objects to signal once all commands in the buffer are completed.
+			/// </summary>
+			public ReadOnlySpan<ISync> SignalSync { get; init; }
+
+		}
+		
+		/// <summary>
+		/// Runs the supplied commands once. Note that the command buffers in the supplied submission
+		/// info are ignored and the provided method is used to generate the commands instead. The synchronization
+		/// parameters provided in the submission info are respected for the generated commands.
+		/// </summary>
+		/// <param name="cmdSink">The method that will supply the commands</param>
+		/// <param name="submitInfo">Submission info for the commands</param>
+		public void RunCommands(Action<ICommandSink> cmdSink, in CommandBufferSubmitInfo submitInfo);
+
+		/// <summary>
+		/// Submits command buffers for execution, setting up the required synchronization for the commands.
+		/// <para>
+		/// </para>
+		/// </summary>
+		/// <param name="submitInfo"></param>
+		public void SubmitCommands(in CommandBufferSubmitInfo submitInfo);
+
+		/// <summary>
+		/// <para>Trims the memory used by command buffers.</para>
+		/// <para>
+		///		Memory for command buffers is managed internally by the implementation, and even when a command buffer is disposed
+		///		its memory may not be released back to the system. Instead, the memory will be returned to an internal command pool
+		///		where it may be reused for other commands. When this function is called the implementation will attempt to return
+		///		this pooled memory back to the system without disturbing any existing command buffers. While this may reduce the
+		///		program's memory usage the actual benefits will depend on how command buffers are used and attempting to trim
+		///		memory has its own performance overhead.
+		/// </para>
+		/// </summary>
+		public void TrimCommandBufferMemory();
 
 	}
 

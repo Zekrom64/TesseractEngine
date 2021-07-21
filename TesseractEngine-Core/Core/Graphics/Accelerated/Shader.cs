@@ -43,10 +43,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// SPIR-V binary. Recognized types (of <see cref="int"/>):
 		/// <list type="bullet">
-		/// <item><see cref="Span{T}"/></item>
-		/// <item><see cref="ReadOnlySpan{T}"/></item>
 		/// <item><see cref="Array"/></item>
 		/// <item><see cref="IReadOnlyList{T}"/></item>
+		/// <item><see cref="ReadOnlyMemory{T}"/></item>
 		/// </list>
 		/// </summary>
 		SPIRV,
@@ -67,22 +66,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Shader creation information.
 	/// </summary>
-	public struct ShaderCreateInfo {
+	public record ShaderCreateInfo {
 
 		/// <summary>
 		/// The type of shader to create.
 		/// </summary>
-		public ShaderType Type { get; set; }
+		public ShaderType Type { get; init; }
 
 		/// <summary>
 		/// The type of source to create the shader from.
 		/// </summary>
-		public ShaderSourceType SourceType { get; set; }
+		public ShaderSourceType SourceType { get; init; }
 
 		/// <summary>
 		/// The object to use as the source code for the shader.
 		/// </summary>
-		public object Source { get; set; }
+		public object Source { get; init; }
 
 	}
 

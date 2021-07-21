@@ -314,7 +314,7 @@ namespace Tesseract.Core.Native {
 			return array;
 		}
 
-		public UnmanagedPointer<IntPtr> ASCIIArray(in Span<string> text) {
+		public UnmanagedPointer<IntPtr> ASCIIArray(in ReadOnlySpan<string> text) {
 			UnmanagedPointer<IntPtr> array = Alloc<IntPtr>(text.Length);
 			for (int i = 0; i < text.Length; i++) array[i] = ASCII(text[i]);
 			return array;
@@ -328,7 +328,7 @@ namespace Tesseract.Core.Native {
 			return array;
 		}
 
-		public UnmanagedPointer<IntPtr> UTF8Array(in Span<string> text) {
+		public UnmanagedPointer<IntPtr> UTF8Array(in ReadOnlySpan<string> text) {
 			UnmanagedPointer<IntPtr> array = Alloc<IntPtr>(text.Length);
 			for (int i = 0; i < text.Length; i++) array[i] = UTF8(text[i]);
 			return array;
