@@ -18,6 +18,10 @@ namespace Tesseract.SDL.Services {
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
+		public void RunEvents() {
+			
+		}
+
 		public T GetService<T>(IService<T> service) {
 			if (service == GLServices.GLWindowSystem) return (T)(object)this;
 			return default;
@@ -212,18 +216,20 @@ namespace Tesseract.SDL.Services {
 
 		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
 			SDLDisplay sdldisplay = (display as SDLServiceDisplay).Display;
-			SDLDisplayMode sdlmode = new();
+			SDLDisplayMode sdlmode;
 			if (mode is SDLServiceDisplayMode) sdlmode = (mode as SDLServiceDisplayMode).DisplayMode;
 			else {
-				sdlmode.W = mode.Size.X;
-				sdlmode.H = mode.Size.Y;
-				sdlmode.Format = SDLPixelService.ConvertPixelFormat(mode.PixelFormat);
-				sdlmode.RefreshRate = mode.RefreshRate;
+				sdlmode = new SDLDisplayMode() {
+					W = mode.Size.X,
+					H = mode.Size.Y,
+					Format = SDLPixelService.ConvertPixelFormat(mode.PixelFormat),
+					RefreshRate = mode.RefreshRate
+				};
 			}
-			SDL2.Functions.SDL_GetClosestDisplayMode(sdldisplay.DisplayIndex, ref sdlmode, out sdlmode);
+			SDL2.Functions.SDL_GetClosestDisplayMode(sdldisplay.DisplayIndex, sdlmode, out sdlmode);
 			// SDL's fullscreen system is a bit wonky
 			// First set the window's display mode to the selected mode
-			SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Window.Ptr, ref sdlmode));
+			SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Window.Ptr, sdlmode));
 			// Then move the window to the center of the display
 			SDL2.Functions.SDL_SetWindowPosition(Window.Window.Ptr, SDL2.WindowPosCenteredOnDisplay(sdldisplay), SDL2.WindowPosCenteredOnDisplay(sdldisplay));
 			// Then make fullscreen on the display

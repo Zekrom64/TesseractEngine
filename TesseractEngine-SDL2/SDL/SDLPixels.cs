@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Graphics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Util;
+using Tesseract.SDL.Native;
 
 namespace Tesseract.SDL {
 
@@ -224,10 +227,14 @@ namespace Tesseract.SDL {
 		public static readonly SDLPixelFormatEnum Index8 = DefinePixelFormat(SDLPixelType.Index8, SDLBitmapOrder.None, 8, 1);
 
 		public static readonly SDLPixelFormatEnum RGB332 = DefinePixelFormat(SDLPixelType.Packed8, SDLPackedOrder.XRGB, SDLPackedLayout._332, 8, 1);
-		public static readonly SDLPixelFormatEnum RGB444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XRGB, SDLPackedLayout._4444, 12, 2);
-		public static readonly SDLPixelFormatEnum BGR444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XBGR, SDLPackedLayout._4444, 12, 2);
-		public static readonly SDLPixelFormatEnum RGB555 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XRGB, SDLPackedLayout._1555, 15, 2);
-		public static readonly SDLPixelFormatEnum BGR555 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XBGR, SDLPackedLayout._1555, 15, 2);
+		public static readonly SDLPixelFormatEnum XRGB4444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XRGB, SDLPackedLayout._4444, 12, 2);
+		public static readonly SDLPixelFormatEnum RGB444 = XRGB4444;
+		public static readonly SDLPixelFormatEnum XBGR4444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XBGR, SDLPackedLayout._4444, 12, 2);
+		public static readonly SDLPixelFormatEnum BGR444 = XBGR4444;
+		public static readonly SDLPixelFormatEnum XRGB1555 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XRGB, SDLPackedLayout._1555, 15, 2);
+		public static readonly SDLPixelFormatEnum RGB555 = XRGB1555;
+		public static readonly SDLPixelFormatEnum XBGR1555 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XBGR, SDLPackedLayout._1555, 15, 2);
+		public static readonly SDLPixelFormatEnum BGR555 = XBGR1555;
 		public static readonly SDLPixelFormatEnum ARGB4444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.ARGB, SDLPackedLayout._4444, 16, 2);
 		public static readonly SDLPixelFormatEnum RGBA4444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.RGBA, SDLPackedLayout._4444, 16, 2);
 		public static readonly SDLPixelFormatEnum ABGR4444 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.ABGR, SDLPackedLayout._4444, 16, 2);
@@ -240,9 +247,11 @@ namespace Tesseract.SDL {
 		public static readonly SDLPixelFormatEnum BGR565 = DefinePixelFormat(SDLPixelType.Packed16, SDLPackedOrder.XBGR, SDLPackedLayout._565, 16, 2);
 		public static readonly SDLPixelFormatEnum RGB24 = DefinePixelFormat(SDLPixelType.ArrayU8, SDLArrayOrder.RGB, 24, 3);
 		public static readonly SDLPixelFormatEnum BGR24 = DefinePixelFormat(SDLPixelType.ArrayU8, SDLArrayOrder.BGR, 24, 3);
-		public static readonly SDLPixelFormatEnum RGB888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.XRGB, SDLPackedLayout._8888, 24, 4);
+		public static readonly SDLPixelFormatEnum XRGB8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.XRGB, SDLPackedLayout._8888, 24, 4);
+		public static readonly SDLPixelFormatEnum RGB888 = XRGB8888;
 		public static readonly SDLPixelFormatEnum RGBX8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.RGBX, SDLPackedLayout._8888, 24, 4);
-		public static readonly SDLPixelFormatEnum BGR888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.XBGR, SDLPackedLayout._8888, 24, 4);
+		public static readonly SDLPixelFormatEnum XBGR8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.XBGR, SDLPackedLayout._8888, 24, 4);
+		public static readonly SDLPixelFormatEnum BGR888 = XBGR8888;
 		public static readonly SDLPixelFormatEnum BGRX8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.BGRX, SDLPackedLayout._8888, 24, 4);
 		public static readonly SDLPixelFormatEnum ARGB8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.ARGB, SDLPackedLayout._8888, 32, 4);
 		public static readonly SDLPixelFormatEnum RGBA8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.RGBA, SDLPackedLayout._8888, 32, 4);
@@ -287,6 +296,8 @@ namespace Tesseract.SDL {
 		/// Android video texture format.
 		/// </summary>
 		public static readonly SDLPixelFormatEnum ExternalOES = DefinePixelFourCC('O', 'E', 'S', ' ');
+
+		public static SDLPixelFormatEnum FromMasks(int bpp, uint rmask, uint gmask, uint bmask, uint amask) => SDL2.Functions.SDL_MasksToPixelFormatEnum(bpp, rmask, gmask, bmask, amask);
 
 		public uint Value { get; }
 
@@ -358,11 +369,13 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The name of the pixel format.
 		/// </summary>
-		public string Name => Marshal.PtrToStringAnsi(SDL2.Functions.SDL_GetPixelFormatName(Value));
+		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_GetPixelFormatName(Value));
 
-		private SDLPixelFormatEnum(uint value) {
+		public SDLPixelFormatEnum(uint value) {
 			Value = value;
 		}
+
+		public bool ToMasks(out int bpp, out uint rmask, out uint gmask, out uint bmask, out uint amask) => SDL2.Functions.SDL_PixelFormatEnumToMasks(Value, out bpp, out rmask, out gmask, out bmask, out amask);
 
 		public bool Equals(IValuedEnum<uint> e) => Value == e.Value;
 
@@ -405,6 +418,126 @@ namespace Tesseract.SDL {
 		/// Alpha component.
 		/// </summary>
 		public byte A;
+
+	}
+
+	public class SDLPalette : IDisposable {
+
+		public IPointer<SDL_Palette> Palette { get; private set; }
+
+		public SDLPalette(IPointer<SDL_Palette> pointer) {
+			Palette = pointer;
+		}
+
+		public SDLPalette(int ncolors) {
+			Palette = new UnmanagedPointer<SDL_Palette>(SDL2.Functions.SDL_AllocPalette(ncolors));
+		}
+
+		public int NColors {
+			get {
+				unsafe {
+					return ((SDL_Palette*)Palette.Ptr)->NColors;
+				}
+			}
+		}
+
+		public ReadOnlySpan<SDLColor> Colors {
+			get {
+				unsafe {
+					return ((SDL_Palette*)Palette.Ptr)->Colors;
+				}
+			}
+		}
+
+		public SDLColor this[int index] => Colors[index];
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			if (Palette != null && !Palette.IsNull) {
+				SDL2.Functions.SDL_FreePalette(Palette.Ptr);
+				Palette = null;
+			}
+		}
+
+		public void SetColors(in ReadOnlySpan<SDLColor> colors, int first = 0) {
+			unsafe {
+				fixed(SDLColor* pColors = colors) {
+					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
+				}
+			}
+		}
+
+		public void SetColors(int first, params SDLColor[] colors) {
+			unsafe {
+				fixed (SDLColor* pColors = colors) {
+					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
+				}
+			}
+		}
+
+	}
+
+	public class SDLPixelFormat : IDisposable {
+
+		public IPointer<SDL_PixelFormat> PixelFormat { get; private set; }
+
+		public SDLPixelFormat(IPointer<SDL_PixelFormat> ptr) {
+			PixelFormat = ptr;
+		}
+
+		public SDLPixelFormat(SDLPixelFormatEnum format) {
+			PixelFormat = new UnmanagedPointer<SDL_PixelFormat>(SDL2.Functions.SDL_AllocFormat(format));
+		}
+
+		public uint Format {
+			get {
+				unsafe {
+					return ((SDL_PixelFormat*)PixelFormat.Ptr)->Format;
+				}
+			}
+		}
+
+		public SDLPalette Palette {
+			get {
+				unsafe {
+					return new(((SDL_PixelFormat*)PixelFormat.Ptr)->Palette);
+				}
+			}
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetPixelFormatPalette(PixelFormat.Ptr, value.Palette.Ptr));
+		}
+
+		public uint MapRGB(byte r, byte g, byte b) => SDL2.Functions.SDL_MapRGB(PixelFormat.Ptr, r, g, b);
+
+		public uint MapRGBA(byte r, byte g, byte b, byte a) => SDL2.Functions.SDL_MapRGBA(PixelFormat.Ptr, r, g, b, a);
+
+		public uint MapColor(IReadOnlyColor color) {
+			if (color is Color4b c4b) return MapRGBA(c4b.R, c4b.G, c4b.B, c4b.A);
+			else if (color is Color3b c3b) return MapRGB(c3b.R, c3b.G, c3b.B);
+			else {
+				Vector4 norm = color.Normalized;
+				return MapRGBA((byte)(255 * norm.X), (byte)(255 * norm.Y), (byte)(255 * norm.Z), (byte)(255 * norm.W));
+			}
+		}
+
+		public Color3b GetRGB(uint color) {
+			Color3b c = new();
+			SDL2.Functions.SDL_GetRGB(color, PixelFormat.Ptr, out c.R, out c.G, out c.B);
+			return c;
+		}
+
+		public Color4b GetRGBA(uint color) {
+			Color4b c = new();
+			SDL2.Functions.SDL_GetRGBA(color, PixelFormat.Ptr, out c.R, out c.G, out c.B, out c.A);
+			return c;
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			if (PixelFormat != null && !PixelFormat.IsNull) {
+				SDL2.Functions.SDL_FreeFormat(PixelFormat.Ptr);
+				PixelFormat = null;
+			}
+		}
 
 	}
 

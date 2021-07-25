@@ -18,6 +18,7 @@ namespace Tesseract.SDL.Native {
 		/// The surface flags.
 		/// </summary>
 		public SDLSurfaceFlags Flags;
+		[NativeType("SDL_PixelFormat*")]
 		private readonly IntPtr format;
 		/// <summary>
 		/// The width of the surface.
@@ -48,9 +49,12 @@ namespace Tesseract.SDL.Native {
 		private readonly IntPtr map;
 		public int RefCount;
 
-		public SDL_PixelFormat Format => Marshal.PtrToStructure<SDL_PixelFormat>(format);
-
 		public bool MustLock => (Flags & SDLSurfaceFlags.RLEAccel) != 0;
+
+		/// <summary>
+		/// The pixel format of the surface.
+		/// </summary>
+		public IPointer<SDL_PixelFormat> Format => new UnmanagedPointer<SDL_PixelFormat>(format);
 
 	}
 

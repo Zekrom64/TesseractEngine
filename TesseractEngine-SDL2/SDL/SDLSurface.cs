@@ -70,20 +70,46 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		public SDLSurfaceFlags Flags {
+			get {
+				unsafe {
+					return ((SDL_Surface*)Surface.Ptr)->Flags;
+				}
+			}
+		}
+
 		/// <summary>
 		/// The width of the surface.
 		/// </summary>
-		public int W => Surface.Value.W;
+		public int W {
+			get {
+				unsafe {
+					return ((SDL_Surface*)Surface.Ptr)->W;
+				}
+			}
+		}
 
 		/// <summary>
 		/// The height of the surface.
 		/// </summary>
-		public int H => Surface.Value.H;
+		public int H {
+			get {
+				unsafe {
+					return ((SDL_Surface*)Surface.Ptr)->H;
+				}
+			}
+		}
 
 		/// <summary>
 		/// The pixel format of the surface.
 		/// </summary>
-		public SDL_PixelFormat PixelFormat => Surface.Value.Format;
+		public SDLPixelFormat PixelFormat {
+			get {
+				unsafe {
+					return new(((SDL_Surface*)Surface.Ptr)->Format);
+				}
+			}
+		}
 
 		/// <summary>
 		/// The pixel format enumeration value of the surface.
@@ -95,12 +121,14 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public SDLPalette Palette {
 			set => SDL2.Functions.SDL_SetSurfacePalette(Surface.Ptr, value.Palette.Ptr);
+			get => PixelFormat.Palette;
 		}
 
 		/// <summary>
 		/// The run length encoding hint of the surface.
 		/// </summary>
 		public bool RLEHint {
+			get => (Flags & SDLSurfaceFlags.RLEAccel) != 0;
 			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceRLE(Surface.Ptr, value ? 1 : 0));
 		}
 
@@ -173,14 +201,26 @@ namespace Tesseract.SDL {
 		/// </summary>
 		/// <seealso cref="Lock"/>
 		/// <seealso cref="Unlock"/>
-		public bool MustLock => Surface.Value.MustLock;
+		public bool MustLock {
+			get {
+				unsafe {
+					return ((SDL_Surface*)Surface.Ptr)->MustLock;
+				}
+			}
+		}
 
 		/// <summary>
 		/// The raw pixel data managed by the surface. This may only be usable
 		/// once <see cref="Lock"/> has been called if <see cref="MustLock"/> is true.
 		/// </summary>
 		/// <seealso cref="Lock"/>
-		public IntPtr Pixels => Surface.Value.Pixels;
+		public IntPtr Pixels {
+			get {
+				unsafe {
+					return ((SDL_Surface*)Surface.Ptr)->Pixels;
+				}
+			}
+		}
 
 		/// <summary>
 		/// <para>Locks the pixels of this surface for direct access.</para>
@@ -197,7 +237,7 @@ namespace Tesseract.SDL {
 		/// <seealso cref="Unlock"/>
 		public IntPtr Lock() {
 			SDL2.CheckError(SDL2.Functions.SDL_LockSurface(Surface.Ptr));
-			return Surface.Value.Pixels;
+			return Pixels;
 		}
 
 		/// <summary>
@@ -322,24 +362,6 @@ namespace Tesseract.SDL {
 				Surface = null;
 			}
 		}
-	}
-
-	public class SDLPalette : IDisposable {
-
-		public IPointer<SDL_Palette> Palette { get; private set; }
-
-		public SDLPalette(IPointer<SDL_Palette> pointer) {
-			Palette = pointer;
-		}
-
-		public void Dispose() {
-			GC.SuppressFinalize(this);
-			if (Palette != null && !Palette.IsNull) {
-				SDL2.Functions.SDL_FreePalette(Palette.Ptr);
-				Palette = null;
-			}
-		}
-
 	}
 
 }
