@@ -9,12 +9,102 @@ namespace Tesseract.SDL.Services {
 	public static class SDLPixelService {
 
 		private static readonly Dictionary<SDLPixelFormatEnum, PixelFormat> fromSDL = new() {
-			{ SDLPixelFormatEnum.Unknown , null },
+			{ SDLPixelFormatEnum.Unknown, null },
 			{ SDLPixelFormatEnum.RGB24, PixelFormat.R8G8B8UNorm },
 			{ SDLPixelFormatEnum.BGR24, PixelFormat.B8G8R8UNorm },
 			{ SDLPixelFormatEnum.RGBA32, PixelFormat.R8G8B8A8UNorm },
 			{ SDLPixelFormatEnum.BGRA32, PixelFormat.B8G8R8A8UNorm },
-			{ SDLPixelFormatEnum.ABGR32, PixelFormat.A8B8G8R8UNorm }
+			{ SDLPixelFormatEnum.ABGR32, PixelFormat.A8B8G8R8UNorm },
+			{ SDLPixelFormatEnum.ARGB32, PixelFormat.DefineUnpackedFormat(
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			// Uncommon pixel formats supported by SDL
+			{ SDLPixelFormatEnum.RGB332, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 5, Size = 3, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 3, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.XRGB4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.XBGR4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.XRGB1555, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new	PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new	PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm}
+			) },
+			{ SDLPixelFormatEnum.XBGR1555, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.ARGB4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new	PixelChannel() { Type = ChannelType.Red, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.RGBA4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.ABGR4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.BGRA4444, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.ARGB1555, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 15, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.RGBA5551, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 6, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 1, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.ABGR1555, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 15, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.BGRA5551, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 6, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 1, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.RGB565, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Red, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) },
+			{ SDLPixelFormatEnum.BGR565, PixelFormat.DefinePackedFormat(
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+			) }
 		};
 
 		private static readonly Dictionary<PixelFormat, SDLPixelFormatEnum> toSDL = fromSDL.ToDictionary(item => item.Value, item => item.Key);

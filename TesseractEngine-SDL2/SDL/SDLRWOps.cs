@@ -125,7 +125,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = Marshal.PtrToStringAnsi(error);
+							string strerror = MemoryUtil.GetStringASCII(error);
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -144,7 +144,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = Marshal.PtrToStringAnsi(error);
+							string strerror = MemoryUtil.GetStringASCII(error);
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -172,6 +172,8 @@ namespace Tesseract.SDL {
 				RWOps = null;
 			}
 		}
+
+		public static implicit operator SDLSpanRWOps(SDLRWOps rwops) => new(rwops.RWOps);
 
 	}
 

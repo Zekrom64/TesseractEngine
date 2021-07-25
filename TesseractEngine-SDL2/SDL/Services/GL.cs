@@ -12,19 +12,27 @@ namespace Tesseract.SDL.Services {
 		public IntPtr Window { get; }
 		public IntPtr Context { get; }
 
+		private int? majorVersion, minorVersion;
+
 		public int MajorVersion {
 			get {
-				MakeGLCurrent();
-				SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMajorVersion, out int value));
-				return value;
+				if (!majorVersion.HasValue) {
+					MakeGLCurrent();
+					SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMajorVersion, out int value));
+					majorVersion = value;
+				}
+				return majorVersion.Value;
 			}
 		}
 
 		public int MinorVersion {
 			get {
-				MakeGLCurrent();
-				SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMinorVersion, out int value));
-				return value;
+				if (!minorVersion.HasValue) {
+					MakeGLCurrent();
+					SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMinorVersion, out int value));
+					minorVersion = value;
+				}
+				return minorVersion.Value;
 			}
 		}
 
