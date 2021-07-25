@@ -19,7 +19,32 @@ namespace Tesseract.SDL.Services {
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
 		public void RunEvents() {
-			
+			SDL2.PumpEvents();
+			SDLEvent? evt;
+			while ((evt = SDL2.PollEvent()).HasValue) PushEvent(evt.Value);
+		}
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Kept as instanced in case instance fields are required in future")]
+		public bool PushEvent(in SDLEvent evt) {
+			switch(evt.Type) {
+				case SDLEventType.WindowEvent: {
+					IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(SDL2.Functions.SDL_GetWindowFromID(evt.Window.WindowID), SDLServiceWindow.WindowDataID);
+					SDLServiceWindow window = new ObjectPointer<SDLServiceWindow>(pWindow).Value;
+					switch (evt.Window.Event) {
+						case SDLWindowEventID.Resized: window.DoOnResize(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+						case SDLWindowEventID.Moved: window.DoOnMove(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+						case SDLWindowEventID.Minimized: window.DoOnMinimized(); break;
+						case SDLWindowEventID.Maximized: window.DoOnMaximized(); break;
+						case SDLWindowEventID.Restored: window.DoOnRestored(); break;
+						case SDLWindowEventID.FocusGained: window.DoOnFocused(); break;
+						case SDLWindowEventID.FocusLost: window.DoOnUnfocused(); break;
+						case SDLWindowEventID.Close: window.DoOnClosing(); break;
+						default: break;
+					}
+				} break;
+				default: return false;
+			}
+			return true;
 		}
 
 		public T GetService<T>(IService<T> service) {
@@ -106,6 +131,8 @@ namespace Tesseract.SDL.Services {
 
 	public class SDLServiceWindow : IDisposable, IWindow, IGammaRampObject, IGLContextProvider {
 
+		internal const string WindowDataID = "__GCHandle";
+
 		public readonly SDLWindow Window;
 
 		private readonly object lockGlcontext = new();
@@ -155,13 +182,21 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public event Action<Vector2i> OnResize;
+		internal void DoOnResize(Vector2i size) => OnResize?.Invoke(size);
 		public event Action<Vector2i> OnMove;
+		internal void DoOnMove(Vector2i pos) => OnMove?.Invoke(pos);
 		public event Action OnMinimized;
+		internal void DoOnMinimized() => OnMinimized?.Invoke();
 		public event Action OnMaximized;
+		internal void DoOnMaximized() => OnMaximized?.Invoke();
 		public event Action OnRestored;
+		internal void DoOnRestored() => OnRestored?.Invoke();
 		public event Action OnFocused;
+		internal void DoOnFocused() => OnFocused?.Invoke();
 		public event Action OnUnfocused;
+		internal void DoOnUnfocused() => OnUnfocused?.Invoke();
 		public event Action OnClosing;
+		internal void DoOnClosing() => OnClosing?.Invoke();
 
 		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList attributes) {
 			if (attributes == null) return 0;
@@ -189,7 +224,7 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;
 			}
-			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, "GCHandle", new ObjectPointer<SDLServiceWindow>(this).Ptr);
+			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
 		}
 
 		public IGLContext CreateContext() {
@@ -267,7 +302,7 @@ namespace Tesseract.SDL.Services {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			ObjectPointer<SDLServiceWindow> gchandle = new(SDL2.Functions.SDL_GetWindowData(Window.Window.Ptr, "GCHandle"));
+			ObjectPointer<SDLServiceWindow> gchandle = new(SDL2.Functions.SDL_GetWindowData(Window.Window.Ptr, WindowDataID));
 			gchandle.Dispose();
 			Window.Dispose();
 		}
