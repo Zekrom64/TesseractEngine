@@ -548,5 +548,117 @@ namespace Tesseract.SDL {
 
 		public static void FilterEvents(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_FilterEvents(filter, userdata);
 
+		public static ReadOnlySpan<SDLButtonState> GetKeyboardState() {
+			IntPtr ptr = Functions.SDL_GetKeyboardState(out int numkeys);
+			unsafe {
+				return new ReadOnlySpan<SDLButtonState>((void*)ptr, numkeys);
+			}
+		}
+
+		public static SDLKeymod ModState {
+			get => Functions.SDL_GetModState();
+			set => Functions.SDL_SetModState(value);
+		}
+
+		public static SDLKeycode GetKeyFromScancode(SDLScancode scancode) => Functions.SDL_GetKeyFromScancode(scancode);
+
+		public static SDLScancode GetScancodeFromKey(SDLKeycode key) => Functions.SDL_GetScancodeFromKey(key);
+
+		public static string GetScancodeName(SDLScancode scancode) => MemoryUtil.GetStringASCII(Functions.SDL_GetScancodeName(scancode));
+
+		public static SDLScancode GetScancodeFromName(string name) => Functions.SDL_GetScancodeFromName(name);
+
+		public static string GetKeyName(SDLKeycode key) => MemoryUtil.GetStringASCII(Functions.SDL_GetKeyName(key));
+
+		public static SDLKeycode GetKeyFromName(string name) => Functions.SDL_GetKeyFromName(name);
+
+		public static void StartTextInput() => Functions.SDL_StartTextInput();
+
+		public static bool IsTextInputActive => Functions.SDL_IsTextInputActive();
+
+		public static void StopTextInput() => Functions.SDL_StopTextInput();
+
+		public static void SetTextInputRect(in SDLRect rect) => Functions.SDL_SetTextInputRect(rect);
+
+		public static bool HasScreenKeyboardSupport => Functions.SDL_HasScreenKeyboardSupport();
+
+		// SDL_mouse.h
+
+		public static SDLMouseButtonState MakeMouseButton(int index) => (SDLMouseButtonState)(1 << (index - 1));
+
+		public static SDLWindow GetMouseFocus() {
+			IntPtr ptr = Functions.SDL_GetMouseFocus();
+			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
+		}
+
+		public static SDLMouseButtonState GetMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetMouseState(out x, out y);
+
+		public static SDLMouseButtonState GetGlobalMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetGlobalMouseState(out x, out y);
+
+		public static SDLMouseButtonState GetRelativeMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetRelativeMouseState(out x, out y);
+
+		public static void WarpMouseGlobal(int x, int y) => CheckError(Functions.SDL_WarpMouseGlobal(x, y));
+
+		public static bool RelativeMouseMode {
+			get => Functions.SDL_GetRelativeMouseMode();
+			set => CheckError(Functions.SDL_SetRelativeMouseMode(value));
+		}
+
+		public static bool CaptureMouse {
+			set => CheckError(Functions.SDL_CaptureMouse(value));
+		}
+
+		public static SDLCursor Cursor {
+			get => new(new UnmanagedPointer<SDL_Cursor>(Functions.SDL_GetCursor()));
+			set => Functions.SDL_SetCursor(value.Cursor.Ptr);
+		}
+
+		public static bool ShowCursor {
+			get => Functions.SDL_ShowCursor(-1) == 1;
+			set => Functions.SDL_ShowCursor(value ? 1 : 0);
+		}
+
+		// SDL_joystick.h
+
+		public const short JoystickAxisMax = short.MaxValue;
+		public const short JoystickAxisMin = short.MinValue;
+
+		public const uint TouchMouseID = 0xFFFFFFFF;
+		public const long MouseTouchID = -1;
+
+		public static void LockJoysticks() => Functions.SDL_LockJoysticks();
+
+		public static void UnlockJoysticks() => Functions.SDL_UnlockJoysticks();
+
+		public static SDLJoystickDevice[] Joysticks {
+			get {
+				SDLJoystickDevice[] joysticks = new SDLJoystickDevice[Functions.SDL_NumJoysticks()];
+				for (int i = 0; i < joysticks.Length; i++) joysticks[i] = new SDLJoystickDevice() { DeviceIndex = i };
+				return joysticks;
+			}
+		}
+
+		public static SDLJoystickDevice JoystickAttachVirtual(SDLJoystickType type, int naxes, int nbuttons, int nhats) {
+			int dev = Functions.SDL_JoystickAttachVirtual(type, naxes, nbuttons, nhats);
+			if (dev == -1) throw new SDLException(GetError());
+			return new SDLJoystickDevice() { DeviceIndex = dev };
+		}
+
+		public static void JoystickUpdate() => Functions.SDL_JoystickUpdate();
+
+		public static bool JoystickEventState {
+			get => Functions.SDL_JoystickEventState(-1) == 1;
+			set => Functions.SDL_JoystickEventState(value ? 1 : 0);
+		}
+
+		// SDL_touch.h
+
+		public static SDLTouchDevice[] TouchDevices {
+			get {
+				SDLTouchDevice[] devices = new SDLTouchDevice[Functions.SDL_GetNumTouchDevices()];
+				for (int i = 0; i < devices.Length; i++) devices[i] = new SDLTouchDevice() { DeviceIndex = i };
+				return devices;
+			}
+		}
 	}
 }
