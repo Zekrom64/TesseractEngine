@@ -10,6 +10,8 @@ using Tesseract.Core.Native;
 namespace Tesseract.SDL {
 	
 	public enum SDLEventType : uint {
+		FirstEvent = 0,
+
 		Quit = 0x100,
 
 		AppTerminating,
@@ -526,5 +528,13 @@ namespace Tesseract.SDL {
 		Disable = 0,
 		Enable = 1
 	}
+
+	public enum SDLEventAction {
+		AddEvent,
+		PeekEvent,
+		GetEvent
+	}
+
+	public delegate int SDLEventFilter(IntPtr userdata, in SDLEvent _event);
 
 }

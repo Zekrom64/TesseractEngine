@@ -489,5 +489,64 @@ namespace Tesseract.SDL {
 				return devices;
 			}
 		}
+
+		// SDL_events.h
+
+		public static void PumpEvents() => Functions.SDL_PumpEvents();
+
+		public static Span<SDLEvent> PeepEvents(Span<SDLEvent> events, int numevents, SDLEventAction action, uint minType = 0, uint maxType = uint.MaxValue) {
+			unsafe {
+				fixed(SDLEvent* pEvents = events) {
+					Functions.SDL_PeepEvents((IntPtr)pEvents, numevents, action, minType, maxType);
+				}
+			}
+			return events;
+		}
+
+		public static bool HasEvent(SDLEventType type) => Functions.SDL_HasEvent((uint)type);
+
+		public static bool HasEvents(uint minType = 0, uint maxType = uint.MaxValue) => Functions.SDL_HasEvents(minType, maxType);
+
+		public static void FlushEvent(SDLEventType type) => Functions.SDL_FlushEvent((uint)type);
+
+		public static void FlushEvents(uint minType = 0, uint maxType = uint.MaxValue) => Functions.SDL_FlushEvents(minType, maxType);
+
+		public static SDLEvent? PollEvent() {
+			if (Functions.SDL_PollEvent(out SDLEvent evt) == 1) return evt;
+			else return null;
+		}
+
+		public static SDLEvent WaitEvent() {
+			if (Functions.SDL_WaitEvent(out SDLEvent evt) != 0) throw new SDLException(GetError());
+			return evt;
+		}
+
+		public static SDLEvent? WaitEventTimeout(int timeout) {
+			// SDL doesn't actually tell us if WaitEventTimeout succeeds or timed out, so a sentry event type is used to detect this
+			SDLEvent evt = new() { Type = SDLEventType.FirstEvent };
+			if (Functions.SDL_WaitEventTimeout(ref evt, timeout) != 0) throw new SDLException(GetError());
+			return evt.Type == SDLEventType.FirstEvent ? null : evt;
+		}
+
+		public static void PushEvent(SDLEvent evt) => Functions.SDL_PushEvent(evt);
+
+		public static void SetEventFilter(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_SetEventFilter(filter, userdata);
+
+		public static bool GetEventFilter(out SDLEventFilter filter, out IntPtr userdata) {
+			if (!Functions.SDL_GetEventFilter(out IntPtr pFilter, out userdata)) {
+				filter = null;
+				return false;
+			} else {
+				filter = Marshal.GetDelegateForFunctionPointer<SDLEventFilter>(pFilter);
+				return true;
+			}
+		}
+
+		public static void AddEventWatch(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_AddEventWatch(filter, userdata);
+
+		public static void DelEventWatch(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_DelEventWatch(filter, userdata);
+
+		public static void FilterEvents(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_FilterEvents(filter, userdata);
+
 	}
 }

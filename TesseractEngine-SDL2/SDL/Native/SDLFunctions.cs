@@ -1191,6 +1191,44 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_GetNumTouchFingers SDL_GetNumTouchFingers;
 		public PFN_SDL_GetTouchFinger SDL_GetTouchFinger;
 
+		// SDL_events.h
+
+		public delegate void PFN_SDL_PumpEvents();
+		public delegate int PFN_SDL_PeepEvents([NativeType("SDL_Event*")] IntPtr events, int numevents, SDLEventAction action, uint minType, uint maxType);
+		public delegate SDLBool PFN_SDL_HasEvent(uint type);
+		public delegate SDLBool PFN_SDL_HasEvents(uint minType, uint maxType);
+		public delegate void PFN_SDL_FlushEvent(uint type);
+		public delegate void PFN_SDL_FlushEvents(uint minType, uint maxType);
+		public delegate int PFN_SDL_PollEvent(out SDLEvent _event);
+		public delegate int PFN_SDL_WaitEvent(out SDLEvent _event);
+		public delegate int PFN_SDL_WaitEventTimeout(ref SDLEvent _event, int timeout);
+		public delegate int PFN_SDL_PushEvent(in SDLEvent _event);
+		public delegate void PFN_SDL_SetEventFilter([MarshalAs(UnmanagedType.FunctionPtr)] SDLEventFilter filter, IntPtr userdata);
+		public delegate bool PFN_SDL_GetEventFilter([NativeType("SDL_EventFilter*")] out IntPtr filter, [NativeType("void**")] out IntPtr userdata);
+		public delegate void PFN_SDL_AddEventWatch([MarshalAs(UnmanagedType.FunctionPtr)] SDLEventFilter filter, IntPtr userdata);
+		public delegate void PFN_SDL_DelEventWatch([MarshalAs(UnmanagedType.FunctionPtr)] SDLEventFilter filter, IntPtr userdata);
+		public delegate void PFN_SDL_FilterEvents([MarshalAs(UnmanagedType.FunctionPtr)] SDLEventFilter filter, IntPtr userdata);
+		public delegate byte PFN_SDL_EventState(uint type, byte state);
+		public delegate uint PFN_SDL_RegisterEvents(int numEvents);
+
+		public PFN_SDL_PumpEvents SDL_PumpEvents;
+		public PFN_SDL_PeepEvents SDL_PeepEvents;
+		public PFN_SDL_HasEvent SDL_HasEvent;
+		public PFN_SDL_HasEvents SDL_HasEvents;
+		public PFN_SDL_FlushEvent SDL_FlushEvent;
+		public PFN_SDL_FlushEvents SDL_FlushEvents;
+		public PFN_SDL_PollEvent SDL_PollEvent;
+		public PFN_SDL_WaitEvent SDL_WaitEvent;
+		public PFN_SDL_WaitEventTimeout SDL_WaitEventTimeout;
+		public PFN_SDL_PushEvent SDL_PushEvent;
+		public PFN_SDL_SetEventFilter SDL_SetEventFilter;
+		public PFN_SDL_GetEventFilter SDL_GetEventFilter;
+		public PFN_SDL_AddEventWatch SDL_AddEventWatch;
+		public PFN_SDL_DelEventWatch SDL_DelEventWatch;
+		public PFN_SDL_FilterEvents SDL_FilterEvents;
+		public PFN_SDL_EventState SDL_EventState;
+		public PFN_SDL_RegisterEvents SDL_RegisterEvents;
+
 	}
 
 }
