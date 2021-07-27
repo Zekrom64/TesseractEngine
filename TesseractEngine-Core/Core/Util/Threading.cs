@@ -19,6 +19,10 @@ namespace Tesseract.Core.Util {
 		/// </summary>
 		SingleThread,
 		/// <summary>
+		/// The target has mixed support for different levels of thread safety.
+		/// </summary>
+		Mixed,
+		/// <summary>
 		/// The target can safely be used concurrently by multiple threads.
 		/// </summary>
 		Concurrent

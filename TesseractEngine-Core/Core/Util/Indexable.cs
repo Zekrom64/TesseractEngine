@@ -44,4 +44,22 @@ namespace Tesseract.Core.Util {
 
 	}
 
+	public class FuncIndexer<K,V> : IIndexer<K,V> {
+
+		public readonly Func<K, V> Getter;
+		public readonly Action<K, V> Setter;
+
+		public FuncIndexer(Func<K,V> getter, Action<K,V> setter) {
+			Getter = getter;
+			Setter = setter;
+		}
+
+		public V this[K key] {
+			get => Getter(key);
+			set => Setter(key, value);
+		}
+
+		V IReadOnlyIndexer<K, V>.this[K key] => Getter(key);
+	}
+
 }

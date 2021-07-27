@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Services;
+using Tesseract.Core.Input;
 using Tesseract.Core.Math;
+using Tesseract.Core.Services;
 using Tesseract.Core.Util;
-using IServiceProvider = Tesseract.Core.Services.IServiceProvider;
 
 namespace Tesseract.Core.Graphics {
 
@@ -157,11 +157,28 @@ namespace Tesseract.Core.Graphics {
 	}
 
 	/// <summary>
+	/// Enumeration of standard cursors.
+	/// </summary>
+	public enum StandardCursor {
+		Arrow,
+		IBeam,
+		Hand,
+		Crosshair,
+		HResize,
+		VResize
+	}
+
+	/// <summary>
+	/// A cursor is an image that is drawn at the position of the mouse on screen.
+	/// </summary>
+	public interface ICursor : IDisposable { }
+
+	/// <summary>
 	/// A windowing system manages a desktop made up of one or more displays and
 	/// user-created windows.
 	/// </summary>
 	[ThreadSafety(ThreadSafetyLevel.MainThread)]
-	public interface IWindowSystem : IServiceProvider {
+	public interface IWindowSystem : Services.IServiceProvider {
 
 		/// <summary>
 		/// Creates a new window.
@@ -179,6 +196,27 @@ namespace Tesseract.Core.Graphics {
 		/// <returns>Desktop displays</returns>
 		public IDisplay[] GetDisplays();
 
+		/// <summary>
+		/// If custom cursors are supported.
+		/// </summary>
+		public bool CustomCursorSupport { get; }
+
+		/// <summary>
+		/// Creates a custom cursor from an image. Cursors have a "hotspot" that determines how the cursor 
+		/// image is positioned relative to where the mouse reports its position.
+		/// </summary>
+		/// <param name="image">The cursor image</param>
+		/// <param name="hotspot">The hotspot position of the cursor</param>
+		/// <returns>A custom cursor</returns>
+		public ICursor CreateCursor(IImage image, Vector2i hotspot);
+
+		/// <summary>
+		/// Creates a standard cursor.
+		/// </summary>
+		/// <param name="std">The type of standard cursor to create</param>
+		/// <returns>A standard cursor</returns>
+		public ICursor CreateStandardCursor(StandardCursor std);
+
 	}
 
 	/// <summary>
@@ -186,7 +224,7 @@ namespace Tesseract.Core.Graphics {
 	/// a display mode 
 	/// </summary>
 	[ThreadSafety(ThreadSafetyLevel.MainThread)]
-	public interface IDisplay: IServiceProvider {
+	public interface IDisplay : Services.IServiceProvider {
 
 		/// <summary>
 		/// The position of the display's area inside the desktop.
@@ -235,10 +273,12 @@ namespace Tesseract.Core.Graphics {
 
 	/// <summary>
 	/// A window is a configurable surface created in a windowing system that can be used for presentation
-	/// to a display. The window is only fully destroyed when explicitly disposed.
+	/// to a display. The window is only fully destroyed when explicitly disposed. Input for windows is
+	/// "local"; positions will be relative to the client area and input may be disabled if the window
+	/// is not focused.
 	/// </summary>
 	[ThreadSafety(ThreadSafetyLevel.MainThread)]
-	public interface IWindow : IDisposable, IServiceProvider {
+	public interface IWindow : IDisposable, Services.IServiceProvider, IKeyInput, ITextInput, IMouseInput {
 
 		/// <summary>
 		/// The title of the window.
@@ -246,7 +286,8 @@ namespace Tesseract.Core.Graphics {
 		public string Title { get; set; }
 
 		/// <summary>
-		/// The size of the window.
+		/// The size of the window's content area. The actual size of the window
+		/// with borders may be greater.
 		/// </summary>
 		public Vector2i Size { get; set; }
 
@@ -352,6 +393,25 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="display">Display to make fullscreen on</param>
 		/// <param name="mode">Display mode to use in fullscreen mode</param>
 		public void SetFullscreen(IDisplay display, IDisplayMode mode);
+
+		/// <summary>
+		/// Sets the cursor displayed while inside the window's client area. If null
+		/// is passed the cursor is reset to its default image.
+		/// </summary>
+		/// <param name="cursor">Cursor to set</param>
+		public void SetCursor(ICursor cursor);
+
+		/// <summary>
+		/// If the window captures the mouse when focused. When the mouse is captured the cursor is hidden
+		/// and locked inside of the client area, allowing unlimited movement. When in this mode the the
+		/// absolute position of mouse events is undefined and should be ignored.
+		/// </summary>
+		public bool CaptureMouse { get; set; }
+
+		/// <summary>
+		/// The window surface, if present.
+		/// </summary>
+		public IWindowSurface Surface { get; }
 
 	}
 
