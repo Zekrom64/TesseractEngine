@@ -14,6 +14,11 @@ namespace Tesseract.Core.Input {
 	public struct MouseButtonEvent {
 
 		/// <summary>
+		/// The position of the mouse when the button is activated.
+		/// </summary>
+		public Vector2i Position;
+
+		/// <summary>
 		/// The button causing the event.
 		/// </summary>
 		public int Button;
