@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
+using Tesseract.Core.Input;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
@@ -13,6 +14,8 @@ using Tesseract.GL;
 namespace Tesseract.SDL.Services {
 
 	public class SDLServiceWindowSystem : IWindowSystem, IGLWindowSystem {
+
+		public bool CustomCursorSupport => true;
 
 		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null) => new SDLServiceWindow(title, w, h, attributes);
 
@@ -87,6 +90,10 @@ namespace Tesseract.SDL.Services {
 			}
 			SDL2.CheckError(SDL2.Functions.SDL_GL_SetAttribute(attr, value));
 		}
+
+		// TODO
+		public ICursor CreateCursor(IImage image, Vector2i hotspot) => throw new NotImplementedException();
+		public ICursor CreateStandardCursor(StandardCursor std) => throw new NotImplementedException();
 	}
 
 	public class SDLServiceDisplayMode : IDisplayMode {
@@ -197,6 +204,18 @@ namespace Tesseract.SDL.Services {
 		internal void DoOnUnfocused() => OnUnfocused?.Invoke();
 		public event Action OnClosing;
 		internal void DoOnClosing() => OnClosing?.Invoke();
+		public event Action<KeyEvent> OnKey;
+		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
+		public event Action<TextInputEvent> OnTextInput;
+		internal void DoOnTextInput(TextInputEvent evt) => OnTextInput?.Invoke(evt);
+		public event Action<TextEditEvent> OnTextEdit;
+		internal void DoOnTextEdit(TextEditEvent evt) => OnTextEdit?.Invoke(evt);
+		public event Action<MouseMoveEvent> OnMouseMove;
+		internal void DoOnMouseMove(MouseMoveEvent evt) => OnMouseMove?.Invoke(evt);
+		public event Action<MouseButtonEvent> OnMouseButton;
+		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
+		public event Action<MouseWheelEvent> OnMouseWheel;
+		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
 
 		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList attributes) {
 			if (attributes == null) return 0;
@@ -298,6 +317,13 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
+		// TODO
+		public bool CaptureMouse { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public IWindowSurface Surface => throw new NotImplementedException();
+
+		public Vector2i MousePosition => throw new NotImplementedException();
+
 		public IGammaRamp CreateCompatibleGammaRamp() => new SDLServiceGammaRamp();
 
 		public void Dispose() {
@@ -307,6 +333,12 @@ namespace Tesseract.SDL.Services {
 			Window.Dispose();
 		}
 
+		// TODO
+		public void SetCursor(ICursor cursor) => throw new NotImplementedException();
+		public bool GetKeyState(Key key) => throw new NotImplementedException();
+		public void StartTextInput() => throw new NotImplementedException();
+		public void EndTextInput() => throw new NotImplementedException();
+		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
 	}
 
 	public class SDLServiceGammaRamp : IGammaRamp {
