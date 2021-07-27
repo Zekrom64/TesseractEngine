@@ -123,7 +123,7 @@ namespace Tesseract.SDL {
 		public uint WindowID;
 		public SDLButtonState State;
 		[MarshalAs(UnmanagedType.U1)]
-		public byte repeat;
+		public byte Repeat;
 		private readonly byte padding2;
 		private readonly byte padding3;
 		public SDLKeysym Keysym;

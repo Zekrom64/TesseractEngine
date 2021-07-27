@@ -413,6 +413,12 @@ namespace Tesseract.SDL {
 
 		// SDL_mouse.h
 
+		public const int ButtonLeft = 1;
+		public const int ButtonMiddle = 2;
+		public const int ButtonRight = 3;
+		public const int ButtonX1 = 4;
+		public const int ButtonX2 = 5;
+
 		public static SDLMouseButtonState MakeMouseButton(int index) => (SDLMouseButtonState)(1 << (index - 1));
 
 		public static SDLWindow GetMouseFocus() {
