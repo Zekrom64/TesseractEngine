@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Native;
 using Tesseract.Core.Util;
 
 namespace Tesseract.SDL.Native {
@@ -14,59 +15,29 @@ namespace Tesseract.SDL.Native {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct SDL_Palette {
 
-		private readonly int ncolors;
+		public readonly int NColors;
 		private readonly IntPtr colors;
 		/// <summary>
-		/// The palette version.
+		/// The palette version. Incrementally tracks modifications to the palette's colors.
 		/// </summary>
-		public uint Version;
+		public readonly uint Version;
 		/// <summary>
 		/// Reference count of palette.
 		/// </summary>
-		public int RefCount;
+		public readonly int RefCount;
 
 		/// <summary>
 		/// The array of colors in the palette.
 		/// </summary>
-		public SDLColor[] Colors {
+		public ReadOnlySpan<SDLColor> Colors {
 			get {
-				SDLColor[] colors = new SDLColor[ncolors];
 				unsafe {
-					fixed(SDLColor* pColors = colors) {
-						long length = ncolors * sizeof(SDLColor);
-						Buffer.MemoryCopy(this.colors.ToPointer(), pColors, length, length);
-					}
-				}
-				return colors;
-			}
-			/*
-			set {
-				unsafe {
-					fixed(SDLColor* pColors = value) {
-						long length = Math.Min(ncolors, value.Length) * sizeof(SDLColor);
-						Buffer.MemoryCopy(pColors, colors.ToPointer(), ncolors * sizeof(SDLColor), length);
-					}
+					return new ReadOnlySpan<SDLColor>((void*)colors, NColors);
 				}
 			}
-			*/
 		}
 
-		public SDLColor this[int index] {
-			get {
-				if (index < 0 || index >= ncolors) throw new IndexOutOfRangeException();
-				unsafe {
-					return ((SDLColor*)colors.ToPointer())[index];
-				}
-			}
-			/*
-			set {
-				if (index < 0 || index >= ncolors) throw new IndexOutOfRangeException();
-				unsafe {
-					((SDLColor*)colors.ToPointer())[index] = value;
-				}
-			}
-			*/
-		}
+		public SDLColor this[int index] => Colors[index];
 
 	}
 
@@ -79,53 +50,62 @@ namespace Tesseract.SDL.Native {
 		/// <summary>
 		/// The enumeration value of the format.
 		/// </summary>
-		public uint Format;
+		public readonly uint Format;
 		private readonly IntPtr palette;
 		/// <summary>
 		/// The number of bits per pixel in the format.
 		/// </summary>
-		public byte BitsPerPixel;
+		public readonly byte BitsPerPixel;
 		/// <summary>
 		/// The number of bytes per pixel in the format.
 		/// </summary>
-		public byte BytesPerPixel;
+		public readonly byte BytesPerPixel;
 		private readonly byte padding0;
 		private readonly byte padding1;
 		/// <summary>
 		/// Bitmask of red component in a pixel value.
 		/// </summary>
-		public uint RMask;
+		public readonly uint RMask;
 		/// <summary>
 		/// Bitmask of green component in a pixel vlaue.
 		/// </summary>
-		public uint GMask;
+		public readonly uint GMask;
 		/// <summary>
 		/// Bitmask of blue component in a pixel value.
 		/// </summary>
-		public uint BMask;
+		public readonly uint BMask;
 		/// <summary>
 		/// Bitmask of alpha component in a pixel value.
 		/// </summary>
-		public uint AMask;
-		public byte RLoss;
-		public byte GLoss;
-		public byte BLoss;
-		public byte ALoss;
-		public byte RShift;
-		public byte GShift;
-		public byte BShift;
-		public byte AShift;
-		public int RefCount;
+		public readonly uint AMask;
+		public readonly byte RLoss;
+		public readonly byte GLoss;
+		public readonly byte BLoss;
+		public readonly byte ALoss;
+		public readonly byte RShift;
+		public readonly byte GShift;
+		public readonly byte BShift;
+		public readonly byte AShift;
+		public readonly int RefCount;
 		private readonly IntPtr next;
+
+		/// <summary>
+		/// Gets the pointer to the color palette of the format.
+		/// </summary>
+		public IPointer<SDL_Palette> Palette => new UnmanagedPointer<SDL_Palette>(palette);
+		/// <summary>
+		/// Gets the pointer to the next pixel format in the chain.
+		/// </summary>
+		public IPointer<SDL_PixelFormat> Next => new UnmanagedPointer<SDL_PixelFormat>(next);
 
 		/// <summary>
 		/// Gets the color palette of the format, if it exists.
 		/// </summary>
-		public SDL_Palette? Palette => palette == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_Palette>(palette);
+		public SDL_Palette? PaletteVal => palette == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_Palette>(palette);
 		/// <summary>
 		/// Gets the next pixel format in the chain, if it exists.
 		/// </summary>
-		public SDL_PixelFormat? Next => next == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_PixelFormat>(next);
+		public SDL_PixelFormat? NextFormat => next == IntPtr.Zero ? null : Marshal.PtrToStructure<SDL_PixelFormat>(next);
 
 	}
 

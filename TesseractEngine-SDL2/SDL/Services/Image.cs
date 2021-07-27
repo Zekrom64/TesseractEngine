@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
@@ -54,7 +50,7 @@ namespace Tesseract.SDL.Services {
 		public IImage Duplicate() => new SDLServiceImage(Surface.Duplicate());
 
 		public IPointer<byte> MapPixels(MapMode mode) {
-			if (Surface.MustLock) Surface.Lock();
+			if (Surface.MustLock) return new UnmanagedPointer<byte>(Surface.Lock());
 			return new UnmanagedPointer<byte>(Surface.Pixels);
 		}
 
@@ -101,5 +97,62 @@ namespace Tesseract.SDL.Services {
 				if (dispose) sdlimage.Dispose();
 			}
 		}
+	}
+
+	public class SDLImageProcessingService : IImageProcessing {
+		
+		public void Blit(IImage dst, IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
+			SDLServiceImage sdldst;
+			if (dst is SDLServiceImage) sdldst = dst as SDLServiceImage;
+			else throw new SDLException("Cannot blit to non-SDL image");
+			SDLServiceImage sdlsrc;
+			bool dispose = false;
+			if (src is SDLServiceImage) sdlsrc = src as SDLServiceImage;
+			else {
+				sdlsrc = new SDLServiceImage(src);
+				dispose = true;
+			}
+			sdldst.Surface.Blit(new SDLRect() {
+				X = dstArea.Position.X,
+				Y = dstArea.Position.Y,
+				W = dstArea.Size.X,
+				H = dstArea.Size.Y
+			},
+			sdlsrc.Surface, new SDLRect() {
+				X = srcPos.X,
+				Y = srcPos.Y,
+				W = dstArea.Size.X,
+				H = dstArea.Size.Y
+			});
+			if (dispose) sdlsrc.Dispose();
+		}
+
+		public IImage Convert(IImage image, PixelFormat format) {
+			SDLServiceImage sdlimg;
+			bool dispose = false;
+			if (image is SDLServiceImage) sdlimg = image as SDLServiceImage;
+			else {
+				sdlimg = new SDLServiceImage(image);
+				dispose = true;
+			}
+			SDLPixelFormatEnum pxfmt = SDLPixelService.ConvertPixelFormat(format);
+			if (pxfmt == SDLPixelFormatEnum.Unknown) throw new SDLException("Cannot convert to unsupported pixel format");
+			SDLServiceImage newimg = new(sdlimg.Surface.Convert(pxfmt));
+			if (dispose) sdlimg.Dispose();
+			return newimg;
+		}
+
+		public void Fill(IImage dst, IReadOnlyRect<int> dstArea, IReadOnlyColor color) {
+			SDLServiceImage sdlimg;
+			if (dst is SDLServiceImage) sdlimg = dst as SDLServiceImage;
+			else throw new SDLException("Cannot fill non-SDL image");
+			sdlimg.Surface.FillRect(new SDLRect() {
+				X = dstArea.Position.X,
+				Y = dstArea.Position.Y,
+				W = dstArea.Size.X,
+				H = dstArea.Size.Y
+			}, sdlimg.Surface.PixelFormat.MapColor(color));
+		}
+
 	}
 }

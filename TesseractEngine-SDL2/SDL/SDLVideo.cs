@@ -11,12 +11,17 @@ using Tesseract.SDL.Native;
 namespace Tesseract.SDL {
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SDLDisplayMode {
-		public uint Format;
-		public int W;
-		public int H;
-		public int RefreshRate;
-		public IntPtr DriverData;
+	public readonly struct SDLDisplayMode {
+		private readonly uint format;
+		public uint Format { get => format; init => format = value; }
+		private readonly int w;
+		public int W { get => w; init => w = value; }
+		private readonly int h;
+		public int H { get => h; init => h = value; }
+		private readonly int refreshRate;
+		public int RefreshRate { get => refreshRate; init => refreshRate = value; }
+		private readonly IntPtr driverData;
+		public IntPtr DriverData { get => driverData; init => driverData = value; }
 	}
 
 	public enum SDLWindowFlags : uint {
@@ -43,7 +48,7 @@ namespace Tesseract.SDL {
 		Vulkan = 0x10000000
 	}
 
-	public enum SDLWindowEventID {
+	public enum SDLWindowEventID : byte {
 		None,
 		Shown,
 		Hidden,
@@ -63,7 +68,7 @@ namespace Tesseract.SDL {
 		HitTest
 	}
 
-	public enum SDLDisplayEventID {
+	public enum SDLDisplayEventID : byte {
 		None,
 		Orientation
 	}
@@ -142,7 +147,7 @@ namespace Tesseract.SDL {
 		ResizeLeft,
 	}
 
-	public delegate SDLHitTestResult SDLHitTest([NativeType("SDL_Window*")] IntPtr window, [In] ref SDLPoint area, IntPtr data);
+	public delegate SDLHitTestResult SDLHitTest([NativeType("SDL_Window*")] IntPtr window, in SDLPoint area, IntPtr data);
 
 	public class SDLDisplay {
 
@@ -213,8 +218,8 @@ namespace Tesseract.SDL {
 			DisplayIndex = displayIndex;
 		}
 
-		public SDLDisplayMode? GetClosestDisplayMode(SDLDisplayMode mode) {
-			IntPtr ptr = SDL2.Functions.SDL_GetClosestDisplayMode(DisplayIndex, ref mode, out _);
+		public SDLDisplayMode? GetClosestDisplayMode(in SDLDisplayMode mode) {
+			IntPtr ptr = SDL2.Functions.SDL_GetClosestDisplayMode(DisplayIndex, mode, out _);
 			return ptr == IntPtr.Zero ? null : Marshal.PtrToStructure<SDLDisplayMode>(ptr);
 		}
 
@@ -237,7 +242,7 @@ namespace Tesseract.SDL {
 				SDL2.CheckError(SDL2.Functions.SDL_GetWindowDisplayMode(Window.Ptr, out SDLDisplayMode mode));
 				return mode;
 			}
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Ptr, ref value));
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Ptr, value));
 		}
 
 		public SDLPixelFormatEnum PixelFormat => SDL2.Functions.SDL_GetWindowPixelFormat(Window.Ptr);
@@ -383,6 +388,10 @@ namespace Tesseract.SDL {
 			get => SDL2.Functions.SDL_GetWindowData(Window.Ptr, name);
 			set => SDL2.Functions.SDL_SetWindowData(Window.Ptr, name, value);
 		}
+
+		public bool IsScreenKeyboardShown => SDL2.Functions.SDL_IsScreenKeyboardShown(Window.Ptr);
+
+		public void WarpMouseInWindow(int x, int y) => SDL2.Functions.SDL_WarpMouseInWindow(Window.Ptr, x, y);
 
 	}
 

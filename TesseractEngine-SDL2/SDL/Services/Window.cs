@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
+using Tesseract.Core.Input;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
@@ -14,9 +15,40 @@ namespace Tesseract.SDL.Services {
 
 	public class SDLServiceWindowSystem : IWindowSystem, IGLWindowSystem {
 
+		public bool CustomCursorSupport => true;
+
 		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null) => new SDLServiceWindow(title, w, h, attributes);
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
+
+		public void RunEvents() {
+			SDL2.PumpEvents();
+			SDLEvent? evt;
+			while ((evt = SDL2.PollEvent()).HasValue) PushEvent(evt.Value);
+		}
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Kept as instanced in case instance fields are required in future")]
+		public bool PushEvent(in SDLEvent evt) {
+			switch(evt.Type) {
+				case SDLEventType.WindowEvent: {
+					IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(SDL2.Functions.SDL_GetWindowFromID(evt.Window.WindowID), SDLServiceWindow.WindowDataID);
+					SDLServiceWindow window = new ObjectPointer<SDLServiceWindow>(pWindow).Value;
+					switch (evt.Window.Event) {
+						case SDLWindowEventID.Resized: window.DoOnResize(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+						case SDLWindowEventID.Moved: window.DoOnMove(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+						case SDLWindowEventID.Minimized: window.DoOnMinimized(); break;
+						case SDLWindowEventID.Maximized: window.DoOnMaximized(); break;
+						case SDLWindowEventID.Restored: window.DoOnRestored(); break;
+						case SDLWindowEventID.FocusGained: window.DoOnFocused(); break;
+						case SDLWindowEventID.FocusLost: window.DoOnUnfocused(); break;
+						case SDLWindowEventID.Close: window.DoOnClosing(); break;
+						default: break;
+					}
+				} break;
+				default: return false;
+			}
+			return true;
+		}
 
 		public T GetService<T>(IService<T> service) {
 			if (service == GLServices.GLWindowSystem) return (T)(object)this;
@@ -58,6 +90,10 @@ namespace Tesseract.SDL.Services {
 			}
 			SDL2.CheckError(SDL2.Functions.SDL_GL_SetAttribute(attr, value));
 		}
+
+		// TODO
+		public ICursor CreateCursor(IImage image, Vector2i hotspot) => throw new NotImplementedException();
+		public ICursor CreateStandardCursor(StandardCursor std) => throw new NotImplementedException();
 	}
 
 	public class SDLServiceDisplayMode : IDisplayMode {
@@ -101,6 +137,8 @@ namespace Tesseract.SDL.Services {
 	}
 
 	public class SDLServiceWindow : IDisposable, IWindow, IGammaRampObject, IGLContextProvider {
+
+		internal const string WindowDataID = "__GCHandle";
 
 		public readonly SDLWindow Window;
 
@@ -151,13 +189,33 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public event Action<Vector2i> OnResize;
+		internal void DoOnResize(Vector2i size) => OnResize?.Invoke(size);
 		public event Action<Vector2i> OnMove;
+		internal void DoOnMove(Vector2i pos) => OnMove?.Invoke(pos);
 		public event Action OnMinimized;
+		internal void DoOnMinimized() => OnMinimized?.Invoke();
 		public event Action OnMaximized;
+		internal void DoOnMaximized() => OnMaximized?.Invoke();
 		public event Action OnRestored;
+		internal void DoOnRestored() => OnRestored?.Invoke();
 		public event Action OnFocused;
+		internal void DoOnFocused() => OnFocused?.Invoke();
 		public event Action OnUnfocused;
+		internal void DoOnUnfocused() => OnUnfocused?.Invoke();
 		public event Action OnClosing;
+		internal void DoOnClosing() => OnClosing?.Invoke();
+		public event Action<KeyEvent> OnKey;
+		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
+		public event Action<TextInputEvent> OnTextInput;
+		internal void DoOnTextInput(TextInputEvent evt) => OnTextInput?.Invoke(evt);
+		public event Action<TextEditEvent> OnTextEdit;
+		internal void DoOnTextEdit(TextEditEvent evt) => OnTextEdit?.Invoke(evt);
+		public event Action<MouseMoveEvent> OnMouseMove;
+		internal void DoOnMouseMove(MouseMoveEvent evt) => OnMouseMove?.Invoke(evt);
+		public event Action<MouseButtonEvent> OnMouseButton;
+		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
+		public event Action<MouseWheelEvent> OnMouseWheel;
+		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
 
 		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList attributes) {
 			if (attributes == null) return 0;
@@ -185,7 +243,7 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;
 			}
-			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, "GCHandle", new ObjectPointer<SDLServiceWindow>(this).Ptr);
+			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
 		}
 
 		public IGLContext CreateContext() {
@@ -212,18 +270,20 @@ namespace Tesseract.SDL.Services {
 
 		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
 			SDLDisplay sdldisplay = (display as SDLServiceDisplay).Display;
-			SDLDisplayMode sdlmode = new();
+			SDLDisplayMode sdlmode;
 			if (mode is SDLServiceDisplayMode) sdlmode = (mode as SDLServiceDisplayMode).DisplayMode;
 			else {
-				sdlmode.W = mode.Size.X;
-				sdlmode.H = mode.Size.Y;
-				sdlmode.Format = SDLPixelService.ConvertPixelFormat(mode.PixelFormat);
-				sdlmode.RefreshRate = mode.RefreshRate;
+				sdlmode = new SDLDisplayMode() {
+					W = mode.Size.X,
+					H = mode.Size.Y,
+					Format = SDLPixelService.ConvertPixelFormat(mode.PixelFormat),
+					RefreshRate = mode.RefreshRate
+				};
 			}
-			SDL2.Functions.SDL_GetClosestDisplayMode(sdldisplay.DisplayIndex, ref sdlmode, out sdlmode);
+			SDL2.Functions.SDL_GetClosestDisplayMode(sdldisplay.DisplayIndex, sdlmode, out sdlmode);
 			// SDL's fullscreen system is a bit wonky
 			// First set the window's display mode to the selected mode
-			SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Window.Ptr, ref sdlmode));
+			SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Window.Ptr, sdlmode));
 			// Then move the window to the center of the display
 			SDL2.Functions.SDL_SetWindowPosition(Window.Window.Ptr, SDL2.WindowPosCenteredOnDisplay(sdldisplay), SDL2.WindowPosCenteredOnDisplay(sdldisplay));
 			// Then make fullscreen on the display
@@ -257,15 +317,28 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
+		// TODO
+		public bool CaptureMouse { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public IWindowSurface Surface => throw new NotImplementedException();
+
+		public Vector2i MousePosition => throw new NotImplementedException();
+
 		public IGammaRamp CreateCompatibleGammaRamp() => new SDLServiceGammaRamp();
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			ObjectPointer<SDLServiceWindow> gchandle = new(SDL2.Functions.SDL_GetWindowData(Window.Window.Ptr, "GCHandle"));
+			ObjectPointer<SDLServiceWindow> gchandle = new(SDL2.Functions.SDL_GetWindowData(Window.Window.Ptr, WindowDataID));
 			gchandle.Dispose();
 			Window.Dispose();
 		}
 
+		// TODO
+		public void SetCursor(ICursor cursor) => throw new NotImplementedException();
+		public bool GetKeyState(Key key) => throw new NotImplementedException();
+		public void StartTextInput() => throw new NotImplementedException();
+		public void EndTextInput() => throw new NotImplementedException();
+		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
 	}
 
 	public class SDLServiceGammaRamp : IGammaRamp {
