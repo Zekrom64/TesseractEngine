@@ -143,9 +143,9 @@ namespace Tesseract.Core.Input {
 		public static int GetAuxMouseButton(int index) => index + 3;
 
 		/// <summary>
-		/// If global positioning of the mouse cursor is supported.
+		/// If access to the global mouse state is supported.
 		/// </summary>
-		public bool HasGlobalPositioning { get; }
+		public bool HasGlobalMouseState { get; }
 
 	}
 
