@@ -70,11 +70,15 @@ namespace Tesseract.SDL {
 
 		public bool IsVirtual => SDL2.Functions.SDL_JoystickIsVirtual(DeviceIndex);
 
+		public bool IsGameController => SDL2.Functions.SDL_IsGameController(DeviceIndex);
+
+		public SDLGameControllerDevice GameController => new() { DeviceIndex = DeviceIndex };
+
 	}
 
 	public class SDLJoystick : IDisposable {
 
-		public IPointer<SDL_Joystick> Joystick;
+		public IPointer<SDL_Joystick> Joystick { get; }
 
 		internal SDLJoystick(IntPtr pJoystick) {
 			Joystick = new UnmanagedPointer<SDL_Joystick>(pJoystick);
@@ -141,7 +145,7 @@ namespace Tesseract.SDL {
 			else return state;
 		}
 
-		public SDLButtonState GetHat(int hat) => SDL2.Functions.SDL_JoystickGetHat(Joystick.Ptr, hat);
+		public SDLHat GetHat(int hat) => SDL2.Functions.SDL_JoystickGetHat(Joystick.Ptr, hat);
 
 		public void GetBall(int ball, out int dx, out int dy) => SDL2.CheckError(SDL2.Functions.SDL_JoystickGetBall(Joystick.Ptr, ball, out dx, out dy));
 
