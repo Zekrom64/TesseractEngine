@@ -41,7 +41,7 @@ namespace Tesseract.Core.Input {
 	/// A haptic device provides haptic feedback to a user. Note that haptic feedback devices
 	/// are usually integrated into other devices such as joysticks and gamepads.
 	/// </summary>
-	public interface IHapticDevice {
+	public interface IHapticDevice : IInputDevice {
 
 		/// <summary>
 		/// If the haptic device supports multiple concurrent effects.

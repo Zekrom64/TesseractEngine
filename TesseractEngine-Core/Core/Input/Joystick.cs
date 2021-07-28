@@ -168,7 +168,7 @@ namespace Tesseract.Core.Input {
 	/// level detection. Joysticks are somewhat generic and do not specify a layout for these inputs, a
 	/// more common specific type of joystick is a <see cref="IGamepad"/>.
 	/// </summary>
-	public interface IJoystick {
+	public interface IJoystick : IInputDevice {
 
 		/// <summary>
 		/// If the joystick is a gamepad. This can also be done by checking if the object
