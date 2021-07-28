@@ -169,6 +169,132 @@ namespace Tesseract.SDL.Services {
 
 	}
 
+	public class SDLServiceJoystick : IJoystick {
+
+		public readonly SDLJoystick Joystick;
+
+		public SDLServiceJoystick(SDLJoystick joystick) {
+			Joystick = joystick;
+		}
+
+		public bool IsGamepad { get; protected set; } = false;
+
+		public bool[] Buttons {
+			get {
+				bool[] buttons = new bool[Joystick.NumButtons];
+				for (int i = 0; i < buttons.Length; i++) buttons[i] = Joystick.GetButton(i) != SDLButtonState.Released;
+				return buttons;
+			}
+		}
+
+		public float[] Axes {
+			get {
+				float[] axes = new float[Joystick.NumAxes];
+				for (int i = 0; i < axes.Length; i++) {
+					float unorm = (Joystick.GetAxis(i) - SDL2.JoystickAxisMin) / (float)(SDL2.JoystickAxisMax - SDL2.JoystickAxisMin);
+					axes[i] = (unorm * 2.0f) - 1.0f;
+				}
+				return axes;
+			}
+		}
+
+		public static HatState SDLToStdHat(SDLHat hat) => hat switch {
+			SDLHat.Centered => HatState.Centered,
+			SDLHat.Up => HatState.Up,
+			SDLHat.Down => HatState.Down,
+			SDLHat.Right => HatState.Right,
+			SDLHat.Left => HatState.Left,
+			SDLHat.RightUp => HatState.UpRight,
+			SDLHat.RightDown => HatState.DownRight,
+			SDLHat.LeftUp => HatState.UpLeft,
+			SDLHat.LeftDown => HatState.DownLeft,
+			_ => default
+		};
+
+		public HatState[] Hats {
+			get {
+				HatState[] hats = new HatState[Joystick.NumHats];
+				for (int i = 0; i < hats.Length; i++) hats[i] = SDLToStdHat(Joystick.GetHat(i));
+				return hats;
+			}
+		}
+	}
+
+	public class SDLServiceGamepad : SDLServiceJoystick, IGamepad {
+
+		public readonly SDLGameController GameController;
+
+		public SDLServiceGamepad(SDLGameController gameController) : base(gameController.Joystick) {
+			GameController = gameController;
+		}
+
+		public const int NumButtons = 21;
+
+		public bool[] GamepadButtons {
+			get {
+				bool[] buttons = new bool[NumButtons];
+				for (int i = 0; i < NumButtons; i++) {
+					SDLGameControllerButton button = (SDLGameControllerButton)i;
+					buttons[i] = GameController.HasButton(button) && GameController.GetButton(button);
+				}
+				return buttons;
+			}
+		}
+
+		public const int NumAxes = 6;
+
+		public float[] GamepadAxes {
+			get {
+				float[] axes = new float[NumAxes];
+				for (int i = 0; i < NumAxes; i++) {
+					SDLGameControllerAxis axis = (SDLGameControllerAxis)i;
+					axes[i] = GameController.HasAxis(axis) ? GameController.GetAxis(axis) : 0.0f;
+				}
+				return axes;
+			}
+		}
+
+		public int GetGamepadControlIndex(GamepadControl control) {
+			SDLGameControllerButton button = control switch {
+				GamepadControl.A => SDLGameControllerButton.A,
+				GamepadControl.B => SDLGameControllerButton.B,
+				GamepadControl.X => SDLGameControllerButton.X,
+				GamepadControl.Y => SDLGameControllerButton.Y,
+				GamepadControl.LeftBumper => SDLGameControllerButton.LeftShoulder,
+				GamepadControl.RightBumper => SDLGameControllerButton.RightShoulder,
+				GamepadControl.Back => SDLGameControllerButton.Back,
+				GamepadControl.Start => SDLGameControllerButton.Start,
+				GamepadControl.Guide => SDLGameControllerButton.Guide,
+				GamepadControl.LeftThumbStick => SDLGameControllerButton.LeftStick,
+				GamepadControl.RightThumbStick => SDLGameControllerButton.RightStick,
+				GamepadControl.DPadUp => SDLGameControllerButton.DPadUp,
+				GamepadControl.DPadDown => SDLGameControllerButton.DPadDown,
+				GamepadControl.DPadLeft => SDLGameControllerButton.DPadLeft,
+				GamepadControl.DPadRight => SDLGameControllerButton.DPadRight,
+				GamepadControl.Miscellaneous => SDLGameControllerButton.Misc1,
+				GamepadControl.Paddle1 => SDLGameControllerButton.Paddle1,
+				GamepadControl.Paddle2 => SDLGameControllerButton.Paddle2,
+				GamepadControl.Paddle3 => SDLGameControllerButton.Paddle3,
+				GamepadControl.Paddle4 => SDLGameControllerButton.Paddle4,
+				GamepadControl.Touchpad => SDLGameControllerButton.Touchpad,
+				_ => SDLGameControllerButton.Invalid
+			};
+			if (button != SDLGameControllerButton.Invalid) return GameController.HasButton(button) ? (int)button : -1;
+			SDLGameControllerAxis axis = control switch {
+				GamepadControl.LeftX => SDLGameControllerAxis.LeftX,
+				GamepadControl.LeftY => SDLGameControllerAxis.LeftY,
+				GamepadControl.RightX => SDLGameControllerAxis.RightX,
+				GamepadControl.RightY => SDLGameControllerAxis.RightY,
+				GamepadControl.LeftTrigger => SDLGameControllerAxis.TriggerLeft,
+				GamepadControl.RightTrigger => SDLGameControllerAxis.TriggerRight,
+				_ => SDLGameControllerAxis.Invalid
+			};
+			if (axis != SDLGameControllerAxis.Invalid) return GameController.HasAxis(axis) ? (int)axis : -1;
+			return -1;
+		}
+
+	}
+
 	public class SDLServiceInputSystem : IInputSystem {
 
 		internal readonly SDLServiceKeyboard keyboard = new();
@@ -177,9 +303,11 @@ namespace Tesseract.SDL.Services {
 		internal readonly SDLServiceMouse mouse = new();
 		public IMouse Mouse => mouse;
 
-		public IReadOnlyList<IJoystick> Joysticks => throw new NotImplementedException();
+		internal readonly List<SDLServiceJoystick> joysticks = new();
+		public IReadOnlyList<IJoystick> Joysticks => joysticks;
 
-		public IReadOnlyList<IGamepad> Gamepads => throw new NotImplementedException();
+		internal readonly List<SDLServiceGamepad> gamepads = new();
+		public IReadOnlyList<IGamepad> Gamepads => gamepads;
 
 		public IReadOnlyList<IHapticDevice> HapticDevices => throw new NotImplementedException();
 
@@ -191,10 +319,24 @@ namespace Tesseract.SDL.Services {
 
 		public SDLServiceInputSystem() {
 			lastModState = SDL2.ModState;
+			foreach(SDLJoystickDevice joydev in SDL2.Joysticks) {
+				if (joydev.IsGameController) {
+					SDLServiceGamepad gamepad = new(joydev.GameController.Open());
+					joysticks.Add(gamepad);
+					gamepads.Add(gamepad);
+				} else joysticks.Add(new SDLServiceJoystick(joydev.Open()));
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
+			gamepads.ForEach(gamepad => {
+				gamepad.GameController.Dispose();
+				joysticks.Remove(gamepad);
+			});
+			gamepads.Clear();
+			foreach (SDLServiceJoystick joystick in joysticks) joystick.Joystick.Dispose();
+			joysticks.Clear();
 		}
 
 		public T GetService<T>(IService<T> service) => default;
@@ -296,6 +438,27 @@ namespace Tesseract.SDL.Services {
 						whl.Position += window.Position;
 					} else SDL2.GetGlobalMouseState(out whl.Position.X, out whl.Position.Y);
 					mouse.DoOnMouseWheel(whl);
+				} break;
+				case SDLEventType.JoyDeviceAdded: {
+					int deviceIndex = evt.JDevice.Which;
+					SDLJoystickDevice joydev = new SDLJoystickDevice() { DeviceIndex = deviceIndex };
+					if (joydev.IsGameController) {
+
+					} else {
+						SDLServiceJoystick joystick = new(joydev.Open());
+						joysticks.Add(joystick);
+						//OnConnected?.Invoke(joystick);
+					}
+				} break;
+				case SDLEventType.JoyDeviceRemoved: {
+					int joystickID = evt.JDevice.Which;
+					IntPtr pJoystick = SDLJoystick.FromInstanceID(joystickID).Joystick.Ptr;
+					for(int i = 0; i < joysticks.Count; i++) {
+						if (joysticks[i].Joystick.Joystick.Ptr == pJoystick) {
+							joysticks.RemoveAt(i);
+							break;
+						}
+					}
 				} break;
 			}
 		}

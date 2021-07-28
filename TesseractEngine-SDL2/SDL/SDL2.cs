@@ -486,6 +486,52 @@ namespace Tesseract.SDL {
 			set => Functions.SDL_JoystickEventState(value ? 1 : 0);
 		}
 
+		// SDL_gamecontroller.h
+
+		public static int GameControllerAddMappingsFromRW(SDLRWOps rwops) {
+			int n = Functions.SDL_GameControllerAddMappingsFromRW(rwops.RWOps.Ptr, 0);
+			if (n < 0) throw new SDLException(GetError());
+			return n;
+		}
+
+		public static int GameControllerAddMappingsFromRW(SDLSpanRWOps rwops) {
+			int n = Functions.SDL_GameControllerAddMappingsFromRW(rwops.RWOps.Ptr, 0);
+			if (n < 0) throw new SDLException(GetError());
+			return n;
+		}
+
+		public static bool GameControllerAddMapping(string mapping) {
+			int n = Functions.SDL_GameControllerAddMapping(mapping);
+			if (n < 0) throw new SDLException(GetError());
+			return n == 1;
+		}
+
+		public static SDLGameControllerMapping[] Mappings {
+			get {
+				int n = Functions.SDL_GameControllerNumMappings();
+				SDLGameControllerMapping[] mappings = new SDLGameControllerMapping[n];
+				for (int i = 0; i < n; i++) mappings[i] = new SDLGameControllerMapping() { MappingIndex = i };
+				return mappings;
+			}
+		}
+
+		public static string GameControllerMappingForGUID(Guid guid) {
+			IntPtr pMapping = Functions.SDL_GameControllerMappingForGUID(guid);
+			string mapping = MemoryUtil.GetStringASCII(pMapping);
+			Functions.SDL_free(pMapping);
+			return mapping;
+		}
+
+		public static void GameControllerUpdate() => Functions.SDL_GameControllerUpdate();
+
+		public static SDLGameControllerAxis GameControllerGetAxisFromString(string str) => Functions.SDL_GameControllerGetAxisFromString(str);
+
+		public static string GameControllerGetStringForAxis(SDLGameControllerAxis axis) => MemoryUtil.GetStringASCII(Functions.SDL_GameControllerGetStringForAxis(axis));
+
+		public static SDLGameControllerButton GameControllerGetButtonFromString(string str) => Functions.SDL_GameControllerGetButtonFromString(str);
+
+		public static string GameControllerGetStringForButton(SDLGameControllerButton button) => MemoryUtil.GetStringASCII(Functions.SDL_GameControllerGetStringForButton(button));
+
 		// SDL_touch.h
 
 		public static SDLTouchDevice[] TouchDevices {
@@ -553,6 +599,41 @@ namespace Tesseract.SDL {
 		public static void DelEventWatch(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_DelEventWatch(filter, userdata);
 
 		public static void FilterEvents(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_FilterEvents(filter, userdata);
+
+		// SDL_cpuinfo.h
+
+		public static int CPUCount => Functions.SDL_GetCPUCount();
+
+		public static int CPUCacheLineSize => Functions.SDL_GetCPUCacheLineSize();
+
+		public static bool HasRDTSC => Functions.SDL_HasRDTSC();
+		public static bool HasAltiVec => Functions.SDL_HasAltiVec();
+		public static bool HasMMX => Functions.SDL_HasMMX();
+		public static bool Has3DNow => Functions.SDL_Has3DNow();
+		public static bool HasSSE => Functions.SDL_HasSSE();
+		public static bool HasSSE2 => Functions.SDL_HasSSE2();
+		public static bool HasSSE3 => Functions.SDL_HasSSE3();
+		public static bool HasSSE41 => Functions.SDL_HasSSE41();
+		public static bool HasSSE42 => Functions.SDL_HasSSE42();
+		public static bool HasAVX => Functions.SDL_HasAVX();
+		public static bool HasAVX2 => Functions.SDL_HasAVX2();
+		public static bool HasAVX512F => Functions.SDL_HasAVX512F();
+		public static bool HasARMSIMD => Functions.SDL_HasARMSIMD();
+		public static bool HasNEON => Functions.SDL_HasNEON();
+
+		public static int SystemRAM => Functions.SDL_GetSystemRAM();
+
+		public static nuint SIMDAlignment => Functions.SDL_SIMDGetAlignment();
+
+		public static IntPtr SIMDAlloc(nuint len) => Functions.SDL_SIMDAlloc(len);
+
+		public static IntPtr SIMDRealloc(IntPtr ptr, nuint len) => Functions.SDL_SIMDRealloc(ptr, len);
+
+		public static void SIMDFree(IntPtr ptr) => Functions.SDL_SIMDFree(ptr);
+
+		// SDL_sensor.h
+
+		public const float StandardGravity = 9.80665f;
 
 	}
 }
