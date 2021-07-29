@@ -35,9 +35,9 @@ namespace Tesseract.Core.Util {
 		public readonly Func<T1, K, V> Getter;
 		public readonly T1 First;
 
-		public FuncReadOnlyIndexer(Func<T1,K,V> getter, T1 t1) {
+		public FuncReadOnlyIndexer(T1 first, Func<T1,K,V> getter) {
+			First = first;
 			Getter = getter;
-			First = t1;
 		}
 
 		public V this[K key] => Getter(First, key);
@@ -60,6 +60,28 @@ namespace Tesseract.Core.Util {
 		}
 
 		V IReadOnlyIndexer<K, V>.this[K key] => Getter(key);
+
+	}
+
+	public  class FuncIndexer<K,V,T1> : IIndexer<K,V> {
+
+		public readonly Func<T1, K, V> Getter;
+		public readonly Action<T1, K, V> Setter;
+		public readonly T1 First;
+
+		public FuncIndexer(T1 first, Func<T1, K, V> getter, Action<T1, K, V> setter) {
+			First = first;
+			Getter = getter;
+			Setter = setter;
+		}
+
+		public V this[K key] {
+			get => Getter(First, key);
+			set => Setter(First, key, value);
+		}
+
+		V IReadOnlyIndexer<K, V>.this[K key] => Getter(First, key);
+
 	}
 
 }
