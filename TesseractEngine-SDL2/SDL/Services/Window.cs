@@ -21,35 +21,6 @@ namespace Tesseract.SDL.Services {
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
-		public void RunEvents() {
-			SDL2.PumpEvents();
-			SDLEvent? evt;
-			while ((evt = SDL2.PollEvent()).HasValue) PushEvent(evt.Value);
-		}
-
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Kept as instanced in case instance fields are required in future")]
-		public bool PushEvent(in SDLEvent evt) {
-			switch(evt.Type) {
-				case SDLEventType.WindowEvent: {
-					IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(SDL2.Functions.SDL_GetWindowFromID(evt.Window.WindowID), SDLServiceWindow.WindowDataID);
-					SDLServiceWindow window = new ObjectPointer<SDLServiceWindow>(pWindow).Value;
-					switch (evt.Window.Event) {
-						case SDLWindowEventID.Resized: window.DoOnResize(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
-						case SDLWindowEventID.Moved: window.DoOnMove(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
-						case SDLWindowEventID.Minimized: window.DoOnMinimized(); break;
-						case SDLWindowEventID.Maximized: window.DoOnMaximized(); break;
-						case SDLWindowEventID.Restored: window.DoOnRestored(); break;
-						case SDLWindowEventID.FocusGained: window.DoOnFocused(); break;
-						case SDLWindowEventID.FocusLost: window.DoOnUnfocused(); break;
-						case SDLWindowEventID.Close: window.DoOnClosing(); break;
-						default: break;
-					}
-				} break;
-				default: return false;
-			}
-			return true;
-		}
-
 		public T GetService<T>(IService<T> service) {
 			if (service == GLServices.GLWindowSystem) return (T)(object)this;
 			return default;
@@ -91,9 +62,33 @@ namespace Tesseract.SDL.Services {
 			SDL2.CheckError(SDL2.Functions.SDL_GL_SetAttribute(attr, value));
 		}
 
-		// TODO
-		public ICursor CreateCursor(IImage image, Vector2i hotspot) => throw new NotImplementedException();
-		public ICursor CreateStandardCursor(StandardCursor std) => throw new NotImplementedException();
+		public ICursor CreateCursor(IImage image, Vector2i hotspot) {
+			SDLServiceImage sdlimg;
+			bool dispose = false;
+			if (image is SDLServiceImage) sdlimg = image as SDLServiceImage;
+			else {
+				sdlimg = new SDLServiceImage(image);
+				dispose = true;
+			}
+			SDLCursor cur = new(sdlimg.Surface, hotspot.X, hotspot.Y);
+			if (dispose) sdlimg.Dispose();
+			return new SDLServiceCursor(cur);
+		}
+
+		public ICursor CreateStandardCursor(StandardCursor std) {
+			SDLSystemCursor sdlcur = std switch {
+				StandardCursor.Arrow => SDLSystemCursor.Arrow,
+				StandardCursor.Crosshair => SDLSystemCursor.Crosshair,
+				StandardCursor.Hand => SDLSystemCursor.Hand,
+				StandardCursor.HResize => SDLSystemCursor.SizeWE,
+				StandardCursor.VResize => SDLSystemCursor.SizeNS,
+				StandardCursor.IBeam => SDLSystemCursor.IBeam,
+				_ => SDLSystemCursor.No
+			};
+			if (sdlcur == SDLSystemCursor.No) return null;
+			return new SDLServiceCursor(new SDLCursor(sdlcur));
+		}
+
 	}
 
 	public class SDLServiceDisplayMode : IDisplayMode {
@@ -136,7 +131,22 @@ namespace Tesseract.SDL.Services {
 
 	}
 
-	public class SDLServiceWindow : IDisposable, IWindow, IGammaRampObject, IGLContextProvider {
+	public class SDLServiceCursor : ICursor {
+
+		public SDLCursor Cursor { get; private set; }
+
+		public SDLServiceCursor(SDLCursor cursor) {
+			Cursor = cursor;
+		}
+
+		public void Dispose() {
+			Cursor.Dispose();
+			GC.SuppressFinalize(this);
+		}
+
+	}
+
+	public class SDLServiceWindow : IDisposable, IWindow, IWindowSurface, IGammaRampObject, IGLContextProvider {
 
 		internal const string WindowDataID = "__GCHandle";
 
@@ -188,6 +198,8 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
+		internal Vector2i LastMousePos = new();
+
 		public event Action<Vector2i> OnResize;
 		internal void DoOnResize(Vector2i size) => OnResize?.Invoke(size);
 		public event Action<Vector2i> OnMove;
@@ -199,9 +211,17 @@ namespace Tesseract.SDL.Services {
 		public event Action OnRestored;
 		internal void DoOnRestored() => OnRestored?.Invoke();
 		public event Action OnFocused;
-		internal void DoOnFocused() => OnFocused?.Invoke();
+		internal void DoOnFocused() {
+			if (captureMouse) SDL2.RelativeMouseMode = true;
+			if (windowCursor != null) SDL2.Cursor = windowCursor;
+			OnFocused?.Invoke();
+		}
 		public event Action OnUnfocused;
-		internal void DoOnUnfocused() => OnUnfocused?.Invoke();
+		internal void DoOnUnfocused() {
+			if (captureMouse) SDL2.RelativeMouseMode = false;
+			if (windowCursor != null) SDL2.Cursor = SDLCursor.DefaultCursor;
+			OnUnfocused?.Invoke();
+		}
 		public event Action OnClosing;
 		internal void DoOnClosing() => OnClosing?.Invoke();
 		public event Action<KeyEvent> OnKey;
@@ -211,11 +231,29 @@ namespace Tesseract.SDL.Services {
 		public event Action<TextEditEvent> OnTextEdit;
 		internal void DoOnTextEdit(TextEditEvent evt) => OnTextEdit?.Invoke(evt);
 		public event Action<MouseMoveEvent> OnMouseMove;
-		internal void DoOnMouseMove(MouseMoveEvent evt) => OnMouseMove?.Invoke(evt);
+		internal void DoOnMouseMove(MouseMoveEvent evt) {
+			LastMousePos = evt.Position;
+			OnMouseMove?.Invoke(evt);
+		}
 		public event Action<MouseButtonEvent> OnMouseButton;
 		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
 		public event Action<MouseWheelEvent> OnMouseWheel;
 		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
+
+		private bool captureMouse;
+		public bool CaptureMouse {
+			get => captureMouse;
+			set {
+				if (Focused) SDL2.RelativeMouseMode = value;
+				captureMouse = value;
+			}
+		}
+
+		public IWindowSurface Surface => this;
+
+		public Vector2i MousePosition => LastMousePos;
+
+		private SDLCursor windowCursor = null;
 
 		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList attributes) {
 			if (attributes == null) return 0;
@@ -317,13 +355,6 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		// TODO
-		public bool CaptureMouse { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public IWindowSurface Surface => throw new NotImplementedException();
-
-		public Vector2i MousePosition => throw new NotImplementedException();
-
 		public IGammaRamp CreateCompatibleGammaRamp() => new SDLServiceGammaRamp();
 
 		public void Dispose() {
@@ -333,12 +364,47 @@ namespace Tesseract.SDL.Services {
 			Window.Dispose();
 		}
 
-		// TODO
-		public void SetCursor(ICursor cursor) => throw new NotImplementedException();
-		public bool GetKeyState(Key key) => throw new NotImplementedException();
-		public void StartTextInput() => throw new NotImplementedException();
-		public void EndTextInput() => throw new NotImplementedException();
-		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
+		public void SetCursor(ICursor cursor) {
+			if (cursor == null) {
+				windowCursor = null;
+				if (Focused) SDL2.Cursor = SDLCursor.DefaultCursor;
+			} else {
+				windowCursor = (cursor as SDLServiceCursor).Cursor;
+				if (Focused) SDL2.Cursor = windowCursor;
+			}
+		}
+
+		public bool GetKeyState(Key key) => SDLServiceKeyboard.GetCurrentKeyState(key);
+
+		public void StartTextInput() => SDL2.StartTextInput();
+
+		public void EndTextInput() => SDL2.StopTextInput();
+
+		public bool GetMouseButtonState(int button) => SDLServiceMouse.GetCurrentMouseButtonState(button);
+
+		public void BlitToSurface(IReadOnlyTuple2<int> dstPos, IImage srcImage, IReadOnlyRect<int> srcArea) {
+			SDLServiceImage sdlimg;
+			bool dispose = false;
+			if (srcImage is SDLServiceImage) sdlimg = srcImage as SDLServiceImage;
+			else {
+				sdlimg = new SDLServiceImage(srcImage);
+				dispose = true;
+			}
+			Window.Surface.Blit(new SDLRect() {
+				X = dstPos.X,
+				Y = dstPos.Y,
+				W = srcArea.Size.X,
+				H = srcArea.Size.Y
+			}, sdlimg.Surface, new SDLRect() {
+				X = srcArea.Position.X,
+				Y = srcArea.Position.Y,
+				W = srcArea.Size.X,
+				H = srcArea.Size.Y
+			});
+			if (dispose) sdlimg.Dispose();
+		}
+
+		public void SwapSurface() => Window.UpdateSurface();
 	}
 
 	public class SDLServiceGammaRamp : IGammaRamp {

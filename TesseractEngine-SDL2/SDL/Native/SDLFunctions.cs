@@ -1113,7 +1113,7 @@ namespace Tesseract.SDL.Native {
 		public delegate int PFN_SDL_JoystickEventState(int state);
 		public delegate short PFN_SDL_JoystickGetAxis([NativeType("SDL_Joystick*")] IntPtr joystick, int axis);
 		public delegate SDLBool PFN_SDL_JoystickGetAxisInitialState([NativeType("SDL_Joystick*")] IntPtr joystick, int axis, out short state);
-		public delegate SDLButtonState PFN_SDL_JoystickGetHat([NativeType("SDL_Joystick*")] IntPtr joystick, int hat);
+		public delegate SDLHat PFN_SDL_JoystickGetHat([NativeType("SDL_Joystick*")] IntPtr joystick, int hat);
 		public delegate int PFN_SDL_JoystickGetBall([NativeType("SDL_Joystick*")] IntPtr joystick, int ball, out int dx, out int dy);
 		public delegate SDLButtonState PFN_SDL_JoystickGetButton([NativeType("SDL_Joystick*")] IntPtr joystick, int button);
 		public delegate int PFN_SDL_JoystickRumble([NativeType("SDL_Joystick*")] IntPtr joystick, ushort lowFreqRumble, ushort highFreqRumble, uint durationMS);
@@ -1176,6 +1176,119 @@ namespace Tesseract.SDL.Native {
 
 		// SDL_gamecontroller.h
 
+		public delegate int PFN_SDL_GameControllerAddMappingsFromRW([NativeType("SDL_RWops*")] IntPtr rw, int freerw);
+		public delegate int PFN_SDL_GameControllerAddMapping([MarshalAs(UnmanagedType.LPStr)] string mappingstr);
+		public delegate int PFN_SDL_GameControllerNumMappings();
+		// Note: Must free after use
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerMappingForIndex(int mappingIndex);
+		// Note: Must free after use
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerMappingForGUID(Guid guid);
+		// Note: Must free after use
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerMapping([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate SDLBool PFN_SDL_IsGameController(int joystickIndex);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerNameForIndex(int joystickIndex);
+		public delegate SDLGameControllerType PFN_SDL_GameControllerTypeForIndex(int joystickIndex);
+		// Note: Must free after use
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerMappingForDeviceIndex(int joystickIndex);
+		[return: NativeType("SDL_GameController*")]
+		public delegate IntPtr PFN_SDL_GameControllerOpen(int joystickIndex);
+		[return: NativeType("SDL_GameController*")]
+		public delegate IntPtr PFN_SDL_GameControllerFromInstanceID(int joystickID);
+		[return: NativeType("SDL_GameController*")]
+		public delegate IntPtr PFN_SDL_GameControllerFromPlayerIndex(int playerIndex);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerName([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate SDLGameControllerType PFN_SDL_GameControllerGetType([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate int PFN_SDL_GameControllerGetPlayerIndex([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate void PFN_SDL_GameControllerSetPlayerIndex([NativeType("SDL_GameController*")] IntPtr gameController, int playerIndex);
+		public delegate ushort PFN_SDL_GameControllerGetVendor([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate ushort PFN_SDL_GameControllerGetProduct([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate ushort PFN_SDL_GameControllerGetProductVersion([NativeType("SDL_GameController*")] IntPtr gameController);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerGetSerial([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate SDLBool PFN_SDL_GameControllerGetAttached([NativeType("SDL_GameController*")] IntPtr gameController);
+		[return: NativeType("SDL_Joystick*")]
+		public delegate IntPtr PFN_SDL_GameControllerGetJoystick([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate int PFN_SDL_GameControllerEventState(int state);
+		public delegate void PFN_SDL_GameControllerUpdate();
+		public delegate SDLGameControllerAxis PFN_SDL_GameControllerGetAxisFromString([MarshalAs(UnmanagedType.LPStr)] string pchString);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerGetStringForAxis(SDLGameControllerAxis axis);
+		public delegate SDLGameControllerButtonBind PFN_SDL_GameControllerGetBindForAxis([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerAxis axis);
+		public delegate SDLBool PFN_SDL_GameControllerHasAxis([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerAxis axis);
+		public delegate short PFN_SDL_GameControllerGetAxis([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerAxis axis);
+		public delegate SDLGameControllerButton PFN_SDL_GameControllerGetButtonFromString([MarshalAs(UnmanagedType.LPStr)] string pchString);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GameControllerGetStringForButton(SDLGameControllerButton button);
+		public delegate SDLGameControllerButtonBind PFN_SDL_GameControllerGetBindForButton([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerButton button);
+		public delegate SDLBool PFN_SDL_GameControllerHasButton([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerButton button);
+		public delegate SDLButtonState PFN_SDL_GameControllerGetButton([NativeType("SDL_GameController*")] IntPtr gameController, SDLGameControllerButton button);
+		public delegate int PFN_SDL_GameControllerGetNumTouchpads([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate int PFN_SDL_GameControllerGetNumTouchpadFingers([NativeType("SDL_GameController*")] IntPtr gameController, int touchpad);
+		public delegate int PFN_SDL_GameControllerGetTouchpadFinger([NativeType("SDL_GameController*")] IntPtr gameController, int touchpad, int finger, out SDLButtonState state, out float x, out float y, out float pressure);
+		public delegate SDLBool PFN_SDL_GameControllerHasSensor([NativeType("SDL_GameController*")] IntPtr gameController, SDLSensorType type);
+		public delegate int PFN_SDL_GameControllerSetSensorEnabled([NativeType("SDL_GameController*")] IntPtr gameController, SDLSensorType type, SDLBool enabled);
+		public delegate SDLBool PFN_SDL_GameControllerIsSensorEnabled([NativeType("SDL_GameController*")] IntPtr gameController, SDLSensorType type);
+		public delegate int PFN_SDL_GameControllerGetSensorData([NativeType("SDL_GameController*")] IntPtr gameController, SDLSensorType type, [NativeType("float*")] IntPtr data, int numValues);
+		public delegate int PFN_SDL_GameControllerRumble([NativeType("SDL_GameController*")] IntPtr gameController, ushort lowFreqRumble, ushort highFreqRumble, uint durationMS);
+		public delegate int PFN_SDL_GameControllerRumbleTriggers([NativeType("SDL_GameController*")] IntPtr gameController, ushort leftRumble, ushort rightRumble, uint durationMS);
+		public delegate SDLBool PFN_SDL_GameControllerHasLED([NativeType("SDL_GameController*")] IntPtr gameController);
+		public delegate int PFN_SDL_GameControllerSetLED([NativeType("SDL_GameController*")] IntPtr gameController, byte r, byte g, byte b);
+		public delegate void PFN_SDL_GameControllerClose([NativeType("SDL_GameController*")] IntPtr gameController);
+
+		public PFN_SDL_GameControllerAddMappingsFromRW SDL_GameControllerAddMappingsFromRW;
+		public PFN_SDL_GameControllerAddMapping SDL_GameControllerAddMapping;
+		public PFN_SDL_GameControllerNumMappings SDL_GameControllerNumMappings;
+		public PFN_SDL_GameControllerMappingForIndex SDL_GameControllerMappingForIndex;
+		public PFN_SDL_GameControllerMappingForGUID SDL_GameControllerMappingForGUID;
+		public PFN_SDL_GameControllerMapping SDL_GameControllerMapping;
+		public PFN_SDL_IsGameController SDL_IsGameController;
+		public PFN_SDL_GameControllerNameForIndex SDL_GameControllerNameForIndex;
+		public PFN_SDL_GameControllerTypeForIndex SDL_GameControllerTypeForIndex;
+		public PFN_SDL_GameControllerMappingForDeviceIndex SDL_GameControllerMappingForDeviceIndex;
+		public PFN_SDL_GameControllerOpen SDL_GameControllerOpen;
+		public PFN_SDL_GameControllerFromInstanceID SDL_GameControllerFromInstanceID;
+		public PFN_SDL_GameControllerFromPlayerIndex SDL_GameControllerFromPlayerIndex;
+		public PFN_SDL_GameControllerName SDL_GameControllerName;
+		public PFN_SDL_GameControllerGetType SDL_GameControllerGetType;
+		public PFN_SDL_GameControllerGetPlayerIndex SDL_GameControllerGetPlayerIndex;
+		public PFN_SDL_GameControllerSetPlayerIndex SDL_GameControllerSetPlayerIndex;
+		public PFN_SDL_GameControllerGetVendor SDL_GameControllerGetVendor;
+		public PFN_SDL_GameControllerGetProduct SDL_GameControllerGetProduct;
+		public PFN_SDL_GameControllerGetProductVersion SDL_GameControllerGetProductVersion;
+		public PFN_SDL_GameControllerGetSerial SDL_GameControllerGetSerial;
+		public PFN_SDL_GameControllerGetAttached SDL_GameControllerGetAttached;
+		public PFN_SDL_GameControllerGetJoystick SDL_GameControllerGetJoystick;
+		public PFN_SDL_GameControllerEventState SDL_GameControllerEventState;
+		public PFN_SDL_GameControllerUpdate SDL_GameControllerUpdate;
+		public PFN_SDL_GameControllerGetAxisFromString SDL_GameControllerGetAxisFromString;
+		public PFN_SDL_GameControllerGetStringForAxis SDL_GameControllerGetStringForAxis;
+		public PFN_SDL_GameControllerGetBindForAxis SDL_GameControllerGetBindForAxis;
+		public PFN_SDL_GameControllerHasAxis SDL_GameControllerHasAxis;
+		public PFN_SDL_GameControllerGetAxis SDL_GameControllerGetAxis;
+		public PFN_SDL_GameControllerGetButtonFromString SDL_GameControllerGetButtonFromString;
+		public PFN_SDL_GameControllerGetStringForButton SDL_GameControllerGetStringForButton;
+		public PFN_SDL_GameControllerGetBindForButton SDL_GameControllerGetBindForButton;
+		public PFN_SDL_GameControllerHasButton SDL_GameControllerHasButton;
+		public PFN_SDL_GameControllerGetButton SDL_GameControllerGetButton;
+		public PFN_SDL_GameControllerGetNumTouchpads SDL_GameControllerGetNumTouchpads;
+		public PFN_SDL_GameControllerGetNumTouchpadFingers SDL_GameControllerGetNumTouchpadFingers;
+		public PFN_SDL_GameControllerGetTouchpadFinger SDL_GameControllerGetTouchpadFinger;
+		public PFN_SDL_GameControllerHasSensor SDL_GameControllerHasSensor;
+		public PFN_SDL_GameControllerSetSensorEnabled SDL_GameControllerSetSensorEnabled;
+		public PFN_SDL_GameControllerIsSensorEnabled SDL_GameControllerIsSensorEnabled;
+		public PFN_SDL_GameControllerGetSensorData SDL_GameControllerGetSensorData;
+		public PFN_SDL_GameControllerRumble SDL_GameControllerRumble;
+		public PFN_SDL_GameControllerRumbleTriggers SDL_GameControllerRumbleTriggers;
+		public PFN_SDL_GameControllerHasLED SDL_GameControllerHasLED;
+		public PFN_SDL_GameControllerSetLED SDL_GameControllerSetLED;
+		public PFN_SDL_GameControllerClose SDL_GameControllerClose;
+
 		// SDL_touch.h
 
 		public delegate int PFN_SDL_GetNumTouchDevices();
@@ -1228,6 +1341,52 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_FilterEvents SDL_FilterEvents;
 		public PFN_SDL_EventState SDL_EventState;
 		public PFN_SDL_RegisterEvents SDL_RegisterEvents;
+
+		// SDL_cpuinfo.h
+
+		public delegate int PFN_SDL_GetCPUCount();
+		public delegate int PFN_SDL_GetCPUCacheLineSize();
+		public delegate SDLBool PFN_SDL_HasRDTSC();
+		public delegate SDLBool PFN_SDL_HasAltiVec();
+		public delegate SDLBool PFN_SDL_HasMMX();
+		public delegate SDLBool PFN_SDL_Has3DNow();
+		public delegate SDLBool PFN_SDL_HasSSE();
+		public delegate SDLBool PFN_SDL_HasSSE2();
+		public delegate SDLBool PFN_SDL_HasSSE3();
+		public delegate SDLBool PFN_SDL_HasSSE41();
+		public delegate SDLBool PFN_SDL_HasSSE42();
+		public delegate SDLBool PFN_SDL_HasAVX();
+		public delegate SDLBool PFN_SDL_HasAVX2();
+		public delegate SDLBool PFN_SDL_HasAVX512F();
+		public delegate SDLBool PFN_SDL_HasARMSIMD();
+		public delegate SDLBool PFN_SDL_HasNEON();
+		public delegate int PFN_SDL_GetSystemRAM();
+		public delegate nuint PFN_SDL_SIMDGetAlignment();
+		public delegate IntPtr PFN_SDL_SIMDAlloc(nuint len);
+		public delegate IntPtr PFN_SDL_SIMDRealloc(IntPtr mem, nuint len);
+		public delegate void PFN_SDL_SIMDFree(IntPtr mem);
+
+		public PFN_SDL_GetCPUCount SDL_GetCPUCount;
+		public PFN_SDL_GetCPUCacheLineSize SDL_GetCPUCacheLineSize;
+		public PFN_SDL_HasRDTSC SDL_HasRDTSC;
+		public PFN_SDL_HasAltiVec SDL_HasAltiVec;
+		public PFN_SDL_HasMMX SDL_HasMMX;
+		public PFN_SDL_Has3DNow SDL_Has3DNow;
+		public PFN_SDL_HasSSE SDL_HasSSE;
+		public PFN_SDL_HasSSE2 SDL_HasSSE2;
+		public PFN_SDL_HasSSE3 SDL_HasSSE3;
+		public PFN_SDL_HasSSE41 SDL_HasSSE41;
+		public PFN_SDL_HasSSE42 SDL_HasSSE42;
+		public PFN_SDL_HasAVX SDL_HasAVX;
+		public PFN_SDL_HasAVX2 SDL_HasAVX2;
+		public PFN_SDL_HasAVX512F SDL_HasAVX512F;
+		public PFN_SDL_HasARMSIMD SDL_HasARMSIMD;
+		public PFN_SDL_HasNEON SDL_HasNEON;
+		public PFN_SDL_GetSystemRAM SDL_GetSystemRAM;
+		public PFN_SDL_SIMDGetAlignment SDL_SIMDGetAlignment;
+		public PFN_SDL_SIMDAlloc SDL_SIMDAlloc;
+		public PFN_SDL_SIMDRealloc SDL_SIMDRealloc;
+		public PFN_SDL_SIMDFree SDL_SIMDFree;
 
 	}
 
