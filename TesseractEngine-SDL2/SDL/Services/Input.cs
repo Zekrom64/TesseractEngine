@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Input;
@@ -171,10 +172,41 @@ namespace Tesseract.SDL.Services {
 
 	public class SDLServiceJoystick : IJoystick {
 
+		private class SDLServiceJoystickLightSystem : ILightSystem {
+
+			public SDLServiceJoystick Joystick { get; init; }
+
+			public string Name => Joystick.Name;
+
+			public event Action OnDisconnected;
+			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
+
+			public T GetService<T>(IService<T> service) => default;
+
+			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
+
+			public void SetLightPattern(ILightPattern pattern) {
+				if (pattern is SingleLightPattern light) {
+					Vector4 color = light.Color.Normalized;
+					Joystick.Joystick.SetLED((byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255));
+				}
+			}
+
+		}
+
 		public readonly SDLJoystick Joystick;
+		private readonly SDLServiceJoystickLightSystem lightSystem;
+
+		public event Action OnDisconnected;
+		internal void DoOnDisconnected() {
+			OnDisconnected?.Invoke();
+			if (lightSystem != null) lightSystem.DoOnDisconnected();
+		}
 
 		public SDLServiceJoystick(SDLJoystick joystick) {
 			Joystick = joystick;
+			if (joystick.HasLED) lightSystem = new SDLServiceJoystickLightSystem() { Joystick = this };
+			else lightSystem = null;
 		}
 
 		public bool IsGamepad { get; protected set; } = false;
@@ -198,6 +230,12 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
+		public virtual T GetService<T>(IService<T> service) {
+			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
+			// TODO: Advanced haptic services
+			return default;
+		}
+
 		public static HatState SDLToStdHat(SDLHat hat) => hat switch {
 			SDLHat.Centered => HatState.Centered,
 			SDLHat.Up => HatState.Up,
@@ -218,14 +256,48 @@ namespace Tesseract.SDL.Services {
 				return hats;
 			}
 		}
+
+		public string Name => Joystick.Name;
+
 	}
 
 	public class SDLServiceGamepad : SDLServiceJoystick, IGamepad {
 
+		private class SDLServiceGamepadLightSystem : ILightSystem {
+
+			public SDLServiceGamepad Gamepad { get; init; }
+
+			public string Name => Gamepad.Name;
+
+			public event Action OnDisconnected;
+			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
+
+			public T GetService<T>(IService<T> service) => default;
+
+			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
+
+			public void SetLightPattern(ILightPattern pattern) {
+				if (pattern is SingleLightPattern light) {
+					Vector4 color = light.Color.Normalized;
+					Gamepad.Joystick.SetLED((byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255));
+				}
+			}
+
+		}
+
 		public readonly SDLGameController GameController;
+		private readonly SDLServiceGamepadLightSystem lightSystem;
 
 		public SDLServiceGamepad(SDLGameController gameController) : base(gameController.Joystick) {
 			GameController = gameController;
+			if (GameController.HasLED) lightSystem = new SDLServiceGamepadLightSystem() { Gamepad = this };
+			else lightSystem = null;
+		}
+
+		public override T GetService<T>(IService<T> service) {
+			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
+			// TODO: Advanced haptic services
+			return base.GetService(service);
 		}
 
 		public const int NumButtons = 21;
@@ -441,20 +513,26 @@ namespace Tesseract.SDL.Services {
 				} break;
 				case SDLEventType.JoyDeviceAdded: {
 					int deviceIndex = evt.JDevice.Which;
-					SDLJoystickDevice joydev = new SDLJoystickDevice() { DeviceIndex = deviceIndex };
+					SDLJoystickDevice joydev = new() { DeviceIndex = deviceIndex };
 					if (joydev.IsGameController) {
-
+						SDLServiceGamepad gamepad = new(joydev.GameController.Open());
+						joysticks.Add(gamepad);
+						gamepads.Add(gamepad);
+						OnConnected?.Invoke(gamepad);
 					} else {
 						SDLServiceJoystick joystick = new(joydev.Open());
 						joysticks.Add(joystick);
-						//OnConnected?.Invoke(joystick);
+						OnConnected?.Invoke(joystick);
 					}
 				} break;
 				case SDLEventType.JoyDeviceRemoved: {
 					int joystickID = evt.JDevice.Which;
 					IntPtr pJoystick = SDLJoystick.FromInstanceID(joystickID).Joystick.Ptr;
 					for(int i = 0; i < joysticks.Count; i++) {
-						if (joysticks[i].Joystick.Joystick.Ptr == pJoystick) {
+						SDLServiceJoystick svjoy = joysticks[i];
+						SDLJoystick joy = svjoy.Joystick;
+						if (joy.Joystick.Ptr == pJoystick) {
+							svjoy.DoOnDisconnected();
 							joysticks.RemoveAt(i);
 							break;
 						}
