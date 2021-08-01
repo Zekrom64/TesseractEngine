@@ -57,11 +57,9 @@ namespace Tesseract.Core.Graphics {
 		public byte Y { get => G; set => G = value; }
 		public byte Z { get => B; set => B = value; }
 
-		byte IReadOnlyTuple2<byte>.X => R;
-
-		byte IReadOnlyTuple2<byte>.Y => G;
-
-		byte IReadOnlyTuple3<byte>.Z => B;
+		byte IReadOnlyTuple<byte, byte>.X => R;
+		byte IReadOnlyTuple<byte, byte>.Y => G;
+		byte IReadOnlyTuple<byte, byte, byte>.Z => B;
 
 		public Vector4 Normalized {
 			get => new(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
@@ -108,10 +106,10 @@ namespace Tesseract.Core.Graphics {
 		public byte Y { get => B; set => B = value; }
 		public byte W { get => A; set => A = value; }
 
-		byte IReadOnlyTuple2<byte>.X => R;
-		byte IReadOnlyTuple2<byte>.Y => G;
-		byte IReadOnlyTuple3<byte>.Z => B;
-		byte IReadOnlyTuple4<byte>.W => A;
+		byte IReadOnlyTuple<byte, byte>.X => R;
+		byte IReadOnlyTuple<byte, byte>.Y => G;
+		byte IReadOnlyTuple<byte, byte, byte>.Z => B;
+		byte IReadOnlyTuple<byte, byte, byte, byte>.W => A;
 
 		public Vector4 Normalized {
 			get => new(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
@@ -158,10 +156,10 @@ namespace Tesseract.Core.Graphics {
 		public float Y { get => B; set => B = value; }
 		public float W { get => A; set => A = value; }
 
-		float IReadOnlyTuple2<float>.X => R;
-		float IReadOnlyTuple2<float>.Y => G;
-		float IReadOnlyTuple3<float>.Z => B;
-		float IReadOnlyTuple4<float>.W => A;
+		float IReadOnlyTuple<float, float>.X => R;
+		float IReadOnlyTuple<float, float>.Y => G;
+		float IReadOnlyTuple<float, float, float>.Z => B;
+		float IReadOnlyTuple<float, float, float, float>.W => A;
 
 		public float this[int key] {
 			get => key switch {

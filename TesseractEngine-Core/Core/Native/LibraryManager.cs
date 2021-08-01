@@ -25,6 +25,7 @@ namespace Tesseract.Core.Native {
 				ExternFunctionAttribute efa = field.GetCustomAttribute<ExternFunctionAttribute>();
 				if (!(efa?.Predicate() ?? true)) continue;
 				if (efa.Platform != null && efa.Platform.Value != Platform.CurrentPlatformType) continue;
+				if (efa.Subplatform != null && efa.Subplatform.Value != Platform.CurrentSubplatformType) continue;
 				Type delegateType = field.FieldType;
 				string name = field.Name;
 				IntPtr pfn = loader(name);
