@@ -1388,6 +1388,250 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_SIMDRealloc SDL_SIMDRealloc;
 		public PFN_SDL_SIMDFree SDL_SIMDFree;
 
+		// SDL_audio.h
+
+		public delegate int PFN_SDL_GetNumAudioDrivers();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetAudioDriver(int num);
+		public delegate int PFN_SDL_AudioInit([MarshalAs(UnmanagedType.LPStr)] string driverName);
+		public delegate void PFN_SDL_AudioQuit();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetCurrentAudioDriver();
+		public delegate int PFN_SDL_OpenAudio(in SDLAudioSpec desired, out SDLAudioSpec obtained);
+		public delegate int PFN_SDL_GetNumAudioDevices(int iscapture);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetAudioDeviceName(int index, int iscapture);
+		public delegate uint PFN_SDL_OpenAudioDevice([MarshalAs(UnmanagedType.LPStr)] string device, int iscapture, in SDLAudioSpec desired, out SDLAudioSpec obtained, SDLAudioAllowChange allowedChanges);
+		public delegate SDLAudioStatus PFN_SDL_GetAudioDeviceStatus(uint dev);
+		public delegate void PFN_SDL_PauseAudio(int pauseOn);
+		public delegate void PFN_SDL_PauseAudioDevice(uint dev, int pauseOn);
+		[return: NativeType("SDL_AudioSpec*")]
+		public delegate IntPtr PFN_SDL_LoadWAV_RW([NativeType("SDL_RWops*")] IntPtr src, int freesrc, out SDLAudioSpec spec, [NativeType("Uint8*")] out IntPtr audioBuf, out uint audioLength);
+		public delegate void PFN_SDL_FreeWAV([NativeType("Uint8*")] IntPtr audioBuf);
+		public delegate int PFN_SDL_BuildAudioCVT(out SDLAudioCVT cvt, SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate);
+		public delegate int PFN_SDL_ConvertAudio(in SDLAudioCVT cvt);
+		[return: NativeType("SDL_AudioStream*")]
+		public delegate IntPtr PFN_SDL_NewAudioStream(SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate);
+		public delegate int PFN_SDL_AudioStreamPut([NativeType("SDL_AudioStream*")] IntPtr stream, IntPtr buf, int len);
+		public delegate int PFN_SDL_AudioStreamGet([NativeType("SDL_AudioStream*")] IntPtr stream, IntPtr buf, int len);
+		public delegate int PFN_SDL_AudioStreamAvailable([NativeType("SDL_AudioStream*")] IntPtr stream);
+		public delegate int PFN_SDL_AudioStreamFlush([NativeType("SDL_AudioStream*")] IntPtr stream);
+		public delegate void PFN_SDL_AudioStreamClear([NativeType("SDL_AudioStream*")] IntPtr stream);
+		public delegate void PFN_SDL_FreeAudioStream([NativeType("SDL_AudioStream*")] IntPtr stream);
+		public delegate void PFN_SDL_MixAudio([NativeType("Uint8*")] IntPtr dst, [NativeType("const Uint8*")] IntPtr src, uint len, int volume);
+		public delegate void PFN_SDL_MixAudioFormat([NativeType("Uint8*")] IntPtr dst, [NativeType("const Uint8*")] IntPtr src, SDLAudioFormat format, uint len, int volume);
+		public delegate int PFN_SDL_QueueAudio(uint dev, IntPtr data, uint len);
+		public delegate uint PFN_SDL_DequeueAudio(uint dev, IntPtr data, uint len);
+		public delegate uint PFN_SDL_GetQueuedAudioSize(uint dev);
+		public delegate void PFN_SDL_ClearQueuedAudio(uint dev);
+		public delegate void PFN_SDL_LockAudio();
+		public delegate void PFN_SDL_LockAudioDevice(uint dev);
+		public delegate void PFN_SDL_UnlockAudio();
+		public delegate void PFN_SDL_UnlockAudioDevice(uint dev);
+		public delegate void PFN_SDL_CloseAudio();
+		public delegate void PFN_SDL_CloseAudioDevice(uint dev);
+
+		public PFN_SDL_GetNumAudioDrivers SDL_GetNumAudioDrivers;
+		public PFN_SDL_GetAudioDriver SDL_GetAudioDriver;
+		public PFN_SDL_AudioInit SDL_AudioInit;
+		public PFN_SDL_AudioQuit SDL_AudioQuit;
+		public PFN_SDL_GetCurrentAudioDriver SDL_GetCurrentAudioDriver;
+		public PFN_SDL_OpenAudio SDL_OpenAudio;
+		public PFN_SDL_GetNumAudioDevices SDL_GetNumAudioDevices;
+		public PFN_SDL_GetAudioDeviceName SDL_GetAudioDeviceName;
+		public PFN_SDL_OpenAudioDevice SDL_OpenAudioDevice;
+		public PFN_SDL_GetAudioDeviceStatus SDL_GetAudioDeviceStatus;
+		public PFN_SDL_PauseAudio SDL_PauseAudio;
+		public PFN_SDL_PauseAudioDevice SDL_PauseAudioDevice;
+		public PFN_SDL_LoadWAV_RW SDL_LoadWAV_RW;
+		public PFN_SDL_FreeWAV SDL_FreeWAV;
+		public PFN_SDL_BuildAudioCVT SDL_BuildAudioCVT;
+		public PFN_SDL_ConvertAudio SDL_ConvertAudio;
+		public PFN_SDL_NewAudioStream SDL_NewAudioStream;
+		public PFN_SDL_AudioStreamPut SDL_AudioStreamPut;
+		public PFN_SDL_AudioStreamGet SDL_AudioStreamGet;
+		public PFN_SDL_AudioStreamAvailable SDL_AudioStreamAvailable;
+		public PFN_SDL_AudioStreamFlush SDL_AudioStreamFlush;
+		public PFN_SDL_AudioStreamClear SDL_AudioStreamClear;
+		public PFN_SDL_FreeAudioStream SDL_FreeAudioStream;
+		public PFN_SDL_MixAudio SDL_MixAudio;
+		public PFN_SDL_MixAudioFormat SDL_MixAudioFormat;
+		public PFN_SDL_QueueAudio SDL_QueueAudio;
+		public PFN_SDL_DequeueAudio SDL_DequeueAudio;
+		public PFN_SDL_GetQueuedAudioSize SDL_GetQueuedAudioSize;
+		public PFN_SDL_ClearQueuedAudio SDL_ClearQueuedAudio;
+		public PFN_SDL_LockAudio SDL_LockAudio;
+		public PFN_SDL_LockAudioDevice SDL_LockAudioDevice;
+		public PFN_SDL_UnlockAudio SDL_UnlockAudio;
+		public PFN_SDL_UnlockAudioDevice SDL_UnlockAudioDevice;
+		public PFN_SDL_CloseAudio SDL_CloseAudio;
+		public PFN_SDL_CloseAudioDevice SDL_CloseAudioDevice;
+
+		// SDL_clipboard.h
+
+		public delegate int PFN_SDL_SetClipboardText([MarshalAs(UnmanagedType.LPStr)] string text);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetClipboardText();
+		public delegate SDLBool PFN_SDL_HasClipboardText();
+
+		public PFN_SDL_SetClipboardText SDL_SetClipboardText;
+		public PFN_SDL_GetClipboardText SDL_GetClipboardText;
+		public PFN_SDL_HasClipboardText SDL_HasClipboardText;
+
+		// SDL_filesystem.h
+
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetBasePath();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetPrefPath([MarshalAs(UnmanagedType.LPStr)] string org, [MarshalAs(UnmanagedType.LPStr)] string app);
+
+		public PFN_SDL_GetBasePath SDL_GetBasePath;
+		public PFN_SDL_GetPrefPath SDL_GetPrefPath;
+
+		// SDL_gesture.h
+
+		public delegate int PFN_SDL_RecordGesture(long touchID);
+		public delegate int PFN_SDL_SaveAllDollarTemplates([NativeType("SDL_RWops*")] IntPtr dst);
+		public delegate int PFN_SDL_SaveDollarTemplate(long gestureID, [NativeType("SDL_RWops*")] IntPtr dst);
+		public delegate int PFN_SDL_LoadDollarTemplates(long touchID, [NativeType("SDL_RWops*")] IntPtr src);
+
+		public PFN_SDL_RecordGesture SDL_RecordGesture;
+		public PFN_SDL_SaveAllDollarTemplates SDL_SaveAllDollarTemplates;
+		public PFN_SDL_SaveDollarTemplate SDL_SaveDollarTemplate;
+		public PFN_SDL_LoadDollarTemplates SDL_LoadDollarTemplates;
+
+		// SDL_haptic.h
+
+		public delegate int PFN_SDL_NumHaptics();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_HapticName(int deviceIndex);
+		[return: NativeType("SDL_Haptic*")]
+		public delegate IntPtr PFN_SDL_HapticOpen(int deviceIndex);
+		public delegate int PFN_SDL_HapticOpened(int deviceIndex);
+		public delegate int PFN_SDL_HapticIndex([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_MouseIsHaptic();
+		[return: NativeType("SDL_Haptic*")]
+		public delegate IntPtr PFN_SDL_HapticOpenFromMouse();
+		public delegate int PFN_SDL_JoystickIsHaptic([NativeType("SDL_Joystick*")] IntPtr joystick);
+		[return: NativeType("SDL_Haptic*")]
+		public delegate IntPtr PFN_SDL_HapticOpenFromJoystick([NativeType("SDL_Joystick*")] IntPtr joystick);
+		public delegate void PFN_SDL_HapticClose([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticNumEffects([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticNumEffectsPlaying([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate uint PFN_SDL_HapticQuery([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticNumAxes([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticEffectSupported([NativeType("SDL_Haptic*")] IntPtr haptic, in SDLHapticEffect effect);
+		public delegate int PFN_SDL_HapticNewEffect([NativeType("SDL_Haptic*")] IntPtr haptic, in SDLHapticEffect effect);
+		public delegate int PFN_SDL_HapticUpdateEffect([NativeType("SDL_Haptic*")] IntPtr haptic, int effect, in SDLHapticEffect data);
+		public delegate int PFN_SDL_HapticRunEffect([NativeType("SDL_Haptic*")] IntPtr haptic, int effect, uint iterations);
+		public delegate int PFN_SDL_HapticStopEffect([NativeType("SDL_Haptic*")] IntPtr haptic, int effect);
+		public delegate void PFN_SDL_HapticDestroyEffect([NativeType("SDL_Haptic*")] IntPtr haptic, int effect);
+		public delegate int PFN_SDL_HapticGetEffectStatus([NativeType("SDL_Haptic*")] IntPtr haptic, int effect);
+		public delegate int PFN_SDL_HapticSetGain([NativeType("SDL_Haptic*")] IntPtr haptic, int gain);
+		public delegate int PFN_SDL_HapticSetAutocenter([NativeType("SDL_Haptic*")] IntPtr haptic, int autocenter);
+		public delegate int PFN_SDL_HapticPause([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticUnpause([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticStopAll([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticRumbleSupported([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticRumbleInit([NativeType("SDL_Haptic*")] IntPtr haptic);
+		public delegate int PFN_SDL_HapticRumblePlay([NativeType("SDL_Haptic*")] IntPtr haptic, float strength, uint length);
+		public delegate int PFN_SDL_HapticRumbleStop([NativeType("SDL_Haptic*")] IntPtr haptic);
+
+		public PFN_SDL_NumHaptics SDL_NumHaptics;
+		public PFN_SDL_HapticName SDL_HapticName;
+		public PFN_SDL_HapticOpen SDL_HapticOpen;
+		public PFN_SDL_HapticOpened SDL_HapticOpened;
+		public PFN_SDL_HapticIndex SDL_HapticIndex;
+		public PFN_SDL_MouseIsHaptic SDL_MouseIsHaptic;
+		public PFN_SDL_HapticOpenFromMouse SDL_HapticOpenFromMouse;
+		public PFN_SDL_JoystickIsHaptic SDL_JoystickIsHaptic;
+		public PFN_SDL_HapticOpenFromJoystick SDL_HapticOpenFromJoystick;
+		public PFN_SDL_HapticClose SDL_HapticClose;
+		public PFN_SDL_HapticNumEffects SDL_HapticNumEffects;
+		public PFN_SDL_HapticNumEffectsPlaying SDL_HapticNumEffectsPlaying;
+		public PFN_SDL_HapticQuery SDL_HapticQuery;
+		public PFN_SDL_HapticNumAxes SDL_HapticNumAxes;
+		public PFN_SDL_HapticEffectSupported SDL_HapticEffectSupported;
+		public PFN_SDL_HapticNewEffect SDL_HapticNewEffect;
+		public PFN_SDL_HapticUpdateEffect SDL_HapticUpdateEffect;
+		public PFN_SDL_HapticRunEffect SDL_HapticRunEffect;
+		public PFN_SDL_HapticStopEffect SDL_HapticStopEffect;
+		public PFN_SDL_HapticDestroyEffect SDL_HapticDestroyEffect;
+		public PFN_SDL_HapticGetEffectStatus SDL_HapticGetEffectStatus;
+		public PFN_SDL_HapticSetGain SDL_HapticSetGain;
+		public PFN_SDL_HapticSetAutocenter SDL_HapticSetAutocenter;
+		public PFN_SDL_HapticPause SDL_HapticPause;
+		public PFN_SDL_HapticUnpause SDL_HapticUnpause;
+		public PFN_SDL_HapticStopAll SDL_HapticStopAll;
+		public PFN_SDL_HapticRumbleSupported SDL_HapticRumbleSupported;
+		public PFN_SDL_HapticRumbleInit SDL_HapticRumbleInit;
+		public PFN_SDL_HapticRumblePlay SDL_HapticRumblePlay;
+		public PFN_SDL_HapticRumbleStop SDL_HapticRumbleStop;
+
+		// SDL_hints.h
+
+		public delegate SDLBool PFN_SDL_SetHintWithPriority([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPStr)] string value, SDLHintPriority priority);
+		public delegate SDLBool PFN_SDL_SetHint([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPStr)] string value);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetHint([MarshalAs(UnmanagedType.LPStr)] string name);
+		public delegate SDLBool PFN_SDL_GetHintBoolean([MarshalAs(UnmanagedType.LPStr)] string name, SDLBool defaultValue);
+		public delegate void PFN_SDL_AddHintCallback([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.FunctionPtr)] SDLHintCallback callback, IntPtr userdata);
+		public delegate void PFN_SDL_DelHintCallback([MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.FunctionPtr)] SDLHintCallback callback, IntPtr userdata);
+
+		public PFN_SDL_SetHintWithPriority SDL_SetHintWithPriority;
+		public PFN_SDL_SetHint SDL_SetHint;
+		public PFN_SDL_GetHint SDL_GetHint;
+		public PFN_SDL_GetHintBoolean SDL_GetHintBoolean;
+		public PFN_SDL_AddHintCallback SDL_AddHintCallback;
+		public PFN_SDL_DelHintCallback SDL_DelHintCallback;
+
+		// SDL_locale.h
+
+		[return: NativeType("SDL_Locale*")]
+		public delegate IntPtr PFN_SDL_GetPreferredLocales();
+
+		public PFN_SDL_GetPreferredLocales SDL_GetPreferredLocales;
+
+		// SDL_log.h
+
+		public delegate void PFN_SDL_LogSetAllPriority(SDLLogPriority priority);
+		public delegate void PFN_SDL_LogSetPriority(int category, SDLLogPriority priority);
+		public delegate SDLLogPriority PFN_SDL_LogGetPriority(int category);
+		public delegate void PFN_SDL_LogResetPriorities();
+		public delegate void PFN_SDL_Log(string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogVerbose(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogDebug(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogInfo(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogWarn(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogError(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogCritical(int category, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogMessage(int category, SDLLogPriority priority, string fmt, IntPtr pStr);
+		public delegate void PFN_SDL_LogGetOutputFunction(out IntPtr callback, out IntPtr userdata);
+		public delegate void PFN_SDL_LogSetOutputFunction([MarshalAs(UnmanagedType.FunctionPtr)] SDLLogOutputFunction callback, IntPtr userdata);
+
+		public PFN_SDL_LogSetAllPriority SDL_LogSetAllPriority;
+		public PFN_SDL_LogSetPriority SDL_LogSetPriority;
+		public PFN_SDL_LogGetPriority SDL_LogGetPriority;
+		public PFN_SDL_LogResetPriorities SDL_LogResetPriorities;
+		public PFN_SDL_Log SDL_Log;
+		public PFN_SDL_LogVerbose SDL_LogVerbose;
+		public PFN_SDL_LogDebug SDL_LogDebug;
+		public PFN_SDL_LogInfo SDL_LogInfo;
+		public PFN_SDL_LogWarn SDL_LogWarn;
+		public PFN_SDL_LogError SDL_LogError;
+		public PFN_SDL_LogCritical SDL_LogCritical;
+		public PFN_SDL_LogMessage SDL_LogMessage;
+		public PFN_SDL_LogGetOutputFunction SDL_LogGetOutputFunction;
+		public PFN_SDL_LogSetOutputFunction SDL_LogSetOutputFunction;
+
+		// SDL_messagebox.h
+
+		public delegate int PFN_SDL_ShowMessageBox(in SDL_MessageBoxData data, out int buttonID);
+		public delegate int PFN_SDL_ShowSimpleMessageBox(SDLMessageBoxFlags flags, [MarshalAs(UnmanagedType.LPStr)] string title, [MarshalAs(UnmanagedType.LPStr)] string message, [NativeType("SDL_Window*")] IntPtr window);
+
+		public PFN_SDL_ShowMessageBox SDL_ShowMessageBox;
+		public PFN_SDL_ShowSimpleMessageBox SDL_ShowSimpleMessageBox;
+
 	}
 
 }
