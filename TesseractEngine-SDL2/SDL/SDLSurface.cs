@@ -362,6 +362,12 @@ namespace Tesseract.SDL {
 				Surface = null;
 			}
 		}
+
+		public SDLRenderer CreateSoftwareRenderer() {
+			IntPtr pRender = SDL2.Functions.SDL_CreateSoftwareRenderer(Surface.Ptr);
+			if (pRender == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+			return new SDLRenderer(pRender);
+		}
 	}
 
 }
