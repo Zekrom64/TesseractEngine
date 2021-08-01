@@ -161,6 +161,8 @@ namespace Tesseract.SDL {
 
 		public SDLJoystickPowerLevel CurrentPowerLevel => SDL2.Functions.SDL_JoystickCurrentPowerLevel(Joystick.Ptr);
 
+		public bool IsHaptic => SDL2.Functions.SDL_JoystickIsHaptic(Joystick.Ptr) > 0;
+
 	}
 
 }

@@ -41,6 +41,12 @@ namespace Tesseract.SDL {
 
 		public IPointer<SDLFinger> GetTouchFinger(int index) => new UnmanagedPointer<SDLFinger>(SDL2.Functions.SDL_GetTouchFinger(TouchID, index));
 
+		public void RecordGesture() => SDL2.Functions.SDL_RecordGesture(TouchID);
+
+		public void LoadDollarTemplates(SDLRWOps rwops) => SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, rwops.RWOps.Ptr));
+
+		public void LoadDollarTemplates(SDLSpanRWOps rwops) => SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, rwops.RWOps.Ptr));
+
 	}
 
 }

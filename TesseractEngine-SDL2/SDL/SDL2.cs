@@ -85,8 +85,9 @@ namespace Tesseract.SDL {
 			return error;
 		}
 
-		internal static void CheckError(int ret) {
-			if (ret != 0) throw new SDLException(GetError());
+		internal static int CheckError(int ret) {
+			if (ret < 0) throw new SDLException(GetError());
+			return ret;
 		}
 
 		// SDL.h
@@ -263,8 +264,8 @@ namespace Tesseract.SDL {
 		/// <seealso cref="ConvertPixels(int, int, SDLPixelFormatEnum, IntPtr, int, SDLPixelFormatEnum, IntPtr, int)"/>
 		public static void ConvertPixels(int width, int height, SDLPixelFormatEnum srcFormat, Span<byte> src, int srcPitch, SDLPixelFormatEnum dstFormat, Span<byte> dst, int dstPitch) {
 			unsafe {
-				fixed(byte* pSrc = src) {
-					fixed(byte* pDst = dst) {
+				fixed (byte* pSrc = src) {
+					fixed (byte* pDst = dst) {
 						ConvertPixels(width, height, srcFormat, (IntPtr)pSrc, srcPitch, dstFormat, (IntPtr)pDst, dstPitch);
 					}
 				}
@@ -548,7 +549,7 @@ namespace Tesseract.SDL {
 
 		public static Span<SDLEvent> PeepEvents(Span<SDLEvent> events, int numevents, SDLEventAction action, uint minType = 0, uint maxType = uint.MaxValue) {
 			unsafe {
-				fixed(SDLEvent* pEvents = events) {
+				fixed (SDLEvent* pEvents = events) {
 					Functions.SDL_PeepEvents((IntPtr)pEvents, numevents, action, minType, maxType);
 				}
 			}
@@ -630,6 +631,339 @@ namespace Tesseract.SDL {
 		public static IntPtr SIMDRealloc(IntPtr ptr, nuint len) => Functions.SDL_SIMDRealloc(ptr, len);
 
 		public static void SIMDFree(IntPtr ptr) => Functions.SDL_SIMDFree(ptr);
+
+		// SDL_audio.h
+
+		public const int MixMaxVolume = 128;
+
+		public static string[] AudioDrivers {
+			get {
+				int numDrivers = Functions.SDL_GetNumAudioDrivers();
+				string[] drivers = new string[numDrivers];
+				for (int i = 0; i < numDrivers; i++) drivers[i] = MemoryUtil.GetStringASCII(Functions.SDL_GetAudioDriver(i));
+				return drivers;
+			}
+		}
+
+		public static void AudioInit(string driverName) => CheckError(Functions.SDL_AudioInit(driverName));
+
+		public static void AudioQuit() => Functions.SDL_AudioQuit();
+
+		public static string CurrentAudioDriver => MemoryUtil.GetStringASCII(Functions.SDL_GetCurrentAudioDriver());
+
+		public static void OpenAudio(in SDLAudioSpec desired, out SDLAudioSpec obtained) => CheckError(Functions.SDL_OpenAudio(desired, out obtained));
+
+		public static string[] AudioDevices {
+			get {
+				int numDevices = Functions.SDL_GetNumAudioDevices(0);
+				string[] devices = new string[numDevices];
+				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetStringASCII(Functions.SDL_GetAudioDeviceName(i, 0));
+				return devices;
+			}
+		}
+
+		public static string[] AudioCaptureDevices {
+			get {
+				int numDevices = Functions.SDL_GetNumAudioDevices(1);
+				string[] devices = new string[numDevices];
+				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetStringASCII(Functions.SDL_GetAudioDeviceName(i, 1));
+				return devices;
+			}
+		}
+
+		public static void PauseAudio(bool pauseOn) => Functions.SDL_PauseAudio(pauseOn ? 1 : 0);
+
+		public static (SDLAudioSpec, ManagedPointer<byte>, uint) LoadWAV(SDLRWOps rwops) {
+			IntPtr pSpec = Functions.SDL_LoadWAV_RW(rwops.RWOps.Ptr, 0, out SDLAudioSpec spec, out IntPtr buf, out uint len);
+			if (pSpec == IntPtr.Zero) throw new SDLException(GetError());
+			return (spec, new ManagedPointer<byte>(buf, ptr => Functions.SDL_FreeWAV(ptr)), len);
+		}
+
+		public static Span<byte> MixAudio(Span<byte> dst, in ReadOnlySpan<byte> src, int volume) {
+			unsafe {
+				fixed(byte* pDst = dst) {
+					fixed(byte* pSrc = src) {
+						Functions.SDL_MixAudio((IntPtr)pDst, (IntPtr)pSrc, (uint)Math.Min(dst.Length, src.Length), volume);
+					}
+				}
+			}
+			return dst;
+		}
+
+		public static IPointer<byte> MixAudio(IPointer<byte> dst, IConstPointer<byte> src, uint length, int volume) {
+			Functions.SDL_MixAudio(dst.Ptr, src.Ptr, length, volume);
+			return dst;
+		}
+
+		public static Span<byte> MixAudio(Span<byte> dst, in ReadOnlySpan<byte> src, SDLAudioFormat format, int volume) {
+			unsafe {
+				fixed (byte* pDst = dst) {
+					fixed (byte* pSrc = src) {
+						Functions.SDL_MixAudioFormat((IntPtr)pDst, (IntPtr)pSrc, format, (uint)Math.Min(dst.Length, src.Length), volume);
+					}
+				}
+			}
+			return dst;
+		}
+
+		public static IPointer<byte> MixAudio(IPointer<byte> dst, IConstPointer<byte> src, SDLAudioFormat format, uint length, int volume) {
+			Functions.SDL_MixAudioFormat(dst.Ptr, src.Ptr, format, length, volume);
+			return dst;
+		}
+
+		public static void LockAudio() => Functions.SDL_LockAudio();
+
+		public static void UnlockAudio() => Functions.SDL_UnlockAudio();
+
+		public static void CloseAudio() => Functions.SDL_CloseAudio();
+
+		// SDL_clipboard.h
+
+		public static string ClipboardText {
+			get {
+				if (!Functions.SDL_HasClipboardText()) return null;
+				return MemoryUtil.GetStringASCII(Functions.SDL_GetClipboardText());
+			}
+			set => Functions.SDL_SetClipboardText(value);
+		}
+
+		// SDL_filesystem.h
+
+		public static string BasePath => MemoryUtil.GetStringASCII(Functions.SDL_GetBasePath());
+
+		public static string GetPrefPath(string org, string app) => MemoryUtil.GetStringASCII(Functions.SDL_GetPrefPath(org, app));
+
+		// SDL_gesture.h
+
+		public static void RecordGesture() => Functions.SDL_RecordGesture(-1);
+
+		public static void SaveAllDollarTemplates(SDLRWOps rwops) => CheckError(Functions.SDL_SaveAllDollarTemplates(rwops.RWOps.Ptr));
+
+		public static void SaveAllDollarTemplates(SDLSpanRWOps rwops) => CheckError(Functions.SDL_SaveAllDollarTemplates(rwops.RWOps.Ptr));
+
+		public static void SaveDollarTemplate(long gestureID, SDLRWOps rwops) => CheckError(Functions.SDL_SaveDollarTemplate(gestureID, rwops.RWOps.Ptr));
+
+		public static void SaveDollarTemplate(long gestureID, SDLSpanRWOps rwops) => CheckError(Functions.SDL_SaveDollarTemplate(gestureID, rwops.RWOps.Ptr));
+
+		// SDL_haptic.h
+
+		public const uint HapticInfinity = 4294967295U;
+
+		public static bool MouseIsHaptic => Functions.SDL_MouseIsHaptic() != 0;
+
+		public static SDLHaptic HapticOpenFromMouse() {
+			IntPtr haptic = Functions.SDL_HapticOpenFromMouse();
+			if (haptic == IntPtr.Zero) throw new SDLException(GetError());
+			return new SDLHaptic(haptic);
+		}
+
+		// SDL_hints.h
+
+		public const string HintFramebufferAcceleration = "SDL_FRAMEBUFFER_ACCELERATION";
+		public const string HintRenderDriver = "SDL_RENDER_DRIVER";
+		public const string HintRenderOpenGLShaders = "SDL_RENDER_OPENGL_SHADERS";
+		public const string HintRenderDirect3DThreadsafe = "SDL_RENDER_DIRECT3D_THREADSAFE";
+		public const string HintRenderDirect3D11Debug = "SDL_RENDER_DIRECT3D11_DEBUG";
+		public const string HintRenderLogicalSizeMode = "SDL_RENDER_LOGICAL_SIZE_MODE";
+		public const string HintRenderScaleQuality = "SDL_RENDER_SCALE_QUALITY";
+		public const string HintRenderVSync = "SDL_RENDER_VSYNC";
+		public const string HintVideoAllowScreensaver = "SDL_VIDEO_ALLOW_SCREENSAVER";
+		public const string HintVideoExternalContext = "SDL_VIDEO_EXTERNAL_CONTEXT";
+		public const string HintVideoX11XVidmode = "SDL_VIDEO_X11_XVIDMODE";
+		public const string HintVideoX11XInerama = "SDL_VIDEO_X11_XINERAMA";
+		public const string HintVideoX11XRandr = "SDL_VIDEO_X11_XRANDR";
+		public const string HintVideoX11WindowVisualID = "SDL_VIDEO_X11_WINDOW_VISUAL_ID";
+		public const string HintVideoX11NetWMPing = "SDL_VIDEO_X11_NET_WM_PING";
+		public const string HintVideoX11NetWMBypassCompositor = "SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR";
+		public const string HintVideoX11ForceEGL = "SDL_VIDEO_X11_FORCE_EGL";
+		public const string HintWindowFrameUsableWhileCursorHidden = "SDL_WINDOW_FRAME_USABLE_WHILE_CURSOR_HIDDEN";
+		public const string HintWindowsIntResourceIcon = "SDL_WINDOWS_INTRESOURCE_ICON";
+		public const string HintWindowsIntResourceIconSmall = "SDL_WINDOWS_INTRESOURCE_ICON_SMALL";
+		public const string HintWindowsEnableMessageLoop = "SDL_WINDOWS_ENABLE_MESSAGELOOP";
+		public const string HintGrabKeyboard = "SDL_GRAB_KEYBOARD";
+		public const string HintMouseDoubleClickTime = "SDL_MOUSE_DOUBLE_CLICK_TIME";
+		public const string HintMouseDoubleClickRadius = "SDL_MOUSE_DOUBLE_CLICK_RADIUS";
+		public const string HintMouseNormalSpeedScale = "SDL_MOUSE_NORMAL_SPEED_SCALE";
+		public const string HintMouseRelativeSpeedScale = "SDL_MOUSE_RELATIVE_SPEED_SCALE";
+		public const string HintMouseRelativeScaling = "SDL_MOUSE_RELATIVE_SCALING";
+		public const string HintMouseRelativeModeWarp = "SDL_MOUSE_RELATIVE_MODE_WARP";
+		public const string HintMouseFocusClickthrough = "SDL_MOUSE_FOCUS_CLICKTHROUGH";
+		public const string HintTouchMouseEvents = "SDL_TOUCH_MOUSE_EVENTS";
+		public const string HintMouseTouchEvents = "SDL_MOUSE_TOUCH_EVENTS";
+		public const string HintVideoMinimizeOnFocusLoss = "SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS";
+		public const string HintIdleTimerDisabled = "SDL_IOS_IDLE_TIMER_DISABLED";
+		public const string HintOrientations = "SDL_IOS_ORIENTATIONS";
+		public const string HintAppleTVControllerUIEvents = "SDL_APPLE_TV_CONTROLLER_UI_EVENTS";
+		public const string HintAppleTVRemoteAllowOrientation = "SDL_APPLE_TV_REMOTE_ALLOW_ORIENTATION";
+		public const string HintIOSHideHomeIndicator = "SDL_IOS_HIDE_HOME_INDICATOR";
+		public const string HintAccelerometerAsJoystick = "SDL_ACCELEROMETER_AS_JOYSTICK";
+		public const string HintTVRemoteAsJoystick = "SDL_TV_REMOTE_AS_JOYSTICK";
+		public const string HintXInputEnabled = "SDL_XINPUT_ENABLED";
+		public const string HintXInputUseOldJoystickMapping = "SDL_XINPUT_USE_OLD_JOYSTICK_MAPPING";
+		public const string HintGameControllerType = "SDL_GAMECONTROLLERTYPE";
+		public const string HintGameControllerConfig = "SDL_GAMECONTROLLERCONFIG";
+		public const string HintGameControllerConfigFile = "SDL_GAMECONTROLLERCONFIG_FILE";
+		public const string HintGameControllerIgnoreDevices = "SDL_GAMECONTROLLER_IGNORE_DEVICES";
+		public const string HintGameControllerIngoreDevicesExcept = "SDL_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT";
+		public const string HintGameControllerUseButtonLabels = "SDL_GAMECONTROLLER_USE_BUTTON_LABELS";
+		public const string HintJoystickAllowBackgroundEvents = "SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS";
+		public const string HintJoystickHIDAPI = "SDL_JOYSTICK_HIDAPI";
+		public const string HintJoystickHIDAPIPS4 = "SDL_JOYSTICK_HIDAPI_PS4";
+		public const string HintJoystickHIDAPIPS5 = "SDL_JOYSTICK_HIDAPI_PS5";
+		public const string HintJoystickHIDAPIPS4Rumble = "SDL_JOYSTICK_HIDAPI_PS4_RUMBLE";
+		public const string HintJoystickHIDAPISteam = "SDL_JOYSTICK_HIDAPI_STEAM";
+		public const string HintJoystickHIDAPISwitch = "SDL_JOYSTICK_HIDAPI_SWITCH";
+		public const string HintJoystickHIDAPIXBox = "SDL_JOYSTICK_HIDAPI_XBOX";
+		public const string HintJoystickHIDAPICorrelateXInput = "SDL_JOYSTICK_HIDAPI_CORRELATE_XINPUT";
+		public const string HintJoystickHIDAPIGamecube = "SDL_JOYSTICK_HIDAPI_GAMECUBE";
+		public const string HintEnableSteamControllers = "SDL_ENABLE_STEAM_CONTROLLERS";
+		public const string HintJoystickRawInput = "SDL_JOYSTICK_RAWINPUT";
+		public const string HintJoystickThread = "SDL_JOYSTICK_THREAD";
+		public const string HintLinuxJoystickDeadZones = "SDL_LINUX_JOYSTICK_DEADZONES";
+		public const string HintAllowTopmost = "SDL_ALLOW_TOPMOST";
+		public const string HintTimerResolution = "SDL_TIMER_RESOLUTION";
+		public const string HintQTWaylandContentOrientation = "SDL_QTWAYLAND_CONTENT_ORIENTATION";
+		public const string HintQTWaylandWindowFlags = "SDL_QTWAYLAND_WINDOW_FLAGS";
+		public const string HintThreadStackSize = "SDL_THREAD_STACK_SIZE";
+		public const string HintThreadPriorityPolicy = "SDL_THREAD_PRIORITY_POLICY";
+		public const string HintThreadForceRealtimeTimeCritical = "SDL_THREAD_FORCE_REALTIME_TIME_CRITICAL";
+		public const string HintVideoHighDPIDisabled = "SDL_VIDEO_HIGHDPI_DISABLED";
+		public const string HintMacCtrlClickEmulateRightClick = "SDL_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK";
+		public const string HintVideoWinD3DCompiler = "SDL_VIDEO_WIN_D3DCOMPILER";
+		public const string HintVideoWindowSharePixelFormat = "SDL_VIDEO_WINDOW_SHARE_PIXEL_FORMAT";
+		public const string HintWinRTPrivacyPolicyURL = "SDL_WINRT_PRIVACY_POLICY_URL";
+		public const string HintWinRTPrivacyPolicyLabel = "SDL_WINRT_PRIVACY_POLICY_LABEL";
+		public const string HintWinRTHandleBackButton = "SDL_WINRT_HANDLE_BACK_BUTTON";
+		public const string HintVideoMacHandleSpaces = "SDL_VIDEO_MAC_HANDLE_SPACES";
+		public const string HintMacBackgroundApp = "SDL_MAC_BACKGROUND_APP";
+		public const string HintAndroidAPKExpansionMainFileVersion = "SDL_ANDROID_APK_EXPANSION_MAIN_FILE_VERSION";
+		public const string HintAndroidAPKExpansionPatchFileVersion = "SDL_ANDROID_APK_EXPANSION_PATCH_FILE_VERSION";
+		public const string HintIMEInternalEditing = "SDL_IME_INTERNAL_EDITING";
+		public const string HintAndroidTrapBackButton = "SDL_ANDROID_TRAP_BACK_BUTTON";
+		public const string HintAndroidBlockOnPause = "SDL_ANDROID_BLOCK_ON_PAUSE";
+		public const string HintAndroidBlockOnPauseAudio = "SDL_ANDROID_BLOCK_ON_PAUSEAUDIO";
+		public const string HintReturnKeyHidesIME = "SDL_RETURN_KEY_HIDES_IME";
+		public const string HintEmscriptenKeyboardElement = "SDL_EMSCRIPTEN_KEYBOARD_ELEMENT";
+		public const string HintEmscriptenAsyncify = "SDL_EMSCRIPTEN_ASYNCIFY";
+		public const string HintNoSignalHandlers = "SDL_NO_SIGNAL_HANDLERS";
+		public const string HindWindowsNoCloseOnAltF4 = "SDL_WINDOWS_NO_CLOSE_ON_ALT_F4";
+		public const string HintBMPSaveLegacyFormat = "SDL_BMP_SAVE_LEGACY_FORMAT";
+		public const string HintWindowsDisableThreadNaming = "SDL_WINDOWS_DISABLE_THREAD_NAMING";
+		public const string HintRPIVideoLayer = "SDL_RPI_VIDEO_LAYER";
+		public const string HintVideoDoubleBuffer = "SDL_VIDEO_DOUBLE_BUFFER";
+		public const string HintOpenGLESDriver = "SDL_OPENGL_ES_DRIVER";
+		public const string HintAudioResamplingMode = "SDL_AUDIO_RESAMPLING_MODE";
+		public const string HintAudioCategory = "SDL_AUDIO_CATEGORY";
+		public const string HintRenderBatching = "SDL_RENDER_BATCHING";
+		public const string HintAutoUpdateJoysticks = "SDL_AUTO_UPDATE_JOYSTICKS";
+		public const string HintAutoUpdateSensors = "SDL_AUTO_UPDATE_SENSORS";
+		public const string HintEventLogging = "SDL_EVENT_LOGGING";
+		public const string HintWaveRIFFChunkSize = "SDL_WAVE_RIFF_CHUNK_SIZE";
+		public const string HintWaveTruncation = "SDL_WAVE_TRUNCATION";
+		public const string HintWaveFactChunk = "SDL_WAVE_FACT_CHUNK";
+		public const string HintDisplayUsableBounds = "SDL_DISPLAY_USABLE_BOUNDS";
+		public const string HintAudioDeviceAppName = "SDL_AUDIO_DEVICE_APP_NAME";
+		public const string HintAudioDeviceStreamName = "SDL_AUDIO_DEVICE_STREAM_NAME";
+		public const string HintPreferredLocales = "SDL_PREFERRED_LOCALES";
+
+		public static void SetHint(string hint, string value, SDLHintPriority priority) => Functions.SDL_SetHintWithPriority(hint, value, priority);
+
+		public static void SetHint(string hint, string value) => Functions.SDL_SetHint(hint, value);
+
+		public static string GetHint(string hint) => MemoryUtil.GetStringASCII(Functions.SDL_GetHint(hint));
+
+		public static bool GetHintBoolean(string hint, bool defaultValue = false) => Functions.SDL_GetHintBoolean(hint, defaultValue);
+
+		public static void AddHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) => Functions.SDL_AddHintCallback(hint, callback, userdata);
+
+		public static void DelHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) => Functions.SDL_DelHintCallback(hint, callback, userdata);
+
+		// SDL_locale.h
+
+		public static SDLLocale[] PreferredLocales {
+			get {
+				IntPtr ptrLocales = Functions.SDL_GetPreferredLocales();
+				if (ptrLocales == IntPtr.Zero) throw new SDLException(GetError());
+				List<SDLLocale> locales = new();
+				UnmanagedPointer<SDLLocale> pLocales = new(ptrLocales);
+				SDLLocale locale;
+				do {
+					locale = pLocales.Value;
+					if (locale.Language != null) locales.Add(locale);
+				} while (locale.Language != null);
+				return locales.ToArray();
+			}
+		}
+
+		// SDL_log.h
+
+		public static void LogSetAllPriority(SDLLogPriority priority) => Functions.SDL_LogSetAllPriority(priority);
+
+		public static void LogSetPriority(int category, SDLLogPriority priority) => Functions.SDL_LogSetPriority(category, priority);
+
+		public static SDLLogPriority LogGetPriority(int category) => Functions.SDL_LogGetPriority(category);
+
+		public static void LogResetPriorities() => Functions.SDL_LogResetPriorities();
+
+		public static void Log(string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_Log("%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogVerbose(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogVerbose(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogDebug(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogDebug(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogInfo(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogInfo(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogWarn(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogWarn(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogError(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogError(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogCritical(int category, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogCritical(category, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static void LogMessage(int category, SDLLogPriority priority, string msg) {
+			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
+			Functions.SDL_LogMessage(category, priority, "%s", pMsg);
+			Marshal.FreeHGlobal(pMsg);
+		}
+
+		public static (SDLLogOutputFunction, IntPtr) LogOutputFunction {
+			get {
+				Functions.SDL_LogGetOutputFunction(out IntPtr pCallback, out IntPtr userdata);
+				SDLLogOutputFunction callback = null;
+				if (pCallback != IntPtr.Zero) callback = Marshal.GetDelegateForFunctionPointer<SDLLogOutputFunction>(pCallback);
+				return (callback, userdata);
+			}
+			set => Functions.SDL_LogSetOutputFunction(value.Item1, value.Item2);
+		}
+
+		// SDL_messagebox.h
 
 		// SDL_sensor.h
 
