@@ -19,4 +19,17 @@ namespace Tesseract.Core.Native {
 		}
 
 	}
+
+	[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+	public class ExternFunctionAttribute : Attribute {
+
+		public string[] AltNames { get; init; } = null;
+
+		public Func<bool> Predicate { get; init; } = null;
+
+		public PlatformType? Platform { get; init; } = null;
+
+		public ExternFunctionAttribute() { }
+
+	}
 }

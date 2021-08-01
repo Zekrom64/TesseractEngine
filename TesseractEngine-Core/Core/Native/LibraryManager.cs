@@ -18,19 +18,13 @@ namespace Tesseract.Core.Native {
 
 	}
 
-	public class ExternFunctionAttribute : Attribute {
-
-		public string[] AltNames { get; init; }
-
-		public ExternFunctionAttribute() { }
-
-	}
-
 	public class Library {
 
 		public static void LoadFunctions(Func<string,IntPtr> loader, object funcs) {
 			foreach (var field in funcs.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)) {
 				ExternFunctionAttribute efa = field.GetCustomAttribute<ExternFunctionAttribute>();
+				if (!(efa?.Predicate() ?? true)) continue;
+				if (efa.Platform != null && efa.Platform.Value != Platform.CurrentPlatformType) continue;
 				Type delegateType = field.FieldType;
 				string name = field.Name;
 				IntPtr pfn = loader(name);
