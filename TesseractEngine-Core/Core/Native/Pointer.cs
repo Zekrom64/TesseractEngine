@@ -57,6 +57,7 @@ namespace Tesseract.Core.Native {
 
 		private readonly IntPtr ptr;
 		private readonly Releaser release;
+		private readonly int count;
 
 		public T Value {
 			get => Marshal.PtrToStructure<T>(ptr);
@@ -66,13 +67,20 @@ namespace Tesseract.Core.Native {
 		public IntPtr Ptr => ptr;
 
 		/// <summary>
+		/// The number of elements pointed to by the managed pointer.
+		/// </summary>
+		public int Count => count;
+
+		/// <summary>
 		/// Creates a new managed pointer from an existing raw pointer and an optional releaser.
 		/// </summary>
 		/// <param name="ptr">Raw pointer</param>
 		/// <param name="release">Releaser for pointer, or null</param>
-		public ManagedPointer(IntPtr ptr, Releaser release = null) {
+		/// <param name="count">The number of array elements</param>
+		public ManagedPointer(IntPtr ptr, Releaser release = null, int count = 1) {
 			this.ptr = ptr;
 			this.release = release;
+			this.count = count;
 		}
 
 		/// <summary>
@@ -82,7 +90,43 @@ namespace Tesseract.Core.Native {
 		public ManagedPointer(T value) {
 			ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
 			Marshal.StructureToPtr(value, ptr, false);
-			release = Marshal.FreeHGlobal;
+			release = ptr => {
+				Marshal.DestroyStructure<T>(ptr);
+				Marshal.FreeHGlobal(ptr);
+			};
+			count = 1;
+		}
+
+		/// <summary>
+		/// Allocates a pointer to an array of values and marshals the given default value to the new memory.
+		/// </summary>
+		/// <param name="count">Number of array elements</param>
+		/// <param name="defVal">The default value in the array</param>
+		public ManagedPointer(int count, T defVal = default) {
+			int sz = Marshal.SizeOf<T>();
+			ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(defVal, ptr + sz * i, false);
+			release = ptr => {
+				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
+				Marshal.FreeHGlobal(ptr);
+			};
+			this.count = count;
+		}
+
+		/// <summary>
+		/// Allocates a pointer to an array of values and marshals the given array to the new memory.
+		/// </summary>
+		/// <param name="values">The array element values</param>
+		public ManagedPointer(params T[] values) {
+			int sz = Marshal.SizeOf<T>();
+			int count = values.Length;
+			ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(values[i], ptr + sz * i, false);
+			release = ptr => {
+				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
+				Marshal.FreeHGlobal(ptr);
+			};
+			this.count = count;
 		}
 
 		public void Dispose() {
@@ -93,8 +137,14 @@ namespace Tesseract.Core.Native {
 		public static implicit operator IntPtr(ManagedPointer<T> mptr) => mptr.ptr;
 
 		public T this[int index] {
-			get => Marshal.PtrToStructure<T>(ptr + Marshal.SizeOf<T>() * index);
-			set => Marshal.StructureToPtr(value, ptr + Marshal.SizeOf<T>() * index, true);
+			get {
+				if (index < 0 || index >= count) throw new IndexOutOfRangeException();
+				return Marshal.PtrToStructure<T>(ptr + Marshal.SizeOf<T>() * index);
+			}
+			set {
+				if (index < 0 || index >= count) throw new IndexOutOfRangeException();
+				Marshal.StructureToPtr(value, ptr + Marshal.SizeOf<T>() * index, true);
+			}
 		}
 
 	}
