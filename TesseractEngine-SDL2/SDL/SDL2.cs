@@ -965,6 +965,69 @@ namespace Tesseract.SDL {
 
 		// SDL_messagebox.h
 
+		public static int ShowMessageBox(SDLMessageBoxData data) {
+			ManagedPointer<SDLMessageBoxButtonData> buttons = default;
+			if (data.Buttons != null) buttons = new ManagedPointer<SDLMessageBoxButtonData>(data.Buttons);
+			ManagedPointer<SDLMessageBoxColorScheme> colorScheme = default;
+			if (data.ColorScheme != null) colorScheme = new ManagedPointer<SDLMessageBoxColorScheme>(data.ColorScheme.Value);
+			SDL_MessageBoxData mbdata = new() {
+				Flags = data.Flags,
+				Window = data != null ? data.Window.Window.Ptr : IntPtr.Zero,
+				Title = data.Title,
+				Message = data.Message,
+				NumButtons = buttons.Count,
+				Buttons = buttons.Ptr,
+				ColorScheme = colorScheme.Ptr
+			};
+			int ret = Functions.SDL_ShowMessageBox(mbdata, out int buttonID);
+			if (mbdata.Buttons != IntPtr.Zero) buttons.Dispose();
+			if (mbdata.ColorScheme != IntPtr.Zero) colorScheme.Dispose();
+			CheckError(ret);
+			return buttonID;
+		}
+
+		public static void ShowSimpleMessageBox(SDLMessageBoxFlags flags, string title, string message, SDLWindow window = null) =>
+			CheckError(Functions.SDL_ShowSimpleMessageBox(flags, title, message, window != null ? window.Window.Ptr : IntPtr.Zero));
+
+		// SDL_metal.h
+
+		public static void MetalDestroyView(IntPtr view) => Functions.SDL_Metal_DestroyView(view);
+
+		public static IntPtr MetalGetLayer(IntPtr view) => Functions.SDL_Metal_GetLayer(view);
+
+		// SDL_misc.h
+
+		public static void OpenURL(string url) => CheckError(Functions.SDL_OpenURL(url));
+
+		// SDL_platform.h
+
+		public static string Platform => MemoryUtil.GetStringASCII(Functions.SDL_GetPlatform());
+
+		// SDL_power.h
+
+		public static (SDLPowerState, int, int) PowerState {
+			get {
+				SDLPowerState state = Functions.SDL_GetPowerInfo(out int secs, out int pct);
+				return (state, secs, pct);
+			}
+		}
+
+		// SDL_render.h
+
+		public static SDLRendererInfo[] RenderDrivers {
+			get {
+				int n = Functions.SDL_GetNumRenderDrivers();
+				SDLRendererInfo[] infos = new SDLRendererInfo[n];
+				for (int i = 0; i < n; i++) Functions.SDL_GetRenderDriverInfo(i, out infos[i]);
+				return infos;
+			}
+		}
+
+		public static (SDLWindow, SDLRenderer) CreateWindowAndRenderer(int width, int height, SDLWindowFlags windowFlags) {
+			CheckError(Functions.SDL_CreateWindowAndRenderer(width, height, windowFlags, out IntPtr window, out IntPtr renderer));
+			return (new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window)), new SDLRenderer(renderer));
+		}
+
 		// SDL_sensor.h
 
 		public const float StandardGravity = 9.80665f;

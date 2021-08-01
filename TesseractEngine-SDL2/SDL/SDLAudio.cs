@@ -136,6 +136,37 @@ namespace Tesseract.SDL {
 		public SDLAudioFilter Filter9;
 		public int FilterIndex;
 
+		public SDLAudioFilter this[int index] {
+			get => index switch {
+				0 => Filter0,
+				1 => Filter1,
+				2 => Filter2,
+				3 => Filter3,
+				4 => Filter4,
+				5 => Filter5,
+				6 => Filter6,
+				7 => Filter7,
+				8 => Filter8,
+				9 => Filter9,
+				_ => throw new IndexOutOfRangeException()
+			};
+			set {
+				switch(index) {
+					case 0: Filter0 = value; break;
+					case 1: Filter1 = value; break;
+					case 2: Filter2 = value; break;
+					case 3: Filter3 = value; break;
+					case 4: Filter4 = value; break;
+					case 5: Filter5 = value; break;
+					case 6: Filter6 = value; break;
+					case 7: Filter7 = value; break;
+					case 8: Filter8 = value; break;
+					case 9: Filter9 = value; break;
+					default: throw new IndexOutOfRangeException();
+				}
+			}
+		}
+
 		public void Build(SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate) =>
 			SDL2.CheckError(SDL2.Functions.SDL_BuildAudioCVT(out this, srcFormat, srcChannels, srcRate, dstFormat, dstChannels, dstRate));
 

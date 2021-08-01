@@ -1406,7 +1406,7 @@ namespace Tesseract.SDL.Native {
 		public delegate void PFN_SDL_PauseAudio(int pauseOn);
 		public delegate void PFN_SDL_PauseAudioDevice(uint dev, int pauseOn);
 		[return: NativeType("SDL_AudioSpec*")]
-		public delegate IntPtr PFN_SDL_LoadWAV_RW([NativeType("SDL_RWops*")] IntPtr src, int freesrc, out SDLAudioSpec spec, [NativeType("Uint8*")] out IntPtr audioBuf, out uint audioLength);
+		public delegate IntPtr PFN_SDL_LoadWAV_RW([NativeType("SDL_RWops*")] IntPtr src, int freesrc, out SDLAudioSpec spec, [NativeType("Uint8**")] out IntPtr audioBuf, out uint audioLength);
 		public delegate void PFN_SDL_FreeWAV([NativeType("Uint8*")] IntPtr audioBuf);
 		public delegate int PFN_SDL_BuildAudioCVT(out SDLAudioCVT cvt, SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate);
 		public delegate int PFN_SDL_ConvertAudio(in SDLAudioCVT cvt);
@@ -1631,6 +1631,191 @@ namespace Tesseract.SDL.Native {
 
 		public PFN_SDL_ShowMessageBox SDL_ShowMessageBox;
 		public PFN_SDL_ShowSimpleMessageBox SDL_ShowSimpleMessageBox;
+
+		// SDL_metal.h
+
+		public delegate IntPtr PFN_SDL_Metal_CreateView([NativeType("SDL_Window*")] IntPtr window);
+		public delegate void PFN_SDL_Metal_DestroyView([NativeType("SDL_MetalView")] IntPtr view);
+		public delegate IntPtr PFN_SDL_Metal_GetLayer([NativeType("SDL_MetalView")] IntPtr view);
+		public delegate void PFN_SDL_Metal_GetDrawableSize([NativeType("SDL_Window*")] IntPtr window, out int w, out int h);
+
+		public PFN_SDL_Metal_CreateView SDL_Metal_CreateView;
+		public PFN_SDL_Metal_DestroyView SDL_Metal_DestroyView;
+		public PFN_SDL_Metal_GetLayer SDL_Metal_GetLayer;
+		public PFN_SDL_Metal_GetDrawableSize SDL_Metal_GetDrawableSize;
+
+		// SDL_misc.h
+
+		public delegate int PFN_SDL_OpenURL([MarshalAs(UnmanagedType.LPStr)] string url);
+
+		public PFN_SDL_OpenURL SDL_OpenURL;
+
+		// SDL_platform.h
+
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetPlatform();
+
+		public PFN_SDL_GetPlatform SDL_GetPlatform;
+
+		// SDL_power.h
+
+		public delegate SDLPowerState PFN_SDL_GetPowerInfo(out int secs, out int pct);
+
+		public PFN_SDL_GetPowerInfo SDL_GetPowerInfo;
+
+		// SDL_render.h
+
+		public delegate int PFN_SDL_GetNumRenderDrivers();
+		public delegate int PFN_SDL_GetRenderDriverInfo(int index, out SDLRendererInfo info);
+		public delegate int PFN_SDL_CreateWindowAndRenderer(int width, int height, SDLWindowFlags windowFlags, [NativeType("SDL_Window**")] out IntPtr window, [NativeType("SDL_Renderer**")] out IntPtr renderer);
+		[return: NativeType("SDL_Renderer*")]
+		public delegate IntPtr PFN_SDL_CreateRenderer([NativeType("SDL_Window*")] IntPtr window, int index, SDLRendererFlags flags);
+		[return: NativeType("SDL_Renderer*")]
+		public delegate IntPtr PFN_SDL_CreateSoftwareRenderer([NativeType("SDL_Surface*")] IntPtr surface);
+		[return: NativeType("SDL_Renderer*")]
+		public delegate IntPtr PFN_SDL_GetRenderer([NativeType("SDL_Window*")] IntPtr window);
+		public delegate int PFN_SDL_GetRendererInfo([NativeType("SDL_Renderer*")] IntPtr renderer, out SDLRendererInfo info);
+		public delegate int PFN_SDL_GetRendererOutputSize([NativeType("SDL_Renderer*")] IntPtr renderer, out int w, out int h);
+		[return: NativeType("SDL_Texture*")]
+		public delegate IntPtr PFN_SDL_CreateTexture([NativeType("SDL_Renderer*")] IntPtr renderer, SDLPixelFormatEnum format, SDLTextureAccess access, int w, int h);
+		[return: NativeType("SDL_Texture*")]
+		public delegate IntPtr PFN_SDL_CreateTextureFromSurface([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Surface*")] IntPtr surface);
+		public delegate int PFN_SDL_QueryTexture([NativeType("SDL_Texture*")] IntPtr texture, out SDLPixelFormatEnum format, out SDLTextureAccess access, out int w, out int h);
+		public delegate int PFN_SDL_SetTextureColorMod([NativeType("SDL_Texture*")] IntPtr texture, byte r, byte g, byte b);
+		public delegate int PFN_SDL_GetTextureColorMod([NativeType("SDL_Texture*")] IntPtr texture, out byte r, out byte g, out byte b);
+		public delegate int PFN_SDL_SetTextureAlphaMod([NativeType("SDL_Texture*")] IntPtr texture, byte a);
+		public delegate int PFN_SDL_GetTextureAlphaMod([NativeType("SDL_Texture*")] IntPtr texture, out byte a);
+		public delegate int PFN_SDL_SetTextureBlendMode([NativeType("SDL_Texture*")] IntPtr texture, SDLBlendMode blendMode);
+		public delegate int PFN_SDL_GetTextureBlendMode([NativeType("SDL_Texture*")] IntPtr texture, out SDLBlendMode blendMode);
+		public delegate int PFN_SDL_SetTextureScaleMode([NativeType("SDL_Texture*")] IntPtr texture, SDLScaleMode scaleMode);
+		public delegate int PFN_SDL_GetTextureScaleMode([NativeType("SDL_Texture*")] IntPtr texture, out SDLScaleMode scaleMode);
+		public delegate int PFN_SDL_UpdateTexture([NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const SDL_Rect*")] IntPtr rect, IntPtr pixels, int pitch);
+		public delegate int PFN_SDL_UpdateYUVTexture([NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const SDL_Rect*")] IntPtr rect, IntPtr yplane, int ypitch, IntPtr uplane, int upitch, IntPtr vplane, int vpitch);
+		public delegate int PFN_SDL_LockTexture([NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const SDL_Rect*")] IntPtr rect, out IntPtr pixels, out int pitch);
+		public delegate int PFN_SDL_LockTextureToSurface([NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const SDL_Rect*")] IntPtr rect, [NativeType("SDL_Surface**")] out IntPtr surface);
+		public delegate void PFN_SDL_UnlockTexture([NativeType("SDL_Texture*")] IntPtr texture);
+		public delegate SDLBool PFN_SDL_RenderTargetSupported([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_SetRenderTarget([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture);
+		[return: NativeType("SDL_Texture*")]
+		public delegate IntPtr PFN_SDL_GetRenderTarget([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_RenderSetLogicalSize([NativeType("SDL_Renderer*")] IntPtr renderer, int w, int h);
+		public delegate int PFN_SDL_RenderGetLogicalSize([NativeType("SDL_Renderer*")] IntPtr renderer, out int w, out int h);
+		public delegate int PFN_SDL_RenderSetIntegerScale([NativeType("SDL_Renderer*")] IntPtr renderer, SDLBool enable);
+		public delegate SDLBool PFN_SDL_RenderGetIntegerScale([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_RenderSetViewport([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rect);
+		public delegate void PFN_SDL_RenderGetViewport([NativeType("SDL_Renderer*")] IntPtr renderer, out SDLRect rect);
+		public delegate int PFN_SDL_RenderSetClipRect([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rect);
+		public delegate void PFN_SDL_RenderGetClipRect([NativeType("SDL_Renderer*")] IntPtr renderer, out SDLRect rect);
+		public delegate SDLBool PFN_SDL_RenderIsClipEnabled([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_RenderSetScale([NativeType("SDL_Renderer*")] IntPtr renderer, float scaleX, float scaleY);
+		public delegate void PFN_SDL_RenderGetScale([NativeType("SDL_Renderer*")] IntPtr renderer, out float scaleX, out float scaleY);
+		public delegate int PFN_SDL_SetRenderDrawColor([NativeType("SDL_Renderer*")] IntPtr renderer, byte r, byte g, byte b, byte a);
+		public delegate int PFN_SDL_GetRenderDrawColor([NativeType("SDL_Renderer*")] IntPtr renderer, out byte r, out byte g, out byte b, out byte a);
+		public delegate int PFN_SDL_SetRenderDrawBlendMode([NativeType("SDL_Renderer*")] IntPtr renderer, SDLBlendMode blendMode);
+		public delegate int PFN_SDL_GetRenderDrawBlendMode([NativeType("SDL_Renderer*")] IntPtr renderer, out SDLBlendMode blendMode);
+		public delegate int PFN_SDL_RenderClear([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_RenderDrawPoint([NativeType("SDL_Renderer*")] IntPtr renderer, int x, int y);
+		public delegate int PFN_SDL_RenderDrawPoints([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Point*")] IntPtr points, int count);
+		public delegate int PFN_SDL_RenderDrawLine([NativeType("SDL_Renderer*")] IntPtr renderer, int x1, int y1, int x2, int y2);
+		public delegate int PFN_SDL_RenderDrawLines([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Point*")] IntPtr points, int count);
+		public delegate int PFN_SDL_RenderDrawRect([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rect);
+		public delegate int PFN_SDL_RenderDrawRects([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rects, int count);
+		public delegate int PFN_SDL_RenderFillRect([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rect);
+		public delegate int PFN_SDL_RenderFillRects([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_Rect*")] IntPtr rects, int count);
+		public delegate int PFN_SDL_RenderCopy([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_Rect*")] IntPtr dstrect);
+		public delegate int PFN_SDL_RenderCopyEx([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_Rect*")] IntPtr dstrect, double angle, in SDLPoint center, SDLRendererFlip flip);
+		public delegate int PFN_SDL_RenderDrawPointF([NativeType("SDL_Renderer*")] IntPtr renderer, float x, float y);
+		public delegate int PFN_SDL_RenderDrawPointsF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FPoint*")] IntPtr points, int count);
+		public delegate int PFN_SDL_RenderDrawLineF([NativeType("SDL_Renderer*")] IntPtr renderer, float x1, float y1, float x2, float y2);
+		public delegate int PFN_SDL_RenderDrawLinesF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FPoint*")] IntPtr points, int count);
+		public delegate int PFN_SDL_RenderDrawRectF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FRect*")] IntPtr rect);
+		public delegate int PFN_SDL_RenderDrawRectsF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FRect*")] IntPtr rects, int count);
+		public delegate int PFN_SDL_RenderFillRectF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FRect*")] IntPtr rect);
+		public delegate int PFN_SDL_RenderFillRectsF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FRect*")] IntPtr rects, int count);
+		public delegate int PFN_SDL_RenderCopyF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_FRect*")] IntPtr dstrect);
+		public delegate int PFN_SDL_RenderCopyExF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_FRect*")] IntPtr dstrect, double angle, in SDLFPoint center, SDLRendererFlip flip);
+		public delegate int PFN_SDL_RenderReadPixels([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Rect*")] IntPtr rect, SDLPixelFormatEnum format, IntPtr pixels, int pitch);
+		public delegate void PFN_SDL_RenderPresent([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate void PFN_SDL_DestroyTexture([NativeType("SDL_Texture*")] IntPtr texture);
+		public delegate void PFN_SDL_DestroyRenderer([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_RenderFlush([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate int PFN_SDL_GL_BindTexture([NativeType("SDL_Texture*")] IntPtr texture, out float texw, out float texh);
+		public delegate int PFN_SDL_GL_UnbindTexture([NativeType("SDL_Texture*")] IntPtr texture);
+		public delegate IntPtr PFN_SDL_RenderGetMetalLayer([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate IntPtr PFN_SDL_RenderGetMetalCommandEncoder([NativeType("SDL_Renderer*")] IntPtr renderer);
+
+		public PFN_SDL_GetNumRenderDrivers SDL_GetNumRenderDrivers;
+		public PFN_SDL_GetRenderDriverInfo SDL_GetRenderDriverInfo;
+		public PFN_SDL_CreateWindowAndRenderer SDL_CreateWindowAndRenderer;
+		public PFN_SDL_CreateRenderer SDL_CreateRenderer;
+		public PFN_SDL_CreateSoftwareRenderer SDL_CreateSoftwareRenderer;
+		public PFN_SDL_GetRenderer SDL_GetRenderer;
+		public PFN_SDL_GetRendererInfo SDL_GetRendererInfo;
+		public PFN_SDL_GetRendererOutputSize SDL_GetRendererOutputSize;
+		public PFN_SDL_CreateTexture SDL_CreateTexture;
+		public PFN_SDL_CreateTextureFromSurface SDL_CreateTextureFromSurface;
+		public PFN_SDL_QueryTexture SDL_QueryTexture;
+		public PFN_SDL_SetTextureColorMod SDL_SetTextureColorMod;
+		public PFN_SDL_GetTextureColorMod SDL_GetTextureColorMod;
+		public PFN_SDL_SetTextureAlphaMod SDL_SetTextureAlphaMod;
+		public PFN_SDL_GetTextureAlphaMod SDL_GetTextureAlphaMod;
+		public PFN_SDL_SetTextureBlendMode SDL_SetTextureBlendMode;
+		public PFN_SDL_GetTextureBlendMode SDL_GetTextureBlendMode;
+		public PFN_SDL_SetTextureScaleMode SDL_SetTextureScaleMode;
+		public PFN_SDL_GetTextureScaleMode SDL_GetTextureScaleMode;
+		public PFN_SDL_UpdateTexture SDL_UpdateTexture;
+		public PFN_SDL_UpdateYUVTexture SDL_UpdateYUVTexture;
+		public PFN_SDL_LockTexture SDL_LockTexture;
+		public PFN_SDL_LockTextureToSurface SDL_LockTextureToSurface;
+		public PFN_SDL_UnlockTexture SDL_UnlockTexture;
+		public PFN_SDL_RenderTargetSupported SDL_RenderTargetSupported;
+		public PFN_SDL_SetRenderTarget SDL_SetRenderTarget;
+		public PFN_SDL_GetRenderTarget SDL_GetRenderTarget;
+		public PFN_SDL_RenderSetLogicalSize SDL_RenderSetLogicalSize;
+		public PFN_SDL_RenderGetLogicalSize SDL_RenderGetLogicalSize;
+		public PFN_SDL_RenderSetIntegerScale SDL_RenderSetIntegerScale;
+		public PFN_SDL_RenderGetIntegerScale SDL_RenderGetIntegerScale;
+		public PFN_SDL_RenderSetViewport SDL_RenderSetViewport;
+		public PFN_SDL_RenderGetViewport SDL_RenderGetViewport;
+		public PFN_SDL_RenderSetClipRect SDL_RenderSetClipRect;
+		public PFN_SDL_RenderGetClipRect SDL_RenderGetClipRect;
+		public PFN_SDL_RenderIsClipEnabled SDL_RenderIsClipEnabled;
+		public PFN_SDL_RenderSetScale SDL_RenderSetScale;
+		public PFN_SDL_RenderGetScale SDL_RenderGetScale;
+		public PFN_SDL_SetRenderDrawColor SDL_SetRenderDrawColor;
+		public PFN_SDL_GetRenderDrawColor SDL_GetRenderDrawColor;
+		public PFN_SDL_SetRenderDrawBlendMode SDL_SetRenderDrawBlendMode;
+		public PFN_SDL_GetRenderDrawBlendMode SDL_GetRenderDrawBlendMode;
+		public PFN_SDL_RenderClear SDL_RenderClear;
+		public PFN_SDL_RenderDrawPoint SDL_RenderDrawPoint;
+		public PFN_SDL_RenderDrawPoints SDL_RenderDrawPoints;
+		public PFN_SDL_RenderDrawLine SDL_RenderDrawLine;
+		public PFN_SDL_RenderDrawLines SDL_RenderDrawLines;
+		public PFN_SDL_RenderDrawRect SDL_RenderDrawRect;
+		public PFN_SDL_RenderDrawRects SDL_RenderDrawRects;
+		public PFN_SDL_RenderFillRect SDL_RenderFillRect;
+		public PFN_SDL_RenderFillRects SDL_RenderFillRects;
+		public PFN_SDL_RenderCopy SDL_RenderCopy;
+		public PFN_SDL_RenderCopyEx SDL_RenderCopyEx;
+		public PFN_SDL_RenderDrawPointF SDL_RenderDrawPointF;
+		public PFN_SDL_RenderDrawPointsF SDL_RenderDrawPointsF;
+		public PFN_SDL_RenderDrawLineF SDL_RenderDrawLineF;
+		public PFN_SDL_RenderDrawLinesF SDL_RenderDrawLinesF;
+		public PFN_SDL_RenderDrawRectF SDL_RenderDrawRectF;
+		public PFN_SDL_RenderDrawRectsF SDL_RenderDrawRectsF;
+		public PFN_SDL_RenderFillRectF SDL_RenderFillRectF;
+		public PFN_SDL_RenderFillRectsF SDL_RenderFillRectsF;
+		public PFN_SDL_RenderCopyF SDL_RenderCopyF;
+		public PFN_SDL_RenderCopyExF SDL_RenderCopyExF;
+		public PFN_SDL_RenderReadPixels SDL_RenderReadPixels;
+		public PFN_SDL_RenderPresent SDL_RenderPresent;
+		public PFN_SDL_DestroyTexture SDL_DestroyTexture;
+		public PFN_SDL_DestroyRenderer SDL_DestroyRenderer;
+		public PFN_SDL_RenderFlush SDL_RenderFlush;
+		public PFN_SDL_GL_BindTexture SDL_GL_BindTexture;
+		public PFN_SDL_GL_UnbindTexture SDL_GL_UnbindTexture;
+		public PFN_SDL_RenderGetMetalLayer SDL_RenderGetMetalLayer;
+		public PFN_SDL_RenderGetMetalCommandEncoder SDL_RenderGetMetalCommandEncoder;
 
 	}
 
