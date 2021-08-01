@@ -85,10 +85,10 @@ namespace Tesseract.SDL {
 		public ushort Interval;
 		public Vector3us RightSat;
 		public Vector3us LeftSat;
-		// TODO: public Vector3s RightCoeff;
-		// TODO: public Vector3s LeftCoeff;
+		public Vector3s RightCoeff;
+		public Vector3s LeftCoeff;
 		public Vector3us Deadband;
-		// TODO: public Vector3s Center;
+		public Vector3s Center;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

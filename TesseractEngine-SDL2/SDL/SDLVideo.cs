@@ -393,6 +393,27 @@ namespace Tesseract.SDL {
 
 		public void WarpMouseInWindow(int x, int y) => SDL2.Functions.SDL_WarpMouseInWindow(Window.Ptr, x, y);
 
+		public IntPtr MetalCreateView => SDL2.Functions.SDL_Metal_CreateView(Window.Ptr);
+
+		public Vector2i MetalGetDrawableSize() {
+			SDL2.Functions.SDL_Metal_GetDrawableSize(Window.Ptr, out int w, out int h);
+			return new Vector2i(w, h);
+		}
+
+		public SDLRenderer CreateRenderer(int index, SDLRendererFlags flags) {
+			IntPtr pRender = SDL2.Functions.SDL_CreateRenderer(Window.Ptr, index, flags);
+			if (pRender == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+			return new SDLRenderer(pRender);
+		}
+
+		public SDLRenderer Renderer {
+			get {
+				IntPtr pRender = SDL2.Functions.SDL_GetRenderer(Window.Ptr);
+				if (pRender == IntPtr.Zero) return null;
+				return new SDLRenderer(pRender);
+			}
+		}
+
 	}
 
 }
