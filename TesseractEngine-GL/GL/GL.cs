@@ -73,8 +73,14 @@ namespace Tesseract.GL {
 		public GL31 GL31 { get; }
 		public GL32 GL32 { get; }
 		public GL33 GL33 { get; }
+		public GL40 GL40 { get; }
+		public GL41 GL41 { get; }
+		public GL42 GL42 { get; }
 
 		private readonly HashSet<string> extensions = new();
+		/// <summary>
+		/// The set of extensions supported by this OpenGL instance.
+		/// </summary>
 		public IReadOnlySet<string> Extensions => extensions;
 
 		// OpenGL 3.0 Extensions
@@ -169,40 +175,71 @@ namespace Tesseract.GL {
 
 		// OpenGL 4.0 Extensions
 		// ARB_texture_query_lod
+		public bool ARBTextureQueryLOD { get; }
 		// ARB_draw_buffers_blend
+		public ARBDrawBuffersBlend ARBDrawBuffersBlend { get; }
 		// ARB_draw_indirect
+		public ARBDrawIndirect ARBDrawIndirect { get; }
 		// ARB_gpu_shader5
+		public bool ARBGPUShader5 { get; }
 		// ARB_gpu_shader_fp64
+		public bool ARBGPUShaderFP64 { get; }
 		// ARB_sample_shading
+		public ARBSampleShading ARBSampleShading { get; }
 		// ARB_shader_subroutine
+		public ARBShaderSubroutine ARBShaderSubroutine { get; }
 		// ARB_tessellation_shader
 		public ARBTessellationShader ARBTessellationShader { get; }
 		// ARB_texture_buffer_object_rgb32
+		public bool ARBTextureBufferObjectRGB32 { get; }
 		// ARB_texture_cube_map_array
+		public bool ARBTextureCubeMapArray { get; }
 		// ARB_texture_gather
+		public bool ARBTextureGather { get; }
 		// ARB_transform_feedback2
+		public ARBTransformFeedback2 ARBTransformFeedback2 { get; }
 		// ARB_transform_feedback3
+		public ARBTransformFeedback3 ARBTransformFeedback3 { get; }
 
 		// OpenGL 4.1 Extensions
 		// ARB_ES2_compatibility
+		public ARBES2Compatbility ARBES2Compatbility { get; }
 		// ARB_get_program_binary
+		public ARBGetProgramBinary ARBGetProgramBinary { get; }
 		// ARB_separate_shader_objects
+		public ARBSeparateShaderObjects ARBSeparateShaderObjects { get; }
 		// ARB_shader_precision
+		public bool ARBShaderPrecision { get; }
 		// ARB_vertex_attrib_64bit
+		public ARBVertexAttrib64Bit ARBVertexAttrib64Bit { get; }
 		// ARB_viewport_array
+		public ARBViewportArray ARBViewportArray { get; }
 
 		// OpenGL 4.2 Extensions
 		// ARB_texture_compression_bptc
+		public bool ARBTextureCompressionBPTC { get; }
 		// ARB_compressed_texture_pixel_storage
+		public bool ARBCompressedTexturePixelStorage { get; }
 		// ARB_shader_atomic_counters
+		public ARBShaderAtomicCounters ARBShaderAtomicCounters { get; }
 		// ARB_texture_storage
+		public ARBTextureStorage ARBTextureStorage { get; }
 		// ARB_transform_feedback_instanced
+		public ARBTransformFeedbackInstanced ARBTransformFeedbackInstanced { get; }
 		// ARB_base_instance
+		public ARBBaseInstance ARBBaseInstance { get; }
 		// ARB_shader_image_load_store
+		public ARBShaderImageLoadStore ARBShaderImageLoadStore { get; }
 		// ARB_conservative_depth
+		public bool ARBConservativeDepth { get; }
 		// ARB_shading_language_420pack
+		public bool ARBShadingLanguage420Pack { get; }
 		// ARB_internalformat_query
+		public ARBInternalFormatQuery ARBInternalFormatQuery { get; }
 		// ARB_map_buffer_alignment
+		public bool ARBMapBufferAlignment { get; }
+		// ARB_shading_language_packing
+		public bool ARBShadingLanguagePacking { get; }
 
 		// OpenGL 4.3 Extensions
 		// ARB_arrays_of_arrays
@@ -344,6 +381,7 @@ namespace Tesseract.GL {
 				if (Extensions.Contains("GL_EXT_texture_integer")) EXTTextureInteger = new(this, context);
 				if (Extensions.Contains("GL_EXT_draw_buffers2")) EXTDrawBuffers2 = new(this, context);
 				if (Extensions.Contains("GL_EXT_texture_compression_rgtc")) EXTTextureCompressionRGTC = true;
+				// ARB_transform_feedback and EXT_transform_feedback are interchangeable for the spec ¯\_(ツ)_/¯
 				if (Extensions.Contains("GL_ARB_transform_feedback") || Extensions.Contains("GL_EXT_transform_feedback")) ARBTransformFeedback = new(this, context);
 				if (Extensions.Contains("GL_ARB_vertex_array_object")) ARBVertexArrayObject = new(this, context);
 				hasGL30 = hasGL21 &&
@@ -374,6 +412,7 @@ namespace Tesseract.GL {
 				ARBUniformBufferObject = new(this, context);
 			} else {
 				if (Extensions.Contains("GL_ARB_draw_instanced")) ARBDrawInstanced = new(this, context);
+				// ARB_copy_buffer and EXT_copy_buffer are interchangeable for the spec ¯\_(ツ)_/¯
 				if (Extensions.Contains("GL_ARB_copy_buffer") || Extensions.Contains("GL_EXT_copy_buffer")) ARBCopyBuffer = new(this, context);
 				if (Extensions.Contains("GL_NV_primitive_restart")) NVPrimitiveRestart = new(this, context);
 				if (Extensions.Contains("GL_ARB_texture_buffer_object")) ARBTextureBufferObject = new(this, context);
@@ -418,7 +457,8 @@ namespace Tesseract.GL {
 					ARBSeamlessCubeMap &&
 					ARBTextureMultisample != null &&
 					ARBDepthClamp &&
-					ARBSync != null;
+					ARBSync != null &&
+					context.GetGLProcAddress("glGetBufferParameteri64v") != IntPtr.Zero;
 			}
 
 			// GL 3.3
@@ -457,8 +497,122 @@ namespace Tesseract.GL {
 					ARBVertexType2_10_10_10Rev;
 			}
 
+			// GL 4.0
+			if (hasGL40) {
+				ARBTextureQueryLOD = true;
+				ARBGPUShader5 = true;
+				ARBGPUShaderFP64 = true;
+				ARBShaderSubroutine = new(this, context);
+				ARBTextureGather = true;
+				ARBDrawIndirect = new(this, context);
+				ARBSampleShading = new(this, context);
+				ARBTessellationShader = new(this, context);
+				ARBTextureBufferObjectRGB32 = true;
+				ARBTextureCubeMapArray = true;
+				ARBTransformFeedback2 = new(this, context);
+				ARBTransformFeedback3 = new(this, context);
+				ARBDrawBuffersBlend = new(this, context);
+			} else {
+				if (Extensions.Contains("GL_ARB_texture_query_lod")) ARBTextureQueryLOD = true;
+				if (Extensions.Contains("GL_ARB_gpu_shader5")) ARBGPUShader5 = true;
+				if (Extensions.Contains("GL_ARB_gpu_shader_fp64")) ARBGPUShaderFP64 = true;
+				if (Extensions.Contains("GL_ARB_shader_subroutine")) ARBShaderSubroutine = new(this, context);
+				if (Extensions.Contains("GL_ARB_texture_gather")) ARBTextureGather = true;
+				if (Extensions.Contains("GL_ARB_draw_indirect")) ARBDrawIndirect = new(this, context);
+				if (Extensions.Contains("GL_ARB_sample_shading")) ARBSampleShading = new(this, context);
+				if (Extensions.Contains("GL_ARB_tessellation_shader")) ARBTessellationShader = new(this, context);
+				if (Extensions.Contains("GL_ARB_texture_buffer_object_rgb32")) ARBTextureBufferObjectRGB32 = true;
+				if (Extensions.Contains("GL_ARB_texture_cube_map_array")) ARBTextureCubeMapArray = true;
+				if (Extensions.Contains("GL_ARB_transform_feedback2")) ARBTransformFeedback2 = new(this, context);
+				if (Extensions.Contains("GL_ARB_transform_feedback3")) ARBTransformFeedback3 = new(this, context);
+				if (Extensions.Contains("GL_ARB_draw_buffers_blend")) ARBDrawBuffersBlend = new(this, context);
+				hasGL40 = hasGL33 &&
+					ARBTextureQueryLOD &&
+					ARBGPUShader5 &&
+					ARBGPUShaderFP64 &&
+					ARBShaderSubroutine != null &&
+					ARBTextureGather &&
+					ARBDrawIndirect != null &&
+					ARBSampleShading != null &&
+					ARBTessellationShader != null &&
+					ARBTextureBufferObjectRGB32 &&
+					ARBTextureCubeMapArray &&
+					ARBTransformFeedback2 != null &&
+					ARBTransformFeedback3 != null &&
+					ARBDrawBuffersBlend != null;
+			}
+
+			// GL 4.1
+			if (hasGL41) {
+				ARBGetProgramBinary = new(this, context);
+				ARBSeparateShaderObjects = new(this, context);
+				ARBES2Compatbility = new(this, context);
+				ARBShaderPrecision = true;
+				ARBVertexAttrib64Bit = new(this, context);
+				ARBViewportArray = new(this, context);
+			} else {
+				if (Extensions.Contains("GL_ARB_get_program_binary")) ARBGetProgramBinary = new(this, context);
+				if (Extensions.Contains("GL_ARB_separate_shader_objects")) ARBSeparateShaderObjects = new(this, context);
+				if (Extensions.Contains("GL_ARB_ES2_compatibility")) ARBES2Compatbility = new(this, context);
+				if (Extensions.Contains("GL_ARB_shader_precision")) ARBShaderPrecision = true;
+				if (Extensions.Contains("GL_ARB_vertex_attrib_64bit")) ARBVertexAttrib64Bit = new(this, context);
+				if (Extensions.Contains("GL_ARB_viewport_array")) ARBViewportArray = new(this, context);
+				hasGL41 = hasGL40 &&
+					ARBGetProgramBinary != null &&
+					ARBSeparateShaderObjects != null &&
+					ARBES2Compatbility != null &&
+					ARBShaderPrecision &&
+					ARBVertexAttrib64Bit != null &&
+					ARBViewportArray != null;
+			}
+
+			// GL 4.2
+			if (hasGL42) {
+				ARBShaderAtomicCounters = new(this, context);
+				ARBShaderImageLoadStore = new(this, context);
+				ARBTextureStorage = new(this, context);
+				ARBTransformFeedbackInstanced = new(this, context);
+				ARBShadingLanguage420Pack = true;
+				ARBBaseInstance = new(this, context);
+				ARBInternalFormatQuery = new(this, context);
+				ARBCompressedTexturePixelStorage = true;
+				ARBShadingLanguagePacking = true;
+				ARBMapBufferAlignment = true;
+				ARBConservativeDepth = true;
+				ARBTextureCompressionBPTC = true;
+			} else {
+				if (Extensions.Contains("GL_ARB_shader_atomic_counters")) ARBShaderAtomicCounters = new(this, context);
+				if (Extensions.Contains("GL_ARB_shader_image_load_store")) ARBShaderImageLoadStore = new(this, context);
+				if (Extensions.Contains("GL_ARB_texture_storage")) ARBTextureStorage = new(this, context);
+				if (Extensions.Contains("GL_ARB_transform_feedback_instanced")) ARBTransformFeedbackInstanced = new(this, context);
+				if (Extensions.Contains("GL_ARB_shading_language_420pack")) ARBShadingLanguage420Pack = true;
+				if (Extensions.Contains("GL_ARB_base_instance")) ARBBaseInstance = new(this, context);
+				if (Extensions.Contains("GL_ARB_internalformat_query")) ARBInternalFormatQuery = new(this, context);
+				if (Extensions.Contains("GL_ARB_compressed_texture_pixel_storage")) ARBCompressedTexturePixelStorage = true;
+				if (Extensions.Contains("GL_ARB_shading_language_packing")) ARBShadingLanguagePacking = true;
+				if (Extensions.Contains("GL_ARB_map_buffer_alignment")) ARBMapBufferAlignment = true;
+				if (Extensions.Contains("GL_ARB_conservative_depth")) ARBConservativeDepth = true;
+				if (Extensions.Contains("GL_ARB_texture_compression_bptc")) ARBTextureCompressionBPTC = true;
+				hasGL42 = hasGL41 &&
+					ARBShaderAtomicCounters != null &&
+					ARBShaderImageLoadStore != null &&
+					ARBTextureStorage != null &&
+					ARBTransformFeedbackInstanced != null &&
+					ARBShadingLanguage420Pack &&
+					ARBBaseInstance != null &&
+					ARBInternalFormatQuery != null &&
+					ARBCompressedTexturePixelStorage &&
+					ARBShadingLanguagePacking &&
+					ARBMapBufferAlignment &&
+					ARBConservativeDepth &&
+					ARBTextureCompressionBPTC;
+			}
+
 			// Initialize GL versions
-			if (hasGL33) GL33 = new(this, context);
+			if (hasGL42) GL42 = new(this, context);
+			if (hasGL41) GL41 = GL42 ?? new(this, context);
+			if (hasGL40) GL40 = GL41 ?? new GL40(this, context);
+			if (hasGL33) GL33 = GL40 ?? new GL33(this, context);
 			if (hasGL32) GL32 = GL33 ?? new GL32(this, context);
 			if (hasGL31) GL31 = GL32 ?? new GL31(this, context);
 			if (hasGL30) GL30 = GL31 ?? new GL30(this, context);

@@ -262,7 +262,7 @@ namespace Tesseract.GL {
 		public bool IsQuery(uint id) => FunctionsGL15.glIsQuery(id) != 0;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IntPtr MapBuffer(GLBufferTarget target, GLMapAccess access) => FunctionsGL15.glMapBuffer((uint)target, (uint)access);
+		public IntPtr MapBuffer(GLBufferTarget target, GLAccess access) => FunctionsGL15.glMapBuffer((uint)target, (uint)access);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool UnmapBuffer(GLBufferTarget target) => FunctionsGL15.glUnmapBuffer((uint)target) != 0;

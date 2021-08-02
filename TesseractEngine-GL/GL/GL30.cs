@@ -181,7 +181,7 @@ namespace Tesseract.GL {
 		// EXT_draw_buffers2
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ColorMaskI(uint buf, bool red, bool green, bool blue, bool alpha) => GL.EXTDrawBuffers2.ColorMaskIndexed(buf, red, green, blue, alpha);
+		public new void ColorMask(uint buf, bool red, bool green, bool blue, bool alpha) => GL.EXTDrawBuffers2.ColorMaskIndexed(buf, red, green, blue, alpha);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool GetBoolean(GLIndexedCapability pname, uint index) => GL.EXTDrawBuffers2.GetBoolean(pname, index);

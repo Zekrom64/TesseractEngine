@@ -668,56 +668,6 @@ namespace Tesseract.GL.Native {
 		public PFN_glUniformMatrix4x3fv glUniformMatrix4x3fv;
 
 	}
-	
-	public class GL31Functions {
-
-		public PFN_glDrawArraysInstanced glDrawArraysInstanced;
-		public PFN_glDrawElementsInstanced glDrawElementsInstanced;
-		public PFN_glPrimitiveRestartIndex glPrimitiveRestartIndex;
-		public PFN_glTexBuffer glTexBuffer;
-
-	}
-
-	public delegate void PFN_glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
-	public delegate void PFN_glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, IntPtr indices, GLsizei primcount);
-	public delegate void PFN_glPrimitiveRestartIndex(GLuint buffer);
-	public delegate void PFN_glTexBuffer(GLenum target, GLenum internalFormat, GLuint buffer);
-
-	public class GL32Functions {
-
-		public PFN_glFramebufferTexture glFramebufferTexture;
-		public PFN_glGetBufferParameteri64v glGetBufferParameteri64v;
-		public PFN_glGetInteger64i_v glGetInteger64i_v;
-
-	}
-
-	public delegate void PFN_glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level);
-	public delegate void PFN_glGetBufferParameteri64v(GLenum target, GLenum value, out GLint64 data);
-	public delegate void PFN_glGetInteger64i_v(GLenum pname, GLuint index, out GLint64 data);
-
-	public class GL33Functions {
-
-		public PFN_glVertexAttribDivisor glVertexAttribDivisor;
-
-	}
-
-	public delegate void PFN_glVertexAttribDivisor(GLuint index, GLuint divisor);
-
-	public class GL40Functions {
-
-		public PFN_glBlendEquationsSeparatei glBlendEquationsSeparatei;
-		public PFN_glBlendEquationi glBlendEquationi;
-		public PFN_glBlendFuncsSeparatei glBlendFuncsSeparatei;
-		public PFN_glBlendFunci glBlendFunci;
-		public PFN_glMinSampleShading glMinSampleShading;
-
-	}
-
-	public delegate void PFN_glBlendEquationsSeparatei(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
-	public delegate void PFN_glBlendEquationi(GLuint buf, GLenum mode);
-	public delegate void PFN_glBlendFuncsSeparatei(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-	public delegate void PFN_glBlendFunci(GLuint buf, GLenum src, GLenum dst);
-	public delegate void PFN_glMinSampleShading(GLclampf value);
 
 	public class GL45Functions {
 
