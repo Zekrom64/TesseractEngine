@@ -23,9 +23,9 @@ namespace Tesseract.Core.Native {
 		public static void LoadFunctions(Func<string,IntPtr> loader, object funcs) {
 			foreach (var field in funcs.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)) {
 				ExternFunctionAttribute efa = field.GetCustomAttribute<ExternFunctionAttribute>();
-				if (!(efa?.Predicate() ?? true)) continue;
-				if (efa.Platform != null && efa.Platform.Value != Platform.CurrentPlatformType) continue;
-				if (efa.Subplatform != null && efa.Subplatform.Value != Platform.CurrentSubplatformType) continue;
+				if (efa.Manual) continue;
+				if (efa.Platform != default && efa.Platform != Platform.CurrentPlatformType) continue;
+				if (efa.Subplatform != default && efa.Subplatform != Platform.CurrentSubplatformType) continue;
 				Type delegateType = field.FieldType;
 				string name = field.Name;
 				IntPtr pfn = loader(name);

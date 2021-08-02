@@ -32,19 +32,20 @@ namespace Tesseract.Core.Native {
 		public string[] AltNames { get; init; } = null;
 
 		/// <summary>
-		/// A generic predicate to determine if the function should be loaded.
+		/// If the function should be manually loaded. If true this field will be ignored by
+		/// <see cref="Library.LoadFunctions(Func{string, IntPtr}, object)"/>
 		/// </summary>
-		public Func<bool> Predicate { get; init; } = null;
+		public bool Manual { get; init; } = false;
 
 		/// <summary>
 		/// A platform the function should only be loaded on.
 		/// </summary>
-		public PlatformType? Platform { get; init; } = null;
+		public PlatformType Platform { get; init; } = default;
 
 		/// <summary>
 		/// A sub-platform the function should only be loaded on.
 		/// </summary>
-		public SubplatformType? Subplatform { get; init; } = null;
+		public SubplatformType Subplatform { get; init; } = default;
 
 		public ExternFunctionAttribute() { }
 
