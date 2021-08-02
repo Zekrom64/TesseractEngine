@@ -327,7 +327,14 @@ namespace Tesseract.SDL {
 			set => SDL2.Functions.SDL_SetWindowOpacity(Window.Ptr, value);
 		}
 
+		public bool IsShapedWindow => SDL2.Functions.SDL_IsShapedWindow(Window.Ptr);
 
+		public SDLWindowShapeMode ShapedWindowMode {
+			get {
+				SDL2.CheckError(SDL2.Functions.SDL_GetShapedWindowMode(Window.Ptr, out SDLWindowShapeMode shapeMode));
+				return shapeMode;
+			}
+		}
 
 		public SDLWindow(IPointer<SDL_Window> window) {
 			Window = window;
@@ -413,6 +420,9 @@ namespace Tesseract.SDL {
 				return new SDLRenderer(pRender);
 			}
 		}
+
+		public void SetWindowShape(SDLSurface shape, SDLWindowShapeMode shapeMode) =>
+			SDL2.CheckError(SDL2.Functions.SDL_SetWindowShape(Window.Ptr, shape.Surface.Ptr, shapeMode));
 
 	}
 

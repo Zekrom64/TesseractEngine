@@ -1028,6 +1028,18 @@ namespace Tesseract.SDL {
 			return (new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window)), new SDLRenderer(renderer));
 		}
 
+		// SDL_shape.h
+
+		public const int NonShapeableWindow = -1;
+		public const int InvalidShapeArgument = -2;
+		public const int WindowLacksShape = -3;
+
+		public static SDLWindow CreateShapedWindow(string title, uint x, uint y, uint w, uint h, SDLWindowFlags flags) {
+			IntPtr window = Functions.SDL_CreateShapedWindow(title, x, y, w, h, flags);
+			if (window == IntPtr.Zero) throw new SDLException(GetError());
+			return new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window));
+		}
+
 		// SDL_sensor.h
 
 		public const float StandardGravity = 9.80665f;

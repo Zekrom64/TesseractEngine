@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core;
 using Tesseract.Core.Native;
 
 namespace Tesseract.SDL.Native {
@@ -1817,6 +1818,59 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_RenderGetMetalLayer SDL_RenderGetMetalLayer;
 		public PFN_SDL_RenderGetMetalCommandEncoder SDL_RenderGetMetalCommandEncoder;
 
+		// SDL_shape.h
+
+		[return: NativeType("SDL_Window*")]
+		public delegate IntPtr PFN_SDL_CreateShapedWindow([MarshalAs(UnmanagedType.LPStr)] string title, uint x, uint y, uint w, uint h, SDLWindowFlags flags);
+		public delegate SDLBool PFN_SDL_IsShapedWindow([NativeType("SDL_Window*")] IntPtr window);
+		public delegate int PFN_SDL_SetWindowShape([NativeType("SDL_Window*")] IntPtr window, [NativeType("SDL_Surface*")] IntPtr shape, in SDLWindowShapeMode shapeMode);
+		public delegate int PFN_SDL_GetShapedWindowMode([NativeType("SDL_Window*")] IntPtr window, out SDLWindowShapeMode shapeMode);
+
+		public PFN_SDL_CreateShapedWindow SDL_CreateShapedWindow;
+		public PFN_SDL_IsShapedWindow SDL_IsShapedWindow;
+		public PFN_SDL_SetWindowShape SDL_SetWindowShape;
+		public PFN_SDL_GetShapedWindowMode SDL_GetShapedWindowMode;
+
+		// SDL_platform.h
+
+		public delegate void PFN_SDL_SetWindowsMessageHook([MarshalAs(UnmanagedType.FunctionPtr)] SDLWindowsMessageHook callback, IntPtr userdata);
+		public delegate int PFN_SDL_Direct3D9GetAdapterIndex(int displayIndex);
+		[return: NativeType("IDirect3DDevice9*")]
+		public delegate IntPtr PFN_SDL_RenderGetD3D9Device([NativeType("SDL_Renderer*")] IntPtr renderer);
+		public delegate SDLBool PFN_SDL_DXGIGetOutputInfo(int displayIndex, out int adapterIndex, out int outputIndex);
+
+		public PFN_SDL_SetWindowsMessageHook SDL_SetWindowsMessageHook;
+		public PFN_SDL_Direct3D9GetAdapterIndex SDL_Direct3D9GetAdapterIndex;
+		public PFN_SDL_RenderGetD3D9Device SDL_RenderGetD3D9Device;
+		public PFN_SDL_DXGIGetOutputInfo SDL_DXGIGetOutputInfo;
+
+		public delegate int PFN_SDL_LinuxSetThreadPriority(long threadID, int priority);
+
+		public delegate int PFN_SDL_iPhoneSetAnimationCallback([NativeType("SDL_Window*")] IntPtr window, int interval, SDLiOSAnimationCallback, IntPtr callbackParam);
+		public delegate void PFN_SDL_iPhoneSetEventPump(SDLBool enabled);
+
+		[return: NativeType("JNIEnv*")]
+		public delegate IntPtr PFN_SDL_AndroidGetJNIEnv();
+		[return: NativeType("jobject")]
+		public delegate IntPtr PFN_SDL_AndroidGetActivity();
+		public delegate int PFN_SDL_GetAndroidSDKVersion();
+		public delegate SDLBool PFN_SDL_IsAndroidTV();
+		public delegate SDLBool PFN_SDL_IsChromebook();
+		public delegate SDLBool PFN_SDL_IsDeXMode();
+		public delegate void PFN_SDL_AndroidBackButton();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_AndroidGetInternalStoragePath();
+		public delegate SDLAndroidStorageState PFN_SDL_AndroidGetExternalStorageState();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_AndroidGetExternalStoragePath();
+		public delegate SDLBool PFN_SDL_AndroidRequestPermission([MarshalAs(UnmanagedType.LPStr)] string permission);
+		
+		[return: NativeType("const wchar_t*")]
+		public delegate IntPtr PFN_SDL_WinRTGetFSPathUNICODE(SDLWinRTPath path);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_WinRTGetFSPathUTF8(SDLWinRTPath path);
+		public delegate SDLWinRTDeviceFamily PFN_SDL_WinRTGetDeviceFamily();
+			
 	}
 
 }
