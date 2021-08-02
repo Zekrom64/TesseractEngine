@@ -32,8 +32,8 @@ namespace Tesseract.GL.Graphics {
 			public ulong TotalCommittedMemory => 0;
 
 			public GLGraphicsProperties(GL gl) {
-				RendererName = gl.GL11.GetString(GLEnums.GL_RENDERER);
-				VendorName = gl.GL11.GetString(GLEnums.GL_VENDOR);
+				RendererName = gl.GL11.GetString(Native.GLEnums.GL_RENDERER);
+				VendorName = gl.GL11.GetString(Native.GLEnums.GL_VENDOR);
 			}
 
 		}
@@ -44,7 +44,7 @@ namespace Tesseract.GL.Graphics {
 
 			public static uint GetRequiredContextFlags(GraphicsHardwareFeatures features) {
 				uint flags = 0;
-				if (features.RobustBufferAccess) flags |= GLEnums.GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT;
+				if (features.RobustBufferAccess) flags |= Native.GLEnums.GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT;
 				return flags;
 			}
 
@@ -62,12 +62,12 @@ namespace Tesseract.GL.Graphics {
 			public bool TextureSubView { get; } // Supported by ARB_texture_view
 
 			public GLGraphicsFeatures(GL gl, GraphicsHardwareFeatures features) {
-				int contextFlags = gl.GL11.GetInteger(GLEnums.GL_CONTEXT_FLAGS);
+				int contextFlags = gl.GL11.GetInteger(Native.GLEnums.GL_CONTEXT_FLAGS);
 
-				Span<float> lineWidthRange = gl.GL11.GetFloat(GLEnums.GL_LINE_WIDTH_RANGE, stackalloc float[2]);
-				Span<float> pointSizeRange = gl.GL11.GetFloat(GLEnums.GL_POINT_SIZE_RANGE, stackalloc float[2]);
+				Span<float> lineWidthRange = gl.GL11.GetFloat(Native.GLEnums.GL_LINE_WIDTH_RANGE, (stackalloc float[2]));
+				Span<float> pointSizeRange = gl.GL11.GetFloat(Native.GLEnums.GL_POINT_SIZE_RANGE, (stackalloc float[2]));
 				HardwareFeatures = features with {
-					RobustBufferAccess = features.RobustBufferAccess && ((contextFlags & GLEnums.GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT) != 0),
+					RobustBufferAccess = features.RobustBufferAccess && ((contextFlags & Native.GLEnums.GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT) != 0),
 					TessellationShader = features.TessellationShader && gl.ARBTessellationShader != null,
 					MultiDrawIndirect = features.MultiDrawIndirect && false, // TODO: Check against ARB_multi_draw_indirect
 					DrawIndirectFirstInstance = features.DrawIndirectFirstInstance && false, // TODO: Check against ARB_base_instance
@@ -188,13 +188,13 @@ namespace Tesseract.GL.Graphics {
 			public float LineWidthGranularity { get; }
 
 			public GLGraphicsLimits(GL gl) {
-				MaxTextureDimension1D = MaxImageDimension2D = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_TEXTURE_SIZE);
-				MaxTextureDimension3D = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_3D_TEXTURE_SIZE);
-				MaxTextureDimensionCube = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-				MaxTextureArrayLayers = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_ARRAY_TEXTURE_LAYERS);
-				MaxTexelBufferElements = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_TEXTURE_BUFFER_SIZE);
-				MaxUniformBufferRange = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_UNIFORM_BLOCK_SIZE);
-				MaxStorageBufferRange = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+				MaxTextureDimension1D = MaxImageDimension2D = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_TEXTURE_SIZE);
+				MaxTextureDimension3D = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_3D_TEXTURE_SIZE);
+				MaxTextureDimensionCube = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
+				MaxTextureArrayLayers = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_ARRAY_TEXTURE_LAYERS);
+				MaxTexelBufferElements = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_TEXTURE_BUFFER_SIZE);
+				MaxUniformBufferRange = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_UNIFORM_BLOCK_SIZE);
+				MaxStorageBufferRange = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
 				MaxPushConstantSize = 0;
 				MaxSamplerObjects = uint.MaxValue; // OpenGL defines no explicit limit on the number of objects
 				SparseAddressSpaceSize = 0; // TODO: Sparse resources
@@ -212,15 +212,15 @@ namespace Tesseract.GL.Graphics {
 				);
 				*/
 
-				MaxGeometryOutputVertices = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_GEOMETRY_OUTPUT_VERTICES);
-				MaxGeometryTotalOutputComponents = (uint)gl.GL11.GetInteger(GLEnums.GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS);
+				MaxGeometryOutputVertices = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_GEOMETRY_OUTPUT_VERTICES);
+				MaxGeometryTotalOutputComponents = (uint)gl.GL11.GetInteger(Native.GLEnums.GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS);
 
-				Span<float> pointSizeRange = gl.GL11.GetFloat(GLEnums.GL_POINT_SIZE_RANGE, stackalloc float[2]);
+				Span<float> pointSizeRange = gl.GL11.GetFloat(Native.GLEnums.GL_POINT_SIZE_RANGE, (stackalloc float[2]));
 				PointSizeRange = (pointSizeRange[0], pointSizeRange[1]);
-				Span<float> lineWidthRange = gl.GL11.GetFloat(GLEnums.GL_LINE_WIDTH_RANGE, stackalloc float[2]);
+				Span<float> lineWidthRange = gl.GL11.GetFloat(Native.GLEnums.GL_LINE_WIDTH_RANGE, (stackalloc float[2]));
 				LineWidthRange = (lineWidthRange[0], lineWidthRange[1]);
-				PointSizeGranularity = gl.GL11.GetFloat(GLEnums.GL_POINT_SIZE_GRANULARITY);
-				LineWidthGranularity = gl.GL11.GetFloat(GLEnums.GL_LINE_WIDTH_GRANULARITY);
+				PointSizeGranularity = gl.GL11.GetFloat(Native.GLEnums.GL_POINT_SIZE_GRANULARITY);
+				LineWidthGranularity = gl.GL11.GetFloat(Native.GLEnums.GL_LINE_WIDTH_GRANULARITY);
 			}
 
 		}

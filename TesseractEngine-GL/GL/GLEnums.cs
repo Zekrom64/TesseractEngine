@@ -164,7 +164,14 @@ namespace Tesseract.GL {
 		CompressedSignedRG_RGTC2 = GLEnums.GL_COMPRESSED_SIGNED_RG_RGTC2,
 		CompressedRGBA_BPTC_UNorm = GLEnums.GL_COMPRESSED_RGBA_BPTC_UNORM,
 		CompressedRGB_BPTC_SFloat = GLEnums.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
-		CompressedRGB_BPTC_UFloat = GLEnums.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT
+		CompressedRGB_BPTC_UFloat = GLEnums.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
+
+		DepthComponent16 = GLEnums.GL_DEPTH_COMPONENT16,
+		DepthComponent24 = GLEnums.GL_DEPTH_COMPONENT24,
+		DepthComponent32F = GLEnums.GL_DEPTH_COMPONENT32F,
+		Depth24Stencil8 = GLEnums.GL_DEPTH24_STENCIL8,
+		Depth32FStencil8 = GLEnums.GL_DEPTH32F_STENCIL8,
+		StencilIndex8 = GLEnums.GL_STENCIL_INDEX8
 	}
 
 	public enum GLQueryTarget : uint {
@@ -249,7 +256,7 @@ namespace Tesseract.GL {
 		Timestamp = GLEnums.GL_TIMESTAMP
 	}
 
-	public enum GLMapAccess : uint {
+	public enum GLAccess : uint {
 		ReadOnly = GLEnums.GL_READ_ONLY,
 		WriteOnly = GLEnums.GL_WRITE_ONLY,
 		ReadWrite = GLEnums.GL_READ_WRITE
@@ -823,9 +830,11 @@ namespace Tesseract.GL {
 	}
 
 	public enum GLProgramParameter : uint {
-		VerticesOut = GLEnums.GL_GEOMETRY_VERTICES_OUT,
-		InputType = GLEnums.GL_GEOMETRY_INPUT_TYPE,
-		OutputType = GLEnums.GL_GEOMETRY_OUTPUT_TYPE
+		GeometryVerticesOut = GLEnums.GL_GEOMETRY_VERTICES_OUT,
+		GeometryInputType = GLEnums.GL_GEOMETRY_INPUT_TYPE,
+		GeometryOutputType = GLEnums.GL_GEOMETRY_OUTPUT_TYPE,
+		BinaryRetrievableHint = GLEnums.GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
+		Separable = GLEnums.GL_PROGRAM_SEPARABLE
 	}
 
 	public enum GLCubeMapFace : uint {
@@ -854,6 +863,173 @@ namespace Tesseract.GL {
 		CompareMode = GLEnums.GL_TEXTURE_COMPARE_MODE,
 		CompareFunc = GLEnums.GL_TEXTURE_COMPARE_FUNC,
 		MaxAnisotropy = GLEnums.GL_TEXTURE_MAX_ANISOTROPY_EXT
+	}
+
+	public enum GLGetProgramStage : uint {
+		ActiveSubroutines = GLEnums.GL_ACTIVE_SUBROUTINES,
+		ActiveSubroutineUniforms = GLEnums.GL_ACTIVE_SUBROUTINE_UNIFORMS,
+		ActiveSubroutineUniformLocations = GLEnums.GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS,
+		ActiveSubroutineMaxLength = GLEnums.GL_ACTIVE_SUBROUTINE_MAX_LENGTH,
+		ActiveSubroutineUniformMaxLength = GLEnums.GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH
+	}
+
+	public enum GLGetActiveSubroutineUniform : uint {
+		NumCompatibleSubroutines = GLEnums.GL_NUM_COMPATIBLE_SUBROUTINES,
+		CompatibleSubroutines = GLEnums.GL_COMPATIBLE_SUBROUTINES,
+		UniformSize = GLEnums.GL_UNIFORM_SIZE,
+		UniformNameLength = GLEnums.GL_UNIFORM_NAME_LENGTH
+	}
+
+	public enum GLTransformFeedbackTarget : uint {
+		TransformFeedback = GLEnums.GL_TRANSFORM_FEEDBACK
+	}
+
+	public enum GLShaderStages : uint {
+		Vertex = GLEnums.GL_VERTEX_SHADER_BIT,
+		TessellationControl = GLEnums.GL_TESS_CONTROL_SHADER_BIT,
+		TessellationEvaluation = GLEnums.GL_TESS_EVALUATION_SHADER_BIT,
+		Geometry = GLEnums.GL_GEOMETRY_SHADER_BIT,
+		Fragment = GLEnums.GL_FRAGMENT_SHADER_BIT,
+		Compute = GLEnums.GL_COMPUTE_SHADER_BIT
+	}
+
+	public enum GLGetProgramPipeline : uint {
+		ActiveProgram = GLEnums.GL_ACTIVE_PROGRAM,
+		VertexShader = GLEnums.GL_VERTEX_SHADER,
+		TessellationControlShader = GLEnums.GL_TESS_CONTROL_SHADER,
+		TessellationEvaluationShader = GLEnums.GL_TESS_EVALUATION_SHADER,
+		GeometryShader = GLEnums.GL_GEOMETRY_SHADER,
+		FragmentShader = GLEnums.GL_FRAGMENT_SHADER,
+		InfoLogLength = GLEnums.GL_INFO_LOG_LENGTH
+	}
+
+	public enum GLPrecisionType : uint {
+		LowFloat = GLEnums.GL_LOW_FLOAT,
+		MediumFloat = GLEnums.GL_MEDIUM_FLOAT,
+		HighFloat = GLEnums.GL_HIGH_FLOAT,
+		LowInt = GLEnums.GL_LOW_INT,
+		MediumInt = GLEnums.GL_MEDIUM_INT,
+		HighInt = GLEnums.GL_HIGH_INT
+	}
+
+	public enum GLMemoryBarrier : uint {
+		VertexAttribArray = GLEnums.GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT,
+		ElementArray = GLEnums.GL_ELEMENT_ARRAY_BARRIER_BIT,
+		Uniform = GLEnums.GL_UNIFORM_BARRIER_BIT,
+		TextureFetch = GLEnums.GL_TEXTURE_FETCH_BARRIER_BIT,
+		ShaderImageAccess = GLEnums.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT,
+		Command = GLEnums.GL_COMMAND_BARRIER_BIT,
+		PixelBuffer = GLEnums.GL_PIXEL_BUFFER_BARRIER_BIT,
+		TextureUpdate = GLEnums.GL_TEXTURE_UPDATE_BARRIER_BIT,
+		BufferUpdate = GLEnums.GL_BUFFER_UPDATE_BARRIER_BIT,
+		Framebuffer = GLEnums.GL_FRAMEBUFFER_BARRIER_BIT,
+		TransformFeedback = GLEnums.GL_TRANSFORM_FEEDBACK_BARRIER_BIT,
+		AtomicCounter = GLEnums.GL_ATOMIC_COUNTER_BARRIER_BIT,
+		All = GLEnums.GL_ALL_BARRIER_BITS
+	}
+
+	public enum GLGetActiveAtomicCounterBuffer : uint {
+		Binding = GLEnums.GL_ATOMIC_COUNTER_BUFFER_BINDING,
+		DataSize = GLEnums.GL_ATOMIC_COUNTER_BUFFER_DATA_SIZE,
+		ActiveAtomicCounters = GLEnums.GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTERS,
+		ActiveAtomicCounterIndices = GLEnums.GL_ATOMIC_COUNTER_BUFFER_ACTIVE_ATOMIC_COUNTER_INDICES,
+		ReferencedByVertexShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_VERTEX_SHADER,
+		ReferencedByTessControlShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_TESS_CONTROL_SHADER,
+		ReferencedByTessEvaluationShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_TESS_EVALUATION_SHADER,
+		ReferencedByGeometryShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_GEOMETRY_SHADER,
+		ReferencedByFragmentShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_FRAGMENT_SHADER,
+		ReferencedByComputeShader = GLEnums.GL_ATOMIC_COUNTER_BUFFER_REFERENCED_BY_COMPUTE_SHADER
+	}
+
+	public enum GLInternalFormatTarget : uint {
+		Texture1D = GLEnums.GL_TEXTURE_1D,
+		Texture1DArray = GLEnums.GL_TEXTURE_1D_ARRAY,
+		Texture2D = GLEnums.GL_TEXTURE_2D,
+		Texture2DArray = GLEnums.GL_TEXTURE_2D_ARRAY,
+		Texture3D = GLEnums.GL_TEXTURE_3D,
+		TextureCubeMap = GLEnums.GL_TEXTURE_CUBE_MAP,
+		TextureCubeMapArray = GLEnums.GL_TEXTURE_CUBE_MAP_ARRAY,
+		TextureRectangle = GLEnums.GL_TEXTURE_RECTANGLE,
+		TextureBuffer = GLEnums.GL_TEXTURE_BUFFER,
+		Renderbuffer = GLEnums.GL_RENDERBUFFER,
+		Texture2DMultisample = GLEnums.GL_TEXTURE_2D_MULTISAMPLE,
+		Texture2DMultisampleArray = GLEnums.GL_TEXTURE_2D_MULTISAMPLE_ARRAY
+	}
+
+	public enum GLGetInternalFormat : uint {
+		SampleCounts = GLEnums.GL_NUM_SAMPLE_COUNTS,
+		Samples = GLEnums.GL_SAMPLES,
+		InternalFormatSupported = GLEnums.GL_INTERNALFORMAT_SUPPORTED,
+		InternalFormatPreferred = GLEnums.GL_INTERNALFORMAT_PREFERRED,
+		InternalFormatRedSize = GLEnums.GL_INTERNALFORMAT_RED_SIZE,
+		InternalFormatGreenSize = GLEnums.GL_INTERNALFORMAT_GREEN_SIZE,
+		InternalFormatBlueSize = GLEnums.GL_INTERNALFORMAT_BLUE_SIZE,
+		InternalFormatAlphaSize = GLEnums.GL_INTERNALFORMAT_ALPHA_SIZE,
+		InternalFormatDepthSize = GLEnums.GL_INTERNALFORMAT_DEPTH_SIZE,
+		InternalFormatStencilSize = GLEnums.GL_INTERNALFORMAT_STENCIL_SIZE,
+		InternalFormatSharedSize = GLEnums.GL_INTERNALFORMAT_SHARED_SIZE,
+		InternalFormatRedType = GLEnums.GL_INTERNALFORMAT_RED_TYPE,
+		InternalFormatGreenType = GLEnums.GL_INTERNALFORMAT_GREEN_TYPE,
+		InternalFormatBlueType = GLEnums.GL_INTERNALFORMAT_BLUE_TYPE,
+		InternalFormatAlphaType = GLEnums.GL_INTERNALFORMAT_ALPHA_TYPE,
+		InternalFormatDepthType = GLEnums.GL_INTERNALFORMAT_DEPTH_TYPE,
+		InternalFormatStencilType = GLEnums.GL_INTERNALFORMAT_STENCIL_TYPE,
+		MaxWidth = GLEnums.GL_MAX_WIDTH,
+		MaxHeight = GLEnums.GL_MAX_HEIGHT,
+		MaxLayers = GLEnums.GL_MAX_LAYERS,
+		MaxCombinedDimensions = GLEnums.GL_MAX_COMBINED_DIMENSIONS,
+		ColorComponents = GLEnums.GL_COLOR_COMPONENTS,
+		DepthComponents = GLEnums.GL_DEPTH_COMPONENTS,
+		StencilComponents = GLEnums.GL_STENCIL_COMPONENTS,
+		ColorRenderable = GLEnums.GL_COLOR_RENDERABLE,
+		DepthRenderable = GLEnums.GL_DEPTH_RENDERABLE,
+		StencilRenderable = GLEnums.GL_STENCIL_RENDERABLE,
+		FramebufferRenderable = GLEnums.GL_FRAMEBUFFER_RENDERABLE,
+		FramebufferRenderableLayered = GLEnums.GL_FRAMEBUFFER_RENDERABLE_LAYERED,
+		FramebufferBlend = GLEnums.GL_FRAMEBUFFER_BLEND,
+		ReadPixels = GLEnums.GL_READ_PIXELS,
+		ReadPixelsFormat = GLEnums.GL_READ_PIXELS_FORMAT,
+		ReadPixelsType = GLEnums.GL_READ_PIXELS_TYPE,
+		TextureImageFormat = GLEnums.GL_TEXTURE_IMAGE_FORMAT,
+		TextureImageType = GLEnums.GL_TEXTURE_IMAGE_TYPE,
+		GetTextureImageFormat = GLEnums.GL_GET_TEXTURE_IMAGE_FORMAT,
+		GetTextureImageType = GLEnums.GL_GET_TEXTURE_IMAGE_TYPE,
+		Mipmap = GLEnums.GL_MIPMAP,
+		GenerateMipmap = GLEnums.GL_GENERATE_MIPMAP,
+		AutoGenerateMipmap = GLEnums.GL_AUTO_GENERATE_MIPMAP,
+		ColorEncoding = GLEnums.GL_COLOR_ENCODING,
+		SRGBRead = GLEnums.GL_SRGB_READ,
+		SRGBWrite = GLEnums.GL_SRGB_WRITE,
+		Filter = GLEnums.GL_FILTER,
+		VertexTexture = GLEnums.GL_VERTEX_TEXTURE,
+		TessControlTexture = GLEnums.GL_TESS_CONTROL_TEXTURE,
+		TessEvaluationTexture = GLEnums.GL_TESS_EVALUATION_TEXTURE,
+		GeometryTexture = GLEnums.GL_GEOMETRY_TEXTURE,
+		FragmentTexture = GLEnums.GL_FRAGMENT_TEXTURE,
+		ComputeTexture = GLEnums.GL_COMPUTE_TEXTURE,
+		TextureShadow = GLEnums.GL_TEXTURE_SHADOW,
+		TextureGather = GLEnums.GL_TEXTURE_GATHER,
+		TextureGatherShadow = GLEnums.GL_TEXTURE_GATHER_SHADOW,
+		ShaderImageLoad = GLEnums.GL_SHADER_IMAGE_LOAD,
+		ShaderImageStore = GLEnums.GL_SHADER_IMAGE_STORE,
+		ShaderImageAtomic = GLEnums.GL_SHADER_IMAGE_ATOMIC,
+		ImageTexelSize = GLEnums.GL_IMAGE_TEXEL_SIZE,
+		ImageCompatibilityClass = GLEnums.GL_IMAGE_COMPATIBILITY_CLASS,
+		ImagePixelFormat = GLEnums.GL_IMAGE_PIXEL_FORMAT,
+		ImagePixelType = GLEnums.GL_IMAGE_PIXEL_TYPE,
+		ImageFormatCompatibilityType = GLEnums.GL_IMAGE_FORMAT_COMPATIBILITY_TYPE,
+		SimultaneousTextureAndDepthTest = GLEnums.GL_SIMULTANEOUS_TEXTURE_AND_DEPTH_TEST,
+		SimultaneousTextureAndStencilTest = GLEnums.GL_SIMULTANEOUS_TEXTURE_AND_STENCIL_TEST,
+		SimultaneousTextureAndDepthWrite = GLEnums.GL_SIMULTANEOUS_TEXTURE_AND_DEPTH_WRITE,
+		SimultaneousTextureAndStencilWrite = GLEnums.GL_SIMULTANEOUS_TEXTURE_AND_STENCIL_WRITE,
+		TextureCompressed = GLEnums.GL_TEXTURE_COMPRESSED,
+		TextureCompressedBlockWidth = GLEnums.GL_TEXTURE_COMPRESSED_BLOCK_WIDTH,
+		TextureCompressedBlockHeight = GLEnums.GL_TEXTURE_COMPRESSED_BLOCK_HEIGHT,
+		TextureCompressedBlockSize = GLEnums.GL_TEXTURE_COMPRESSED_BLOCK_SIZE,
+		ClearBuffer = GLEnums.GL_CLEAR_BUFFER,
+		TextureView = GLEnums.GL_TEXTURE_VIEW,
+		ViewCompatibilityClass = GLEnums.GL_VIEW_COMPATIBILITY_CLASS,
+		ClearTexture = GLEnums.GL_CLEAR_TEXTURE
 	}
 
 }
