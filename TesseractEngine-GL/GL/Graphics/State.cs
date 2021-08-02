@@ -28,16 +28,22 @@ namespace Tesseract.GL.Graphics {
 
 		public GL GL { get; }
 
-		private uint texture1D;
-		private uint texture1DArray;
-		private uint texture2D;
-		private uint texture2DArray;
-		private uint texture2DMultisample;
-		private uint texture2DMultisampleArray;
-		private uint texture3D;
-		private uint textureCubeMap;
-		private uint textureCubeMapArray;
-		private uint textureRectangle;
+		private struct TextureUnit {
+
+			// The target currently bound to this unit
+			/*   OpenGL technically can bind to different targets within a texture unit but
+			 *   it is easier to pretend units only hold one texture with a specific target.
+			 */
+			public GLTextureTarget Target;
+			// The texture bound to this unit
+			public uint Texture;
+			// The sampler bound to this unit
+			public uint Sampler;
+
+		}
+
+		private uint activeTextureUnit;
+		private readonly TextureUnit[] textureUnits; 
 
 		private uint bufferArray;
 		private uint bufferCopyRead;
@@ -55,31 +61,14 @@ namespace Tesseract.GL.Graphics {
 		private readonly GLBufferRangeBinding[] bufferRangeUniform;
 		private readonly GLBufferRangeBinding[] bufferRangeTransformFeedback;
 
+		private uint program;
+
 		private uint vertexArray;
 
 		private uint framebufferDraw;
 		private uint framebufferRead;
 
 		private uint renderbuffer;
-
-		private ref uint GetTextureBinding(GLTextureTarget target, out bool valid) {
-			valid = true;
-			switch(target) {
-				case GLTextureTarget.Texture1D: return ref texture1D;
-				case GLTextureTarget.Texture1DArray: return ref texture1DArray;
-				case GLTextureTarget.Texture2D: return ref texture2D;
-				case GLTextureTarget.Texture2DArray: return ref texture2DArray;
-				case GLTextureTarget.Texture2DMultisample: return ref texture2DMultisample;
-				case GLTextureTarget.Texture2DMultisampleArray: return ref texture2DMultisampleArray;
-				case GLTextureTarget.Texture3D: return ref texture3D;
-				case GLTextureTarget.CubeMap: return ref textureCubeMap;
-				case GLTextureTarget.CubeMapArray: return ref textureCubeMapArray;
-				case GLTextureTarget.Rectangle: return ref textureRectangle;
-				default:
-					valid = false;
-					return ref texture1D;
-			}
-		}
 
 		private ref uint GetBufferBinding(GLBufferTarget target, out bool valid) {
 			valid = true;
@@ -115,15 +104,59 @@ namespace Tesseract.GL.Graphics {
 
 		public GLState(GL gl) {
 			GL = gl;
-			bufferRangeUniform = new GLBufferRangeBinding[gl.GL11.GetInteger(GLEnums.GL_MAX_UNIFORM_BUFFER_BINDINGS)];
-			bufferRangeTransformFeedback = new GLBufferRangeBinding[gl.GL11.GetInteger(GLEnums.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS)];
+			textureUnits = new TextureUnit[gl.GL11.GetInteger(Native.GLEnums.GL_MAX_TEXTURE_IMAGE_UNITS)];
+			bufferRangeUniform = new GLBufferRangeBinding[gl.GL11.GetInteger(Native.GLEnums.GL_MAX_UNIFORM_BUFFER_BINDINGS)];
+			bufferRangeTransformFeedback = new GLBufferRangeBinding[gl.GL11.GetInteger(Native.GLEnums.GL_MAX_TRANSFORM_FEEDBACK_BUFFERS)];
+		}
+
+		public uint ActiveTextureUnit {
+			get => activeTextureUnit;
+			set {
+				if (value != activeTextureUnit) {
+					GL.GL20.ActiveTexture = (int)value;
+					activeTextureUnit = value;
+				}
+			}
 		}
 
 		public void BindTexture(GLTextureTarget target, uint texture) {
-			ref uint binding = ref GetTextureBinding(target, out bool valid);
-			if (valid && binding == texture) return;
+			ref TextureUnit texunit = ref textureUnits[ActiveTextureUnit];
+			if (texunit.Target == target && texunit.Texture == texture) return;
 			GL.GL15.BindTexture(target, texture);
-			if (valid) binding = texture;
+			texunit.Target = target;
+			texunit.Texture = texture;
+		}
+
+		public void BindTextureUnit(uint unit, GLTextureTarget target, uint texture) {
+			ref TextureUnit texunit = ref textureUnits[unit];
+			if (texunit.Target == target && texunit.Texture == texture) return;
+			if (activeTextureUnit != unit) {
+				GL.GL20.ActiveTexture = (int)unit;
+				activeTextureUnit = unit;
+			}
+			GL.GL15.BindTexture(target, texture);
+			texunit.Target = target;
+			texunit.Texture = texture;
+		}
+
+		/*
+		public (uint, GLTextureTarget) BindTextureAny(uint texture, GLTextureTarget defaultTarget) {
+			for(uint i = 0; i < textureUnits.Length; i++) {
+				TextureUnit texunit = textureUnits[i];
+				if (texunit.Texture == texture) {
+					return (i, texunit.Target);
+				}
+			}
+			BindTextureUnit(0, defaultTarget, texture);
+			return (0, defaultTarget);
+		}
+		*/
+
+		public void BindSampler(uint unit, uint sampler) {
+			ref TextureUnit texunit = ref textureUnits[unit];
+			if (texunit.Sampler == sampler) return;
+			GL.GL33.BindSampler(unit, sampler);
+			texunit.Sampler = sampler;
 		}
 
 		public void BindBuffer(GLBufferTarget target, uint buffer) {
@@ -153,6 +186,12 @@ namespace Tesseract.GL.Graphics {
 			if (valid && currentBinding == binding) return;
 			GL.GL30.BindBufferRange(target, index, binding.Buffer, binding.Offset, binding.Length);
 			if (valid) currentBinding = binding;
+		}
+
+		public void UseProgram(uint program) {
+			if (this.program == program) return;
+			GL.GL20.UseProgram(program);
+			this.program = program;
 		}
 
 		public void BindVertexArray(uint vertexArray) {
