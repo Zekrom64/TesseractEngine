@@ -214,6 +214,8 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		public int Direct3D9AdapterIndex => SDL2.Functions.SDL_Direct3D9GetAdapterIndex(DisplayIndex);
+
 		public SDLDisplay(int displayIndex) {
 			DisplayIndex = displayIndex;
 		}
@@ -221,6 +223,11 @@ namespace Tesseract.SDL {
 		public SDLDisplayMode? GetClosestDisplayMode(in SDLDisplayMode mode) {
 			IntPtr ptr = SDL2.Functions.SDL_GetClosestDisplayMode(DisplayIndex, mode, out _);
 			return ptr == IntPtr.Zero ? null : Marshal.PtrToStructure<SDLDisplayMode>(ptr);
+		}
+
+		public (int, int) DXGIGetOutputInfo() {
+			SDL2.Functions.SDL_DXGIGetOutputInfo(DisplayIndex, out int adapterIndex, out int outputIndex);
+			return (adapterIndex, outputIndex);
 		}
 
 	}
@@ -327,7 +334,14 @@ namespace Tesseract.SDL {
 			set => SDL2.Functions.SDL_SetWindowOpacity(Window.Ptr, value);
 		}
 
+		public bool IsShapedWindow => SDL2.Functions.SDL_IsShapedWindow(Window.Ptr);
 
+		public SDLWindowShapeMode ShapedWindowMode {
+			get {
+				SDL2.CheckError(SDL2.Functions.SDL_GetShapedWindowMode(Window.Ptr, out SDLWindowShapeMode shapeMode));
+				return shapeMode;
+			}
+		}
 
 		public SDLWindow(IPointer<SDL_Window> window) {
 			Window = window;
@@ -411,6 +425,30 @@ namespace Tesseract.SDL {
 				IntPtr pRender = SDL2.Functions.SDL_GetRenderer(Window.Ptr);
 				if (pRender == IntPtr.Zero) return null;
 				return new SDLRenderer(pRender);
+			}
+		}
+
+		public void SetWindowShape(SDLSurface shape, SDLWindowShapeMode shapeMode) =>
+			SDL2.CheckError(SDL2.Functions.SDL_SetWindowShape(Window.Ptr, shape.Surface.Ptr, shapeMode));
+
+		public SDLSysWMInfo GetWindowWMInfo(SDLVersion ver) {
+			unsafe {
+				SDL_SysWMinfo info = new() {
+					Version = ver
+				};
+				if (!SDL2.Functions.SDL_GetWindowWMInfo(Window.Ptr, ref info)) return null;
+				object wminfo = null;
+				switch(info.Subsystem) {
+					case SDLSysWMType.Windows:
+						wminfo = info.Info.Win;
+						break;
+					default: break;
+				}
+				return new SDLSysWMInfo() {
+					Version = info.Version,
+					Subsystem = info.Subsystem,
+					Info = wminfo
+				};
 			}
 		}
 

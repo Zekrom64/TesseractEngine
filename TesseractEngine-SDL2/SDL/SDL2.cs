@@ -1028,9 +1028,87 @@ namespace Tesseract.SDL {
 			return (new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window)), new SDLRenderer(renderer));
 		}
 
+		// SDL_shape.h
+
+		public const int NonShapeableWindow = -1;
+		public const int InvalidShapeArgument = -2;
+		public const int WindowLacksShape = -3;
+
+		public static SDLWindow CreateShapedWindow(string title, uint x, uint y, uint w, uint h, SDLWindowFlags flags) {
+			IntPtr window = Functions.SDL_CreateShapedWindow(title, x, y, w, h, flags);
+			if (window == IntPtr.Zero) throw new SDLException(GetError());
+			return new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window));
+		}
+
+		// SDL_system.h
+
+		public static void SetWindowsMessageHook(SDLWindowsMessageHook callback, IntPtr userdata) => Functions.SDL_SetWindowsMessageHook(callback, userdata);
+
+		public static void LinuxSetThreadPriority(long threadID, int priority) => Functions.SDL_LinuxSetThreadPriority(threadID, priority);
+
+		public static void OnApplicationWillTerminate() => Functions.SDL_OnApplicationWillTerminate();
+
+		public static void OnApplicationDidReceiveMemoryWarning() => Functions.SDL_OnApplicationDidReceiveMemoryWarning();
+
+		public static void OnApplicationWillResignActive() => Functions.SDL_OnApplicationWillResignActive();
+
+		public static void OnApplicationDidEnterBackground() => Functions.SDL_OnApplicationDidEnterBackground();
+
+		public static void OnApplicationWillEnterForeground() => Functions.SDL_OnApplicationWillEnterForeground();
+
+		public static void OnApplicationDidBecomeActive() => Functions.SDL_OnApplicationDidBecomeActive();
+
+		// SDL_version.h
+
+		public static SDLVersion Version {
+			get {
+				Functions.SDL_GetVersion(out SDLVersion ver);
+				return ver;
+			}
+		}
+
+		public static string Revision => MemoryUtil.GetStringASCII(Functions.SDL_GetRevision());
+
+		public static int RevisionNumber => Functions.SDL_GetRevisionNumber();
+
 		// SDL_sensor.h
 
 		public const float StandardGravity = 9.80665f;
+
+		public static void LockSensors() => Functions.SDL_LockSensors();
+
+		public static void UnlockSensors() => Functions.SDL_UnlockSensors();
+
+		public static SDLSensorDevice[] SensorDevices {
+			get {
+				int n = Functions.SDL_NumSensors();
+				SDLSensorDevice[] sensors = new SDLSensorDevice[n];
+				for (int i = 0; i < n; i++) sensors[i] = new SDLSensorDevice { DeviceIndex = i };
+				return sensors;
+			}
+		}
+
+		public static SDLSensor SensorFromInstanceID(int instanceID) {
+			IntPtr pSensor = Functions.SDL_SensorFromInstanceID(instanceID);
+			if (pSensor == IntPtr.Zero) return null;
+			return new SDLSensor(pSensor);
+		}
+
+		public static void SensorUpdate() => SDL2.Functions.SDL_SensorUpdate();
+
+		// SDL_timer.h
+
+		public static uint Ticks => Functions.SDL_GetTicks();
+
+		public static ulong PerformanceCounter => Functions.SDL_GetPerformanceCounter();
+
+		public static ulong PerformanceFrequency => Functions.SDL_GetPerformanceFrequency();
+
+		public static void Delay(uint ms) => Functions.SDL_Delay(ms);
+
+		public static int AddTimer(uint interval, SDLTimerCallback callback, IntPtr param = default) => Functions.SDL_AddTimer(interval, callback, param);
+
+		public static bool RemoveTimer(int timerID) => Functions.SDL_RemoveTimer(timerID);
 
 	}
 }
