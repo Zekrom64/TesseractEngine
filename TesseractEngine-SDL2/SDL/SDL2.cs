@@ -577,7 +577,10 @@ namespace Tesseract.SDL {
 		public static SDLEvent? WaitEventTimeout(int timeout) {
 			// SDL doesn't actually tell us if WaitEventTimeout succeeds or timed out, so a sentry event type is used to detect this
 			SDLEvent evt = new() { Type = SDLEventType.FirstEvent };
-			if (Functions.SDL_WaitEventTimeout(ref evt, timeout) != 0) throw new SDLException(GetError());
+			if (Functions.SDL_WaitEventTimeout(ref evt, timeout) == 0) {
+				if (evt.Type == SDLEventType.FirstEvent) return null;
+				throw new SDLException(GetError());
+			}
 			return evt.Type == SDLEventType.FirstEvent ? null : evt;
 		}
 
