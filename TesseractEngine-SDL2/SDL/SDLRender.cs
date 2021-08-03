@@ -210,6 +210,9 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		[NativeType("IDirect3DDevice9*")]
+		public IntPtr D3D9Device => SDL2.Functions.SDL_RenderGetD3D9Device(Renderer.Ptr);
+
 		public SDLRenderer(IntPtr pRenderer) {
 			Renderer = new UnmanagedPointer<SDL_Renderer>(pRenderer);
 		}

@@ -1839,15 +1839,29 @@ namespace Tesseract.SDL.Native {
 		public delegate IntPtr PFN_SDL_RenderGetD3D9Device([NativeType("SDL_Renderer*")] IntPtr renderer);
 		public delegate SDLBool PFN_SDL_DXGIGetOutputInfo(int displayIndex, out int adapterIndex, out int outputIndex);
 
+		[ExternFunction(Platform = PlatformType.Windows)]
 		public PFN_SDL_SetWindowsMessageHook SDL_SetWindowsMessageHook;
+		[ExternFunction(Platform = PlatformType.Windows)]
 		public PFN_SDL_Direct3D9GetAdapterIndex SDL_Direct3D9GetAdapterIndex;
+		[ExternFunction(Platform = PlatformType.Windows)]
 		public PFN_SDL_RenderGetD3D9Device SDL_RenderGetD3D9Device;
+		[ExternFunction(Platform = PlatformType.Windows)]
 		public PFN_SDL_DXGIGetOutputInfo SDL_DXGIGetOutputInfo;
 
 		public delegate int PFN_SDL_LinuxSetThreadPriority(long threadID, int priority);
 
-		public delegate int PFN_SDL_iPhoneSetAnimationCallback([NativeType("SDL_Window*")] IntPtr window, int interval, SDLiOSAnimationCallback, IntPtr callbackParam);
+		[ExternFunction(Platform = PlatformType.Linux)]
+		public PFN_SDL_LinuxSetThreadPriority SDL_LinuxSetThreadPriority;
+
+		public delegate int PFN_SDL_iPhoneSetAnimationCallback([NativeType("SDL_Window*")] IntPtr window, int interval, SDLiOSAnimationCallback callback, IntPtr callbackParam);
 		public delegate void PFN_SDL_iPhoneSetEventPump(SDLBool enabled);
+		public delegate void PFN_SDL_OnApplicationDidChangeStatusBarOrientation();
+
+		/* iOS not yet supported
+		public PFN_SDL_iPhoneSetAnimationCallback SDL_iPhoneSetAnimationCallback;
+		public PFN_SDL_iPhoneSetEventPump SDL_iPhoneSetEventPump;
+		public PFN_SDL_OnApplicationDidChangeStatusBarOrientation SDL_OnApplicationDidChangeStatusBarOrientation;
+		*/
 
 		[return: NativeType("JNIEnv*")]
 		public delegate IntPtr PFN_SDL_AndroidGetJNIEnv();
@@ -1864,13 +1878,138 @@ namespace Tesseract.SDL.Native {
 		[return: NativeType("const char*")]
 		public delegate IntPtr PFN_SDL_AndroidGetExternalStoragePath();
 		public delegate SDLBool PFN_SDL_AndroidRequestPermission([MarshalAs(UnmanagedType.LPStr)] string permission);
-		
+
+		/* Android not yet supported
+		public PFN_SDL_AndroidGetJNIEnv SDL_AndroidGetJNIEnv;
+		public PFN_SDL_AndroidGetActivity SDL_AndroidGetActivity;
+		public PFN_SDL_GetAndroidSDKVersion SDL_GetAndroidSDKVersion;
+		public PFN_SDL_IsAndroidTV SDL_IsAndroidTV;
+		public PFN_SDL_IsChromebook SDL_IsChromebook;
+		public PFN_SDL_IsDeXMode SDL_IsDeXMode;
+		public PFN_SDL_AndroidBackButton SDL_AndroidBackButton;
+		public PFN_SDL_AndroidGetInternalStoragePath SDL_AndroidGetInternalStoragePath;
+		public PFN_SDL_AndroidGetExternalStorageState SDL_AndroidGetExternalStorageState;
+		public PFN_SDL_AndroidGetExternalStoragePath SDL_AndroidGetExternalStoragePath;
+		public PFN_SDL_AndroidRequestPermission SDL_AndroidRequestPermission;
+		*/
+
 		[return: NativeType("const wchar_t*")]
 		public delegate IntPtr PFN_SDL_WinRTGetFSPathUNICODE(SDLWinRTPath path);
 		[return: NativeType("const char*")]
 		public delegate IntPtr PFN_SDL_WinRTGetFSPathUTF8(SDLWinRTPath path);
 		public delegate SDLWinRTDeviceFamily PFN_SDL_WinRTGetDeviceFamily();
-			
+
+		/* WinRT not yet sypported
+		public PFN_SDL_WinRTGetFSPathUNICODE SDL_WinRTGetFSPathUNICODE;
+		public PFN_SDL_WinRTGetFSPathUTF8 SDL_WinRTGetFSPathUTF8;
+		public PFN_SDL_WinRTGetDeviceFamily SDL_WinRTGetDeviceFamily;
+		*/
+
+		public delegate SDLBool PFN_SDL_IsTablet();
+		public delegate void PFN_SDL_OnApplicationWillTerminate();
+		public delegate void PFN_SDL_OnApplicationDidReceiveMemoryWarning();
+		public delegate void PFN_SDL_OnApplicationWillResignActive();
+		public delegate void PFN_SDL_OnApplicationDidEnterBackground();
+		public delegate void PFN_SDL_OnApplicationWillEnterForeground();
+		public delegate void PFN_SDL_OnApplicationDidBecomeActive();
+
+		public PFN_SDL_IsTablet SDL_IsTablet;
+		public PFN_SDL_OnApplicationWillTerminate SDL_OnApplicationWillTerminate;
+		public PFN_SDL_OnApplicationDidReceiveMemoryWarning SDL_OnApplicationDidReceiveMemoryWarning;
+		public PFN_SDL_OnApplicationWillResignActive SDL_OnApplicationWillResignActive;
+		public PFN_SDL_OnApplicationDidEnterBackground SDL_OnApplicationDidEnterBackground;
+		public PFN_SDL_OnApplicationWillEnterForeground SDL_OnApplicationWillEnterForeground;
+		public PFN_SDL_OnApplicationDidBecomeActive SDL_OnApplicationDidBecomeActive;
+
+		// SDL_sensor.h
+
+		public delegate void PFN_SDL_LockSensors();
+		public delegate void PFN_SDL_UnlockSensors();
+		public delegate int PFN_SDL_NumSensors();
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_SensorGetDeviceName(int deviceIndex);
+		public delegate SDLSensorType PFN_SDL_SensorGetDeviceType(int deviceIndex);
+		public delegate int PFN_SDL_SensorGetDeviceNonPortableType(int deviceIndex);
+		public delegate int PFN_SDL_SensorGetDeviceInstanceID(int deviceIndex);
+		[return: NativeType("SDL_Sensor*")]
+		public delegate IntPtr PFN_SDL_SensorOpen(int deviceIndex);
+		[return: NativeType("SDL_Sensor*")]
+		public delegate IntPtr PFN_SDL_SensorFromInstanceID(int instanceID);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_SensorGetName([NativeType("SDL_Sensor*")] IntPtr sensor);
+		public delegate SDLSensorType PFN_SDL_SensorGetType([NativeType("SDL_Sensor*")] IntPtr sensor);
+		public delegate int PFN_SDL_SensorGetNonPortableType([NativeType("SDL_Sensor*")] IntPtr sensor);
+		public delegate int PFN_SDL_SensorGetInstanceID([NativeType("SDL_Sensor*")] IntPtr sensor);
+		public delegate int PFN_SDL_SensorGetData([NativeType("SDL_Sensor*")] IntPtr sensor, [NativeType("float*")] IntPtr data, int numValues);
+		public delegate void PFN_SDL_SensorClose([NativeType("SDL_Sensor*")] IntPtr sensor);
+		public delegate void PFN_SDL_SensorUpdate();
+
+		public PFN_SDL_LockSensors SDL_LockSensors;
+		public PFN_SDL_UnlockSensors SDL_UnlockSensors;
+		public PFN_SDL_NumSensors SDL_NumSensors;
+		public PFN_SDL_SensorGetDeviceName SDL_SensorGetDeviceName;
+		public PFN_SDL_SensorGetDeviceType SDL_SensorGetDeviceType;
+		public PFN_SDL_SensorGetDeviceNonPortableType SDL_SensorGetDeviceNonPortableType;
+		public PFN_SDL_SensorGetDeviceInstanceID SDL_SensorGetDeviceInstanceID;
+		public PFN_SDL_SensorOpen SDL_SensorOpen;
+		public PFN_SDL_SensorFromInstanceID SDL_SensorFromInstanceID;
+		public PFN_SDL_SensorGetName SDL_SensorGetName;
+		public PFN_SDL_SensorGetType SDL_SensorGetType;
+		public PFN_SDL_SensorGetNonPortableType SDL_SensorGetNonPortableType;
+		public PFN_SDL_SensorGetInstanceID SDL_SensorGetInstanceID;
+		public PFN_SDL_SensorGetData SDL_SensorGetData;
+		public PFN_SDL_SensorClose SDL_SensorClose;
+		public PFN_SDL_SensorUpdate SDL_SensorUpdate;
+
+		// SDL_syswm.h
+
+		public delegate SDLBool PFN_SDL_GetWindowWMInfo([NativeType("SDL_Window*")] IntPtr window, ref SDL_SysWMinfo info);
+
+		public PFN_SDL_GetWindowWMInfo SDL_GetWindowWMInfo;
+
+		// SDL_timer.h
+
+		public delegate uint PFN_SDL_GetTicks();
+		public delegate ulong PFN_SDL_GetPerformanceCounter();
+		public delegate ulong PFN_SDL_GetPerformanceFrequency();
+		public delegate void PFN_SDL_Delay(uint ms);
+		public delegate int PFN_SDL_AddTimer(uint interval, [MarshalAs(UnmanagedType.FunctionPtr)] SDLTimerCallback callback, IntPtr param);
+		public delegate SDLBool PFN_SDL_RemoveTimer(int id);
+
+		public PFN_SDL_GetTicks SDL_GetTicks;
+		public PFN_SDL_GetPerformanceCounter SDL_GetPerformanceCounter;
+		public PFN_SDL_GetPerformanceFrequency SDL_GetPerformanceFrequency;
+		public PFN_SDL_Delay SDL_Delay;
+		public PFN_SDL_AddTimer SDL_AddTimer;
+		public PFN_SDL_RemoveTimer SDL_RemoveTimer;
+
+		// SDL_version.h
+
+		public delegate void PFN_SDL_GetVersion(out SDLVersion ver);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_SDL_GetRevision();
+		public delegate int PFN_SDL_GetRevisionNumber();
+
+		public PFN_SDL_GetVersion SDL_GetVersion;
+		public PFN_SDL_GetRevision SDL_GetRevision;
+		public PFN_SDL_GetRevisionNumber SDL_GetRevisionNumber;
+
+		// SDL_vulkan.h
+
+		public delegate void PFN_SDL_Vulkan_LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string path);
+		public delegate IntPtr PFN_SDL_Vulkan_GetVkGetInstanceProcAddr();
+		public delegate void PFN_SDL_Vulkan_UnloadLibrary();
+		public delegate SDLBool PFN_SDL_Vulkan_GetInstanceExtensions([NativeType("SDL_Window*")] IntPtr window, out int count, [NativeType("const char**")] out IntPtr pNames);
+		public delegate SDLBool PFN_SDL_Vulkan_CreateSurface([NativeType("SDL_Window*")] IntPtr window, [NativeType("VkInstance")] IntPtr instance, [NativeType("VkSurfaceKHR*")] out ulong surface);
+		public delegate void PFN_SDL_Vulkan_GetDrawableSize([NativeType("SDL_Window*")] IntPtr window, out int w, out int h);
+
+		public PFN_SDL_Vulkan_LoadLibrary SDL_Vulkan_LoadLibrary;
+		public PFN_SDL_Vulkan_GetVkGetInstanceProcAddr SDL_Vulkan_GetVkGetInstanceProcAddr;
+		public PFN_SDL_Vulkan_UnloadLibrary SDL_Vulkan_UnloadLibrary;
+		public PFN_SDL_Vulkan_GetInstanceExtensions SDL_Vulkan_GetInstanceExtensions;
+		public PFN_SDL_Vulkan_CreateSurface SDL_Vulkan_CreateSurface;
+		public PFN_SDL_Vulkan_GetDrawableSize SDL_Vulkan_GetDrawableSize;
+		
 	}
 
 }
