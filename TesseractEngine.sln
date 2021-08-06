@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reference", "Reference", "{
 		shader.json = shader.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW", "TesseractEngine-GLFW\TesseractEngine-GLFW.csproj", "{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2F385DD-5DB6-4C92-9660-434B60A4A56F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
