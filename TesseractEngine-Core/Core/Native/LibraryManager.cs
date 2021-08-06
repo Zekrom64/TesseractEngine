@@ -37,6 +37,7 @@ namespace Tesseract.Core.Native {
 						if (pfn != IntPtr.Zero) break;
 					}
 				}
+				if (pfn == IntPtr.Zero && (efa == null || !efa.Relaxed)) throw new InvalidOperationException($"Could not load function \"{name}\"");
 				Delegate del = null;
 				if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, delegateType);
 				field.SetValue(funcs, del);

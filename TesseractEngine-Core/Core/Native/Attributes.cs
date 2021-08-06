@@ -47,6 +47,11 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		public SubplatformType Subplatform { get; init; } = default;
 
+		/// <summary>
+		/// If a relaxed approach should be taken to function loading (ie. no exception is thrown on failure).
+		/// </summary>
+		public bool Relaxed { get; init; } = false;
+
 		public ExternFunctionAttribute() { }
 
 	}
