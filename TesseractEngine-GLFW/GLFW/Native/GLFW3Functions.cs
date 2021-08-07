@@ -9,6 +9,8 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.GLFW.Native {
 
+	using XID = UIntPtr;
+
 	public class GLFW3Functions {
 
 		// glfw3.h
@@ -335,6 +337,103 @@ namespace Tesseract.GLFW.Native {
 		public PFN_glfwGetWin32Monitor glfwGetWin32Monitor;
 		[ExternFunction(Platform = PlatformType.Windows)]
 		public PFN_glfwGetWin32Window glfwGetWin32Window;
+
+		[return: NativeType("HGLRC")]
+		public delegate IntPtr PFN_glfwGetWGLContext([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.Windows)]
+		public PFN_glfwGetWGLContext glfwGetWGLContext;
+
+		[return: NativeType("CGDirectDisplayID")]
+		public delegate uint PFN_glfwGetCocoaMonitor([NativeType("GLFWmonitor*")] IntPtr monitor);
+		[return: NativeType("id")]
+		public delegate IntPtr PFN_glfwGetCocoaWindow([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.MacOSX)]
+		public PFN_glfwGetCocoaMonitor glfwGetCocoaMonitor;
+		[ExternFunction(Platform = PlatformType.MacOSX)]
+		public PFN_glfwGetCocoaWindow glfwGetCocoaWindow;
+
+		[return: NativeType("id")]
+		public delegate IntPtr PFN_glfwGetNSGLContext([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.MacOSX)]
+		public PFN_glfwGetNSGLContext glfwGetNSGLContext;
+
+		[return: NativeType("Display*")]
+		public delegate IntPtr PFN_glfwGetX11Display();
+		[return: NativeType("RRCrtc")]
+		public delegate XID PFN_glfwGetX11Adapter([NativeType("GLFWmonitor*")] IntPtr monitor);
+		[return: NativeType("RROutput")]
+		public delegate XID PFN_glfwGetX11Monitor([NativeType("GLFWmonitor*")] IntPtr monitor);
+		[return: NativeType("Window")]
+		public delegate XID PFN_glfwGetX11Window([NativeType("GLFWwindow*")] IntPtr window);
+		public delegate void PFN_glfwSetX11SelectionString([MarshalAs(UnmanagedType.LPStr)] string str);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_glfwGetX11SelectionString();
+
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetX11Display glfwGetX11Display;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetX11Adapter glfwGetX11Adapter;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetX11Monitor glfwGetX11Monitor;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetX11Window glfwGetX11Window;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwSetX11SelectionString glfwSetX11SelectionString;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetX11SelectionString glfwGetX11SelectionString;
+
+		[return: NativeType("GLXContext")]
+		public delegate IntPtr PFN_glfwGetGLXContext([NativeType("GLFWwindow*")] IntPtr window);
+		[return: NativeType("GLXWindow")]
+		public delegate XID PFN_glfwGetGLXWindow([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetGLXContext glfwGetGLXContext;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetGLXWindow glfwGetGLXWindow;
+
+		[return: NativeType("wl_display*")]
+		public delegate IntPtr PFN_glfwGetWaylandDisplay();
+		[return: NativeType("wl_output*")]
+		public delegate IntPtr PFN_glfwGetWaylandMonitor([NativeType("GLFWmonitor*")] IntPtr monitor);
+		[return: NativeType("wl_surface*")]
+		public delegate IntPtr PFN_glfwGetWaylandWindow([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetWaylandDisplay glfwGetWaylandDisplay;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetWaylandMonitor glfwGetWaylandMonitor;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetWaylandWindow glfwGetWaylandWindow;
+
+		[return: NativeType("EGLDisplay")]
+		public delegate IntPtr PFN_glfwGetEGLDisplay();
+		[return: NativeType("EGLContext")]
+		public delegate IntPtr PFN_glfwGetEGLContext([NativeType("GLFWwindow*")] IntPtr window);
+		[return: NativeType("EGLSurface")]
+		public delegate IntPtr PFN_glfwGetEGLSurface([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Relaxed = true)]
+		public PFN_glfwGetEGLDisplay glfwGetEGLDisplay;
+		[ExternFunction(Relaxed = true)]
+		public PFN_glfwGetEGLContext glfwGetEGLContext;
+		[ExternFunction(Relaxed = true)]
+		public PFN_glfwGetEGLSurface glfwGetEGLSurface;
+
+		public delegate bool PFN_glfwGetOSMesaColorBuffer([NativeType("GLFWwindow*")] IntPtr window, out int width, out int height, out int format, [NativeType("void**")] out IntPtr buffer);
+		public delegate bool PFN_glfwGetOSMesaDepthBuffer([NativeType("GLFWwindow*")] IntPtr window, out int width, out int height, out int bytesPerValue, [NativeType("void**")] out IntPtr buffer);
+		[return: NativeType("OSMesaContext")]
+		public delegate IntPtr PFN_glfwGetOSMesaContext([NativeType("GLFWwindow*")] IntPtr window);
+
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetOSMesaColorBuffer glfwGetOSMesaColorBuffer;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetOSMesaDepthBuffer glfwGetOSMesaDepthBuffer;
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public PFN_glfwGetOSMesaContext glfwGetOSMesaContext;
 
 	}
 
