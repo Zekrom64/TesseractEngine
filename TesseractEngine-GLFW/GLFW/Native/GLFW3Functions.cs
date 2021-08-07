@@ -15,13 +15,13 @@ namespace Tesseract.GLFW.Native {
 
 		// glfw3.h
 
-		public delegate int PFN_glfwInit();
+		public delegate bool PFN_glfwInit();
 		public delegate void PFN_glfwTerminate();
 		public delegate void PFN_glfwInitHint(GLFWInitHint hint, int value);
 		public delegate void PFN_glfwGetVersion(out int major, out int minor, out int rev);
 		[return: NativeType("const char*")]
 		public delegate IntPtr PFN_glfwGetVersionString();
-		public delegate int PFN_glfwGetError([NativeType("const char**")] out IntPtr description);
+		public delegate GLFWError PFN_glfwGetError([NativeType("const char**")] out IntPtr description);
 		[return: MarshalAs(UnmanagedType.FunctionPtr)]
 		public delegate GLFWErrorFun PFN_glfwSetErrorCallback([MarshalAs(UnmanagedType.FunctionPtr)] GLFWErrorFun callback);
 
@@ -173,8 +173,8 @@ namespace Tesseract.GLFW.Native {
 		public delegate void PFN_glfwWaitEvents();
 		public delegate void PFN_glfwWaitEventsTimeout(double timeout);
 		public delegate void PFN_glfwPostEmptyEvent();
-		public delegate int PFN_glfwGetInputMode([NativeType("GLFWwindow*")] IntPtr window, int mode);
-		public delegate void PFN_glfwSetInputMode([NativeType("GLFWwindow*")] IntPtr window, int mode, int value);
+		public delegate int PFN_glfwGetInputMode([NativeType("GLFWwindow*")] IntPtr window, GLFWInputMode mode);
+		public delegate void PFN_glfwSetInputMode([NativeType("GLFWwindow*")] IntPtr window, GLFWInputMode mode, int value);
 		public delegate bool PFN_glfwRawMouseMotionSupported();
 
 		public PFN_glfwPollEvents glfwPollEvents;
@@ -203,9 +203,9 @@ namespace Tesseract.GLFW.Native {
 		public PFN_glfwSetCursorPos glfwSetCursorPos;
 		
 		[return: NativeType("GLFWcursor*")]
-		public delegate IntPtr PFN_glfwCreateCursor([NativeType("const GLFWimage*")] IntPtr image, int xhot, int yhot);
+		public delegate IntPtr PFN_glfwCreateCursor(in GLFWImage image, int xhot, int yhot);
 		[return: NativeType("GLFWcursor*")]
-		public delegate IntPtr PFN_glfwCreateStandardCursor(int shape);
+		public delegate IntPtr PFN_glfwCreateStandardCursor(GLFWCursorShape shape);
 		public delegate void PFN_glfwDestroyCursor([NativeType("GLFWcursor*")] IntPtr cursor);
 		public delegate void PFN_glfwSetCursor([NativeType("GLFWwindow*")] IntPtr window, [NativeType("GLFWcursor*")] IntPtr cursor);
 
@@ -305,6 +305,7 @@ namespace Tesseract.GLFW.Native {
 		public PFN_glfwMakeContextCurrent glfwMakeContextCurrent;
 		public PFN_glfwGetCurrentContext glfwGetCurrentContext;
 		public PFN_glfwSwapBuffers glfwSwapBuffers;
+		public PFN_glfwSwapInterval glfwSwapInterval;
 		public PFN_glfwExtensionSupported glfwExtensionSupported;
 		public PFN_glfwGetProcAddress glfwGetProcAddress;
 

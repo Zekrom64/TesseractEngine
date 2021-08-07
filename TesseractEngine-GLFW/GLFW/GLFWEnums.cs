@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Tesseract.GLFW {
 	
-	public enum GLFWButtonState {
+	public enum GLFWButtonState : byte {
 		Release = 0,
 		Press = 1,
 		Repeat = 2
 	}
 
-	public enum GLFWHat {
+	public enum GLFWHat : byte {
 		Centered = 0,
 		Up = 0x1,
 		Down = 0x2,
@@ -276,7 +276,7 @@ namespace Tesseract.GLFW {
 		CompatProfile = 0x00032002
 	}
 
-	public enum GLFWInputMode {
+	public enum GLFWInputMode : int {
 		Cursor = 0x00033001,
 		StickyKeys = 0x00033002,
 		StickyMouseButtons = 0x00033003,
@@ -302,7 +302,7 @@ namespace Tesseract.GLFW {
 		OSMesa = 0x00036003
 	}
 
-	public enum GLFWCursorShape {
+	public enum GLFWCursorShape : int {
 		Arrow = 0x00036001,
 		IBeam = 0x00036002,
 		Crosshair = 0x00036003,
