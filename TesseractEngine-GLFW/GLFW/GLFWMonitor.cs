@@ -16,6 +16,7 @@ namespace Tesseract.GLFW {
 
 		public Vector2i Pos {
 			get {
+				if (Monitor == IntPtr.Zero) return default;
 				GLFW3.Functions.glfwGetMonitorPos(Monitor, out int x, out int y);
 				return new(x, y);
 			}
@@ -23,13 +24,15 @@ namespace Tesseract.GLFW {
 
 		public Recti WorkArea {
 			get {
-				GLFW3.Functions.glfwGetMonitorWorkArea(Monitor, out int x, out int y, out int w, out int h);
+				if (Monitor == IntPtr.Zero) return default;
+				GLFW3.Functions.glfwGetMonitorWorkarea(Monitor, out int x, out int y, out int w, out int h);
 				return new(x, y, w, h);
 			}
 		}
 
 		public Vector2i PhysicalSize {
 			get {
+				if (Monitor == IntPtr.Zero) return default;
 				GLFW3.Functions.glfwGetMonitorPhysicalSize(Monitor, out int w, out int h);
 				return new(w, h);
 			}
@@ -37,20 +40,24 @@ namespace Tesseract.GLFW {
 
 		public Vector2 ContentScale {
 			get {
+				if (Monitor == IntPtr.Zero) return default;
 				GLFW3.Functions.glfwGetMonitorContentScale(Monitor, out float x, out float y);
 				return new(x, y);
 			}
 		}
 
-		public string Name => MemoryUtil.GetStringUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
+		public string Name => Monitor == IntPtr.Zero ? null : MemoryUtil.GetStringUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
 
 		public IntPtr UserPointer {
-			get => GLFW3.Functions.glfwGetMonitorUserPointer(Monitor);
-			set => GLFW3.Functions.glfwSetMonitorUserPointer(Monitor, value);
+			get => Monitor == IntPtr.Zero ? IntPtr.Zero : GLFW3.Functions.glfwGetMonitorUserPointer(Monitor);
+			set {
+				if (Monitor != IntPtr.Zero) GLFW3.Functions.glfwSetMonitorUserPointer(Monitor, value);
+			}
 		}
 
 		public ReadOnlySpan<GLFWVidMode> VideoModes {
 			get {
+				if (Monitor == IntPtr.Zero) return default;
 				IntPtr pModes = GLFW3.Functions.glfwGetVideoModes(Monitor, out int count);
 				unsafe {
 					return new((void*)pModes, count);
@@ -58,15 +65,19 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		public GLFWVidMode VideoMode => new UnmanagedPointer<GLFWVidMode>(GLFW3.Functions.glfwGetVideoMode(Monitor)).Value;
+		public GLFWVidMode VideoMode => Monitor == IntPtr.Zero ? default : new UnmanagedPointer<GLFWVidMode>(GLFW3.Functions.glfwGetVideoMode(Monitor)).Value;
 
 		public float Gamma {
-			set => GLFW3.Functions.glfwSetGamma(Monitor, value);
+			set {
+				if (Monitor != IntPtr.Zero) GLFW3.Functions.glfwSetGamma(Monitor, value);
+			}
 		}
 
 		public GLFWGammaRamp GammaRamp {
-			get => new UnmanagedPointer<GLFWGammaRamp>(GLFW3.Functions.glfwGetGammaRamp(Monitor)).Value;
-			set => GLFW3.Functions.glfwSetGammaRamp(Monitor, value);
+			get => Monitor == IntPtr.Zero ? default : new UnmanagedPointer<GLFWGammaRamp>(GLFW3.Functions.glfwGetGammaRamp(Monitor)).Value;
+			set {
+				if (Monitor != IntPtr.Zero) GLFW3.Functions.glfwSetGammaRamp(Monitor, value);
+			}
 		}
 
 		public static bool operator ==(GLFWMonitor m1, GLFWMonitor m2) => m1.Monitor == m2.Monitor;
