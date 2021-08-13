@@ -38,7 +38,7 @@ namespace Tesseract.GLFW.Native {
 		[return: NativeType("GLFWmonitor*")]
 		public delegate IntPtr PFN_glfwGetPrimaryMonitor();
 		public delegate void PFN_glfwGetMonitorPos([NativeType("GLFWmonitor*")] IntPtr monitor, out int xpos, out int ypos);
-		public delegate void PFN_glfwGetMonitorWorkArea([NativeType("GLFWmonitor*")] IntPtr monitor, out int xpos, out int ypos, out int width, out int height);
+		public delegate void PFN_glfwGetMonitorWorkarea([NativeType("GLFWmonitor*")] IntPtr monitor, out int xpos, out int ypos, out int width, out int height);
 		public delegate void PFN_glfwGetMonitorPhysicalSize([NativeType("GLFWmonitor*")] IntPtr monitor, out int widthMM, out int heightMM);
 		public delegate void PFN_glfwGetMonitorContentScale([NativeType("GLFWmonitor*")] IntPtr monitor, out float scaleX, out float scaleY);
 		[return: NativeType("const char*")]
@@ -59,7 +59,7 @@ namespace Tesseract.GLFW.Native {
 		public PFN_glfwGetMonitors glfwGetMonitors;
 		public PFN_glfwGetPrimaryMonitor glfwGetPrimaryMonitor;
 		public PFN_glfwGetMonitorPos glfwGetMonitorPos;
-		public PFN_glfwGetMonitorWorkArea glfwGetMonitorWorkArea;
+		public PFN_glfwGetMonitorWorkarea glfwGetMonitorWorkarea;
 		public PFN_glfwGetMonitorPhysicalSize glfwGetMonitorPhysicalSize;
 		public PFN_glfwGetMonitorContentScale glfwGetMonitorContentScale;
 		public PFN_glfwGetMonitorName glfwGetMonitorName;

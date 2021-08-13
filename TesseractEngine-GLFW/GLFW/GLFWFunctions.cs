@@ -18,21 +18,21 @@ namespace Tesseract.GLFW {
 
 	public delegate void GLFWWindowRefreshFun([NativeType("GLFWwindow*")] IntPtr window);
 
-	public delegate void GLFWWindowFocusFun([NativeType("GLFWwindow*")] IntPtr window, int focused);
+	public delegate void GLFWWindowFocusFun([NativeType("GLFWwindow*")] IntPtr window, bool focused);
 
-	public delegate void GLFWWindowIconifyFun([NativeType("GLFWwindow*")] IntPtr window, int iconified);
+	public delegate void GLFWWindowIconifyFun([NativeType("GLFWwindow*")] IntPtr window, bool iconified);
 
-	public delegate void GLFWWindowMaximizeFun([NativeType("GLFWwindow*")] IntPtr window, int maximized);
+	public delegate void GLFWWindowMaximizeFun([NativeType("GLFWwindow*")] IntPtr window, bool maximized);
 
 	public delegate void GLFWFramebufferSizeFun([NativeType("GLFWwindow*")] IntPtr window, int w, int h);
 
 	public delegate void GLFWWindowContentScaleFun([NativeType("GLFWwindow*")] IntPtr window, float xscale, float yscale);
 
-	public delegate void GLFWMouseButtonFun([NativeType("GLFWwindow*")] IntPtr window, int button, GLFWButtonState action, GLFWKeyMod mods);
+	public delegate void GLFWMouseButtonFun([NativeType("GLFWwindow*")] IntPtr window, GLFWMouseButton button, GLFWButtonState action, GLFWKeyMod mods);
 
 	public delegate void GLFWCursorPosFun([NativeType("GLFWwindow*")] IntPtr window, double x, double y);
 
-	public delegate void GLFWCursorEnterFun([NativeType("GLFWwindow*")] IntPtr window, int entered);
+	public delegate void GLFWCursorEnterFun([NativeType("GLFWwindow*")] IntPtr window, bool entered);
 
 	public delegate void GLFWScrollFun([NativeType("GLFWwindow*")] IntPtr window, double x, double y);
 
