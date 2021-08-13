@@ -122,6 +122,10 @@ namespace Tesseract.GLFW.Services {
 				if (focused) window.OnFocused?.Invoke();
 				else window.OnUnfocused?.Invoke();
 			};
+			Window.CloseCallback = (IntPtr pWindow) => {
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				window.OnClosing?.Invoke();
+			};
 			Window.KeyCallback = (IntPtr pWindow, GLFWKey key, int scancode, GLFWButtonState state, GLFWKeyMod mods) => {
 				if (GLFWServiceKeyboard.GLFWToStdKey.TryGetValue(key, out Key stdkey)) {
 					KeyEvent evt = new() {
