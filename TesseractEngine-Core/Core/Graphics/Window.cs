@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -100,9 +101,9 @@ namespace Tesseract.Core.Graphics {
 	/// <summary>
 	/// A window attribute list stores a list of attributes and their values.
 	/// </summary>
-	public class WindowAttributeList {
+	public class WindowAttributeList : IEnumerable<KeyValuePair<IWindowAttribute,object>> {
 
-		private readonly Dictionary<object, object> attributes = new();
+		private readonly Dictionary<IWindowAttribute, object> attributes = new();
 
 		/// <summary>
 		/// Creates a new window attribute list.
@@ -153,6 +154,19 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="attrib">Attribute to set</param>
 		/// <param name="value">Attribute value</param>
 		public void Set<T>(IWindowAttribute<T> attrib, T value) => attributes[attrib] = value;
+
+		public IEnumerator<KeyValuePair<IWindowAttribute, object>> GetEnumerator() => attributes.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() => attributes.GetEnumerator();
+
+		/// <summary>
+		/// Adds an attribute to the list. Note that this is a convenience method
+		/// for collection initialization, and <see cref="Set{T}(IWindowAttribute{T}, T)"/>
+		/// should be preferred for manual modification.
+		/// </summary>
+		/// <param name="attrib">Attribute to set</param>
+		/// <param name="value">Attribute value</param>
+		public void Add(IWindowAttribute attrib, object value) => attributes.Add(attrib, value);
 
 	}
 
