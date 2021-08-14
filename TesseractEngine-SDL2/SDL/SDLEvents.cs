@@ -135,23 +135,27 @@ namespace Tesseract.SDL {
 		public uint Timestamp;
 		public uint WindowID;
 		// char text[32]
-		private ulong text0;
-		private readonly ulong text1;
-		private readonly ulong text2;
-		private readonly ulong text3;
+		private uint text0;
+		private readonly uint text1;
+		private readonly uint text2;
+		private readonly uint text3;
+		private readonly uint text4;
+		private readonly uint text5;
+		private readonly uint text6;
+		private readonly uint text7;
 		public string Text {
 			get {
 				unsafe {
-					ref ulong u = ref text0;
-					fixed(ulong* p = &u) {
-						return MemoryUtil.GetStringUTF8((IntPtr)p, 32);
+					ref uint u = ref text0;
+					fixed (uint* p = &u) {
+						return MemoryUtil.GetStringUTF8((IntPtr)p);
 					}
 				}
 			}
 			set {
 				unsafe {
-					ref ulong u = ref text0;
-					fixed (ulong* p = &u) {
+					ref uint u = ref text0;
+					fixed (uint* p = &u) {
 						MemoryUtil.PutStringUTF8(value, (IntPtr)p, 32);
 					}
 				}
@@ -167,23 +171,27 @@ namespace Tesseract.SDL {
 		public uint Timestamp;
 		public uint WindowID;
 		// char text[32]
-		private ulong text0;
-		private readonly ulong text1;
-		private readonly ulong text2;
-		private readonly ulong text3;
+		private uint text0;
+		private readonly uint text1;
+		private readonly uint text2;
+		private readonly uint text3;
+		private readonly uint text4;
+		private readonly uint text5;
+		private readonly uint text6;
+		private readonly uint text7;
 		public string Text {
 			get {
 				unsafe {
-					ref ulong u = ref text0;
-					fixed (ulong* p = &u) {
-						return MemoryUtil.GetStringUTF8((IntPtr)p, 32);
+					ref uint u = ref text0;
+					fixed (uint* p = &u) {
+						return MemoryUtil.GetStringUTF8((IntPtr)p);
 					}
 				}
 			}
 			set {
 				unsafe {
-					ref ulong u = ref text0;
-					fixed (ulong* p = &u) {
+					ref uint u = ref text0;
+					fixed (uint* p = &u) {
 						MemoryUtil.PutStringUTF8(value, (IntPtr)p, 32);
 					}
 				}

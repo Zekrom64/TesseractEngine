@@ -56,7 +56,9 @@ namespace Tesseract.SDL.Services {
 			{ SDLScancode.KpMultiply, Key.NumpadMultiply },
 			{ SDLScancode.KpMinus, Key.NumpadMinus },
 			{ SDLScancode.KpPlus, Key.NumpadAdd },
-			{ SDLScancode.KpDecimal, Key.NumpadDecimal },
+			// For some reason SDL has "KpDecimal" and "KpPeriod", but KpPeriod seems to be the actually used one
+			//{ SDLScancode.KpDecimal, Key.NumpadDecimal },
+			{ SDLScancode.KpPeriod, Key.NumpadDecimal },
 			{ SDLScancode.KpEnter, Key.NumpadEnter },
 
 			{ SDLScancode.A, Key.A },
@@ -495,15 +497,17 @@ namespace Tesseract.SDL.Services {
 				} break;
 				case SDLEventType.KeyDown:
 				case SDLEventType.KeyUp: {
-					lastModState = evt.Key.Keysym.Mod;
-					KeyEvent key = new() {
-						Key = SDLServiceKeyboard.SDLToStdKey[evt.Key.Keysym.Scancode],
-						State = evt.Key.State != SDLButtonState.Released,
-						Mod = SDLServiceKeyboard.SDLToStdKeyMod(evt.Key.Keysym.Mod),
-						Repeat = evt.Key.Repeat != 0
-					};
-					GetWindowFromID(evt.Key.WindowID)?.DoOnKey(key);
-					keyboard.DoOnKey(key);
+					if (SDLServiceKeyboard.SDLToStdKey.TryGetValue(evt.Key.Keysym.Scancode, out Key k)) {
+						lastModState = evt.Key.Keysym.Mod;
+						KeyEvent key = new() {
+							Key = k,
+							State = evt.Key.State != SDLButtonState.Released,
+							Mod = SDLServiceKeyboard.SDLToStdKeyMod(evt.Key.Keysym.Mod),
+							Repeat = evt.Key.Repeat != 0
+						};
+						GetWindowFromID(evt.Key.WindowID)?.DoOnKey(key);
+						keyboard.DoOnKey(key);
+					}
 				} break;
 				case SDLEventType.TextInput: {
 					TextInputEvent txt = new() {
