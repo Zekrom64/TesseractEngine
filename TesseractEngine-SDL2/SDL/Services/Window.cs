@@ -226,10 +226,15 @@ namespace Tesseract.SDL.Services {
 		internal void DoOnClosing() => OnClosing?.Invoke();
 		public event Action<KeyEvent> OnKey;
 		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
+		private bool textInput = false;
 		public event Action<TextInputEvent> OnTextInput;
-		internal void DoOnTextInput(TextInputEvent evt) => OnTextInput?.Invoke(evt);
+		internal void DoOnTextInput(TextInputEvent evt) {
+			if (textInput) OnTextInput?.Invoke(evt);
+		}
 		public event Action<TextEditEvent> OnTextEdit;
-		internal void DoOnTextEdit(TextEditEvent evt) => OnTextEdit?.Invoke(evt);
+		internal void DoOnTextEdit(TextEditEvent evt) {
+			if (textInput) OnTextEdit?.Invoke(evt);
+		}
 		public event Action<MouseMoveEvent> OnMouseMove;
 		internal void DoOnMouseMove(MouseMoveEvent evt) {
 			LastMousePos = evt.Position;
@@ -307,6 +312,10 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
+			if (display == null) {
+				Restore();
+				return;
+			}
 			SDLDisplay sdldisplay = (display as SDLServiceDisplay).Display;
 			SDLDisplayMode sdlmode;
 			if (mode is SDLServiceDisplayMode) sdlmode = (mode as SDLServiceDisplayMode).DisplayMode;
@@ -344,9 +353,9 @@ namespace Tesseract.SDL.Services {
 			}
 			set {
 				unsafe {
-					fixed(ushort* pRed = value.Red) {
-						fixed(ushort* pGreen = value.Green) {
-							fixed(ushort* pBlue = value.Blue) {
+					fixed (ushort* pRed = value.Red) {
+						fixed (ushort* pGreen = value.Green) {
+							fixed (ushort* pBlue = value.Blue) {
 								SDL2.CheckError(SDL2.Functions.SDL_SetWindowGammaRamp(Window.Window.Ptr, (IntPtr)pRed, (IntPtr)pGreen, (IntPtr)pBlue));
 							}
 						}
@@ -376,9 +385,15 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetKeyState(Key key) => SDLServiceKeyboard.GetCurrentKeyState(key);
 
-		public void StartTextInput() => SDL2.StartTextInput();
+		public void StartTextInput() {
+			SDL2.StartTextInput();
+			textInput = true;
+		}
 
-		public void EndTextInput() => SDL2.StopTextInput();
+		public void EndTextInput() {
+			textInput = false;
+			SDL2.StopTextInput();
+		}
 
 		public bool GetMouseButtonState(int button) => SDLServiceMouse.GetCurrentMouseButtonState(button);
 
