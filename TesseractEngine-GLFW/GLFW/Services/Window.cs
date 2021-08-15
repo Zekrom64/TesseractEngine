@@ -293,7 +293,10 @@ namespace Tesseract.GLFW.Services {
 			return default;
 		}
 
-		public void Restore() => Window.Restore();
+		public void Restore() {
+			if (Fullscreen) SetFullscreen(null, null);
+			else Window.Restore();
+		}
 
 		public void SetCursor(ICursor cursor) => Window.Cursor = cursor is GLFWServiceCursor gc ? gc.Cursor : null;
 
