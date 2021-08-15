@@ -102,11 +102,11 @@ namespace Tesseract.GLFW.Services {
 			Window.UserPointer = new ObjectPointer<GLFWServiceWindow>(this).Ptr;
 			Window.SizeCallback = (IntPtr pWindow, int w, int h) => {
 				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
-				window.OnResize?.Invoke(new Vector2i(w, h));
+				if (!window.Minimized) window.OnResize?.Invoke(new Vector2i(w, h));
 			};
 			Window.PosCallback = (IntPtr pWindow, int x, int y) => {
 				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
-				window.OnMove?.Invoke(new Vector2i(x, y));
+				if (!window.Minimized) window.OnMove?.Invoke(new Vector2i(x, y));
 			};
 			Window.IconifyCallback = (IntPtr pWindow, bool iconified) => {
 				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
@@ -293,7 +293,10 @@ namespace Tesseract.GLFW.Services {
 			return default;
 		}
 
-		public void Restore() => Window.Restore();
+		public void Restore() {
+			if (Fullscreen) SetFullscreen(null, null);
+			else Window.Restore();
+		}
 
 		public void SetCursor(ICursor cursor) => Window.Cursor = cursor is GLFWServiceCursor gc ? gc.Cursor : null;
 

@@ -65,7 +65,7 @@ namespace Tesseract.GLFW.Services {
 			{ GLFWKey.Escape, Key.Escape },
 			{ GLFWKey.Enter, Key.Enter },
 			{ GLFWKey.Tab, Key.Tab },
-			{ GLFWKey.Backslash, Key.Backspace },
+			{ GLFWKey.Backspace, Key.Backspace },
 			{ GLFWKey.Insert, Key.Insert },
 			{ GLFWKey.Delete, Key.Delete },
 			{ GLFWKey.Right, Key.Right },
