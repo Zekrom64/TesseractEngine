@@ -312,6 +312,10 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
+			if (display == null) {
+				Restore();
+				return;
+			}
 			SDLDisplay sdldisplay = (display as SDLServiceDisplay).Display;
 			SDLDisplayMode sdlmode;
 			if (mode is SDLServiceDisplayMode) sdlmode = (mode as SDLServiceDisplayMode).DisplayMode;
