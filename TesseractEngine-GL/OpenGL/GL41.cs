@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Math;
 
-namespace Tesseract.OpenGL {
+namespace Tesseract.GL {
 
 	public class GL41 : GL40 {
 

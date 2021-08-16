@@ -7,7 +7,7 @@ using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Math;
 
-namespace Tesseract.OpenGL.Graphics {
+namespace Tesseract.GL.Graphics {
 
 	public class GLTexture : ITexture, IGLObject {
 

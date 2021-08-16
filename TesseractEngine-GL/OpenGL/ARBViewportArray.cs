@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 
-namespace Tesseract.OpenGL {
+namespace Tesseract.GL {
 
 	public class ARBViewportArrayFunctions {
 

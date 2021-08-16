@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
-namespace Tesseract.OpenGL {
+namespace Tesseract.GL {
 
 	public class GL40 : GL33 {
 
