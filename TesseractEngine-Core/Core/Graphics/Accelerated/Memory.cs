@@ -238,7 +238,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="range">Range to map</param>
 		/// <returns>Pointer to mapped memory</returns>
 		[ThreadSafety(ThreadSafetyLevel.SingleThread)]
-		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default);
+		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default) where T : unmanaged;
 
 		/// <summary>
 		/// Unmaps this buffer if mapped.
