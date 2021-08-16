@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
-using Tesseract.GL.Native;
+using Tesseract.OpenGL.Native;
 
-namespace Tesseract.GL {
+namespace Tesseract.OpenGL {
 
 	public class ARBShaderSubroutineFunctions {
 

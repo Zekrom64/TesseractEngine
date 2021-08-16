@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 
-namespace Tesseract.GL {
+namespace Tesseract.OpenGL {
 
 	public class KHRDebugFunctions {
 

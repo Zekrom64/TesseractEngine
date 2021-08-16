@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 
-namespace Tesseract.GL {
+namespace Tesseract.OpenGL {
 
 	public class ARBES2CompatbilityFunctions {
 

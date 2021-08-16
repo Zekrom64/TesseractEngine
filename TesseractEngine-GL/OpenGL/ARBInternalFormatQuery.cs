@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
-namespace Tesseract.GL {
+namespace Tesseract.OpenGL {
 
 	public class ARBInternalFormatQueryFunctions {
 

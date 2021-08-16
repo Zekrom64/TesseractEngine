@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 
-namespace Tesseract.GL.Graphics {
+namespace Tesseract.OpenGL.Graphics {
 
 	public record GLPixelFormat {
 

@@ -86,7 +86,7 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 		}
 
-		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default) {
+		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default) where T : unmanaged {
 			nint offset = (nint)range.Offset;
 			nint length = (nint)range.Length;
 			if (length == 0) length = (nint)Size - offset;
