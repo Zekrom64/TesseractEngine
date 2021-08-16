@@ -9,7 +9,7 @@ using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
 using Tesseract.Core.Util;
-using Tesseract.GL;
+using Tesseract.OpenGL;
 
 namespace Tesseract.SDL.Services {
 

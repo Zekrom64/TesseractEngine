@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.GL;
+using Tesseract.OpenGL;
 
 namespace Tesseract.SDL.Services {
 
