@@ -244,7 +244,7 @@ namespace Tesseract.OpenGL.Graphics {
 			Limits = new GLGraphicsLimits(GL);
 		}
 
-		public IBuffer CreateBuffer(BufferCreateInfo createInfo) => new GLBuffer(GL, createInfo);
+		public IBuffer CreateBuffer(BufferCreateInfo createInfo) => new GLBuffer(this, createInfo);
 
 		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo) {
 			throw new NotImplementedException();

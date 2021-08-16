@@ -14,9 +14,17 @@ namespace Tesseract.OpenGL {
 
 		// ARB_buffer_storage
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void BufferStorage(GLBufferTarget target, nint size, IntPtr data, GLBufferStorageFlags flags) => GL.ARBBufferStorage.BufferStorage(target, size, data, flags);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BufferStorage(GLBufferTarget target, nint size, GLBufferStorageFlags flags) => GL.ARBBufferStorage.BufferStorage(target, size, flags);
 
-		public void BufferStorage<T>(GLBufferTarget target, nint size, in ReadOnlySpan<T> data, GLBufferStorageFlags flags) where T : unmanaged => GL.ARBBufferStorage.BufferStorage(target, size, data, flags);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void BufferStorage<T>(GLBufferTarget target, in ReadOnlySpan<T> data, GLBufferStorageFlags flags) where T : unmanaged => GL.ARBBufferStorage.BufferStorage(target, data, flags);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void BufferStorage<T>(GLBufferTarget target, GLBufferStorageFlags flags, params T[] data) where T : unmanaged => GL.ARBBufferStorage.BufferStorage(target, flags, data);
 
 		// ARB_clear_texture
 
