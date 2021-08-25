@@ -46,7 +46,8 @@ namespace Tesseract.Vulkan {
 	/* Notes:
 	 * 
 	 *     Some structs are passed as 'in' to native methods, equivalent to passing by const pointer. However,
-	 *   to avoid expensive defensive copies these structs are readonly. To maintain field order
+	 *   to avoid expensive defensive copies these structs are readonly. To maintain field order there are private
+	 *   readonly fields in the correct order and public accessors for get and init.
 	 */
 
 	// Vulkan 1.0
@@ -199,9 +200,9 @@ namespace Tesseract.Vulkan {
 		public uint Y { get => Height; set => Height = value; }
 		public uint Z { get => Depth; set => Depth = value; }
 
-		uint IReadOnlyTuple2<uint>.X => Width;
-		uint IReadOnlyTuple2<uint>.Y => Height;
-		uint IReadOnlyTuple3<uint>.Z => Depth;
+		uint IReadOnlyTuple<uint, uint>.X => Width;
+		uint IReadOnlyTuple<uint, uint>.Y => Height;
+		uint IReadOnlyTuple<uint, uint, uint>.Z => Depth;
 
 		public uint this[int key] {
 			get => key switch {
@@ -678,17 +679,17 @@ namespace Tesseract.Vulkan {
 
 		int IReadOnlyIndexer<int, int>.this[int key] => this[key];
 
-		int ITuple2<int>.X { get => X; set => X = value; }
+		int ITuple<int, int>.X { get => X; set => X = value; }
 
-		int ITuple2<int>.Y { get => Y; set => Y = value; }
+		int ITuple<int, int>.Y { get => Y; set => Y = value; }
 
-		int ITuple3<int>.Z { get => Z; set => Z = value; }
+		int ITuple<int, int, int>.Z { get => Z; set => Z = value; }
 
-		int IReadOnlyTuple2<int>.X => X;
+		int IReadOnlyTuple<int, int>.X => X;
 
-		int IReadOnlyTuple2<int>.Y => Y;
+		int IReadOnlyTuple<int, int>.Y => Y;
 
-		int IReadOnlyTuple3<int>.Z => Z;
+		int IReadOnlyTuple<int, int, int>.Z => Z;
 
 	}
 
@@ -1066,11 +1067,11 @@ namespace Tesseract.Vulkan {
 		public int X;
 		public int Y;
 
-		int ITuple2<int>.X { get => X; set => X = value; }
-		int ITuple2<int>.Y { get => Y; set => Y = value; }
+		int ITuple<int, int>.X { get => X; set => X = value; }
+		int ITuple<int, int>.Y { get => Y; set => Y = value; }
 
-		int IReadOnlyTuple2<int>.X => X;
-		int IReadOnlyTuple2<int>.Y => Y;
+		int IReadOnlyTuple<int, int>.X => X;
+		int IReadOnlyTuple<int, int>.Y => Y;
 
 		public VKOffset2D(int x, int y) {
 			X = x;
@@ -1106,12 +1107,12 @@ namespace Tesseract.Vulkan {
 		public uint Width;
 		public uint Height;
 
-		public uint X { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public uint Y { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public uint X { get => Width; set => Width = value; }
+		public uint Y { get => Height; set => Height = value; }
 
-		uint IReadOnlyTuple2<uint>.X => throw new NotImplementedException();
+		uint IReadOnlyTuple<uint, uint>.X => Width;
 
-		uint IReadOnlyTuple2<uint>.Y => throw new NotImplementedException();
+		uint IReadOnlyTuple<uint, uint>.Y => Height;
 
 		public VKExtent2D(uint width, uint height) {
 			Width = width;
@@ -1254,19 +1255,8 @@ namespace Tesseract.Vulkan {
 		public uint AttachmentCount;
 		[NativeType("const VkPipelineColorBlendAttachmentState*")]
 		public IntPtr Attachment;
-		private float blendConstants0;
-		private float blendConstants1;
-		private float blendConstants2;
-		private float blendConstants3;
-		public Vector4 BlendConstants {
-			get => new(blendConstants0, blendConstants1, blendConstants2, blendConstants3);
-			set {
-				blendConstants0 = value.X;
-				blendConstants1 = value.Y;
-				blendConstants2 = value.Z;
-				blendConstants3 = value.W;
-			}
-		}
+		[NativeType("float[4]")]
+		public Vector4 BlendConstant;
 
 	}
 
@@ -1442,14 +1432,19 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKDescriptorSetLayoutCreateInfo {
+	public readonly struct VKDescriptorSetLayoutCreateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKDescriptorSetLayoutCreateFlagBits Flags;
-		public uint BindingCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKDescriptorSetLayoutCreateFlagBits flags;
+		public VKDescriptorSetLayoutCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly uint bindingCount;
+		public uint BindingCount { get => bindingCount; init => bindingCount = value; }
+		private readonly IntPtr bindings;
 		[NativeType("const VkDescriptorSetLayoutBinding*")]
-		public IntPtr Bindings;
+		public IntPtr Bindings { get => bindings; init => bindings = value; }
 
 	}
 
@@ -1462,27 +1457,38 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKDescriptorPoolCreateInfo {
+	public readonly struct VKDescriptorPoolCreateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKDescriptorPoolCreateFlagBits Flags;
-		public uint MaxSets;
-		public uint PoolSizeCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKDescriptorPoolCreateFlagBits flags;
+		public VKDescriptorPoolCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly uint maxSets;
+		public uint MaxSets { get => maxSets; init => maxSets = value; }
+		private readonly uint poolSizeCount;
+		public uint PoolSizeCount { get => poolSizeCount; init => poolSizeCount = value; }
+		private readonly IntPtr poolSizes;
 		[NativeType("const VkDescriptorPoolSize*")]
-		public IntPtr PoolSizes;
+		public IntPtr PoolSizes { get => poolSizes; init => poolSizes = value; }
 
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKDescriptorSetAllocateInfo {
+	public readonly struct VKDescriptorSetAllocateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VkDescriptorPool DescriptorPool;
-		public uint DescriptorSetCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VkDescriptorPool descriptorPool;
+		public VkDescriptorPool DescriptorPool { get => descriptorPool; init => descriptorPool = value; }
+		private readonly uint descriptorSetCount;
+		public uint DescriptorSetCount { get => descriptorSetCount; init => descriptorSetCount = value; }
+		private readonly IntPtr setLayouts;
 		[NativeType("const VkDescriptorSetLayout*")]
-		public IntPtr SetLayouts;
+		public IntPtr SetLayouts { get => setLayouts; init => setLayouts = value; }
 
 	}
 
@@ -1539,18 +1545,27 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKFramebufferCreateInfo {
+	public readonly struct VKFramebufferCreateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKFramebufferCreateFlagBits Flags;
-		public VkRenderPass RenderPass;
-		public uint AttachmentCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKFramebufferCreateFlagBits flags;
+		public VKFramebufferCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly VkRenderPass renderPass;
+		public VkRenderPass RenderPass { get => renderPass; init => renderPass = value; }
+		private readonly uint attachmentCount;
+		public uint AttachmentCount { get => attachmentCount; init => attachmentCount = value; }
+		private readonly IntPtr attachments;
 		[NativeType("const VkImageView*")]
-		public IntPtr Attachments;
-		public uint Width;
-		public uint Height;
-		public uint Layers;
+		public IntPtr Attachments { get => attachments; init => attachments = value; }
+		private readonly uint width;
+		public uint Width { get => width; init => width = value; }
+		private readonly uint height;
+		public uint Height { get => height; init => height = value; }
+		private readonly uint layers;
+		public uint Layers { get => layers; init => layers = value; }
 
 	}
 
@@ -1612,41 +1627,59 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKRenderPassCreateInfo {
+	public readonly struct VKRenderPassCreateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKRenderPassCreateFlagBits Flags;
-		public uint AttachmentCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKRenderPassCreateFlagBits flags;
+		public VKRenderPassCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly uint attachmentCount;
+		public uint AttachmentCount { get => attachmentCount; init => attachmentCount = value; }
+		private readonly IntPtr attachments;
 		[NativeType("const VkAttachmentDescription*")]
-		public IntPtr Attachments;
-		public uint SubpassCount;
+		public IntPtr Attachments { get => attachments; init => attachments = value; }
+		private readonly uint subpassCount;
+		public uint SubpassCount { get => subpassCount; init => subpassCount = value; }
+		private readonly IntPtr subpasses;
 		[NativeType("const VkSubpassDescription*")]
-		public IntPtr Subpasses;
-		public uint DependencyCount;
+		public IntPtr Subpasses { get => subpasses; init => subpasses = value; }
+		private readonly uint dependencyCount;
+		public uint DependencyCount { get => dependencyCount; init => dependencyCount = value; }
+		private readonly IntPtr dependencies;
 		[NativeType("const VkSubpassDependency*")]
-		public IntPtr Dependencies;
+		public IntPtr Dependencies { get => dependencies; init => dependencies = value; }
 
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKCommandPoolCreateInfo {
+	public readonly struct VKCommandPoolCreateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKCommandPoolCreateFlagBits Flags;
-		public uint QueueFamilyIndex;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKCommandPoolCreateFlagBits flags;
+		public VKCommandPoolCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly uint queueFamilyIndex;
+		public uint QueueFamilyIndex { get => queueFamilyIndex; init => queueFamilyIndex = value; }
 
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKCommandBufferAllocateInfo {
+	public readonly struct VKCommandBufferAllocateInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VkCommandPool CommandPool;
-		public VKCommandBufferLevel Level;
-		public uint CommandBufferCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VkCommandPool commandPool;
+		public VkCommandPool CommandPool { get => commandPool; init => commandPool = value; }
+		private readonly VKCommandBufferLevel level;
+		public VKCommandBufferLevel Level { get => level; init => level = value; }
+		private readonly uint commandBufferCount;
+		public uint CommandBufferCount { get => commandBufferCount; init => commandBufferCount = value; }
 
 	}
 
@@ -1665,13 +1698,17 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKCommandBufferBeginInfo {
+	public readonly struct VKCommandBufferBeginInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VKCommandBufferUsageFlagBits Flags;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VKCommandBufferUsageFlagBits flags;
+		public VKCommandBufferUsageFlagBits Flags { get => flags; init => flags = value; }
+		private readonly IntPtr inheritanceInfo;
 		[NativeType("const VkCommandBufferInheritanceInfo*")]
-		public IntPtr InheritanceInfo;
+		public IntPtr InheritanceInfo { get => inheritanceInfo; init => inheritanceInfo = value; }
 
 	}
 
@@ -1844,16 +1881,23 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKRenderPassBeginInfo {
+	public readonly struct VKRenderPassBeginInfo {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public VkRenderPass RenderPass;
-		public VkFramebuffer Framebuffer;
-		public VKRect2D RenderArea;
-		public uint ClearValueCount;
+		private readonly VKStructureType type;
+		public VKStructureType Type { get => type; init => type = value; }
+		private readonly IntPtr next;
+		public IntPtr Next { get => next; init => next = value; }
+		private readonly VkRenderPass renderPass;
+		public VkRenderPass RenderPass { get => renderPass; init => renderPass = value; }
+		private readonly VkFramebuffer framebuffer;
+		public VkFramebuffer Framebuffer { get => framebuffer; init => framebuffer = value; }
+		private readonly VKRect2D renderArea;
+		public VKRect2D RenderArea { get => renderArea; init => renderArea = value; }
+		private readonly uint clearValueCount;
+		public uint ClearValueCount { get => clearValueCount; init => clearValueCount = value; }
+		private readonly IntPtr clearValues;
 		[NativeType("const VkClearValue*")]
-		public IntPtr ClearValues;
+		public IntPtr ClearValues { get => clearValues; init => clearValues = value; }
 
 	}
 
