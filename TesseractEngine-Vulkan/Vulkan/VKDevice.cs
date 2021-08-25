@@ -50,6 +50,18 @@ namespace Tesseract.Vulkan {
 		public void WaitIdle() => VK.CheckError(VK10Functions.vkDeviceWaitIdle(Device));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKQueue GetQueue(uint family, uint index) {
+			VK10Functions.vkGetDeviceQueue(Device, family, index, out IntPtr queue);
+			return new VKQueue(queue, this);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKDeviceMemory AllocateMemory(in VKMemoryAllocateInfo allocateInfo, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError(VK10Functions.vkAllocateMemory(Device, allocateInfo, allocator, out ulong memory), "Failed to allocate device memory");
+			return new VKDeviceMemory(this, memory, allocator);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FlushMappedMemoryRanges(in ReadOnlySpan<VKMappedMemoryRange> ranges) {
 			unsafe {
 				fixed(VKMappedMemoryRange* pRanges = ranges) {
