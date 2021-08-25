@@ -9,7 +9,8 @@ using Tesseract.Core.Input;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
-using Tesseract.GL;
+using Tesseract.OpenGL;
+using Tesseract.Vulkan.Graphics;
 
 namespace Tesseract.GLFW.Services {
 
@@ -92,6 +93,7 @@ namespace Tesseract.GLFW.Services {
 				if (attribs.TryGet(WindowAttributes.Minimized, out bool minimized)) GLFW3.WindowHint(GLFWWindowAttrib.Iconified, minimized ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Resizable, out bool resizable)) GLFW3.WindowHint(GLFWWindowAttrib.Resizable, resizable ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Visible, out bool visible)) GLFW3.WindowHint(GLFWWindowAttrib.Visible, visible ? 1 : 0);
+				if (attribs.TryGet(VKWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) GLFW3.WindowHint(GLFWWindowAttrib.ClientAPI, (int)GLFWClientAPI.NoAPI);
 			}
 			Window = new(new Vector2i(w, h), title);
 			if (attribs != null) {
