@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKFence : IDisposable, IVK10DeviceObject, IVKAllocatedObject {
+	public class VKFence : IDisposable, IVKDeviceObject, IVKAllocatedObject {
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
-		public VK10Device Device { get; }
+		public VKDevice Device { get; }
 
 		public ulong Fence { get; }
 
 		public bool Status {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				VKResult result = Device.Functions.vkGetFenceStatus(Device.Device, Fence);
+				VKResult result = Device.VK10Functions.vkGetFenceStatus(Device, Fence);
 				return result switch {
 					VKResult.Success => true,
 					VKResult.NotReady => false,
@@ -26,31 +28,30 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKFence(VK10Device device, in VKFenceCreateInfo createInfo, VulkanAllocationCallbacks allocationCallbacks = null) {
+		public VKFence(VKDevice device, ulong fence, VulkanAllocationCallbacks allocator) {
 			Device = device;
-			Allocator = allocationCallbacks;
-			VKResult err = device.Functions.vkCreateFence(device.Device, createInfo, allocationCallbacks, out ulong fence);
-			if (err != VKResult.Success) throw new VulkanException("Failed to create fence: ", err);
 			Fence = fence;
+			Allocator = allocator;
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.Functions.vkDestroyFence(Device.Device, Fence, Allocator);
+			Device.VK10Functions.vkDestroyFence(Device, Fence, Allocator);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Reset() {
 			unsafe {
 				ulong fence = Fence;
-				VKResult err = Device.Functions.vkResetFences(Device.Device, 1, (IntPtr)(&fence));
-				if (err != VKResult.Success) throw new VulkanException("Failed to reset fence: ", err);
+				VK.CheckError(Device.VK10Functions.vkResetFences(Device, 1, (IntPtr)(&fence)));
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool WaitFor(ulong timeout) {
 			unsafe {
 				ulong fence = Fence;
-				VKResult err = Device.Functions.vkWaitForFences(Device.Device, 1, (IntPtr)(&fence), true, timeout);
+				VKResult err = Device.VK10Functions.vkWaitForFences(Device, 1, (IntPtr)(&fence), true, timeout);
 				return err switch {
 					VKResult.Success => true,
 					VKResult.Timeout => false,
@@ -58,6 +59,9 @@ namespace Tesseract.Vulkan {
 				};
 			}
 		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator ulong(VKFence fence) => fence != null ? fence.Fence : 0;
 
 	}
 

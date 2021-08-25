@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
@@ -62,11 +63,10 @@ namespace Tesseract.Vulkan {
 
 	public class VulkanAllocationCallbacks : IDisposable {
 
-		public IntPtr Ptr { get; }
+		public IPointer<VKAllocationCallbacks> Pointer { get; private set; }
 
 		public VulkanAllocationCallbacks(in VKAllocationCallbacks callbacks) {
-			Ptr = Marshal.AllocHGlobal(Marshal.SizeOf<VKAllocationCallbacks>());
-			Marshal.StructureToPtr(callbacks, Ptr, false);
+			Pointer = new ManagedPointer<VKAllocationCallbacks>(callbacks);
 		}
 
 		~VulkanAllocationCallbacks() {
@@ -75,13 +75,13 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Marshal.DestroyStructure<VKAllocationCallbacks>(Ptr);
-			Marshal.FreeHGlobal(Ptr);
+			if (Pointer is ManagedPointer<VKAllocationCallbacks> mgr) mgr.Dispose();
+			Pointer = null;
 		}
 
 		public static implicit operator VulkanAllocationCallbacks(in VKAllocationCallbacks callbacks) => new(callbacks);
 
-		public static implicit operator IntPtr(VulkanAllocationCallbacks callbacks) => callbacks != null ? callbacks.Ptr : IntPtr.Zero;
+		public static implicit operator IntPtr(VulkanAllocationCallbacks callbacks) => callbacks != null ? callbacks.Pointer.Ptr : IntPtr.Zero;
 
 	}
 
