@@ -1051,7 +1051,7 @@ namespace Tesseract.OpenGL {
 		ClearTexture = GLEnums.GL_CLEAR_TEXTURE
 	}
 
-	public enum GLObjectLabelIdentifier : uint {
+	public enum GLIdentifier : uint {
 		Buffer = GLEnums.GL_BUFFER,
 		Shader = GLEnums.GL_SHADER,
 		Program = GLEnums.GL_PROGRAM,
