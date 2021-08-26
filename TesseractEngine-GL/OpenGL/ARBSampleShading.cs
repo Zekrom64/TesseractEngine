@@ -20,7 +20,7 @@ namespace Tesseract.OpenGL {
 	public class ARBSampleShading : IGLObject {
 
 		public GL GL { get; }
-		public ARBSampleShadingFunctions Functions { get; }
+		public ARBSampleShadingFunctions Functions { get; } = new();
 
 		public ARBSampleShading(GL gl, IGLContext context) {
 			GL = gl;

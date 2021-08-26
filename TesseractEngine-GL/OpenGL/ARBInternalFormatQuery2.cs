@@ -10,9 +10,9 @@ namespace Tesseract.OpenGL {
 
 	public class ARBInternalFormatQuery2Functions {
 
-		public delegate void PFN_glGetInternalformat64v(uint target, uint internalFormat, uint pname, int bufSize, [NativeType("GLint64*")] IntPtr _params);
-		[ExternFunction(AltNames = new string[] { "glGetInternalformat64vARB" })]
-		public PFN_glGetInternalformat64v glGetInternalformat64v;
+		public delegate void PFN_glGetInternalformati64v(uint target, uint internalFormat, uint pname, int bufSize, [NativeType("GLint64*")] IntPtr _params);
+		[ExternFunction(AltNames = new string[] { "glGetInternalformati64vARB" })]
+		public PFN_glGetInternalformati64v glGetInternalformati64v;
 
 	}
 
@@ -30,7 +30,7 @@ namespace Tesseract.OpenGL {
 		public Span<long> GetInternalFormat(GLInternalFormatTarget target, GLInternalFormat internalFormat, GLGetInternalFormat pname, Span<long> values) {
 			unsafe {
 				fixed(long* pValues = values) {
-					Functions.glGetInternalformat64v((uint)target, (uint)internalFormat, (uint)pname, values.Length, (IntPtr)pValues);
+					Functions.glGetInternalformati64v((uint)target, (uint)internalFormat, (uint)pname, values.Length, (IntPtr)pValues);
 				}
 			}
 			return values;

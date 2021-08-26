@@ -94,6 +94,35 @@ namespace Tesseract.GLFW.Services {
 				if (attribs.TryGet(WindowAttributes.Resizable, out bool resizable)) GLFW3.WindowHint(GLFWWindowAttrib.Resizable, resizable ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Visible, out bool visible)) GLFW3.WindowHint(GLFWWindowAttrib.Visible, visible ? 1 : 0);
 				if (attribs.TryGet(VKWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) GLFW3.WindowHint(GLFWWindowAttrib.ClientAPI, (int)GLFWClientAPI.NoAPI);
+				if (attribs.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
+					if (attribs.TryGet(GLWindowAttributes.RedBits, out int redBits)) GLFW3.WindowHint(GLFWWindowAttrib.RedBits, redBits);
+					if (attribs.TryGet(GLWindowAttributes.GreenBits, out int greenBits)) GLFW3.WindowHint(GLFWWindowAttrib.GreenBits, greenBits);
+					if (attribs.TryGet(GLWindowAttributes.BlueBits, out int blueBits)) GLFW3.WindowHint(GLFWWindowAttrib.BlueBits, blueBits);
+					if (attribs.TryGet(GLWindowAttributes.AlphaBits, out int alphaBits)) GLFW3.WindowHint(GLFWWindowAttrib.AlphaBits, alphaBits);
+					if (attribs.TryGet(GLWindowAttributes.DepthBits, out int depthBits)) GLFW3.WindowHint(GLFWWindowAttrib.DepthBits, depthBits);
+					if (attribs.TryGet(GLWindowAttributes.StencilBits, out int stencilBits)) GLFW3.WindowHint(GLFWWindowAttrib.StencilBits, stencilBits);
+					if (attribs.TryGet(GLWindowAttributes.AccumRedBits, out int accumRedBits)) GLFW3.WindowHint(GLFWWindowAttrib.AccumRedBits, accumRedBits);
+					if (attribs.TryGet(GLWindowAttributes.AccumGreenBits, out int accumGreenBits)) GLFW3.WindowHint(GLFWWindowAttrib.AccumGreenBits, accumGreenBits);
+					if (attribs.TryGet(GLWindowAttributes.AccumBlueBits, out int accumBlueBits)) GLFW3.WindowHint(GLFWWindowAttrib.AccumBlueBits, accumBlueBits);
+					if (attribs.TryGet(GLWindowAttributes.AccumAlphaBits, out int accumAlphaBits)) GLFW3.WindowHint(GLFWWindowAttrib.AccumAlphaBits, accumAlphaBits);
+					if (attribs.TryGet(GLWindowAttributes.ContextVersionMajor, out int majorVer)) GLFW3.WindowHint(GLFWWindowAttrib.ContextVersionMajor, majorVer);
+					if (attribs.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorVer)) GLFW3.WindowHint(GLFWWindowAttrib.ContextVersionMinor, minorVer);
+					if (attribs.TryGet(GLWindowAttributes.Doublebuffer, out bool doublebuffer)) GLFW3.WindowHint(GLFWWindowAttrib.DoubleBuffer, doublebuffer ? 1 : 0);
+					if (attribs.TryGet(GLWindowAttributes.DebugContext, out bool debugctx)) GLFW3.WindowHint(GLFWWindowAttrib.OpenGLDebugContext, debugctx ? 1 : 0);
+					if (attribs.TryGet(GLWindowAttributes.ContextProfile, out GLProfile profile)) {
+						switch(profile) {
+							case GLProfile.Compatibility:
+								GLFW3.WindowHint(GLFWWindowAttrib.OpenGLProfile, (int)GLFWOpenGLProfile.CompatProfile);
+								break;
+							case GLProfile.Core:
+								GLFW3.WindowHint(GLFWWindowAttrib.OpenGLProfile, (int)GLFWOpenGLProfile.CoreProfile);
+								break;
+							default:
+								GLFW3.WindowHint(GLFWWindowAttrib.OpenGLProfile, (int)GLFWOpenGLProfile.AnyProfile);
+								break;
+						}
+					}
+				}
 			}
 			Window = new(new Vector2i(w, h), title);
 			if (attribs != null) {
@@ -341,7 +370,7 @@ namespace Tesseract.GLFW.Services {
 		}
 	}
 
-	public class GLFWServiceWindowSystem : IWindowSystem, IGLWindowSystem {
+	public class GLFWServiceWindowSystem : IWindowSystem {
 
 		public bool CustomCursorSupport => true;
 
@@ -385,40 +414,7 @@ namespace Tesseract.GLFW.Services {
 			return displays;
 		}
 
-		public T GetService<T>(IService<T> service) {
-			if (service == GLServices.GLWindowSystem) return (T)(object)this;
-			return default;
-		}
+		public T GetService<T>(IService<T> service) => default;
 
-		public void SetGLHint(GLWindowHint hint, int value) {
-			GLFWWindowAttrib attrib = hint switch {
-				GLWindowHint.AccumRedBits => GLFWWindowAttrib.AccumRedBits,
-				GLWindowHint.AccumGreenBits => GLFWWindowAttrib.AccumGreenBits,
-				GLWindowHint.AccumBlueBits => GLFWWindowAttrib.AccumBlueBits,
-				GLWindowHint.AccumAlphaBits => GLFWWindowAttrib.AccumAlphaBits,
-				GLWindowHint.RedBits => GLFWWindowAttrib.RedBits,
-				GLWindowHint.GreenBits => GLFWWindowAttrib.GreenBits,
-				GLWindowHint.BlueBits => GLFWWindowAttrib.BlueBits,
-				GLWindowHint.AlphaBits => GLFWWindowAttrib.AlphaBits,
-				GLWindowHint.DepthBits => GLFWWindowAttrib.DepthBits,
-				GLWindowHint.StencilBits => GLFWWindowAttrib.StencilBits,
-				GLWindowHint.ContextVersionMajor => GLFWWindowAttrib.ContextVersionMajor,
-				GLWindowHint.ContextVersionMinor => GLFWWindowAttrib.ContextVersionMinor,
-				GLWindowHint.DebugContext => GLFWWindowAttrib.OpenGLDebugContext,
-				GLWindowHint.Doublebuffer => GLFWWindowAttrib.DoubleBuffer,
-				GLWindowHint.ContextProfile => GLFWWindowAttrib.OpenGLProfile,
-				_ => default
-			};
-			switch(hint) {
-				case GLWindowHint.ContextProfile:
-					value = (int)((GLProfile)value switch {
-						GLProfile.Compatibility => GLFWOpenGLProfile.CompatProfile,
-						GLProfile.Core => GLFWOpenGLProfile.CoreProfile,
-						_ => GLFWOpenGLProfile.AnyProfile
-					});
-					break;
-			}
-			if (attrib != default) additionalAttribs.Add(new KeyValuePair<GLFWWindowAttrib, int>(attrib, value));
-		}
 	}
 }

@@ -19,9 +19,9 @@ namespace Tesseract.OpenGL {
 		public delegate byte PFN_glIsSampler(uint sampler);
 		[ExternFunction(AltNames = new string[] { "glIsSamplerARB" })]
 		public PFN_glIsSampler glIsSampler;
-		public delegate void PFN_glBindSmapler(uint unit, uint sampler);
+		public delegate void PFN_glBindSampler(uint unit, uint sampler);
 		[ExternFunction(AltNames = new string[] { "glBindSamplerARB" })]
-		public PFN_glBindSmapler glBindSmapler;
+		public PFN_glBindSampler glBindSampler;
 		public delegate void PFN_glSamplerParameteri(uint sampler, uint pname, int param);
 		[ExternFunction(AltNames = new string[] { "glSamplerParameteriARB" })]
 		public PFN_glSamplerParameteri glSamplerParameteri;
@@ -124,7 +124,7 @@ namespace Tesseract.OpenGL {
 		public bool IsSampler(uint sampler) => Functions.glIsSampler(sampler) != 0;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindSampler(uint unit, uint sampler) => Functions.glBindSmapler(unit, sampler);
+		public void BindSampler(uint unit, uint sampler) => Functions.glBindSampler(unit, sampler);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SamplerParameter(uint sampler, GLSamplerParameter pname, int value) => Functions.glSamplerParameteri(sampler, (uint)pname, value);

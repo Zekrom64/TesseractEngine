@@ -10,10 +10,11 @@ using Tesseract.Core.Native;
 using Tesseract.Core.Services;
 using Tesseract.Core.Util;
 using Tesseract.OpenGL;
+using Tesseract.Vulkan.Graphics;
 
 namespace Tesseract.SDL.Services {
 
-	public class SDLServiceWindowSystem : IWindowSystem, IGLWindowSystem {
+	public class SDLServiceWindowSystem : IWindowSystem {
 
 		public bool CustomCursorSupport => true;
 
@@ -21,46 +22,7 @@ namespace Tesseract.SDL.Services {
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
-		public T GetService<T>(IService<T> service) {
-			if (service == GLServices.GLWindowSystem) return (T)(object)this;
-			return default;
-		}
-
-		public void SetGLHint(GLWindowHint hint, int value) {
-			SDLGLAttr attr = hint switch {
-				GLWindowHint.RedBits => SDLGLAttr.RedSize,
-				GLWindowHint.GreenBits => SDLGLAttr.GreenSize,
-				GLWindowHint.BlueBits => SDLGLAttr.BlueSize,
-				GLWindowHint.AlphaBits => SDLGLAttr.AlphaSize,
-				GLWindowHint.DepthBits => SDLGLAttr.DepthSize,
-				GLWindowHint.StencilBits => SDLGLAttr.StencilSize,
-				GLWindowHint.AccumRedBits => SDLGLAttr.AccumRedSize,
-				GLWindowHint.AccumGreenBits => SDLGLAttr.AccumGreenSize,
-				GLWindowHint.AccumBlueBits => SDLGLAttr.AccumBlueSize,
-				GLWindowHint.AccumAlphaBits => SDLGLAttr.AccumAlphaSize,
-				GLWindowHint.Doublebuffer => SDLGLAttr.DoubleBuffer,
-				GLWindowHint.ContextVersionMajor => SDLGLAttr.ContextMajorVersion,
-				GLWindowHint.ContextVersionMinor => SDLGLAttr.ContextMinorVersion,
-				GLWindowHint.ContextProfile => SDLGLAttr.ContextProfileMask,
-				GLWindowHint.DebugContext => SDLGLAttr.ContextFlags,
-				_ => throw new ArgumentException("Unsupported OpenGL window hint", nameof(hint))
-			};
-			// Correct hint value for certain hint types
-			switch (hint) {
-				case GLWindowHint.ContextProfile:
-					value = (GLProfile)value switch {
-						GLProfile.Compatibility => (int)SDLGLProfile.Compatibility,
-						GLProfile.Core => (int)SDLGLProfile.Core,
-						_ => throw new ArgumentException("Unsupported OpenGL profile", nameof(value)),
-					};
-					break;
-				case GLWindowHint.DebugContext:
-					value = (value != 0) ? (int)SDLGLContextFlag.DebugFlag : 0;
-					break;
-				default: break;
-			}
-			SDL2.CheckError(SDL2.Functions.SDL_GL_SetAttribute(attr, value));
-		}
+		public T GetService<T>(IService<T> service) => default;
 
 		public ICursor CreateCursor(IImage image, Vector2i hotspot) {
 			SDLServiceImage sdlimg;
@@ -271,6 +233,8 @@ namespace Tesseract.SDL.Services {
 			if (attributes.TryGet(WindowAttributes.Minimized, out bool minimized) && minimized) flags |= SDLWindowFlags.Minimized;
 			if (attributes.TryGet(WindowAttributes.Maximized, out bool maximized) && maximized) flags |= SDLWindowFlags.Maximized;
 			if (attributes.TryGet(WindowAttributes.Focused, out bool focused) && focused) flags |= SDLWindowFlags.InputFocus;
+			if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) flags |= SDLWindowFlags.OpenGL;
+			if (attributes.TryGet(VKWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) flags |= SDLWindowFlags.Vulkan;
 			return flags;
 		}
 
@@ -280,6 +244,10 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Title, out string newTitle)) title = newTitle;
 				if (attributes.TryGet(WindowAttributes.Position, out Vector2i newPosition)) position = newPosition;
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
+			}
+			if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
+				if (attributes.TryGet(GLWindowAttributes.ContextVersionMajor, out int majorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMajorVersion, majorver);
+				if (attributes.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMinorVersion, minorver);
 			}
 			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
 			if (attributes != null) {

@@ -182,7 +182,7 @@ namespace Tesseract.OpenGL {
 		public int GetBufferParameteri(GLBufferTarget target, GLGetBufferParameter pname) {
 			unsafe {
 				int param = 0;
-				FunctionsGL15.glGetBufferParamteriv((uint)target, (uint)pname, (IntPtr)(&param));
+				FunctionsGL15.glGetBufferParameteriv((uint)target, (uint)pname, (IntPtr)(&param));
 				return param;
 			}
 		}
