@@ -87,13 +87,13 @@ namespace Tesseract.Vulkan {
 
 		public void ResetFences(params VKFence[] fences) {
 			using MemoryStack sp = MemoryStack.Push();
-			foreach (VKFence fence in fences) sp.Alloc(fence.Fence);
+			foreach (VKFence fence in fences) sp.Values(fence.Fence);
 			VK.CheckError(VK10Functions.vkResetFences(Device, (uint)fences.Length, sp.Base + sp.Pointer), "Failed to reset fences");
 		}
 
 		public bool WaitForFences(bool waitAll, ulong timeout, params VKFence[] fences) {
 			using MemoryStack sp = MemoryStack.Push();
-			foreach (VKFence fence in fences) sp.Alloc(fence.Fence);
+			foreach (VKFence fence in fences) sp.Values(fence.Fence);
 			VKResult err = VK10Functions.vkWaitForFences(Device, (uint)fences.Length, sp.Base + sp.Pointer, waitAll, timeout);
 			return err switch {
 				VKResult.Success => true,

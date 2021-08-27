@@ -251,7 +251,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public string GetString(uint pname, uint index) => MemoryUtil.GetStringASCII(FunctionsGL30.glGetStringi(pname, index));
+		public string GetString(uint pname, uint index) => MemoryUtil.GetUTF8(FunctionsGL30.glGetStringi(pname, index));
 
 		// ARB_vertex_array_object
 

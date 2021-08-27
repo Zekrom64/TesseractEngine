@@ -97,7 +97,7 @@ namespace Tesseract.OpenGL {
 					Functions.glGetActiveUniformName(program, uniformIndex, len, out len, (IntPtr)pName);
 				}
 			}
-			return MemoryUtil.GetStringASCII(name[0..len]);
+			return MemoryUtil.GetASCII(name[0..len]);
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,7 +130,7 @@ namespace Tesseract.OpenGL {
 					Functions.glGetActiveUniformBlockName(program, uniformBlockIndex, len, out len, (IntPtr)pName);
 				}
 			}
-			return MemoryUtil.GetStringASCII(name[0..len]);
+			return MemoryUtil.GetASCII(name[0..len]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -192,7 +192,41 @@ namespace Tesseract.Core.Native {
 				}
 			}
 		}
-		
+
+		// String allocation
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="encoding">The string encoding to use</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocStringBytes(string str, Encoding encoding, bool nullTerminate = true) {
+			if (nullTerminate && str.Last() != '\0') str += "\0";
+			ManagedPointer<byte> ptr = new(encoding.GetByteCount(str));
+			unsafe {
+				encoding.GetBytes(str, new Span<byte>((void*)ptr.Ptr, ptr.ArraySize));
+			}
+			return ptr;
+		}
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of ASCII encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocASCII(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.ASCII, nullTerminate);
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of UTF-8 encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocUTF8(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.UTF8, nullTerminate);
+
 		// Searches
 
 		/// <summary>

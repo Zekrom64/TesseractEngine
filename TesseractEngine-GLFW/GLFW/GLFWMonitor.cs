@@ -46,7 +46,7 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		public string Name => Monitor == IntPtr.Zero ? null : MemoryUtil.GetStringUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
+		public string Name => Monitor == IntPtr.Zero ? null : MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
 
 		public IntPtr UserPointer {
 			get => Monitor == IntPtr.Zero ? IntPtr.Zero : GLFW3.Functions.glfwGetMonitorUserPointer(Monitor);

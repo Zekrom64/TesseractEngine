@@ -21,10 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Vulkan", "T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reference", "Reference", "{F6247136-5939-4C3C-B04D-FCE1AF08913B}"
 	ProjectSection(SolutionItems) = preProject
-		shader.json = shader.json
+		Reference\shader.json = Reference\shader.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW", "TesseractEngine-GLFW\TesseractEngine-GLFW.csproj", "{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GLFW", "TesseractEngine-GLFW\TesseractEngine-GLFW.csproj", "{CA2EEDC1-C4CB-4EE8-B131-FDB40CD9CA85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -61,6 +61,10 @@ namespace Tesseract.OpenGL.Graphics {
 
 			public bool TextureSubView { get; } // Supported by ARB_texture_view
 
+			public bool SamplerNoFormat => true;
+
+			public bool SamplerCustomBorderColor => true;
+
 			public GLGraphicsFeatures(GL gl, GraphicsHardwareFeatures features) {
 				int contextFlags = gl.GL11.GetInteger(Native.GLEnums.GL_CONTEXT_FLAGS);
 
@@ -262,6 +266,15 @@ namespace Tesseract.OpenGL.Graphics {
 			throw new NotImplementedException();
 		}
 
+		public ITexture CreateTexture(TextureCreateInfo createInfo) => throw new NotImplementedException();
+		public ITextureView CreateTextureView(TextureViewCreateInfo createInfo) => throw new NotImplementedException();
+		public ISampler CreateSampler(SamplerCreateInfo createInfo) => throw new NotImplementedException();
+		public IShader CreateShader(ShaderCreateInfo createInfo) => throw new NotImplementedException();
+		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) => throw new NotImplementedException();
+		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) => throw new NotImplementedException();
+		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo) => throw new NotImplementedException();
+		public ISync CreateSync(SyncCreateInfo createInfo) => throw new NotImplementedException();
+
 		public void RunCommands(Action<ICommandSink> cmdSink, in IGraphics.CommandBufferSubmitInfo submitInfo) {
 			throw new NotImplementedException();
 		}
@@ -271,7 +284,6 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		public void TrimCommandBufferMemory() { } // No-op
-
 	}
 
 }

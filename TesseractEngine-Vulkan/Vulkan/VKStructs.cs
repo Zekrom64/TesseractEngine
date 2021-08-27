@@ -57,10 +57,10 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		[MarshalAs(UnmanagedType.LPStr)]
+		[MarshalAs(UnmanagedType.LPUTF8Str)]
 		public string ApplicationName;
 		public uint ApplicationVersion;
-		[MarshalAs(UnmanagedType.LPStr)]
+		[MarshalAs(UnmanagedType.LPUTF8Str)]
 		public string EngineName;
 		public uint EngineVersion;
 		public uint APIVersion;
@@ -419,7 +419,7 @@ namespace Tesseract.Vulkan {
 		public VKPhysicalDeviceType DeviceType;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxPhysicalDeviceNameSize)]
 		private readonly byte[] deviceName;
-		public string DeviceName => MemoryUtil.GetStringUTF8(deviceName);
+		public string DeviceName => MemoryUtil.GetUTF8(deviceName);
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
 		private readonly byte[] pipelineCacheUUID;
 		public ReadOnlySpan<byte> PipelineCacheUUID => new(pipelineCacheUUID);
@@ -516,7 +516,7 @@ namespace Tesseract.Vulkan {
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
 		private readonly byte[] extensionName;
-		public string ExtensionName => MemoryUtil.GetStringUTF8(extensionName);
+		public string ExtensionName => MemoryUtil.GetUTF8(extensionName);
 		public uint SpecVersion;
 
 	}
@@ -526,12 +526,12 @@ namespace Tesseract.Vulkan {
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
 		private readonly byte[] layerName;
-		public string LayerName => MemoryUtil.GetStringUTF8(layerName);
+		public string LayerName => MemoryUtil.GetUTF8(layerName);
 		public uint SpecVersion;
 		public uint ImplementationVersion;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxDescriptionSize)]
 		private readonly byte[] description;
-		public string Description => MemoryUtil.GetStringUTF8(description);
+		public string Description => MemoryUtil.GetUTF8(description);
 
 	}
 
@@ -987,7 +987,7 @@ namespace Tesseract.Vulkan {
 		public VKPipelineSHaderStageCreateFlagBits Flags;
 		public VKShaderStageFlagBits Stage;
 		public VkShaderModule Module;
-		[MarshalAs(UnmanagedType.LPStr)]
+		[MarshalAs(UnmanagedType.LPUTF8Str)]
 		public string Name;
 		[NativeType("const VkSpecializationInfo*")]
 		public IntPtr SpecializationInfo;
@@ -2776,10 +2776,10 @@ namespace Tesseract.Vulkan {
 		public VKDriverId DriverID;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverNameSize)]
 		private readonly byte[] driverName;
-		public string DriverName => MemoryUtil.GetStringASCII(driverName);
+		public string DriverName => MemoryUtil.GetUTF8(driverName);
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverInfoSize)]
 		private readonly byte[] driverInfo;
-		public string DriverInfo => MemoryUtil.GetStringASCII(driverInfo);
+		public string DriverInfo => MemoryUtil.GetUTF8(driverInfo);
 		public VKConformanceVersion ConformanceVersion;
 		public VKShaderFloatControlsIndependence DenormBehaviorIndependence;
 		public VKShaderFloatControlsIndependence RoundingModeIndependence;
@@ -2967,10 +2967,10 @@ namespace Tesseract.Vulkan {
 		public VKDriverId DriverID;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverNameSize)]
 		private readonly byte[] driverName;
-		public string DriverName => MemoryUtil.GetStringASCII(driverName);
+		public string DriverName => MemoryUtil.GetUTF8(driverName);
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverInfoSize)]
 		private readonly byte[] driverInfo;
-		public string DriverInfo => MemoryUtil.GetStringASCII(driverInfo);
+		public string DriverInfo => MemoryUtil.GetUTF8(driverInfo);
 		public VKConformanceVersion ConformanceVersion;
 
 	}

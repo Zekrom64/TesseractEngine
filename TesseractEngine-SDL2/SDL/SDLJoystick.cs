@@ -46,7 +46,7 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; init; }
 
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_JoystickNameForIndex(DeviceIndex));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickNameForIndex(DeviceIndex));
 
 		public int PlayerIndex => SDL2.Functions.SDL_JoystickGetDevicePlayerIndex(DeviceIndex);
 
@@ -107,7 +107,7 @@ namespace Tesseract.SDL {
 
 		public void SetVirtualHat(int hat, SDLButtonState state) => SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualHat(Joystick.Ptr, hat, state));
 
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_JoystickName(Joystick.Ptr));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickName(Joystick.Ptr));
 
 		public int PlayerIndex {
 			get => SDL2.Functions.SDL_JoystickGetPlayerIndex(Joystick.Ptr);
@@ -122,7 +122,7 @@ namespace Tesseract.SDL {
 
 		public ushort ProductVersion => SDL2.Functions.SDL_JoystickGetProductVersion(Joystick.Ptr);
 
-		public string Serial => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_JoystickGetSerial(Joystick.Ptr));
+		public string Serial => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickGetSerial(Joystick.Ptr));
 
 		public SDLJoystickType Type => SDL2.Functions.SDL_JoystickGetType(Joystick.Ptr);
 

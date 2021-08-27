@@ -27,6 +27,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IMemoryBinding MemoryBinding => null;
 
+		public TextureUsage Usage { get; }
+
 		public uint ID { get; }
 
 		public GLPixelFormat GLFormat { get; }
@@ -49,6 +51,7 @@ namespace Tesseract.OpenGL.Graphics {
 			MipLevels = info.MipLevels;
 			ArrayLayers = info.ArrayLayers;
 			Samples = info.Samples;
+			Usage = info.Usage;
 
 			GLFormat = GLEnums.StdToGLFormat(info.Format);
 			if (GLFormat == null) throw new GLException("Unsupported pixel format");

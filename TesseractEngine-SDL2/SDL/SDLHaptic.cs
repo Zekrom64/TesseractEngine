@@ -156,7 +156,7 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; set; }
 
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_HapticName(DeviceIndex));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_HapticName(DeviceIndex));
 
 		public bool Opened => SDL2.Functions.SDL_HapticOpened(DeviceIndex) != 0;
 

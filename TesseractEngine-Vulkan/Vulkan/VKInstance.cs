@@ -34,7 +34,7 @@ namespace Tesseract.Vulkan {
 		public VKInstance(VK vk, IntPtr pInstance, in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
 			VK = vk;
 			// Ugly, but a workaround for pointer-based struct field
-			APIVersion = new UnmanagedPointer<VKApplicationInfo>(createInfo.ApplicationInfo).Value.APIVersion;
+			APIVersion = new ManagedPointer<VKApplicationInfo>(createInfo.ApplicationInfo).Value.APIVersion;
 			Instance = pInstance;
 			Allocator = allocator;
 
@@ -46,7 +46,7 @@ namespace Tesseract.Vulkan {
 			// A bit ugly to convert back from strings provided in create info but simplifies parameter passing
 			UnmanagedPointer<IntPtr> pExts = new(createInfo.EnabledExtensionNames);
 			HashSet<string> exts = new();
-			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetStringASCII(pExts[i]));
+			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetASCII(pExts[i]));
 
 		}
 

@@ -148,7 +148,7 @@ namespace Tesseract.SDL {
 				unsafe {
 					ref uint u = ref text0;
 					fixed (uint* p = &u) {
-						return MemoryUtil.GetStringUTF8((IntPtr)p);
+						return MemoryUtil.GetUTF8((IntPtr)p, 32);
 					}
 				}
 			}
@@ -156,7 +156,7 @@ namespace Tesseract.SDL {
 				unsafe {
 					ref uint u = ref text0;
 					fixed (uint* p = &u) {
-						MemoryUtil.PutStringUTF8(value, (IntPtr)p, 32);
+						MemoryUtil.PutUTF8(value, (IntPtr)p, 32);
 					}
 				}
 			}
@@ -184,7 +184,7 @@ namespace Tesseract.SDL {
 				unsafe {
 					ref uint u = ref text0;
 					fixed (uint* p = &u) {
-						return MemoryUtil.GetStringUTF8((IntPtr)p);
+						return MemoryUtil.GetUTF8((IntPtr)p, 32);
 					}
 				}
 			}
@@ -192,7 +192,7 @@ namespace Tesseract.SDL {
 				unsafe {
 					ref uint u = ref text0;
 					fixed (uint* p = &u) {
-						MemoryUtil.PutStringUTF8(value, (IntPtr)p, 32);
+						MemoryUtil.PutUTF8(value, (IntPtr)p, 32);
 					}
 				}
 			}
@@ -401,7 +401,7 @@ namespace Tesseract.SDL {
 		public uint Timestamp;
 		[NativeType("char*")]
 		public IntPtr File;
-		public string FileStr => MemoryUtil.GetStringASCII(File);
+		public string FileStr => MemoryUtil.GetASCII(File);
 		public uint WindowID;
 	}
 

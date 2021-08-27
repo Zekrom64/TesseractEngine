@@ -102,7 +102,7 @@ namespace Tesseract.SDL {
 		public string Mapping {
 			get {
 				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForIndex(MappingIndex);
-				string mapping = MemoryUtil.GetStringASCII(pMapping);
+				string mapping = MemoryUtil.GetASCII(pMapping);
 				SDL2.Functions.SDL_free(pMapping);
 				return mapping;
 			}
@@ -114,14 +114,14 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; set; }
 
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_GameControllerNameForIndex(DeviceIndex));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerNameForIndex(DeviceIndex));
 
 		public SDLGameControllerType Type => SDL2.Functions.SDL_GameControllerTypeForIndex(DeviceIndex);
 
 		public string Mapping {
 			get {
 				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForDeviceIndex(DeviceIndex);
-				string mapping = MemoryUtil.GetStringASCII(pMapping);
+				string mapping = MemoryUtil.GetASCII(pMapping);
 				SDL2.Functions.SDL_free(pMapping);
 				return mapping;
 			}
@@ -139,7 +139,7 @@ namespace Tesseract.SDL {
 
 		public IPointer<SDL_GameController> GameController { get; }
 
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_GameControllerName(GameController.Ptr));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerName(GameController.Ptr));
 
 		public SDLGameControllerType Type => SDL2.Functions.SDL_GameControllerGetType(GameController.Ptr);
 
@@ -154,7 +154,7 @@ namespace Tesseract.SDL {
 
 		public ushort ProductVersion => SDL2.Functions.SDL_GameControllerGetProductVersion(GameController.Ptr);
 
-		public string Serial => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_GameControllerGetSerial(GameController.Ptr));
+		public string Serial => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerGetSerial(GameController.Ptr));
 
 		public bool Attached => SDL2.Functions.SDL_GameControllerGetAttached(GameController.Ptr);
 
@@ -163,7 +163,7 @@ namespace Tesseract.SDL {
 		public string Mapping {
 			get {
 				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMapping(GameController.Ptr);
-				string mapping = MemoryUtil.GetStringASCII(pMapping);
+				string mapping = MemoryUtil.GetASCII(pMapping);
 				SDL2.Functions.SDL_free(pMapping);
 				return mapping;
 			}

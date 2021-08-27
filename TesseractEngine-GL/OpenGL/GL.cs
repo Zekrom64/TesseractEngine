@@ -399,10 +399,10 @@ namespace Tesseract.OpenGL {
 				unsafe {
 					glGetIntegerv(GLEnums.GL_NUM_EXTENSIONS, (IntPtr)(&nexts));
 				}
-				for (int i = 0; i < nexts; i++) extensions.Add(MemoryUtil.GetStringASCII(glGetStringi(GLEnums.GL_EXTENSIONS, (uint)i)));
+				for (int i = 0; i < nexts; i++) extensions.Add(MemoryUtil.GetUTF8(glGetStringi(GLEnums.GL_EXTENSIONS, (uint)i)));
 			} else {
 				var glGetString = Marshal.GetDelegateForFunctionPointer<GL11Functions.PFN_glGetString>(context.GetGLProcAddress("glGetString"));
-				string extstr = MemoryUtil.GetStringASCII(glGetString(GLEnums.GL_EXTENSIONS));
+				string extstr = MemoryUtil.GetUTF8(glGetString(GLEnums.GL_EXTENSIONS));
 				foreach (string ext in extstr.Split(' ')) if (ext.Length != 0) extensions.Add(ext);
 			}
 

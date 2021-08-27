@@ -74,7 +74,7 @@ namespace Tesseract.OpenGL {
 				fixed(byte* pName = name) {
 					Functions.glGetActiveSubroutineUniformName(program, (uint)shaderType, index, len, out len, (IntPtr)pName);
 				}
-				return MemoryUtil.GetStringASCII(name[..len]);
+				return MemoryUtil.GetASCII(name[..len]);
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace Tesseract.OpenGL {
 				fixed (byte* pName = name) {
 					Functions.glGetActiveSubroutineName(program, (uint)shaderType, index, len, out len, (IntPtr)pName);
 				}
-				return MemoryUtil.GetStringASCII(name[..len]);
+				return MemoryUtil.GetASCII(name[..len]);
 			}
 		}
 

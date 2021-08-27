@@ -67,8 +67,8 @@ namespace Tesseract.OpenGL {
 		}
 
 		public void DebugMessageInsert(GLDebugSource source, GLDebugType type, uint id, GLDebugSeverity severity, string message) {
-			using ManagedPointer<byte> pMessage = new(Encoding.UTF8.GetBytes(message + "\0"));
-			Functions.glDebugMessageInsert((uint)source, (uint)type, id, (uint)severity, pMessage.Count - 1, pMessage);
+			using ManagedPointer<byte> pMessage = MemoryUtil.AllocUTF8(message);
+			Functions.glDebugMessageInsert((uint)source, (uint)type, id, (uint)severity, pMessage.ArraySize - 1, pMessage);
 		}
 
 		public void DebugMessageCallback(GLDebugProc callback, IntPtr userParam) => Functions.glDebugMessageCallback(callback, userParam);
@@ -90,7 +90,7 @@ namespace Tesseract.OpenGL {
 					}
 				}
 			}
-			messageLog = MemoryUtil.GetStringUTF8(msglog.Ptr);
+			messageLog = MemoryUtil.GetUTF8(msglog.Ptr);
 			return ret;
 		}
 
@@ -104,15 +104,15 @@ namespace Tesseract.OpenGL {
 		}
 
 		public void PushDebugGroup(GLDebugSource source, uint id, string message) {
-			using ManagedPointer<byte> pMessage = new(Encoding.UTF8.GetBytes(message + "\0"));
-			Functions.glPushDebugGroup((uint)source, id, pMessage.Count - 1, pMessage);
+			using ManagedPointer<byte> pMessage = MemoryUtil.AllocUTF8(message);
+			Functions.glPushDebugGroup((uint)source, id, pMessage.ArraySize - 1, pMessage);
 		}
 
 		public void PopDebugGroup() => Functions.glPopDebugGroup();
 
 		public void ObjectLabel(GLIdentifier identifier, uint name, string label) {
-			using ManagedPointer<byte> pLabel = new(Encoding.UTF8.GetBytes(label + "\0"));
-			Functions.glObjectLabel((uint)identifier, name, pLabel.Count - 1, pLabel);
+			using ManagedPointer<byte> pLabel = MemoryUtil.AllocUTF8(label);
+			Functions.glObjectLabel((uint)identifier, name, pLabel.ArraySize - 1, pLabel);
 		}
 
 		public string GetObjectLabel(GLIdentifier identifier, uint name) {
@@ -127,8 +127,8 @@ namespace Tesseract.OpenGL {
 		}
 
 		public void ObjectPtrLabel(IntPtr ptr, string label) {
-			using ManagedPointer<byte> pLabel = new(Encoding.UTF8.GetBytes(label + "\0"));
-			Functions.glObjectPtrLabel(ptr, pLabel.Count - 1, pLabel);
+			using ManagedPointer<byte> pLabel = MemoryUtil.AllocUTF8(label);
+			Functions.glObjectPtrLabel(ptr, pLabel.ArraySize - 1, pLabel);
 		}
 
 		public string GetObjectPtrLabel(IntPtr ptr) {

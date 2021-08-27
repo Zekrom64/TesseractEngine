@@ -70,7 +70,7 @@ namespace Tesseract.OpenGL {
 			IntPtr pName = sp.Alloc<byte>(maxLen);
 			Functions.glGetTransformFeedbackVarying(program, index, maxLen, out int length, out size, out uint utype, pName);
 			type = (GLShaderAttribType)utype;
-			name = MemoryUtil.GetStringASCII(pName, length);
+			name = MemoryUtil.GetASCII(pName, length);
 		}
 
 	}

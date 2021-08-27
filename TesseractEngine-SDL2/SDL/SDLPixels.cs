@@ -369,7 +369,7 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The name of the pixel format.
 		/// </summary>
-		public string Name => MemoryUtil.GetStringASCII(SDL2.Functions.SDL_GetPixelFormatName(Value));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GetPixelFormatName(Value));
 
 		public SDLPixelFormatEnum(uint value) {
 			Value = value;

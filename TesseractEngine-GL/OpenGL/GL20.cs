@@ -68,7 +68,7 @@ namespace Tesseract.OpenGL {
 				}
 			}
 			type = (GLShaderAttribType)utype;
-			name = MemoryUtil.GetStringASCII(nameBytes);
+			name = MemoryUtil.GetASCII(nameBytes);
 		}
 
 		public void GetActiveUniform(uint program, uint index, out int size, out GLShaderUniformType type, out string name) {
@@ -81,7 +81,7 @@ namespace Tesseract.OpenGL {
 				}
 			}
 			type = (GLShaderUniformType)utype;
-			name = MemoryUtil.GetStringASCII(nameBytes);
+			name = MemoryUtil.GetASCII(nameBytes);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,7 +107,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetProgramInfoLog(program, maxLen, out length, (IntPtr)pInfoLog);
 				}
 			}
-			return MemoryUtil.GetStringASCII(logBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(logBytes.Slice(0, length));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,7 +125,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetShaderInfoLog(shader, maxLen, out length, (IntPtr)pInfoLog);
 				}
 			}
-			return MemoryUtil.GetStringASCII(logBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(logBytes.Slice(0, length));
 		}
 
 		public string GetShaderSource(uint shader) {
@@ -137,7 +137,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetShaderSource(shader, maxLen, out length, (IntPtr)pSrc);
 				}
 			}
-			return MemoryUtil.GetStringASCII(srcBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(srcBytes.Slice(0, length));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -67,7 +67,7 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The underlying RWOps structure.
 		/// </summary>
-		public IPointer<SDL_RWops> RWOps { get; private set; }
+		public ManagedPointer<SDL_RWops> RWOps { get; private set; }
 
 		private MemoryHandle memHandle;
 
@@ -77,7 +77,7 @@ namespace Tesseract.SDL {
 		/// <param name="path">The path to the file</param>
 		/// <param name="mode">The mode to open the file with</param>
 		public SDLRWOps(string path, string mode) {
-			RWOps = new UnmanagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromFile(path, mode));
+			RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromFile(path, mode), ptr => SDL2.Functions.SDL_FreeRW(ptr));
 		}
 
 		/// <summary>
@@ -87,14 +87,14 @@ namespace Tesseract.SDL {
 		public SDLRWOps(Memory<byte> memory) {
 			memHandle = memory.Pin();
 			unsafe {
-				RWOps = new UnmanagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromMem((IntPtr)memHandle.Pointer, memory.Length));
+				RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
 			}
 		}
 
 		public SDLRWOps(ReadOnlyMemory<byte> memory) {
 			memHandle = memory.Pin();
 			unsafe {
-				RWOps = new UnmanagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)memHandle.Pointer, memory.Length));
+				RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = MemoryUtil.GetStringASCII(error);
+							string strerror = MemoryUtil.GetASCII(error);
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -144,7 +144,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = MemoryUtil.GetStringASCII(error);
+							string strerror = MemoryUtil.GetASCII(error);
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -166,11 +166,7 @@ namespace Tesseract.SDL {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			if (RWOps != null && !RWOps.IsNull) {
-				SDL2.Functions.SDL_RWclose(RWOps.Ptr);
-				SDL2.Functions.SDL_FreeRW(RWOps.Ptr);
-				RWOps = null;
-			}
+			RWOps.Dispose();
 		}
 
 		public static implicit operator SDLSpanRWOps(SDLRWOps rwops) => new(rwops.RWOps);
@@ -179,16 +175,16 @@ namespace Tesseract.SDL {
 
 	public ref struct SDLSpanRWOps {
 
-		public IPointer<SDL_RWops> RWOps { get; private set; }
+		public ManagedPointer<SDL_RWops> RWOps { get; private set; }
 
-		public SDLSpanRWOps(IPointer<SDL_RWops> rwops) {
+		public SDLSpanRWOps(ManagedPointer<SDL_RWops> rwops) {
 			RWOps = rwops;
 		}
 
 		public SDLSpanRWOps(Span<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					RWOps = new UnmanagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromMem((IntPtr)pSpan, span.Length));
+					RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
 				}
 			}
 		}
@@ -196,17 +192,12 @@ namespace Tesseract.SDL {
 		public SDLSpanRWOps(ReadOnlySpan<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					RWOps = new UnmanagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length));
+					RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
 				}
 			}
 		}
 
-		public void Dispose() {
-			if (RWOps != null && !RWOps.IsNull) {
-				SDL2.Functions.SDL_FreeRW(RWOps.Ptr);
-				RWOps = null;
-			}
-		}
+		public void Dispose() => RWOps.Dispose();
 
 	}
 

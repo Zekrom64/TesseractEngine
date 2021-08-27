@@ -64,7 +64,7 @@ namespace Tesseract.OpenGL {
 					Functions.glGetProgramResourceName(program, (uint)programInterface, index, length, out length, (IntPtr)pName);
 				}
 			}
-			return MemoryUtil.GetStringASCII(name[..length]);
+			return MemoryUtil.GetASCII(name[..length]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -313,7 +313,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public string GetString(uint pname) => MemoryUtil.GetStringASCII(FunctionsGL11.glGetString(pname));
+		public string GetString(uint pname) => MemoryUtil.GetUTF8(FunctionsGL11.glGetString(pname));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<T> GetTexImage<T>(GLTextureTarget target, int level, GLFormat format, GLTextureType type, Span<T> pixels) where T : unmanaged {

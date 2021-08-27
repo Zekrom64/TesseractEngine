@@ -9,6 +9,7 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
-	public delegate void GLDebugProc(GLDebugSource source, GLDebugType type, uint id, GLDebugSeverity severity, int length, [NativeType("const GLchar*")] IntPtr message, IntPtr userParam);
+	// We assume that the message is encoded in null-terminated UTF-8 in the managed implementation
+	public delegate void GLDebugProc(GLDebugSource source, GLDebugType type, uint id, GLDebugSeverity severity, int length, [MarshalAs(UnmanagedType.LPUTF8Str)] string message, IntPtr userParam);
 
 }
