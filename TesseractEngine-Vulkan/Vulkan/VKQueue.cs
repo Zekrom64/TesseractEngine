@@ -20,6 +20,8 @@ namespace Tesseract.Vulkan {
 			Device = device;
 		}
 
+		// Vulkan 1.0
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Submit(VKSubmitInfo submitInfo, VKFence fence = null) {
 			unsafe {
@@ -54,6 +56,12 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
+		// VK_KHR_swapchain
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void PresentKHR(in VKPresentInfoKHR presentInfo) =>
+			VK.CheckError(Device.KHRSwapchainFunctions.vkQueuePresentKHR(Queue, presentInfo));
 
 	}
 
