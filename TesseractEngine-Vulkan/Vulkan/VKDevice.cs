@@ -23,11 +23,13 @@ namespace Tesseract.Vulkan {
 		public VK11DeviceFunctions VK11Functions { get; }
 		public VK12DeviceFunctions VK12Functions { get; }
 
+		public KHRSwapchainDeviceFunctions KHRSwapchainFunctions { get; }
+
 		public VKGetDeviceProcAddr DeviceGetProcAddress;
 
 		public IntPtr GetProcAddr(string name) => DeviceGetProcAddress(Device, name);
 
-		public VKDevice(VKInstance instance, IntPtr device, VulkanAllocationCallbacks allocator) {
+		public VKDevice(VKInstance instance, IntPtr device, in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
 			Instance = instance;
 			Device = device;
 			Allocator = allocator;
@@ -39,12 +41,22 @@ namespace Tesseract.Vulkan {
 			Library.LoadFunctions(GetProcAddr, VK10Functions);
 			if (Instance.APIVersion >= VK11.ApiVersion) Library.LoadFunctions(GetProcAddr, VK11Functions = new());
 			if (Instance.APIVersion >= VK12.ApiVersion) Library.LoadFunctions(GetProcAddr, VK12Functions = new());
+
+			// A bit ugly to convert back from strings provided in create info but simplifies parameter passing
+			UnmanagedPointer<IntPtr> pExts = new(createInfo.EnabledExtensionNames);
+			HashSet<string> exts = new();
+			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetStringASCII(pExts[i]));
+
+			// Load device extensions
+			if (exts.Contains(KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchainFunctions = new());
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			VK10Functions.vkDestroyDevice(Device, Allocator);
 		}
+
+		// Vulkan 1.0
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void WaitIdle() => VK.CheckError(VK10Functions.vkDeviceWaitIdle(Device));
@@ -133,7 +145,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKImage CreateImage(in VKImageCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
+		public VKImage CreateImage(in VKImageCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			VK.CheckError(VK10Functions.vkCreateImage(Device, createInfo, allocator, out ulong image), "Failed to create image");
 			return new VKImage(this, image, allocator);
 		}
@@ -215,7 +227,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKDescriptorPool CreateDescriptorPool(in VKDescriptorPoolCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
+		public VKDescriptorPool CreateDescriptorPool(in VKDescriptorPoolCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			VK.CheckError(VK10Functions.vkCreateDescriptorPool(Device, createInfo, allocator, out ulong descriptorPool), "Failed to create descriptor pool");
 			return new VKDescriptorPool(this, descriptorPool, allocator);
 		}
@@ -231,15 +243,53 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKFramebuffer CreateFramebuffer(in VKFramebufferCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
+		public VKFramebuffer CreateFramebuffer(in VKFramebufferCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			VK.CheckError(VK10Functions.vkCreateFramebuffer(Device, createInfo, allocator, out ulong framebuffer), "Failed to create framebuffer");
 			return new VKFramebuffer(this, framebuffer, allocator);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKRenderPass CreateRenderPass(in VKRenderPassCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
+		public VKRenderPass CreateRenderPass(in VKRenderPassCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			VK.CheckError(VK10Functions.vkCreateRenderPass(Device, createInfo, allocator, out ulong renderPass), "Failed to create render pass");
 			return new VKRenderPass(this, renderPass, allocator);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKCommandPool CreateCommandPool(in VKCommandPoolCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError(VK10Functions.vkCreateCommandPool(Device, createInfo, allocator, out ulong commandPool), "Failed to create command pool");
+			return new VKCommandPool(this, commandPool, allocator);
+		}
+
+		// VK_KHR_swapchain
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKSwapchainKHR CreateSwapchainKHR(in VKSwapchainCreateInfoKHR createInfo, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError(KHRSwapchainFunctions.vkCreateSwapchainKHR(Device, createInfo, allocator, out ulong swapchain), "Failed to create swapchain");
+			return new VKSwapchainKHR(this, swapchain, allocator);
+		}
+
+		public VKDeviceGroupPresentCapabilitiesKHR DeviceGroupPresentCapabilitiesKHR {
+			get {
+				VK.CheckError(KHRSwapchainFunctions.vkGetDeviceGroupPresentCapabilitiesKHR(Device, out VKDeviceGroupPresentCapabilitiesKHR deviceGroupPresentCapabilities), "Failed to get device group present capabilities");
+				return deviceGroupPresentCapabilities;
+			}
+		}
+
+		public VKDeviceGroupPresentModeFlagBitsKHR GetDeviceGroupSurfacePresentModesKHR(VKSurfaceKHR surface) {
+			VK.CheckError(KHRSwapchainFunctions.vkGetDeviceGroupSurfacePresentModesKHR(Device, surface, out VKDeviceGroupPresentModeFlagBitsKHR modes), "Failed to get device group surface present modes");
+			return modes;
+		}
+
+		public VKRect2D[] GetPhysicalDevicePresentRectanglesKHR(VKPhysicalDevice physicalDevice, VKSurfaceKHR surface) {
+			uint count = 0;
+			VK.CheckError(KHRSwapchainFunctions.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device present rectangles");
+			VKRect2D[] rects = new VKRect2D[count];
+			unsafe {
+				fixed(VKRect2D* pRects = rects) {
+					VK.CheckError(KHRSwapchainFunctions.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, (IntPtr)pRects), "Failed to get physical device present rectangles");
+				}
+			}
+			return rects;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
