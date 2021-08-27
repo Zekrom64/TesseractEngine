@@ -42,21 +42,21 @@ namespace Tesseract.Vulkan.Native {
 
 	using VkDeviceAddress = UInt64;
 
-	public delegate void PFN_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
-	public delegate void PFN_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
-	public delegate void PFN_vkCreateRenderPass2(VkDevice device, in VKRenderPassCreateInfo2 createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
-	public delegate void PFN_vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
-	public delegate void PFN_vkCmdNextSubpass2(VkCommandBuffer commandBuffer, in VKSubpassBeginInfo subpassBeginInfo, in VKSubpassEndInfo subpassEndInfo);
-	public delegate void PFN_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, in VKSubpassEndInfo subpassEndInfo);
-	public delegate void PFN_vkResetQueryPool(VkDevice device, VkQueryPool queryPool, uint firstQuery, uint queryCount);
-	public delegate VKResult PFN_vkGetSemaphoreCounterValue(VkDevice device, VkSemaphore semaphore, out ulong value);
-	public delegate VKResult PFN_vkWaitSemaphores(VkDevice device, in VKSemaphoreWaitInfo waitInfo, ulong timeout);
-	public delegate VKResult PFN_vkSignalSemaphore(VkDevice device, in VKSemaphoreSignalInfo signalInfo);
-	public delegate VkDeviceAddress PFN_vkGetBufferDeviceAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
-	public delegate ulong PFN_vkGetBufferOpaqueCaptureAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
-	public delegate ulong PFN_vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice device, in VKDeviceMemoryOpaqueCaptureAddressInfo info);
-
 	public class VK12DeviceFunctions {
+
+		public delegate void PFN_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
+		public delegate void PFN_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
+		public delegate void PFN_vkCreateRenderPass2(VkDevice device, in VKRenderPassCreateInfo2 createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
+		public delegate void PFN_vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
+		public delegate void PFN_vkCmdNextSubpass2(VkCommandBuffer commandBuffer, in VKSubpassBeginInfo subpassBeginInfo, in VKSubpassEndInfo subpassEndInfo);
+		public delegate void PFN_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, in VKSubpassEndInfo subpassEndInfo);
+		public delegate void PFN_vkResetQueryPool(VkDevice device, VkQueryPool queryPool, uint firstQuery, uint queryCount);
+		public delegate VKResult PFN_vkGetSemaphoreCounterValue(VkDevice device, VkSemaphore semaphore, out ulong value);
+		public delegate VKResult PFN_vkWaitSemaphores(VkDevice device, in VKSemaphoreWaitInfo waitInfo, ulong timeout);
+		public delegate VKResult PFN_vkSignalSemaphore(VkDevice device, in VKSemaphoreSignalInfo signalInfo);
+		public delegate VkDeviceAddress PFN_vkGetBufferDeviceAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
+		public delegate ulong PFN_vkGetBufferOpaqueCaptureAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
+		public delegate ulong PFN_vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice device, in VKDeviceMemoryOpaqueCaptureAddressInfo info);
 
 		public PFN_vkCmdDrawIndirectCount vkCmdDrawIndirectCount;
 		public PFN_vkCmdDrawIndexedIndirectCount vkCmdDrawIndexedIndirectCount;

@@ -515,7 +515,7 @@ namespace Tesseract.OpenGL.Native {
 		public delegate void PFN_glEndQuery(GLenum target);
 		public delegate void PFN_glGenBuffers(GLsizei n, [NativeType("GLuint*")] IntPtr buffers);
 		public delegate void PFN_glGenQueries(GLsizei n, [NativeType("GLuint*")] IntPtr ids);
-		public delegate void PFN_glGetBufferParamteriv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetBufferParameteriv(GLenum target, GLenum pname, [NativeType("GLint*")] IntPtr _params);
 		public delegate void PFN_glGetBufferPointerv(GLenum target, GLenum pname, [NativeType("void**")] IntPtr _params);
 		public delegate void PFN_glGetBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, IntPtr data);
 		public delegate void PFN_glGetQueryObjectiv(GLuint id, GLenum pname, [NativeType("GLint*")] IntPtr _params);
@@ -535,7 +535,7 @@ namespace Tesseract.OpenGL.Native {
 		public PFN_glEndQuery glEndQuery;
 		public PFN_glGenBuffers glGenBuffers;
 		public PFN_glGenQueries glGenQueries;
-		public PFN_glGetBufferParamteriv glGetBufferParamteriv;
+		public PFN_glGetBufferParameteriv glGetBufferParameteriv;
 		public PFN_glGetBufferPointerv glGetBufferPointerv;
 		public PFN_glGetBufferSubData glGetBufferSubData;
 		public PFN_glGetQueryObjectiv glGetQueryObjectiv;
@@ -583,7 +583,7 @@ namespace Tesseract.OpenGL.Native {
 		public delegate void PFN_glLinkProgram(GLuint program);
 		public delegate void PFN_glShaderSource(GLuint shader, GLsizei count, [NativeType("const GLchar* const*")] IntPtr _string, [NativeType("const GLint*")] IntPtr length);
 		public delegate void PFN_glStencilFuncSeparate(GLenum frontfunc, GLenum backfunc, GLint _ref, GLuint mask);
-		public delegate void PFN_glStencilMasksSeparate(GLenum face, GLuint mask);
+		public delegate void PFN_glStencilMaskSeparate(GLenum face, GLuint mask);
 		public delegate void PFN_glStencilOpSeparate(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
 		public delegate void PFN_glUniform1f(GLint location, GLfloat v0);
 		public delegate void PFN_glUniform1i(GLint location, GLint v0);
@@ -633,7 +633,7 @@ namespace Tesseract.OpenGL.Native {
 		public PFN_glLinkProgram glLinkProgram;
 		public PFN_glShaderSource glShaderSource;
 		public PFN_glStencilFuncSeparate glStencilFuncSeparate;
-		public PFN_glStencilMasksSeparate glStencilMasksSeparate;
+		public PFN_glStencilMaskSeparate glStencilMaskSeparate;
 		public PFN_glStencilOpSeparate glStencilOpSeparate;
 		public PFN_glUniform1f glUniform1f;
 		public PFN_glUniform1i glUniform1i;

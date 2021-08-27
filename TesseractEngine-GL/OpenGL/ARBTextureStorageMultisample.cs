@@ -22,7 +22,7 @@ namespace Tesseract.OpenGL {
 	public class ARBTextureStorageMultisample : IGLObject {
 
 		public GL GL { get; }
-		public ARBTextureStorageMultisampleFunctions Functions { get; }
+		public ARBTextureStorageMultisampleFunctions Functions { get; } = new();
 
 		public ARBTextureStorageMultisample(GL gl, IGLContext context) {
 			GL = gl;

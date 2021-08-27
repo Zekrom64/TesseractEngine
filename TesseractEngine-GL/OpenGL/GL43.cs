@@ -177,10 +177,10 @@ namespace Tesseract.OpenGL {
 		public void PopDebugGroup() => GL.KHRDebug.PopDebugGroup();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ObjectLabel(GLObjectLabelIdentifier identifier, uint name, string label) => GL.KHRDebug.ObjectLabel(identifier, name, label);
+		public void ObjectLabel(GLIdentifier identifier, uint name, string label) => GL.KHRDebug.ObjectLabel(identifier, name, label);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public string GetObjectLabel(GLObjectLabelIdentifier identifier, uint name) => GL.KHRDebug.GetObjectLabel(identifier, name);
+		public string GetObjectLabel(GLIdentifier identifier, uint name) => GL.KHRDebug.GetObjectLabel(identifier, name);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ObjectPtrLabel(IntPtr ptr, string label) => GL.KHRDebug.ObjectPtrLabel(ptr, label);

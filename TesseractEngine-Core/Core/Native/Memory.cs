@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -505,9 +506,9 @@ namespace Tesseract.Core.Native {
 		public static MemoryStack Push() => Current.PushFrame();
 
 		// The underlying memory
-		private readonly byte[] memory;
-		// The GCHandle to the memory
-		private readonly GCHandle memoryHandle;
+		private readonly Memory<byte> memory;
+		// The handle to the memory
+		private readonly MemoryHandle memoryHandle;
 		// The pointer to the base of stack memory
 		private readonly IntPtr pBase;
 		// The current offset into the stack
@@ -516,20 +517,20 @@ namespace Tesseract.Core.Native {
 
 		public MemoryStack(int capacity) {
 			memory = new byte[capacity];
-			memoryHandle = GCHandle.Alloc(memoryHandle);
-			pBase = memoryHandle.AddrOfPinnedObject();
+			memoryHandle = memory.Pin();
+			unsafe { pBase = (IntPtr)memoryHandle.Pointer; }
 			offset = memory.Length;
 		}
 
 		public MemoryStack() {
 			memory = new byte[DefaultSize];
-			memoryHandle = GCHandle.Alloc(memoryHandle);
-			pBase = memoryHandle.AddrOfPinnedObject();
+			memoryHandle = memory.Pin();
+			unsafe { pBase = (IntPtr)memoryHandle.Pointer; }
 			offset = memory.Length;
 		}
 
 		~MemoryStack() {
-			memoryHandle.Free();
+			memoryHandle.Dispose();
 		}
 
 		/// <summary>

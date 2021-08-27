@@ -80,6 +80,8 @@ namespace Tesseract.OpenGL {
 		public GL42 GL42 { get; }
 		public GL43 GL43 { get; }
 		public GL44 GL44 { get; }
+		public GL45 GL45 { get; }
+		public GL46 GL46 { get; }
 
 		private readonly HashSet<string> extensions = new();
 		/// <summary>
@@ -846,7 +848,9 @@ namespace Tesseract.OpenGL {
 			}
 
 			// Initialize GL versions
-			if (hasGL44) GL44 = new(this, context);
+			if (hasGL46) GL46 = new(this, context);
+			if (hasGL45) GL45 = GL46 ?? new GL45(this, context);
+			if (hasGL44) GL44 = GL45 ?? new GL44(this, context);
 			if (hasGL43) GL43 = GL44 ?? new GL43(this, context);
 			if (hasGL42) GL42 = GL43 ?? new GL42(this, context);
 			if (hasGL41) GL41 = GL42 ?? new GL41(this, context);

@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
     <ProjectReference Include="..\TesseractEngine-GL\TesseractEngine-GL.csproj" />
+    <ProjectReference Include="..\TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj" />
   </ItemGroup>
 
 </Project>

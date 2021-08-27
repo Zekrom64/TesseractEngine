@@ -123,9 +123,9 @@ namespace Tesseract.OpenGL {
 		public delegate void PFN_glGetNamedFramebufferParameteriv(uint framebuffer, uint pname, [NativeType("GLint*")] IntPtr param);
 		[ExternFunction(AltNames = new string[] { "glGetNamedFramebufferParameterivARB" })]
 		public PFN_glGetNamedFramebufferParameteriv glGetNamedFramebufferParameteriv;
-		public delegate void PFN_glGetnamedFramebufferAttachmentParameteriv(uint framebuffer, uint attachment, uint pname, [NativeType("GLint*")] IntPtr _params);
+		public delegate void PFN_glGetNamedFramebufferAttachmentParameteriv(uint framebuffer, uint attachment, uint pname, [NativeType("GLint*")] IntPtr _params);
 		[ExternFunction(AltNames = new string[] { "glGetnamedFramebufferAttachmentParameterivARB" })]
-		public PFN_glGetnamedFramebufferAttachmentParameteriv glGetnamedFramebufferAttachmentParameteriv;
+		public PFN_glGetNamedFramebufferAttachmentParameteriv glGetNamedFramebufferAttachmentParameteriv;
 
 		public delegate void PFN_glCreateRenderbuffers(int n, [NativeType("GLuint*")] IntPtr renderbuffers);
 		[ExternFunction(AltNames = new string[] { "glCreateRenderbuffersARB" })]
@@ -712,7 +712,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetNamedFramebufferAttachmentParameter(uint framebuffer, GLFramebufferAttachment attachment, GLGetFramebufferAttachment pname, Span<int> values) {
 			unsafe {
 				fixed (int* pValues = values) {
-					Functions.glGetnamedFramebufferAttachmentParameteriv(framebuffer, (uint)attachment, (uint)pname, (IntPtr)pValues);
+					Functions.glGetNamedFramebufferAttachmentParameteriv(framebuffer, (uint)attachment, (uint)pname, (IntPtr)pValues);
 				}
 			}
 			return values;
