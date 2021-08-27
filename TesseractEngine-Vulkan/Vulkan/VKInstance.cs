@@ -23,6 +23,8 @@ namespace Tesseract.Vulkan {
 		public VK10InstanceFunctions VK10Functions { get; } = new();
 		public VK11InstanceFunctions VK11Functions { get; }
 
+		public KHRSurfaceInstanceFunctions KHRSurfaceFunctions { get; }
+
 		public VKGetInstanceProcAddr InstanceGetProcAddr {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => VK.InstanceGetProcAddr;
@@ -48,6 +50,8 @@ namespace Tesseract.Vulkan {
 			HashSet<string> exts = new();
 			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetASCII(pExts[i]));
 
+			// Load instance extensions
+			if (exts.Contains(KHRSurface.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSurfaceFunctions = new());
 		}
 
 		public VKPhysicalDevice[] PhysicalDevices {

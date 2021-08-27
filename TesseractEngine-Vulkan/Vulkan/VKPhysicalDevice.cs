@@ -29,6 +29,8 @@ namespace Tesseract.Vulkan {
 			FormatProperties = new FuncReadOnlyIndexer<VKFormat, VKFormatProperties>(GetFormatProperties);
 		}
 
+		// Vulkan 1.0
+
 		public VKPhysicalDeviceFeatures Features {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
@@ -121,7 +123,45 @@ namespace Tesseract.Vulkan {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKDevice CreateDevice(in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			VK.CheckError(Instance.VK10Functions.vkCreateDevice(PhysicalDevice, createInfo, allocator, out IntPtr device), "Failed to create logical device");
-			return new VKDevice(Instance, device, allocator);
+			return new VKDevice(Instance, device, createInfo, allocator);
+		}
+
+		// VK_KHR_surface
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool GetSurfaceSupportKHR(uint queueFamilyIndex, VKSurfaceKHR surface) {
+			VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, queueFamilyIndex, surface, out bool supported), "Failed to get physical device surface support");
+			return supported;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKSurfaceCapabilitiesKHR GetSurfaceCapabilitiesKHR(VKSurfaceKHR surface) {
+			VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(PhysicalDevice, surface, out VKSurfaceCapabilitiesKHR capabilities), "Failed to get physical device surface capabilities");
+			return capabilities;
+		}
+
+		public VKSurfaceFormatKHR[] GetSurfaceFormatsKHR(VKSurfaceKHR surface) {
+			uint count = 0;
+			VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device surface formats");
+			VKSurfaceFormatKHR[] formats = new VKSurfaceFormatKHR[count];
+			unsafe {
+				fixed(VKSurfaceFormatKHR* pFormats = formats) {
+					VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, (IntPtr)pFormats), "Failed to get physical device surface formats");
+				}
+			}
+			return formats;
+		}
+
+		public VKPresentModeKHR[] GetSurfacePresentModesKHR(VKSurfaceKHR surface) {
+			uint count = 0;
+			VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device surface present modes");
+			VKPresentModeKHR[] modes = new VKPresentModeKHR[count];
+			unsafe {
+				fixed(VKPresentModeKHR* pModes = modes) {
+					VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, (IntPtr)pModes), "Failed to get physical device surface present modes");
+				}
+			}
+			return modes;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
