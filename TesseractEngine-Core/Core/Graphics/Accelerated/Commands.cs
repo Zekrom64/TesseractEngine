@@ -436,9 +436,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in BlitTextureRegion region);
 
-		//==================================//
-		// Syncronization / Memory Barriers //
-		//==================================//
+		/// <summary>
+		/// Generates mipmap levels for a texture using the first mip level. The filtering method for minifying the texture images may
+		/// be provided explicitly or use an implementation-specific method.
+		/// </summary>
+		/// <param name="dst">The texture to generate mipmaps for</param>
+		/// <param name="initiaLayout">The initial layout of the texture</param>
+		/// <param name="finalLayout">The final layout of the texture</param>
+		/// <param name="filter">The filtering method to use for minification, or null to use a default method</param>
+		public void GenerateMipmaps(ITexture dst, TextureLayout initiaLayout, TextureLayout finalLayout, TextureFilter? filter = null);
+
+		//===================================//
+		// Synchronization / Memory Barriers //
+		//===================================//
 
 		public void SetSync(ISync dst, PipelineStage stage);
 
@@ -537,7 +547,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public void EndRenderPass();
 
 		//=============================//
-		// Secondard Command Execution //
+		// Secondary Command Execution //
 		//=============================//
 
 		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers);
@@ -559,7 +569,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		Primary,
 		/// <summary>
 		/// Secondary command buffers can only include commands that are valid inside a render
-		/// pass, but may be execute by primary command buffers.
+		/// pass, but may be executed by primary command buffers.
 		/// </summary>
 		Secondary
 	}

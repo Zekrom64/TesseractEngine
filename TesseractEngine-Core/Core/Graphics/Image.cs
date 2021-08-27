@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,40 +30,42 @@ namespace Tesseract.Core.Graphics {
 		public PixelFormat Format { get; }
 		public IReadOnlyTuple2<int> Size { get; }
 
-		private readonly byte[] pixels;
-		private GCHandle? pixelHandle;
+		private readonly Memory<byte> pixels;
+		private MemoryHandle? pixelHandle;
 
 		public SoftwareImage(int w, int h, PixelFormat format) {
 			Format = format;
 			Size = new Vector2i(w, h);
+			pixels = new byte[w * h * format.SizeOf];
 		}
 
 		public SoftwareImage(IReadOnlyTuple2<int> size, PixelFormat format) {
 			Format = format;
 			Size = new Vector2i(size);
+			pixels = new byte[Size.X * Size.Y * format.SizeOf];
 		}
 
 		public IImage Duplicate() {
 			SoftwareImage newImage = new(Size, Format);
-			Array.Copy(pixels, newImage.pixels, pixels.Length);
+			pixels.CopyTo(newImage.pixels);
 			return newImage;
 		}
 
 		public IPointer<byte> MapPixels(MapMode mode) {
-			if (!pixelHandle.HasValue) pixelHandle = GCHandle.Alloc(pixels);
-			return new UnmanagedPointer<byte>(pixelHandle.Value.AddrOfPinnedObject());
+			if (!pixelHandle.HasValue) pixelHandle = pixels.Pin();
+			unsafe { return new UnmanagedPointer<byte>((IntPtr)pixelHandle.Value.Pointer); }
 		}
 
 		public void UnmapPixels() {
 			if (pixelHandle.HasValue) {
-				pixelHandle.Value.Free();
+				pixelHandle.Value.Dispose();
 				pixelHandle = null;
 			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			if (pixelHandle.HasValue) pixelHandle.Value.Free();
+			UnmapPixels();
 		}
 	}
 

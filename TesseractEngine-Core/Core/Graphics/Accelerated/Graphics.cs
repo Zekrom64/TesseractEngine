@@ -425,9 +425,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public bool PushConstants { get; }
 
 		/// <summary>
-		/// If sub-views of a texture are supported.
+		/// If sub-views of a texture are supported. If not, texture views must use the whole texture.
 		/// </summary>
 		public bool TextureSubView { get; }
+
+		/// <summary>
+		/// If samplers do not require a format to be supplied during creation.
+		/// </summary>
+		public bool SamplerNoFormat { get; }
+
+		/// <summary>
+		/// If samplers support a custom border color.
+		/// </summary>
+		public bool SamplerCustomBorderColor { get; }
 
 	}
 
@@ -593,37 +603,31 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint MaxVertexStageOutputComponents { get; }
 
-		// TODO: GL_MAX_TESS_GEN_LEVEL
 		/// <summary>
 		/// The maximum tessellation generation level supported by the fixed-function tesellator.
 		/// </summary>
 		public uint MaxTessellationGenerationLevel { get; }
 
-		// TODO: GL_MAX_PATCH_VERTICES
 		/// <summary>
 		/// The maximum patch size, in vertices, of patches that can be processed in tessellation shaders.
 		/// </summary>
 		public uint MaxTessellationPatchSize { get; }
 
-		// TODO: GL_MAX_TESS_CONTROL_INPUT_COMPONENTS
 		/// <summary>
 		/// The maximum number of total components that can be input to a tessellation control shader.
 		/// </summary>
 		public uint MaxTessellationControlInputComponents { get; }
 
-		// TODO: GL_MAX_TESS_CONTROL_OUITPUT_COMPONENTS
 		/// <summary>
 		/// The maximum number of total components that can be output per-vertex from a tessellation control shader.
 		/// </summary>
 		public uint MaxTessellationControlPerVertexOutputComponents { get; }
 
-		// TODO: GL_MAX_TESS_PATCH_COMPONENTS
 		/// <summary>
 		/// The maximum number of total components that can be output per-patch from a tessellation control shader.
 		/// </summary>
 		public uint MaxTessellationControlPerPatchOutputComponents { get; }
 
-		// TODO: GL_MAX_TESS_CONTROL_TOTAL_OUTPUT_COMPONENTS
 		/// <summary>
 		/// The maximum number of total components that can be output both per-vertex and per-patch from a tessellation control shader.
 		/// </summary>
@@ -639,7 +643,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint MaxTessellationEvaluationOutputComponents { get; }
 
-		// TODO: GL_MAX_GEOMETRY_SHADER_INVOCATIONS
 		/// <summary>
 		/// The maximum invocation count for instanced geometry shaders.
 		/// </summary>
@@ -701,11 +704,39 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		//=================//
 
 		/// <summary>
+		/// Creates a new buffer.
+		/// </summary>
+		/// <param name="createInfo">Buffer creation information</param>
+		/// <returns>The created buffer</returns>
+		public IBuffer CreateBuffer(BufferCreateInfo createInfo);
+
+		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="createInfo"></param>
 		/// <returns></returns>
-		public IBuffer CreateBuffer(BufferCreateInfo createInfo);
+		public ITexture CreateTexture(TextureCreateInfo createInfo);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public ITextureView CreateTextureView(TextureViewCreateInfo createInfo);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public ISampler CreateSampler(SamplerCreateInfo createInfo);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="createInfo"></param>
+		/// <returns></returns>
+		public IShader CreateShader(ShaderCreateInfo createInfo);
 
 		/// <summary>
 		/// 
@@ -714,18 +745,56 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <returns></returns>
 		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo);
 
+		/// <summary>
+		/// Creates a new pipeline cache.
+		/// </summary>
+		/// <param name="createInfo">Pipeline cache creation information</param>
+		/// <returns>The created pipeline cache</returns>
 		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo);
 
+		/// <summary>
+		/// Creates a new pipeline.
+		/// </summary>
+		/// <param name="createInfo">Pipeline creation information</param>
+		/// <returns>The created pipeline</returns>
 		public IPipeline CreatePipeline(PipelineCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new pipeline set.
+		/// </summary>
+		/// <param name="createInfo">Pipeline set creation information</param>
+		/// <returns>The created pipeline set</returns>
+		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new render pass.
+		/// </summary>
+		/// <param name="createInfo">Render pass creation information</param>
+		/// <returns>The created render pass</returns>
+		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new framebuffer.
+		/// </summary>
+		/// <param name="createInfo">Framebuffer creation information</param>
+		/// <returns>The created framebuffer</returns>
+		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new sync object.
+		/// </summary>
+		/// <param name="createInfo">Sync object creation information</param>
+		/// <returns>The created synch object</returns>
+		public ISync CreateSync(SyncCreateInfo createInfo);
 
 		//==============================//
 		// Command Buffers & Submission //
 		//==============================//
 
 		/// <summary>
-		/// 
+		/// Creates a new command buffer.
 		/// </summary>
-		/// <param name="createInfo"></param>
+		/// <param name="createInfo">Command buffer creation information</param>
 		/// <returns></returns>
 		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo);
 
@@ -740,7 +809,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			public ReadOnlySpan<ICommandBuffer> CommandBuffer { get; init; }
 			
 			/// <summary>
-			/// List of sync objects to wait on and their respective pipeline stages.
+			/// List of sync objects to wait on and their respective pipeline stages. Granularity may be
+			/// smaller than that of individual pipeline stages in some cases.
 			/// </summary>
 			public ReadOnlySpan<(ISync, PipelineStage)> WaitSync { get; init; }
 
@@ -754,7 +824,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Runs the supplied commands once. Note that the command buffers in the supplied submission
 		/// info are ignored and the provided method is used to generate the commands instead. The synchronization
-		/// parameters provided in the submission info are respected for the generated commands.
+		/// parameters provided in the submission info are respected for the generated commands. This is more
+		/// efficient on backends such as OpenGL which natively use immediate-based commands versus
+		/// using a one-time command buffer.
 		/// </summary>
 		/// <param name="cmdSink">The method that will supply the commands</param>
 		/// <param name="submitInfo">Submission info for the commands</param>
@@ -762,8 +834,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		/// <summary>
 		/// Submits command buffers for execution, setting up the required synchronization for the commands.
-		/// <para>
-		/// </para>
 		/// </summary>
 		/// <param name="submitInfo"></param>
 		public void SubmitCommands(in CommandBufferSubmitInfo submitInfo);

@@ -82,9 +82,29 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
+	/// <para>
 	/// A synchronization object manages synchronization between Host and GPU in accelerated
 	/// graphics APIs. Some APIs such as OpenGL require no explicit synchronization while it
-	/// is mandatory for other APIs like Vulkan.
+	/// is mandatory for other APIs like Vulkan. Sync objects have three main properties;
+	/// granularity, direction, and features.
+	/// </para>
+	/// <para>
+	/// The <i>granularity</i> of a sync object determines how detailed the synchronization
+	/// operation performed is. At the finest level this can be the execution of a command
+	/// in a particular pipeline stage. At a more coarse level this can be between the execution
+	/// of 
+	/// </para>
+	/// <para>
+	/// The <i>direction</i> of a sync object determines how synchronization events
+	/// are sourced and sinked; from the GPU to the host, from the GPU to itself, or in
+	/// from the GPU or host either direction.
+	/// </para>
+	/// <para>
+	/// The <i>features</i> of a sync object determine what operations the object is capable
+	/// of; host/GPU signaling and waiting, host polling, and GPU work waiting/signaling.
+	/// Work waiting/signaling differs from regular waiting/signaling in that it is used to
+	/// control the order of execution of command buffers submitted to the GPU.
+	/// </para>
 	/// </summary>
 	public interface ISync : IDisposable {
 
@@ -126,27 +146,77 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <returns></returns>
 		public bool HostPoll();
 
+		/// <summary>
+		/// Awaiter object for a single instance of awaiting a sync object from the host side.
+		/// </summary>
 		public class SyncAwaiter : INotifyCompletion {
 
-			private readonly ISync sync;
-			private readonly ulong timeout;
+			private bool? status = null;
+			private event Action OnComplete;
 
-			public bool IsComplete => sync.HostPoll();
+			/// <summary>
+			/// If the await operation is completed.
+			/// </summary>
+			public bool IsCompleted => status != null;
 			
-			public void OnCompleted(Action continuation) {
-				Task.Run(continuation);
-			}
+			/// <summary>
+			/// Queues an action to be performed on completion of the await operation.
+			/// </summary>
+			/// <param name="continuation">Continuation to perform</param>
+			public void OnCompleted(Action continuation) => OnComplete += continuation;
 
-			public bool GetResult() => sync.HostWait(timeout);
+			/// <summary>
+			/// Gets the result of the await operation. This is only valid if <see cref="IsCompleted"/> is set.
+			/// </summary>
+			/// <returns>The result of the awaited operation</returns>
+			public bool GetResult() => status.Value;
 
+			/// <summary>
+			/// Begins a new await operation on a sync object with the given timeout.
+			/// </summary>
+			/// <param name="sync">Sync object to wait on</param>
+			/// <param name="timeout">Timeout to wait for</param>
 			public SyncAwaiter(ISync sync, ulong timeout) {
-				this.sync = sync;
-				this.timeout = timeout;
+				// Spin off a new thread to do the actual host waiting and update this object on completion
+				Task.Run(() => {
+					status = sync.HostWait(timeout);
+					OnComplete?.Invoke();
+				});
 			}
 
 		}
 
-		public SyncAwaiter GetAwaiter(ulong timeout = ulong.MaxValue) => new(this, timeout);
+		/// <summary>
+		/// Intermediate ref struct that simply acts as a provider for an awaiter tied
+		/// to a sync object and a timeout.
+		/// </summary>
+		public ref struct SyncAwaitProvider {
+
+			/// <summary>
+			/// The referenced sync object.
+			/// </summary>
+			public ISync Sync { get; init; }
+
+			/// <summary>
+			/// The referenced timeout.
+			/// </summary>
+			public ulong Timeout { get; init; }
+
+			/// <summary>
+			/// Gets the awaiter object for the given sync object and timeout.
+			/// </summary>
+			/// <returns>Sync awaiter</returns>
+			public SyncAwaiter GetAwaiter() => new(Sync, Timeout);
+
+		}
+
+		/// <summary>
+		/// Provides an awaitable object that will use <see cref="HostWait(ulong)"/> with the given timeout value. The
+		/// return value indicates if the await timed out.
+		/// </summary>
+		/// <param name="timeout">The timeout of the await object</param>
+		/// <returns>An awaitable object</returns>
+		public SyncAwaitProvider AsAwait(ulong timeout = ulong.MaxValue) => new() { Sync = this, Timeout = timeout };
 
 	}
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Native {
 
@@ -11,7 +12,7 @@ namespace Tesseract.Core.Native {
 	/// A constant pointer stores a memory reference to a read-only object.
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
-	public interface IConstPointer<T> {
+	public interface IConstPointer<T> : IReadOnlyIndexer<int, T> {
 
 		/// <summary>
 		/// The underlying memory pointer.
@@ -27,6 +28,12 @@ namespace Tesseract.Core.Native {
 		/// The value stored at the memory reference.
 		/// </summary>
 		public T Value { get; }
+		
+		/// <summary>
+		/// The size of the array pointed to by this value. If only a single value this is 1. If the size
+		/// is unknown this is -1.
+		/// </summary>
+		public int ArraySize { get; }
 
 	}
 
@@ -34,7 +41,7 @@ namespace Tesseract.Core.Native {
 	/// A pointer stores a memory reference to a modifiable object.
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
-	public interface IPointer<T> : IConstPointer<T> {
+	public interface IPointer<T> : IConstPointer<T>, IIndexer<int, T> {
 
 		/// <summary>
 		/// The value stored at the memory reference.
@@ -55,21 +62,16 @@ namespace Tesseract.Core.Native {
 	/// <typeparam name="T">Type referenced</typeparam>
 	public struct ManagedPointer<T> : IDisposable, IPointer<T> where T : struct {
 
-		private readonly IntPtr ptr;
-		private readonly Releaser release;
-		private readonly int count;
+		public IntPtr Ptr { get; }
+
+		public int ArraySize { get; }
 
 		public T Value {
-			get => Marshal.PtrToStructure<T>(ptr);
-			set => Marshal.StructureToPtr(value, ptr, true);
+			get => Marshal.PtrToStructure<T>(Ptr);
+			set => Marshal.StructureToPtr(value, Ptr, true);
 		}
 
-		public IntPtr Ptr => ptr;
-
-		/// <summary>
-		/// The number of elements pointed to by the managed pointer.
-		/// </summary>
-		public int Count => count;
+		private readonly Releaser release;
 
 		/// <summary>
 		/// Creates a new managed pointer from an existing raw pointer and an optional releaser.
@@ -78,9 +80,9 @@ namespace Tesseract.Core.Native {
 		/// <param name="release">Releaser for pointer, or null</param>
 		/// <param name="count">The number of array elements</param>
 		public ManagedPointer(IntPtr ptr, Releaser release = null, int count = 1) {
-			this.ptr = ptr;
+			Ptr = ptr;
 			this.release = release;
-			this.count = count;
+			ArraySize = count;
 		}
 
 		/// <summary>
@@ -88,13 +90,13 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="value">Value to store in memory</param>
 		public ManagedPointer(T value) {
-			ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
-			Marshal.StructureToPtr(value, ptr, false);
+			Ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
+			Marshal.StructureToPtr(value, Ptr, false);
 			release = ptr => {
 				Marshal.DestroyStructure<T>(ptr);
 				Marshal.FreeHGlobal(ptr);
 			};
-			count = 1;
+			ArraySize = 1;
 		}
 
 		/// <summary>
@@ -104,13 +106,13 @@ namespace Tesseract.Core.Native {
 		/// <param name="defVal">The default value in the array</param>
 		public ManagedPointer(int count, T defVal = default) {
 			int sz = Marshal.SizeOf<T>();
-			ptr = Marshal.AllocHGlobal(sz * count);
-			for (int i = 0; i < count; i++) Marshal.StructureToPtr(defVal, ptr + sz * i, false);
+			Ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(defVal, Ptr + sz * i, false);
 			release = ptr => {
 				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
 				Marshal.FreeHGlobal(ptr);
 			};
-			this.count = count;
+			ArraySize = count;
 		}
 
 		/// <summary>
@@ -120,30 +122,63 @@ namespace Tesseract.Core.Native {
 		public ManagedPointer(params T[] values) {
 			int sz = Marshal.SizeOf<T>();
 			int count = values.Length;
-			ptr = Marshal.AllocHGlobal(sz * count);
-			for (int i = 0; i < count; i++) Marshal.StructureToPtr(values[i], ptr + sz * i, false);
+			Ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(values[i], Ptr + sz * i, false);
 			release = ptr => {
 				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
 				Marshal.FreeHGlobal(ptr);
 			};
-			this.count = count;
+			ArraySize = count;
+		}
+
+		/// <summary>
+		/// Allocates a pointer to an array of values and marshals the given array to the new memory.
+		/// </summary>
+		/// <param name="values">The array element values</param>
+		public ManagedPointer(in ReadOnlySpan<T> values) {
+			int sz = Marshal.SizeOf<T>();
+			int count = values.Length;
+			Ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(values[i], Ptr + sz * i, false);
+			release = ptr => {
+				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
+				Marshal.FreeHGlobal(ptr);
+			};
+			ArraySize = count;
+		}
+
+		/// <summary>
+		/// Allocates a pointer to an array of values and marshals the given collection to the new memory.
+		/// </summary>
+		/// <param name="values">The array element values</param>
+		public ManagedPointer(in IReadOnlyCollection<T> values) {
+			int sz = Marshal.SizeOf<T>();
+			int count = values.Count;
+			Ptr = Marshal.AllocHGlobal(sz * count);
+			int i = 0;
+			foreach(T val in values) Marshal.StructureToPtr(val, Ptr + sz * i, false); 
+			release = ptr => {
+				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
+				Marshal.FreeHGlobal(ptr);
+			};
+			ArraySize = count;
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			release?.Invoke(ptr);
+			release?.Invoke(Ptr);
 		}
 
-		public static implicit operator IntPtr(ManagedPointer<T> mptr) => mptr.ptr;
+		public static implicit operator IntPtr(ManagedPointer<T> mptr) => mptr.Ptr;
 
 		public T this[int index] {
 			get {
-				if (index < 0 || index >= count) throw new IndexOutOfRangeException();
-				return Marshal.PtrToStructure<T>(ptr + Marshal.SizeOf<T>() * index);
+				if (index < 0 || index >= ArraySize) throw new IndexOutOfRangeException();
+				return Marshal.PtrToStructure<T>(Ptr + Marshal.SizeOf<T>() * index);
 			}
 			set {
-				if (index < 0 || index >= count) throw new IndexOutOfRangeException();
-				Marshal.StructureToPtr(value, ptr + Marshal.SizeOf<T>() * index, true);
+				if (index < 0 || index >= ArraySize) throw new IndexOutOfRangeException();
+				Marshal.StructureToPtr(value, Ptr + Marshal.SizeOf<T>() * index, true);
 			}
 		}
 
@@ -153,28 +188,35 @@ namespace Tesseract.Core.Native {
 	/// An unmanaged pointer references memory that is externally managed.
 	/// </summary>
 	/// <typeparam name="T">Type reference</typeparam>
-	public struct UnmanagedPointer<T> : IPointer<T> where T : struct {
+	public struct UnmanagedPointer<T> : IPointer<T> where T : unmanaged {
 
-		private readonly IntPtr ptr;
+		public IntPtr Ptr { get; }
+
+		public int ArraySize { get; }
 
 		public T Value {
-			get => Marshal.PtrToStructure<T>(ptr);
-			set => Marshal.StructureToPtr(value, ptr, false);
+			get => MemoryUtil.ReadUnmanaged<T>(Ptr);
+			set => MemoryUtil.WriteUnmanaged(Ptr, value);
 		}
 
-		public IntPtr Ptr => ptr;
-
-		public UnmanagedPointer(IntPtr ptr) {
-			this.ptr = ptr;
+		public UnmanagedPointer(IntPtr ptr, int count = -1) {
+			Ptr = ptr;
+			ArraySize = count;
 		}
 
-		public static implicit operator IntPtr(UnmanagedPointer<T> uptr) => uptr.ptr;
+		public static implicit operator IntPtr(UnmanagedPointer<T> uptr) => uptr.Ptr;
 
 		public static explicit operator UnmanagedPointer<T>(IntPtr ptr) => new(ptr);
 
 		public T this[int index] {
-			get => Marshal.PtrToStructure<T>(ptr + Marshal.SizeOf<T>() * index);
-			set => Marshal.StructureToPtr(value, ptr + Marshal.SizeOf<T>() * index, false);
+			get {
+				if (ArraySize != -1 && (index < 0 || index >= ArraySize)) throw new IndexOutOfRangeException();
+				unsafe { return MemoryUtil.ReadUnmanaged<T>(Ptr + sizeof(T) * index); }
+			}
+			set {
+				if (ArraySize != -1 && (index < 0 || index >= ArraySize)) throw new IndexOutOfRangeException();
+				unsafe { MemoryUtil.WriteUnmanaged(Ptr + sizeof(T) * index, value); }
+			}
 		}
 
 	}
@@ -194,18 +236,27 @@ namespace Tesseract.Core.Native {
 	/// <typeparam name="T">Type referenced</typeparam>
 	public struct ObjectPointer<T> : IDisposable, IConstPointer<T> where T : class {
 
-		private readonly IntPtr ptr;
+		public IntPtr Ptr { get; }
 
-		public IntPtr Ptr => ptr;
+		public int ArraySize => 1;
 
-		public T Value => (T)GCHandle.FromIntPtr(ptr).Target;
+		public T Value => (T)Handle.Target;
+
+		public GCHandle Handle => GCHandle.FromIntPtr(Ptr);
+
+		public T this[int key] {
+			get {
+				if (key == 0) return Value;
+				else throw new IndexOutOfRangeException();
+			}
+		}
 
 		/// <summary>
 		/// Creates an object pointer from a raw pointer.
 		/// </summary>
 		/// <param name="ptr">Raw pointer value</param>
 		public ObjectPointer(IntPtr ptr) {
-			this.ptr = ptr;
+			Ptr = ptr;
 		}
 
 		/// <summary>
@@ -213,11 +264,12 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="value">Value to reference</param>
 		public ObjectPointer(T value) {
-			ptr = GCHandle.ToIntPtr(GCHandle.Alloc(value));
+			Ptr = GCHandle.ToIntPtr(GCHandle.Alloc(value));
 		}
 
 		public void Dispose() {
-			GCHandle.FromIntPtr(ptr).Free();
+			GC.SuppressFinalize(this);
+			Handle.Free();
 		}
 
 		public static implicit operator IntPtr(ObjectPointer<T> optr) => optr.Ptr;

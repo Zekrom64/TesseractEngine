@@ -297,20 +297,56 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The depth test may be dynamically enabled or disabled.
 		/// </summary>
 		DepthTest,
+		/// <summary>
+		/// Depth writing may be dynamically enabled or disabled.
+		/// </summary>
 		DepthWriteEnable,
+		/// <summary>
+		/// The depth compare operation may be dynamically modified.
+		/// </summary>
 		DepthCompareOp,
+		/// <summary>
+		/// Depth bounds testing may be dynamically enabled or disabled.
+		/// </summary>
 		DepthBoundsTestEnable,
+		/// <summary>
+		/// The stencil test may be dynamically enabled or disabled.
+		/// </summary>
 		StencilTestEnable,
+		/// <summary>
+		/// The stencil operations performed on each face may be dynamically modified
+		/// </summary>
 		StencilOp,
 		// TODO: VK_EXT_extended_dynamic_state2
+		/// <summary>
+		/// The number of control points per tessellation patch may be dynamically modified.
+		/// </summary>
 		PatchControlPoints,
+		/// <summary>
+		/// The discard state of the rasterization stage may be dynamically enabled or disabled.
+		/// </summary>
 		RasterizerDiscardEnable,
+		/// <summary>
+		/// Depth biasing may be dynamically enabled or disabled.
+		/// </summary>
 		DepthBiasEnable,
+		/// <summary>
+		/// The color logic op performed may be dynamically enabled or disabled.
+		/// </summary>
 		LogicOp,
+		/// <summary>
+		/// Primitive restart may be dynamically enabled or disabled.
+		/// </summary>
 		PrimitiveRestartEnable,
 		// TODO: VK_EXT_vertex_input_dynamic_state
+		/// <summary>
+		/// The vertex input format of the pipeline may be dynamically modified.
+		/// </summary>
 		VertexFormat,
 		// TODO: VK_EXT_color_write_enable
+		/// <summary>
+		/// The color write state for the output attachments may be dynamically enabled or disabled.
+		/// </summary>
 		ColorWrite
 	}
 
