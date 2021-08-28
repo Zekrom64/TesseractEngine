@@ -303,6 +303,7 @@ namespace Tesseract.Core.Native {
 		public static string GetASCII(ReadOnlySpan<byte> span, bool nullTerminated = true) {
 			int length = span.Length;
 			if (nullTerminated) length = FindFirst<byte>(span, 0);
+			if (length == -1) length = span.Length;
 			return Encoding.ASCII.GetString(span[..length]);
 		}
 
@@ -387,6 +388,7 @@ namespace Tesseract.Core.Native {
 					}
 				}
 			}
+			if (length < 0) length = span.Length;
 			return Encoding.Unicode.GetString(span[..length]);
 		}
 
@@ -465,6 +467,7 @@ namespace Tesseract.Core.Native {
 		public static string GetUTF8(ReadOnlySpan<byte> span, bool nullTerminated = true) {
 			int length = span.Length;
 			if (nullTerminated) length = FindFirst<byte>(span, 0);
+			if (length == -1) length = span.Length;
 			return Encoding.UTF8.GetString(span[..length]);
 		}
 
