@@ -45,7 +45,7 @@ namespace Tesseract.Vulkan {
 			// A bit ugly to convert back from strings provided in create info but simplifies parameter passing
 			UnmanagedPointer<IntPtr> pExts = new(createInfo.EnabledExtensionNames);
 			HashSet<string> exts = new();
-			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetStringASCII(pExts[i]));
+			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetUTF8(pExts[i]));
 
 			// Load device extensions
 			if (exts.Contains(KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchainFunctions = new());

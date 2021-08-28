@@ -396,7 +396,7 @@ namespace Tesseract.SDL.Services {
 				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Ptr, out int count, out IntPtr names)) throw new SDLException(SDL2.GetError());
 				UnmanagedPointer<IntPtr> pNames = new(names);
 				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetStringASCII(pNames[i]);
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i]);
 				return exts;
 			}
 		}
