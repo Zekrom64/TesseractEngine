@@ -8,10 +8,11 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
+using Tesseract.Core.Services;
 
 namespace Tesseract.Core.Graphics {
 	
-	public interface IImage : IDisposable {
+	public interface IImage : IDisposable, Services.IServiceProvider {
 
 		public IReadOnlyTuple2<int> Size { get; }
 
@@ -73,19 +74,19 @@ namespace Tesseract.Core.Graphics {
 
 		public IImage Load(ResourceLocation location);
 
-		public IImage Load(Span<byte> binary, string mimeType);
+		public IImage Load(ReadOnlySpan<byte> binary, string mimeType);
 
 		public Span<byte> Save(IImage image, string mimeType);
 
 	}
 
-	public interface IImageProcessing {
+	public interface IProcessableImage {
 
-		public IImage Convert(IImage image, PixelFormat format);
+		public IImage Convert(PixelFormat format);
 
-		public void Blit(IImage dst, IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos);
+		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos);
 
-		public void Fill(IImage dst, IReadOnlyRect<int> dstArea, IReadOnlyColor color);
+		public void Fill(IReadOnlyRect<int> dstArea, IReadOnlyColor color);
 
 	}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,11 @@ namespace Tesseract.Core.Native {
 		/// is unknown this is -1.
 		/// </summary>
 		public int ArraySize { get; }
+		
+		/// <summary>
+		/// Gets the pointer represented as a read-only span.
+		/// </summary>
+		public ReadOnlySpan<T> ReadOnlySpan { get; }
 
 	}
 
@@ -47,6 +53,13 @@ namespace Tesseract.Core.Native {
 		/// The value stored at the memory reference.
 		/// </summary>
 		public new T Value { get; set; }
+
+		/// <summary>
+		/// Gets the pointer represented as a span.
+		/// </summary>
+		public Span<T> Span { get; }
+
+		ReadOnlySpan<T> IConstPointer<T>.ReadOnlySpan => Span;
 
 	}
 	
@@ -69,6 +82,14 @@ namespace Tesseract.Core.Native {
 		public T Value {
 			get => Marshal.PtrToStructure<T>(Ptr);
 			set => Marshal.StructureToPtr(value, Ptr, true);
+		}
+
+		public Span<T> Span {
+			get {
+				unsafe {
+					return new Span<T>((void*)Ptr, ArraySize);
+				}
+			}
 		}
 
 		private readonly Releaser release;
@@ -151,7 +172,7 @@ namespace Tesseract.Core.Native {
 		/// Allocates a pointer to an array of values and marshals the given collection to the new memory.
 		/// </summary>
 		/// <param name="values">The array element values</param>
-		public ManagedPointer(in IReadOnlyCollection<T> values) {
+		public ManagedPointer(IReadOnlyCollection<T> values) {
 			int sz = Marshal.SizeOf<T>();
 			int count = values.Count;
 			Ptr = Marshal.AllocHGlobal(sz * count);
@@ -164,12 +185,27 @@ namespace Tesseract.Core.Native {
 			ArraySize = count;
 		}
 
+		/// <summary>
+		/// Pins the given memory and creates a new pointer to the pinned memory. Disposing of the
+		/// managed pointer will unpin the memory.
+		/// </summary>
+		/// <param name="memory">Memory to pin</param>
+		public ManagedPointer(Memory<T> memory) {
+			MemoryUtil.AssertUnmanaged<T>(); // Don't allow cheeky things like converting memory w/ managed objects to pointers
+			MemoryHandle handle = memory.Pin();
+			unsafe { Ptr = (IntPtr)handle.Pointer; }
+			release = ptr => { handle.Dispose(); };
+			ArraySize = memory.Length;
+		}
+
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			release?.Invoke(Ptr);
 		}
 
 		public static implicit operator IntPtr(ManagedPointer<T> mptr) => mptr.Ptr;
+
+		public static implicit operator bool(ManagedPointer<T> mptr) => mptr.Ptr != IntPtr.Zero;
 
 		public T this[int index] {
 			get {
@@ -199,14 +235,41 @@ namespace Tesseract.Core.Native {
 			set => MemoryUtil.WriteUnmanaged(Ptr, value);
 		}
 
+		public Span<T> Span {
+			get {
+				int count = ArraySize;
+				if (count < 0) count = 1;
+				unsafe {
+					return new Span<T>((void*)Ptr, count);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Creates a new unmanaged pointer.
+		/// </summary>
+		/// <param name="ptr">The pointer value</param>
+		/// <param name="count">The number of elements pointed to, or -1 if this is not known</param>
 		public UnmanagedPointer(IntPtr ptr, int count = -1) {
 			Ptr = ptr;
+			ArraySize = count;
+		}
+		
+		/// <summary>
+		/// Creates a new unmanaged pointer to memory represented by a memory handle.
+		/// </summary>
+		/// <param name="memory">The memory handle</param>
+		/// <param name="count">The number of elements in the memory given by the memory handle</param>
+		public UnmanagedPointer(MemoryHandle memory, int count) {
+			unsafe { Ptr = (IntPtr)memory.Pointer; }
 			ArraySize = count;
 		}
 
 		public static implicit operator IntPtr(UnmanagedPointer<T> uptr) => uptr.Ptr;
 
 		public static explicit operator UnmanagedPointer<T>(IntPtr ptr) => new(ptr);
+
+		public static implicit operator bool(UnmanagedPointer<T> uptr) => uptr.Ptr != IntPtr.Zero;
 
 		public T this[int index] {
 			get {
@@ -244,6 +307,8 @@ namespace Tesseract.Core.Native {
 
 		public GCHandle Handle => GCHandle.FromIntPtr(Ptr);
 
+		public ReadOnlySpan<T> ReadOnlySpan => throw new InvalidOperationException("Cannot get an object pointer as a span, underlying memory is opaque");
+
 		public T this[int key] {
 			get {
 				if (key == 0) return Value;
@@ -273,6 +338,8 @@ namespace Tesseract.Core.Native {
 		}
 
 		public static implicit operator IntPtr(ObjectPointer<T> optr) => optr.Ptr;
+
+		public static implicit operator bool(ObjectPointer<T> optr) => optr.Ptr != IntPtr.Zero;
 
 	}
 

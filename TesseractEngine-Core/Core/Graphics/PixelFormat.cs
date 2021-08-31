@@ -33,7 +33,11 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// Stencil value channel.
 		/// </summary>
-		Stencil
+		Stencil,
+		/// <summary>
+		/// Luminance channel.
+		/// </summary>
+		Luminance
 	}
 
 	/// <summary>
@@ -152,6 +156,91 @@ namespace Tesseract.Core.Graphics {
 	/// </summary>
 	public sealed record PixelFormat : IEquatable<PixelFormat> {
 
+		private int HashCode { get; init; }
+
+		/// <summary>
+		/// If the channel values are "packed" (in bitfields or encoded values) or raw unpacked values.
+		/// </summary>
+		public bool Packed { get; init; }
+
+		/// <summary>
+		/// The channels defined in the format.
+		/// </summary>
+		public IReadOnlyList<PixelChannel> Channels { get; init; }
+
+		/// <summary>
+		/// The size of the pixel format in bytes.
+		/// </summary>
+		public int SizeOf { get; init; }
+
+		/// <summary>
+		/// The type of pixel format this is.
+		/// </summary>
+		public PixelFormatType Type { get; init; }
+
+		/// <summary>
+		/// The common number format of the pixel format's channels, or <see cref="ChannelNumberFormat.Undefined"/> if channel number formats differ.
+		/// </summary>
+		public ChannelNumberFormat NumberFormat { get; init; }
+
+		private PixelFormat() { }
+
+		/// <summary>
+		/// Tests if this pixel format has a channel of the given type.
+		/// </summary>
+		/// <param name="type">Channel type to test for</param>
+		/// <returns>If the format contains the channel</returns>
+		public bool HasChannel(ChannelType type) {
+			foreach (PixelChannel channel in Channels) if (channel.Type == type) return true;
+			return false;
+		}
+
+		public bool Equals(PixelFormat other) {
+			if (other is null) return false;
+			if (ReferenceEquals(this, other)) return true;
+			if (HashCode != other.HashCode) return false;
+			
+			if (Packed != other.Packed) return false;
+
+			foreach(PixelChannel channel in Channels) {
+				bool hasChannel = false;
+				foreach(PixelChannel otherChannel in other.Channels) {
+					if (otherChannel == channel) {
+						hasChannel = true;
+						break;
+					}
+				}
+				if (!hasChannel) return false;
+			}
+
+			return true;
+		}
+
+		public override int GetHashCode() => HashCode;
+
+		/// <summary>
+		/// Tests if a pixel format is bitwise compatible with this format. This
+		/// only tests if each channel in the given format has a corresponding mapping in
+		/// this format, not whether the numeric formats or channels are the same.
+		/// </summary>
+		/// <param name="other">Format to test with</param>
+		/// <returns></returns>
+		public bool IsCompatible(PixelFormat other) {
+			if (Packed ^ other.Packed) return false; // Could *technically* test but bit-ordering makes things complicated.
+			if (SizeOf != other.SizeOf) return false;
+			foreach(PixelChannel channel in other.Channels) {
+				bool hasChannel = false;
+				foreach(PixelChannel ch2 in Channels) {
+					if (ch2.Offset == channel.Offset && ch2.Size == channel.Size) {
+						hasChannel = true;
+						break;
+					}
+				}
+				if (!hasChannel) return false;
+			}
+			return true;
+		}
+
 		// Deduces other pixel format properties from the given set of pixel channels
 		private static void DeducePropertiesFromChannels(PixelChannel[] channels, bool packed, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash) {
 			channelHash = 0;
@@ -160,7 +249,7 @@ namespace Tesseract.Core.Graphics {
 			int bitSize = 0;
 			numberFormat = channels[0].NumberFormat;
 			formatType = PixelFormatType.Color;
-			foreach(PixelChannel channel in channels) {
+			foreach (PixelChannel channel in channels) {
 				channelHash = (channelHash << 6) ^ channel.GetHashCode();
 				// Deduce common number format or default to undefined
 				if (numberFormat != ChannelNumberFormat.Undefined && channel.NumberFormat != numberFormat) numberFormat = ChannelNumberFormat.Undefined;
@@ -241,6 +330,10 @@ namespace Tesseract.Core.Graphics {
 			};
 		}
 
+		//=======================//
+		// Unpacked RGB formats //
+		//=======================//
+
 		/// <summary>
 		/// A pixel format with 8-bit unsigned normalized red, green, and blue channels.
 		/// </summary>
@@ -268,7 +361,7 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 		);
-		
+
 		/// <summary>
 		/// A pixel format with 8-bit unsigned normalized blue, green, red, and alpha channels.
 		/// </summary>
@@ -300,6 +393,29 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A pixel format with 16-bit unsigned normalized red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned normalized red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		//====================//
+		// Packed RGB formats //
+		//====================//
+
+		/// <summary>
 		/// A packed 32-bit pixel format with 8-bit unsigned normalized alpha, blue, green, and red channels.
 		/// </summary>
 		public static readonly PixelFormat A8B8G8R8UNormPack32 = DefinePackedFormat(
@@ -310,6 +426,57 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit blue and red and 6-bit green channels.
+		/// </summary>
+		public static readonly PixelFormat B5G6R5UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with 4-bit unsigned normalized alpha, red, blue, and green channels.
+		/// </summary>
+		public static readonly PixelFormat A4R4G4B4UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 1-bit alpha and 5-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A1R5G5B5UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 15, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 16-bit unsigned normalized red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16UNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 16, Size = 16, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 0, Size = 16, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned normalized components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2B10G10R10UNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		//============================//
+		// Floating-point RGB formats //
+		//============================//
+
+		/// <summary>
 		/// A pixel format with 32-bit signed floating point red, green, blue, and alpha channels.
 		/// </summary>
 		public static readonly PixelFormat R32G32B32A32SFloat = DefineUnpackedFormat(
@@ -318,6 +485,10 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
 		);
+
+		//=======================//
+		// Depth/Stencil Formats //
+		//=======================//
 
 		/// <summary>
 		/// A pixel format with a 16-bit unsigned normalized depth channel.
@@ -371,67 +542,50 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Stencil, Offset = -1, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt }
 		);
 
-		private int HashCode { get; init; }
+		//=============================//
+		// Luminance/Grayscale formats //
+		//=============================//
 
 		/// <summary>
-		/// If the channel values are "packed" (in bitfields or encoded values) or raw unpacked values.
+		/// An unpacked pixel format with an 8-bit unsigned normalized luminance channel.
 		/// </summary>
-		public bool Packed { get; init; }
+		public static readonly PixelFormat L8UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Luminance, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
 
 		/// <summary>
-		/// The channels defined in the format.
+		/// An unpacked pixel format with an 16-bit unsigned normalized luminance channel.
 		/// </summary>
-		public IReadOnlyList<PixelChannel> Channels { get; init; }
+		public static readonly PixelFormat L16UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Luminance, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
 
 		/// <summary>
-		/// The size of the pixel format in bytes.
+		/// An unpacked pixel format with 8-bit unsigned normalized luminance and alpha channels.
 		/// </summary>
-		public int SizeOf { get; init; }
+		public static readonly PixelFormat L8A8UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Luminance, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
 
 		/// <summary>
-		/// The type of pixel format this is.
+		/// An unpacked pixel format with 16-bit unsigned normalized luminance and alpha channels.
 		/// </summary>
-		public PixelFormatType Type { get; init; }
+		public static readonly PixelFormat L16A16UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Luminance, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		//=======================//
+		// Miscellaneous formats //
+		//=======================//
 
 		/// <summary>
-		/// The common number format of the pixel format's channels, or <see cref="ChannelNumberFormat.Undefined"/> if channel number formats differ.
+		/// An unpacked pixel format with an 8-bit unsigned normalized alpha channel.
 		/// </summary>
-		public ChannelNumberFormat NumberFormat { get; init; }
-
-		private PixelFormat() { }
-
-		/// <summary>
-		/// Tests if this pixel format has a channel of the given type.
-		/// </summary>
-		/// <param name="type">Channel type to test for</param>
-		/// <returns>If the format contains the channel</returns>
-		public bool HasChannel(ChannelType type) {
-			foreach (PixelChannel channel in Channels) if (channel.Type == type) return true;
-			return false;
-		}
-
-		public bool Equals(PixelFormat other) {
-			if (other is null) return false;
-			if (ReferenceEquals(this, other)) return true;
-			if (HashCode != other.HashCode) return false;
-			
-			if (Packed != other.Packed) return false;
-
-			foreach(PixelChannel channel in Channels) {
-				bool hasChannel = false;
-				foreach(PixelChannel otherChannel in other.Channels) {
-					if (otherChannel == channel) {
-						hasChannel = true;
-						break;
-					}
-				}
-				if (!hasChannel) return false;
-			}
-
-			return true;
-		}
-
-		public override int GetHashCode() => HashCode;
+		public static readonly PixelFormat A8UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
 
 	}
 }

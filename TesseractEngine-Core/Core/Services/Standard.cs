@@ -29,9 +29,9 @@ namespace Tesseract.Core.Services {
 		public static readonly IService<IImageIO> ImageIO = new OpaqueService<IImageIO>();
 
 		/// <summary>
-		/// The image processing service.
+		/// The processable image service.
 		/// </summary>
-		public static readonly IService<IImageProcessing> ImageProcessing = new OpaqueService<IImageProcessing>();
+		public static readonly IService<IProcessableImage> ProcessableImage = new OpaqueService<IProcessableImage>();
 		
 	}
 

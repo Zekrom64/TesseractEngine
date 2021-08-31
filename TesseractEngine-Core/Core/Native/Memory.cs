@@ -53,6 +53,67 @@ namespace Tesseract.Core.Native {
 	/// </summary>
 	public static class MemoryUtil {
 
+		// Pointer casting
+
+		/// <summary>
+		/// Recasts a pointer to one type as a pointer to another type. Both of the types
+		/// must be unmanaged to prevent recasting of types that require marshalling.
+		/// </summary>
+		/// <typeparam name="T1">First pointer type</typeparam>
+		/// <typeparam name="T2">Second pointer type</typeparam>
+		/// <param name="ptr">Pointer to case</param>
+		/// <returns>Recast version of pointer</returns>
+		public static IConstPointer<T2> RecastAs<T1,T2>(IConstPointer<T1> ptr) where T1 : unmanaged where T2 : unmanaged {
+			int count = ptr.ArraySize;
+			if (count > 0) {
+				unsafe {
+					count = (count * sizeof(T1)) / sizeof(T2);
+				}
+			}
+			return new UnmanagedPointer<T2>(ptr.Ptr, count);
+		}
+
+		/// <summary>
+		/// Recasts a pointer to one type as a pointer to another type. Both of the types
+		/// must be unmanaged to prevent recasting of types that require marshalling.
+		/// </summary>
+		/// <typeparam name="T1">First pointer type</typeparam>
+		/// <typeparam name="T2">Second pointer type</typeparam>
+		/// <param name="ptr">Pointer to case</param>
+		/// <returns>Recast version of pointer</returns>
+		public static IPointer<T2> RecastAs<T1, T2>(IPointer<T1> ptr) where T1 : unmanaged where T2 : unmanaged {
+			int count = ptr.ArraySize;
+			if (count > 0) {
+				unsafe {
+					count = (count * sizeof(T1)) / sizeof(T2);
+				}
+			}
+			return new UnmanagedPointer<T2>(ptr.Ptr, count);
+		}
+
+		// Unmanaged type check
+
+		/// <summary>
+		/// Checks if the provided type is unmanaged.
+		/// </summary>
+		/// <typeparam name="T">Type to check</typeparam>
+		/// <returns>If the type is unmanaged</returns>
+		public static bool IsUnmanaged<T>() {
+			Type t = typeof(T);
+			if (t.IsGenericType) return false; // Generic types are managed
+			if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>()) return false; // Anything with references is managed
+			if (!t.IsValueType) return false; // Reference types are managed
+			return true;
+		}
+
+		/// <summary>
+		/// Asserts that the provided type is unmanaged.
+		/// </summary>
+		/// <typeparam name="T">Type to check</typeparam>
+		public static void AssertUnmanaged<T>() {
+			if (!IsUnmanaged<T>()) throw new ArgumentException("The specified type must be unmanaged", nameof(T));
+		}
+
 		// Unmanaged read/write
 
 		/// <summary>

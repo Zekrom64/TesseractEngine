@@ -10,7 +10,7 @@ namespace Tesseract.Core.Services {
 
 	public interface IServiceProvider {
 
-		public T GetService<T>(IService<T> service);
+		public T GetService<T>(IService<T> service) => default;
 	
 	}
 

@@ -17,8 +17,6 @@ namespace Tesseract.Core.Graphics.Engine {
 
 		public IImageIO ImageIO { get; init; }
 
-		public IImageProcessing ImageProcessing { get; init; }
-
 	}
 
 	/// <summary>
@@ -31,12 +29,9 @@ namespace Tesseract.Core.Graphics.Engine {
 
 		public IImageIO ImageIO { get; }
 
-		public IImageProcessing ImageProcessing { get; }
-
 		public GraphicsEngine(in GraphicsEngineCreateInfo createInfo) {
 			Graphics = createInfo.Graphics;
 			ImageIO = createInfo.ImageIO;
-			ImageProcessing = createInfo.ImageProcessing;
 		}
 
 	}
