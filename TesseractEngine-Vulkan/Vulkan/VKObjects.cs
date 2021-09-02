@@ -69,6 +69,10 @@ namespace Tesseract.Vulkan {
 			Pointer = new ManagedPointer<VKAllocationCallbacks>(callbacks);
 		}
 
+		private VulkanAllocationCallbacks(IntPtr pCallbacks) {
+			Pointer = new ManagedPointer<VKAllocationCallbacks>(pCallbacks);
+		}
+
 		~VulkanAllocationCallbacks() {
 			Dispose();
 		}
@@ -78,6 +82,8 @@ namespace Tesseract.Vulkan {
 			if (Pointer is ManagedPointer<VKAllocationCallbacks> mgr) mgr.Dispose();
 			Pointer = null;
 		}
+
+		public static implicit operator VulkanAllocationCallbacks(IntPtr pCallbacks) => pCallbacks != IntPtr.Zero ? new VulkanAllocationCallbacks(pCallbacks) : null;
 
 		public static implicit operator VulkanAllocationCallbacks(in VKAllocationCallbacks callbacks) => new(callbacks);
 
