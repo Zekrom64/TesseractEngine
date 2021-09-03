@@ -398,12 +398,8 @@ namespace Tesseract.GLFW.Services {
 			return new GLFWServiceCursor(new GLFWCursor(shape));
 		}
 
-		private readonly List<KeyValuePair<GLFWWindowAttrib, int>> additionalAttribs = new();
-
 		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null) {
 			GLFW3.DefaultWindowHints();
-			foreach (var attr in additionalAttribs) GLFW3.WindowHint(attr.Key, attr.Value);
-			additionalAttribs.Clear();
 			return new GLFWServiceWindow(title, w, h, attributes);
 		}
 
