@@ -241,24 +241,25 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VMAAllocationCreateInfo {
+	public readonly struct VMAAllocationCreateInfo {
 
-		public VMAAllocationCreateFlagBits Flags;
-
-		public VMAMemoryUsage Usage;
-
-		public VKMemoryPropertyFlagBits RequiredFlags;
-
-		public VKMemoryPropertyFlagBits PreferredFlags;
-
-		public uint MemoryTypeBits;
-
+		private readonly VMAAllocationCreateFlagBits flags;
+		public VMAAllocationCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly VMAMemoryUsage usage;
+		public VMAMemoryUsage Usage { get => usage; init => usage = value; }
+		private readonly VKMemoryPropertyFlagBits requiredFlags;
+		public VKMemoryPropertyFlagBits RequiredFlags { get => requiredFlags; init => requiredFlags = value; }
+		private readonly VKMemoryPropertyFlagBits preferredFlags;
+		public VKMemoryPropertyFlagBits PreferredFlags { get => preferredFlags; init => preferredFlags = value; }
+		private readonly uint memoryTypeBits;
+		public uint MemoryTypeBits { get => memoryTypeBits; init => memoryTypeBits = value; }
+		private readonly IntPtr pool;
 		[NativeType("VmaPool")]
-		public IntPtr Pool;
-
-		public IntPtr UserData;
-
-		public float Priority;
+		public IntPtr Pool { get => pool; init => pool = value; }
+		private readonly IntPtr userData;
+		public IntPtr UserData { get => userData; init => userData = value; }
+		private readonly float priority;
+		public float Priority { get => priority; init => priority = value; }
 
 	}
 
@@ -269,27 +270,28 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VMAPoolCreateInfo {
+	public readonly struct VMAPoolCreateInfo {
 
-		public uint MemoryTypeIndex;
-
-		public VMAPoolCreateFlagBits Flags;
-
+		private readonly uint memoryTypeIndex;
+		public uint MemoryTypeIndex { get => memoryTypeIndex; init => memoryTypeIndex = value; }
+		private readonly VMAPoolCreateFlagBits flags;
+		public VMAPoolCreateFlagBits Flags { get => flags; init => flags = value; }
+		private readonly ulong blockSize;
 		[NativeType("VkDeviceSize")]
-		public ulong BlockSize;
-
-		public nuint MinBlockCount;
-
-		public nuint MaxBlockCount;
-
-		public uint FrameInUseCount;
-
-		public float Priority;
-
+		public ulong BlockSize { get => blockSize; init => blockSize = value; }
+		private readonly nuint minBlockCount;
+		public nuint MinBlockCount { get => minBlockCount; init => minBlockCount = value; }
+		private readonly nuint maxBlockCount;
+		public nuint MaxBlockCount { get => maxBlockCount; init => maxBlockCount = value; }
+		private readonly uint frameInUseCount;
+		public uint FrameInUseCount { get => frameInUseCount; init => frameInUseCount = value; }
+		private readonly float priority;
+		public float Priority { get => priority; init => priority = value; }
+		private readonly ulong minAllocationAlignment;
 		[NativeType("VkDeviceSize")]
-		public ulong MinAllocationAlignment;
-
-		public IntPtr MemoryAllocateNext;
+		public ulong MinAllocationAlignment { get => minAllocationAlignment; init => minAllocationAlignment = value; }
+		private readonly IntPtr memoryAllocateNext;
+		public IntPtr MemoryAllocateNext { get => memoryAllocateNext; init => memoryAllocateNext = value; }
 
 	}
 
@@ -338,33 +340,34 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VMADefragmentationInfo2 {
+	public readonly struct VMADefragmentationInfo2 {
 
-		public VMADefragmentationFlagBits Flags;
-
-		public uint AllocationCount;
-
+		private readonly VMADefragmentationFlagBits flags;
+		public VMADefragmentationFlagBits Flags { get => flags; init => flags = value; }
+		private readonly uint allocationCount;
+		public uint AllocationCount { get => allocationCount; init => allocationCount = value; }
+		private readonly IntPtr allocations;
 		[NativeType("const VmaAllocation*")]
-		public IntPtr Allocations;
-
+		public IntPtr Allocations { get => allocations; init => allocations = value; }
+		private readonly IntPtr allocationsChanged;
 		[NativeType("VkBool32*")]
-		public IntPtr AllocationsChanged;
-
-		public uint PoolCount;
-
+		public IntPtr AllocationsChanged { get => allocationsChanged; init => allocationsChanged = value; }
+		private readonly uint poolCount;
+		public uint PoolCount { get => poolCount; init => poolCount = value; }
+		private readonly IntPtr pools;
 		[NativeType("const VmaPool*")]
-		public IntPtr Pools;
-
-		public ulong MaxCpuBytesToMove;
-
-		public uint MaxCpuAllocationsToMove;
-
-		public ulong MaxGpuBytesToMove;
-
-		public uint MaxGpuAllocationsToMove;
-		
+		public IntPtr Pools { get => pools; init => pools = value; }
+		private readonly ulong maxCpuBytesToMove;
+		public ulong MaxCpuBytesToMove { get => maxCpuBytesToMove; init => maxCpuBytesToMove = value; }
+		private readonly uint maxCpuAllocationsToMove;
+		public uint MaxCpuAllocationsToMove { get => maxCpuAllocationsToMove; init => maxCpuAllocationsToMove = value; }
+		private readonly ulong maxGpuBytesToMove;
+		public ulong MaxGpuBytesToMove { get => maxGpuBytesToMove; init => maxGpuBytesToMove = value; }
+		private readonly uint maxGpuAllocationsToMove;
+		public uint MaxGpuAllocationsToMove { get => maxGpuAllocationsToMove; init => maxGpuAllocationsToMove = value; }
+		private readonly IntPtr commandBuffer;
 		[NativeType("VkCommandBuffer")]
-		public IntPtr CommandBuffer;
+		public IntPtr CommandBuffer { get => commandBuffer; init => commandBuffer = value; }
 
 	}
 
