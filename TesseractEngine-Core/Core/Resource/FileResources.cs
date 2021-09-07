@@ -127,7 +127,7 @@ namespace Tesseract.Core.Resource {
 
 			ZipArchiveEntry entry = ToEntry(file);
 			string mime = null;
-			if (MIME.TryGuessFromExtension(FileResourceDomain.GetExtensionFromFileName(entry.name), out string type)) mime = type;
+			if (MIME.TryGuessFromExtension(FileResourceDomain.GetExtensionFromFileName(entry.Name), out string type)) mime = type;
 
 			return new ResourceMetadata() {
 				MIMEType = mime,
