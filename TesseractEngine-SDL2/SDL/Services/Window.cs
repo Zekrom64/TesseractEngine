@@ -10,6 +10,7 @@ using Tesseract.Core.Native;
 using Tesseract.Core.Services;
 using Tesseract.Core.Util;
 using Tesseract.OpenGL;
+using Tesseract.Vulkan;
 using Tesseract.Vulkan.Graphics;
 
 namespace Tesseract.SDL.Services {
@@ -108,7 +109,7 @@ namespace Tesseract.SDL.Services {
 
 	}
 
-	public class SDLServiceWindow : IDisposable, IWindow, IWindowSurface, IGammaRampObject, IGLContextProvider {
+	public class SDLServiceWindow : IDisposable, IWindow, IWindowSurface, IGammaRampObject, IGLContextProvider, IVKSurfaceProvider {
 
 		internal const string WindowDataID = "__GCHandle";
 
@@ -269,8 +270,9 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public T GetService<T>(IService<T> service) {
-			if (service == GLServices.GLContextProvider) return (T)(object)this;
-			else if (service == GraphicsServices.GammaRampObject) return (T)(object)this;
+			if (service == GLServices.GLContextProvider ||
+				service == GraphicsServices.GammaRampObject ||
+				service == VKServices.SurfaceProvider) return (T)(object)this;
 			return default;
 		}
 
@@ -388,6 +390,21 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public void SwapSurface() => Window.UpdateSurface();
+
+		public string[] RequiredInstanceExtensions {
+			get {
+				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Ptr, out int count, out IntPtr names)) throw new SDLException(SDL2.GetError());
+				UnmanagedPointer<IntPtr> pNames = new(names);
+				string[] exts = new string[count];
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i]);
+				return exts;
+			}
+		}
+
+		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks allocator = null) {
+			if (!SDL2.Functions.SDL_Vulkan_CreateSurface(Window.Window.Ptr, instance, out ulong surface)) throw new SDLException(SDL2.GetError());
+			return new VKSurfaceKHR(instance, surface, null);
+		}
 	}
 
 	public class SDLServiceGammaRamp : IGammaRamp {

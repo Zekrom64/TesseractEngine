@@ -10,6 +10,7 @@ using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
 using Tesseract.OpenGL;
+using Tesseract.Vulkan;
 using Tesseract.Vulkan.Graphics;
 
 namespace Tesseract.GLFW.Services {
@@ -81,7 +82,7 @@ namespace Tesseract.GLFW.Services {
 
 	}
 
-	public class GLFWServiceWindow : IWindow, IGLContextProvider {
+	public class GLFWServiceWindow : IWindow, IGLContextProvider, IVKSurfaceProvider {
 
 		public readonly GLFWWindow Window;
 
@@ -320,7 +321,7 @@ namespace Tesseract.GLFW.Services {
 		public bool GetMouseButtonState(int button) => Window.GetMouseButton(GLFWServiceMouse.StdToGLFWButton(button)) != GLFWButtonState.Release;
 
 		public T GetService<T>(IService<T> service) {
-			if (service == GLServices.GLContextProvider) return (T)(object)this;
+			if (service == GLServices.GLContextProvider || service == VKServices.SurfaceProvider) return (T)(object)this;
 			return default;
 		}
 
@@ -368,6 +369,22 @@ namespace Tesseract.GLFW.Services {
 			if (glcontext == null) glcontext = new GLFWGLContext(Window);
 			return glcontext;
 		}
+
+		public string[] RequiredInstanceExtensions {
+			get {
+				IntPtr names = GLFW3.Functions.glfwGetRequiredInstanceExtensions(out uint count);
+				UnmanagedPointer<IntPtr> pNames = new(names);
+				string[] exts = new string[count];
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i]);
+				return exts;
+			}
+		}
+
+		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError((VKResult)GLFW3.Functions.glfwCreateWindowSurface(instance, Window.Window, allocator, out ulong surface), "Failed to create window surface");
+			return new VKSurfaceKHR(instance, surface, allocator);
+		}
+
 	}
 
 	public class GLFWServiceWindowSystem : IWindowSystem {
