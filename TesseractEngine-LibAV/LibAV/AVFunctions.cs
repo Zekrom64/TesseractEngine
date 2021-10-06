@@ -23,4 +23,11 @@ namespace Tesseract.LibAV {
 
 	// void (*callback)(void*, int, const char*, va_list)
 
+	// avcodec.h
+
+	public delegate int AVDefaultExecuteFunc([NativeType("AVCodecContext*")] IntPtr c2, IntPtr arg2);
+	public delegate int AVDefaultExecuteFunc2([NativeType("AVCodecContext*")] IntPtr c2, IntPtr arg2, int i1, int i2);
+
+	public delegate int AVLockMgrCB(ref IntPtr mutex, AVLockOp op);
+
 }

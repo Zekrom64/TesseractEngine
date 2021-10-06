@@ -7,7 +7,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;LIBAV_VERSION_56</DefineConstants>
+    <DefineConstants>TRACE;LIBAVUTIL_VERSION_56 LIBAVCODEC_VERSION_58</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

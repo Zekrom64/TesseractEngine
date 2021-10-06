@@ -11,9 +11,7 @@ namespace Tesseract.LibAV {
 	public static class LibAVUtil {
 
 		public static readonly LibrarySpec LibrarySpec = new() { Name = "avutil" };
-
-		public static Library Library { get; }
-
+		public static Library Library { get; } = LibraryManager.Load(LibrarySpec);
 		public static LibAVUtilFunctions Functions { get; } = new();
 
 		public const int FFLambdaShift = 7;
@@ -27,11 +25,10 @@ namespace Tesseract.LibAV {
 		public static readonly AVRational AVTimeBaseQ = new(1, AVTimeBase);
 
 		static LibAVUtil() {
-			Library = LibraryManager.Load(LibrarySpec);
 			Library.LoadFunctions(Functions);
 
-#if LIBAV_VERSION_56
-			if (VersionMajor(Version) > 56) throw new AVException($"libav library has incompatible version >56");
+#if LIBAVUTIL_VERSION_56
+			if (VersionMajor(Version) > 56) throw new AVException($"avutil library has incompatible version >56");
 #endif
 		}
 

@@ -595,4 +595,816 @@ namespace Tesseract.LibAV {
 		NearInf
 	}
 
+	// --==[ libavcodec ]==--
+	// avcodec.h
+
+	public enum AVCodecID : int {
+		None,
+		MPEG1Video,
+		MPEG2Video,
+		H261,
+		H263,
+		RV10,
+		RV20,
+		MJPEG,
+		MJPEGB,
+		LJPEG,
+		SP5X,
+		JPEGLS,
+		MPEG4,
+		RawVideo,
+		MSMPEG4V1,
+		MSMPEG4V2,
+		MSMPEG4V3,
+		WMV1,
+		WMV2,
+		H263P,
+		H263I,
+		FLV1,
+		SVQ1,
+		SVQ3,
+		DVVideo,
+		HuffYUV,
+		CYUV,
+		H264,
+		Indeo3,
+		VP3,
+		Theora,
+		ASV1,
+		ASV2,
+		FFV1,
+		_4XM,
+		VCR1,
+		CLJR,
+		MDEC,
+		ROQ,
+		InterplayVideo,
+		XAN_WC3,
+		XAN_WC4,
+		RPZA,
+		Cinepak,
+		WS_VQA,
+		MSRLE,
+		MSVideo1,
+		IDCIN,
+		_8BPS,
+		SMC,
+		FLIC,
+		TrueMotion1,
+		VMDVideo,
+		MSZH,
+		ZLib,
+		QTRLE,
+		TSCC,
+		ULTI,
+		QDRAW,
+		VIXL,
+		QPEG,
+		PNG,
+		PPM,
+		PBM,
+		PGM,
+		PGMYUV,
+		PAM,
+		FFVHUFF,
+		RV30,
+		RV40,
+		VC1,
+		WMV3,
+		LOCO,
+		WNV1,
+		AASC,
+		Indeo2,
+		Fraps,
+		TrueMotion2,
+		BMP,
+		CSCD,
+		MMVideo,
+		ZMBV,
+		AVS,
+		SmackVideo,
+		NUV,
+		KMVC,
+		FlashSV,
+		CAVS,
+		JPEG2000,
+		VMNC,
+		VP5,
+		VP6,
+		VP6F,
+		TARGA,
+		DSICINVideo,
+		TIERTEXSEQVidoe,
+		TIFF,
+		GIF,
+		DXA,
+		DNXHD,
+		THP,
+		SGI,
+		C93,
+		BethSoftVid,
+		PTX,
+		TXD,
+		VP6A,
+		AMV,
+		VB,
+		PCX,
+		SunRast,
+		Indeo4,
+		Indeo5,
+		Mimic,
+		RL2,
+		Escape124,
+		DIRAC,
+		BFI,
+		CMV,
+		MotionPixels,
+		TGV,
+		TGQ,
+		TQI,
+		Aura,
+		Aura2,
+		V210X,
+		TMV,
+		V210,
+		DPX,
+		MAD,
+		FRWU,
+		FlashSV2,
+		CDGraphics,
+		R210,
+		ANM,
+		BinkVideo,
+		IFF_ILBM,
+		IFF_ByteRun1,
+		KGV1,
+		YOP,
+		VP8,
+		Pictor,
+		ANSI,
+		A64_Multi,
+		A64_Multi5,
+		R10K,
+		MXPEG,
+		Lagarith,
+		ProRes,
+		JV,
+		DFA,
+		WMV3Image,
+		VC1Image,
+		UTVideo,
+		BMVVideo,
+		VBLE,
+		DXTORY,
+		V410,
+		XWD,
+		CDXL,
+		XBM,
+		ZeroCodec,
+		MSS1,
+		MSA1,
+		TSCC2,
+		MTS2,
+		CLLC,
+		MSS2,
+		VP9,
+		AIC,
+		Escape130,
+		G2M,
+		WebP,
+		HNM4Video,
+		HEVC,
+		FIC,
+		AliasPix,
+		BrenderPix,
+		PAFVideo,
+		EXR,
+		VP7,
+		SANM,
+		SGIRLE,
+		MVC1,
+		MVC2,
+		HQX,
+		TDSC,
+		HQ_HQA,
+		HAP,
+		DDS,
+		DXV,
+		ScreenPresso,
+		RSCC,
+		MagicYUV,
+		TrueMotion2RT,
+		AV1,
+		Pixlet,
+		CFHD,
+		FMVC,
+		ClearVideo,
+
+		PCM_S16LE = 0x10000,
+		PCM_S16BE,
+		PCM_U16LE,
+		PCM_U16BE,
+		PCM_S8,
+		PCM_U8,
+		PCM_MuLaw,
+		PCM_ALaw,
+		PCM_S32LE,
+		PCM_S32BE,
+		PCM_U32LE,
+		PCM_U32BE,
+		PCM_S24LE,
+		PCM_S24BE,
+		PCM_U24LE,
+		PCM_U24BE,
+		PCM_S24DAUD,
+		PCM_Zork,
+		PCM_S16LE_Planar,
+		PCM_DVD,
+		PCM_F32BE,
+		PCM_F32LE,
+		PCM_F64BE,
+		PCM_F64LE,
+		PCM_BluRay,
+		PCM_LXF,
+		S302M,
+		PCM_S8_Planar,
+		PCM_S24LE_Planar,
+		PCM_S32LE_Planar,
+		PCM_S16BE_Planar,
+
+		ADPCM_IMA_QT = 0x11000,
+		ADPCM_IMA_WAV,
+		ADPCM_IMA_DK3,
+		ADPCM_IMA_DK4,
+		ADPCM_IMA_WS,
+		ADPCM_IMA_SMJPEG,
+		ADPCM_MS,
+		ADPCM_4XM,
+		ADPCM_XA,
+		ADPCM_ADX,
+		ADPCM_EA,
+		ADPCM_G726,
+		ADPCM_CT,
+		ADPCM_SWF,
+		ADPCM_Yamaha,
+		ADPCM_SBPro4,
+		ADPCM_SBPro3,
+		ADPCM_SBPro2,
+		ADPCM_THP,
+		ADPCM_IMA_AMV,
+		ADPCM_EA_R1,
+		ADPCM_EA_R3,
+		ADPCM_EA_R2,
+		ADPCM_IMA_EA_SEAD,
+		ADPCM_IMA_EA_EACS,
+		ADPCM_EA_XS,
+		ADPCM_EA_MaxisXA,
+		ADPCM_IMA_ISS,
+		ADPCM_G722,
+		ADPCM_IMA_APC,
+		ADPCM_VIMA,
+
+		AMR_NB = 0x12000,
+		AMR_WB,
+
+		RA144 = 0x13000,
+		RA288,
+
+		ROQ_DPCM = 0x14000,
+		InterplayDPCM,
+		XAN_DPCM,
+		SOL_DPCM,
+
+		MP2 = 0x15000,
+		MP3,
+		AAC,
+		AC3,
+		DTS,
+		Vorbis,
+		DVAudio,
+		WMAV1,
+		WMAV2,
+		MACE3,
+		MACE6,
+		VMDAudio,
+		FLAC,
+		MP3ADU,
+		MP3ON4,
+		Shorten,
+		ALAC,
+		WestwoodSND1,
+		GSM,
+		QDM2,
+		COOK,
+		TrueSpeech,
+		TTA,
+		SmackAudio,
+		QCELP,
+		WAVPack,
+		DSICINAudio,
+		IMC,
+		MusePack7,
+		MLP,
+		GSM_MS,
+		ATRAC3,
+		APE,
+		NellyMoser,
+		MusePack8,
+		Speex,
+		WMAVoice,
+		WMAPro,
+		WMALossless,
+		ATRAC3P,
+		EAC3,
+		SIPR,
+		MP1,
+		TWINVQ,
+		TrueHD,
+		MP4ALS,
+		ATRAC1,
+		BinkAudioRDFT,
+		BinkAudioDCT,
+		AAC_LATM,
+		QDMC,
+		CELT,
+		G723_1,
+		G729,
+		_8SVX_EXP,
+		_8SVX_FIB,
+		BMVAudio,
+		RALF,
+		IAC,
+		ILBC,
+		Opus,
+		ComfortNoise,
+		TAK,
+		MetaSound,
+		PAFAudio,
+		ON2AVC,
+		DSS_SP,
+
+		DVDSubtitle = 0x17000,
+		DVBSubtitle,
+		Text,
+		XSub,
+		SSA,
+		MOVText,
+		HDMV_PGSSubtitle,
+		DVBTeletext,
+		SRT,
+
+		TTF = 0x18000,
+
+		Probe = 0x19000,
+
+		MPEG2TS = 0x20000,
+		MPEG4Systems = 0x20001,
+
+		FFMetadata = 0x21000,
+		WrappedAVFrame = 0x21001
+	}
+
+	[Flags]
+	public enum AVCodecPropFlags : uint {
+		IntraOnly = 1 << 0,
+		Lossy = 1 << 1,
+		Lossless = 1 << 2,
+		Reorder = 1 << 3
+	}
+
+	public enum AVDiscard : int {
+		None = -16,
+		Default = 0,
+		NonRef = 8,
+		BiDir = 16,
+		NonKey = 32,
+		All = 48
+	}
+
+	public enum AVAudioServiceType {
+		Main = 0,
+		Effects,
+		VisuallyImpaired,
+		HearingImpaired,
+		Dialogue,
+		Commentary,
+		Emergency,
+		VoiceOver,
+		Karaoke
+	}
+
+	[Flags]
+	public enum AVCodecFlags : uint {
+		Unaligned = 1 << 0,
+		QScale = 1 << 1,
+		_4MV = 1 << 2,
+		OutputCorrupt = 1 << 3,
+		QPEL = 1 << 4,
+		Pass1 = 1 << 9,
+		Pass2 = 1 << 10,
+		LoopFilter = 1 << 11,
+		Gray = 1 << 13,
+		PSNR = 1 << 15,
+		Truncated = 1 << 16,
+		InterlacedDCT = 1 << 18,
+		LowDelay = 1 << 19,
+		GlobalHeader = 1 << 22,
+		BitExact = 1 << 23,
+		ACPred = 1 << 24,
+		InterlacedME = 1 << 29,
+		ClosedGOP = unchecked((uint)(1 << 31))
+	}
+
+	[Flags]
+	public enum AVCodecFlags2 : uint {
+		Fast = 1 << 0,
+		NoOutput = 1 << 2,
+		LocalHeader = 1 << 3,
+		Chunks = 1 << 15,
+		IgnoreCrop = 1 << 16
+	}
+
+	[Flags]
+	public enum AVCodecCapabilities : uint {
+		DrawHorizBand = 1 << 0,
+		DR1 = 1 << 1,
+		Truncated = 1 << 3,
+		Delay = 1 << 5,
+		SmallLastFrame = 1 << 6,
+		Subframes = 1 << 8,
+		Experimental = 1 << 9,
+		ChannelConf = 1 << 10,
+		FrameThreads = 1 << 12,
+		SliceThreads = 1 << 13,
+		ParamChange = 1 << 14,
+		AutoThreads = 1 << 15,
+		VariableFrameSize = 1 << 16,
+		Hardware = 1 << 17,
+		Hybrid = 1 << 18,
+		EncoderReorderedOpaque = 1 << 19
+	}
+
+	public enum AVPacketSideDataType : int {
+		Palette,
+		NewExtraData,
+		ParamChange,
+		H263MBInfo,
+		ReplayGain,
+		DisplayMatrix,
+		Stereo3D,
+		AudioServiceType,
+		QualityFactor,
+		FallbackTrack,
+		CPBProperties,
+		Spherical
+	}
+
+	[Flags]
+	public enum AVPacketFlags : uint {
+		Key = 0x0001,
+		Corrupt = 0x0002
+	}
+
+	[Flags]
+	public enum AVSideDataParamChangeFlags : uint {
+		ChannelCount = 0x0001,
+		ChannelLayout = 0x0002,
+		SampleRate = 0x0004,
+		Dimensions = 0x0008,
+	}
+
+	public enum AVFieldOrder : int {
+		Unknown,
+		Progressive,
+		TT,
+		BB,
+		TB,
+		BT
+	}
+
+	[Obsolete("Deprecated in libavcodec >= 59")]
+	public enum AVPredictionMethod : int {
+		Left,
+		Plane,
+		Median
+	}
+
+	public enum AVCompFunction : int {
+		SAD = 0,
+		SSE,
+		SATD,
+		DCT,
+		PSNR,
+		BIT,
+		RD,
+		Zero,
+		VSAD,
+		VSSE,
+		NSSE,
+		DCTMax,
+		DCT264,
+		Chroma
+	}
+
+	[Flags]
+	public enum AVSliceFlags : uint {
+		CodedOrder = 0x0001,
+		AllowField = 0x0002,
+		AllowPlane = 0x0004
+	}
+
+	public enum AVMacroblockDecisionMode : int {
+		Simple = 0,
+		Bits = 1,
+		RD = 2
+	}
+
+	public enum AVCoderType : int {
+		VLC = 0,
+		AC,
+		Raw,
+		RLE
+	}
+
+	[Flags]
+	public enum AVWorkaroundBugs : uint {
+		AutoDetect = 1,
+		XVIDInterlace = 4,
+		UMP4 = 8,
+		NoPadding = 16,
+		AMV = 32,
+		QPelChroma = 64,
+		StdQPel = 128,
+		QPelChroma2 = 256,
+		DirectBlocksize = 512,
+		Edge = 1024,
+		HPelChroma = 2048,
+		DCClip = 4096,
+		Microsoft = 8192,
+		Truncated = 16384
+	}
+
+	public enum AVStandardCompliance : int {
+		VeryStrict = 2,
+		Strict = 1,
+		Normal = 0,
+		Unofficial = -1,
+		Experimental = -2
+	}
+
+	public enum AVErrorConcealment : int {
+		GuessMVS = 1,
+		DEBlock = 2
+	}
+
+	[Flags]
+	public enum AVDebugFlags : uint {
+		PictInfo = 1,
+		RC = 2,
+		Bitstream = 4,
+		MBType = 8,
+		QP = 16,
+		DCTCoeff = 0x40,
+		Skip = 0x80,
+		StartCode = 0x100,
+		ER = 0x400,
+		MMCO = 0x800,
+		Bugs = 0x1000,
+		Buffers = 0x8000,
+		Threads = 0x10000
+	}
+
+	[Flags]
+	public enum AVErrorRecognitionFlags : uint {
+		CRCCheck = 1 << 0,
+		Bitstream = 1 << 1,
+		Buffer = 1 << 2,
+		Explode = 1 << 3
+	}
+
+	public enum AVDCTAlgorithm : int {
+		Auto = 0,
+		FastInt,
+		Int,
+		MMX,
+		AltiVec = 5,
+		FAAN
+	}
+
+	public enum AVIDCTAlgorithm : int {
+		Auto = 0,
+		Int,
+		Simple,
+		SimpleMMX,
+		ARM = 7,
+		AltiVec,
+		SimpleARM = 10,
+		XVid = 14,
+		SimpleARMV5TE = 16,
+		SimpleARMV6,
+		FAAN = 20,
+		SimpleNeon = 22
+	}
+
+	public enum AVThreadType : int {
+		Frame = 1,
+		Slice = 2
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Matches enum values in header")]
+	public enum AVCodecProfile : int {
+		Unknown = -99,
+		Reserved = -100,
+
+		AACMain = 0,
+		AACLow = 1,
+		AAC_SSR = 2,
+		AAC_LTP = 3,
+		AAC_HE = 4,
+		AAC_HE_V2 = 28,
+		AAC_LD = 22,
+		AAC_ELD = 38,
+		MPEG2_AACLow = 128,
+		MPEG2_AAC_HE = 131,
+
+		DTS = 20,
+		DTS_ES = 30,
+		DTS_96_24 = 40,
+		DTS_HD_HRA = 50,
+		DTS_HD_MA = 60,
+		DTSExpress = 70,
+
+		MPEG2_422 = 0,
+		MPEG2High = 1,
+		MPEG2SS = 2,
+		MPEG2SNRScalable = 3,
+		MPEG2Main = 4,
+		MPEG2Simple = 5,
+
+		H264Constrained = 1 << 9,
+		H264Intra = 1 << 11,
+
+		H264Baseline = 66,
+		H264ConstrainedBaseline = H264Baseline | H264Constrained,
+		H264Main = 77,
+		H264Extended = 88,
+		H264High = 100,
+		H264High10 = 110,
+		H264High10Intra = H264High10 | H264Intra,
+		H264MultiviewHigh = 118,
+		H264High422 = 122,
+		H264High422Intra = H264High422 | H264Intra,
+		H264StereoHigh = 128,
+		H264High444 = 144,
+		H264High444Predictive = 244,
+		H264High444Intra = H264High444Predictive | H264Intra,
+		H264CAVLC444 = 44,
+
+		VC1Simple = 0,
+		VC1Main = 1,
+		VC1Complex = 2,
+		VC1Advanced = 3,
+
+		MPEG4Simple = 0,
+		MPEG4SimpleScalable = 1,
+		MPEG4Core = 2,
+		MPEG4Main = 3,
+		MPEG4NBit = 4,
+		MPEG4ScalableTexture = 5,
+		MPEG4SimpleFaceAnimation = 6,
+		MPEG4BasicAnimatedTexture = 7,
+		MPEG4Hybrid = 8,
+		MPEG4AdvancedRealTime = 9,
+		MPEG4CoreScalable = 10,
+		MPEG4AdvancedCoding = 11,
+		MPEG4AdvancedCore = 12,
+		MPEG4AdvancedScalableTexture = 13,
+		MPEG4SimpleStudio = 14,
+		MPEG4AdvancedSimple = 15,
+
+		JPEG2000CStreamRestriction0 = 1,
+		JPEG2000CStreamRestriction1 = 2,
+		JPEG2000CStreamNoRestriction = 32768,
+		JPEG2000DCinema2K = 3,
+		JPEG2000DCinema4K = 4,
+
+		VP9_0 = 0,
+		VP9_1 = 1,
+		VP9_2 = 2,
+		VP9_3 = 3,
+
+		HEVCMain = 1,
+		HEVCMain10 = 2,
+		HEVCMainStillPicture = 3,
+		HEVCRExt = 4,
+
+		AV1Main = 0,
+		AV1High = 1,
+		AV1Professional = 2
+	}
+
+	[Flags]
+	public enum AVHWAccelFlags : uint {
+		IgnoreLevel = 1 << 0,
+		AllowHighDepth = 1 << 1,
+		AllowProfileMismatch = 1 << 2
+	}
+
+	[Flags]
+	public enum AVCodecHWConfigMethod : uint {
+		HWDeviceCtx = 0x01,
+		HWFramesCtx = 0x02,
+		Internal = 0x04,
+		AdHoc = 0x08
+	}
+
+	public enum AVSubtitleType : int {
+		None,
+		Bitmap,
+		Text,
+		ASS
+	}
+	
+	[Flags]
+	public enum AVSubtitleFlags : uint {
+		Forced = 0x1
+	}
+
+	public enum AVPictureStructure : int {
+		Unknown,
+		TopField,
+		BottomField,
+		Frame
+	}
+
+	[Flags]
+	public enum AVCodecParserFlags : uint {
+		CompleteFrames = 0x0001,
+		Once = 0x0002,
+		FetchedOffset = 0x0004
+	}
+	
+	[Flags]
+	public enum AVLossFlags : int {
+		Resolution = 0x0001,
+		Depth = 0x0002,
+		Colorspace = 0x0004,
+		Alpha = 0x0008,
+		ColorQuant = 0x0010,
+		Chroma = 0x0020
+	}
+
+	public enum AVLockOp : int {
+		Create,
+		Obtain,
+		Release,
+		Destroy
+	}
+
+	// internal.h
+
+	[Flags]
+	public enum AVCodecCap : uint {
+		InitThreadsafe = 1 << 0,
+		InitCleanup = 1 << 1,
+		SetsPktDTS = 1 << 2,
+		ExportsCropping = 1 << 3
+	}
+
+	// --==[ libswscale ]==--
+	// swscale.h
+
+	[Flags]
+	public enum SWSFlags : uint {
+		FastBilinear = 1,
+		Bilinear = 2,
+		Bicubic = 4,
+		X = 8,
+		Point = 0x10,
+		Area = 0x20,
+		Bicublin = 0x40,
+		Gauss = 0x80,
+		Sinc = 0x100,
+		Lanczos = 0x200,
+		Spline = 0x400,
+
+		PrintInfo = 0x1000,
+		FullChrHInt = 0x2000,
+		FullChrHInp = 0x4000,
+		DirectBGR = 0x8000,
+		AccurateRound = 0x40000,
+		BitExact = 0x80000
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Values overlap in defining header")]
+	public enum SWSColorspace : int {
+		ITU709 = 1,
+		FCC = 4,
+		ITU601 = 5,
+		IUF624 = 5,
+		SMPTE170M = 5,
+		SMPTE240M = 7,
+		Default = 5
+	}
+
 }
