@@ -1439,4 +1439,7 @@ namespace Tesseract.LibAV {
 
 	}
 
+	// --==[ libavresample ]==--
+	// avresample.h
+
 }

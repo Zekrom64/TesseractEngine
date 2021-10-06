@@ -202,6 +202,30 @@ namespace Tesseract.LibAV {
 
 		public static long CompareMod(ulong a, ulong b, ulong mod) => Functions.av_compare_mod(a, b, mod);
 
+		// channel_layout.h
+
+		public static AVChannelMask GetChannelLayout(string name) => Functions.av_get_channel_layout(name);
+
+		public static string GetChannelLayoutString(AVChannelMask channelLayout, int nbChannels = -1) {
+			Span<byte> buf = stackalloc byte[4096];
+			unsafe {
+				fixed(byte* pBuf = buf) {
+					Functions.av_get_channel_layout_string((IntPtr)pBuf, buf.Length, nbChannels, channelLayout);
+				}
+			}
+			return MemoryUtil.GetASCII(buf);
+		}
+
+		public static int GetChannelLayoutNbChannels(AVChannelMask channelLayout) => Functions.av_get_channel_layout_nb_channels(channelLayout);
+
+		public static AVChannelMask GetDefaultChannelLayout(int nbChannels) => Functions.av_get_default_channel_layout(nbChannels);
+
+		public static int GetChannelLayoutChannelIndex(AVChannelMask channelLayout, AVChannelMask channel) => Functions.av_get_channel_layout_channel_index(channelLayout, channel);
+
+		public static AVChannelMask ChannelLayoutExtractChannel(AVChannelMask channelLayout, int index) => Functions.av_channel_layout_extract_channel(channelLayout, index);
+
+		public static string GetChannelName(AVChannelMask channel) => MemoryUtil.GetASCII(Functions.av_get_channel_name(channel));
+
 	}
 
 }

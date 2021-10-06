@@ -595,6 +595,77 @@ namespace Tesseract.LibAV {
 		NearInf
 	}
 
+	// channel_layout.h
+
+	[Flags]
+	public enum AVChannelMask : ulong {
+		FrontLeft =      0x00000001,
+		FrontRight =     0x00000002,
+		FrontCenter =    0x00000004,
+		LowFrequency =   0x00000008,
+		BackLeft =       0x00000010,
+		BackRight =      0x00000020,
+		FrontLeftOfCenter = 0x00000040,
+		FrontRightOfCenter = 0x00000080,
+		BackCenter =     0x00000100,
+		SideLeft =       0x00000200,
+		SideRight =      0x00000400,
+		TopLeft =        0x00000800,
+		TopFrontLeft =   0x00001000,
+		TopFrontCenter = 0x00002000,
+		TopFrontRight =  0x00004000,
+		TopBackLeft =    0x00008000,
+		TopBackCenter =  0x00010000,
+		TopBackRight =   0x00020000,
+		StereoLeft =     0x20000000,
+		StereoRight =    0x40000000,
+		WideLeft =       0x0000000080000000,
+		WideRight =      0x0000000100000000,
+		SurroundDirectLeft = 0x0000000200000000,
+		SurroundDirectRight = 0x0000000400000000,
+		LowFrequency2 =  0x0000000800000000,
+		Native =         0x8000000000000000,
+
+		Mono = FrontCenter,
+		Stereo = FrontLeft | FrontRight,
+		_2Point1 = Stereo | LowFrequency,
+		_2_1 = Stereo | BackCenter,
+		Surround = Stereo | FrontCenter,
+		_3Point1 = Surround | LowFrequency,
+		_4Point0 = Surround | BackCenter,
+		_4Point1 = _4Point0 | LowFrequency,
+		_2_2 = Stereo | SideLeft | SideRight,
+		Quad = Stereo | BackLeft | BackRight,
+		_5Point0 = Surround | SideLeft | SideRight,
+		_5Point1 = _5Point0 | LowFrequency,
+		_5Point0Back = Surround | BackLeft | BackRight,
+		_5Point1Back = _5Point0Back | LowFrequency,
+		_6Point0 = _5Point0 | BackCenter,
+		_6Point0Front = _2_2 | FrontLeftOfCenter | FrontRightOfCenter,
+		Hexagonal = _5Point0Back | BackCenter,
+		_6Point1 = _5Point1 | BackCenter,
+		_6Point1Back = _5Point1Back | BackCenter,
+		_6Point1Front = _6Point0Front | LowFrequency,
+		_7Point0 = _5Point0 | BackLeft | BackRight,
+		_7Point0Front = _5Point0 | FrontLeftOfCenter | FrontRightOfCenter,
+		_7Point1 = _5Point1 | BackLeft | BackRight,
+		_7Point1Wide = _5Point1 | FrontLeftOfCenter | FrontRightOfCenter,
+		_7Point1WideBack = _5Point1Back | FrontLeftOfCenter | FrontRightOfCenter,
+		Octagonal = _5Point0 | BackLeft | BackCenter | BackRight,
+		Hexadecagonal = Octagonal | WideLeft | WideRight | TopBackLeft | TopBackRight | TopBackCenter | TopFrontLeft | TopFrontRight | TopFrontCenter,
+		StereoDownmix = StereoLeft | StereoRight
+	}
+
+	public enum AVMatrixEncoding : int {
+		None,
+		Dolby,
+		DLPII,
+		DLPIIX,
+		DLPIIZ,
+		DolbyEx,
+		DolbyHeadphone
+	}
+
 	// --==[ libavcodec ]==--
 	// avcodec.h
 

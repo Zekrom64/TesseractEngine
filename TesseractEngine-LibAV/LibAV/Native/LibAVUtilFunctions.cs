@@ -277,6 +277,25 @@ namespace Tesseract.LibAV.Native {
 		public PFN_av_compare_ts av_compare_ts;
 		public PFN_av_compare_mod av_compare_mod;
 
+		// channel_layout.h
+
+		public delegate AVChannelMask PFN_av_get_channel_layout([MarshalAs(UnmanagedType.LPStr)] string name);
+		public delegate void PFN_av_get_channel_layout_string([NativeType("char*")] IntPtr buf, int bufSize, int nbChannels, AVChannelMask channelLayout);
+		public delegate int PFN_av_get_channel_layout_nb_channels(AVChannelMask channelLayout);
+		public delegate AVChannelMask PFN_av_get_default_channel_layout(int nbChannels);
+		public delegate int PFN_av_get_channel_layout_channel_index(AVChannelMask channelLayout, AVChannelMask channel);
+		public delegate AVChannelMask PFN_av_channel_layout_extract_channel(AVChannelMask channelLayout, int channel);
+		[return: NativeType("const char*")]
+		public delegate IntPtr PFN_av_get_channel_name(AVChannelMask channel);
+
+		public PFN_av_get_channel_layout av_get_channel_layout;
+		public PFN_av_get_channel_layout_string av_get_channel_layout_string;
+		public PFN_av_get_channel_layout_nb_channels av_get_channel_layout_nb_channels;
+		public PFN_av_get_default_channel_layout av_get_default_channel_layout;
+		public PFN_av_get_channel_layout_channel_index av_get_channel_layout_channel_index;
+		public PFN_av_channel_layout_extract_channel av_channel_layout_extract_channel;
+		public PFN_av_get_channel_name av_get_channel_name;
+
 	}
 
 }
