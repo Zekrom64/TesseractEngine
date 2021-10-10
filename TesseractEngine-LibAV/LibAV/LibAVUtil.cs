@@ -226,6 +226,61 @@ namespace Tesseract.LibAV {
 
 		public static string GetChannelName(AVChannelMask channel) => MemoryUtil.GetASCII(Functions.av_get_channel_name(channel));
 
+		// mem.h
+
+		public static ManagedPointer<byte> Malloc(nuint size) => new(Functions.av_malloc(size), new(Functions.av_free), (int)size);
+
+		public static ManagedPointer<byte> MallocArray(nuint nmemb, nuint size) => new(Functions.av_malloc_array(nmemb, size), new(Functions.av_free), (int)(nmemb * size));
+
+		public static ManagedPointer<byte> Realloc(IntPtr ptr, nuint size) => new(Functions.av_realloc(ptr, size), new(Functions.av_free), (int)size);
+
+		public static ManagedPointer<byte> Reallocp(IntPtr ptr, nuint size) {
+			AVError err;
+			unsafe {
+				err = Functions.av_reallocp((IntPtr)(&ptr), size);
+			}
+			if (err != AVError.None) throw new AVException("Call to av_reallocp() failed", err);
+			return new ManagedPointer<byte>(ptr, new(Functions.av_free), (int)size);
+		}
+
+		public static ManagedPointer<byte> ReallocArray(IntPtr ptr, nuint nmemb, nuint size) => new(Functions.av_realloc_array(ptr, nmemb, size), new(Functions.av_free), (int)(nmemb * size));
+
+		public static ManagedPointer<byte> ReallocpArray(IntPtr ptr, nuint nmemb, nuint size) {
+			AVError err;
+			unsafe {
+				err = Functions.av_reallocp_array((IntPtr)(&ptr), nmemb, size);
+			}
+			if (err != AVError.None) throw new AVException("Call to av_reallocp_array() failed", err);
+			return new ManagedPointer<byte>(ptr, new(Functions.av_free), (int)size);
+		}
+
+		public static void Free(IntPtr ptr) => Functions.av_free(ptr);
+
+		public static ManagedPointer<byte> Mallocz(nuint size) => new(Functions.av_mallocz(size), new(Functions.av_free), (int)size);
+
+		public static ManagedPointer<byte> MalloczArray(nuint nmemb, nuint size) => new(Functions.av_mallocz_array(nmemb, size), new(Functions.av_free), (int)(nmemb * size));
+
+		public static ManagedPointer<byte> Strdup([NativeType("const char*")] IntPtr ptr) => new(Functions.av_strdup(ptr), new(Functions.av_free), MemoryUtil.FindFirst(ptr, 0));
+
+		public static ManagedPointer<byte> Strndup([NativeType("const char*")] IntPtr ptr, nuint len) {
+			ptr = Functions.av_strndup(ptr, len);
+			return new ManagedPointer<byte>(ptr, new(Functions.av_free), MemoryUtil.FindFirst(ptr, 0, (int)len));
+		}
+
+		public static void MemcpyBackptr(IntPtr dst, int back, int count) => Functions.av_memcpy_backptr(dst, back, count);
+
+		public static ManagedPointer<byte> FastRealloc(IntPtr ptr, out uint size, nuint minSize) {
+			ptr = Functions.av_fast_realloc(ptr, out size, minSize);
+			return new ManagedPointer<byte>(ptr, new(Functions.av_free), (int)size);
+		}
+
+		public static ManagedPointer<byte> FastMalloc(IntPtr ptr, out uint size, nuint minSize) {
+			unsafe {
+				Functions.av_fast_malloc((IntPtr)(&ptr), out size, minSize);
+			}
+			return new ManagedPointer<byte>(ptr, new(Functions.av_free), (int)size);
+		}
+
 	}
 
 }

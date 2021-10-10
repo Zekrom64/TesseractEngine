@@ -296,6 +296,42 @@ namespace Tesseract.LibAV.Native {
 		public PFN_av_channel_layout_extract_channel av_channel_layout_extract_channel;
 		public PFN_av_get_channel_name av_get_channel_name;
 
+		// memory.h
+
+		public delegate IntPtr PFN_av_malloc(nuint size);
+		public delegate IntPtr PFN_av_malloc_array(nuint nmemb, nuint size);
+		public delegate IntPtr PFN_av_realloc(IntPtr ptr, nuint size);
+		public delegate AVError PFN_av_reallocp(IntPtr ptr, nuint size);
+		public delegate IntPtr PFN_av_realloc_array(IntPtr Ptr, nuint nmemb, nuint size);
+		public delegate AVError PFN_av_reallocp_array(IntPtr ptr, nuint nmemb, nuint size);
+		public delegate void PFN_av_free(IntPtr ptr);
+		public delegate IntPtr PFN_av_mallocz(nuint size);
+		public delegate IntPtr PFN_av_mallocz_array(nuint nmemb, nuint size);
+		[return: NativeType("char*")]
+		public delegate IntPtr PFN_av_strdup([NativeType("const char*")] IntPtr s);
+		[return: NativeType("char*")]
+		public delegate IntPtr PFN_av_strndup([NativeType("const char*")] IntPtr s, nuint len);
+		public delegate void PFN_av_freep(IntPtr ptr);
+		public delegate void PFN_av_memcpy_backptr([NativeType("uint8_t*")] IntPtr dst, int back, int cnt);
+		public delegate IntPtr PFN_av_fast_realloc(IntPtr ptr, out uint size, nuint minSize);
+		public delegate void PFN_av_fast_malloc(IntPtr ptr, out uint size, nuint minSize);
+
+		public PFN_av_malloc av_malloc;
+		public PFN_av_malloc_array av_malloc_array;
+		public PFN_av_realloc av_realloc;
+		public PFN_av_reallocp av_reallocp;
+		public PFN_av_realloc_array av_realloc_array;
+		public PFN_av_reallocp_array av_reallocp_array;
+		public PFN_av_free av_free;
+		public PFN_av_mallocz av_mallocz;
+		public PFN_av_mallocz_array av_mallocz_array;
+		public PFN_av_strdup av_strdup;
+		public PFN_av_strndup av_strndup;
+		public PFN_av_freep av_freep;
+		public PFN_av_memcpy_backptr av_memcpy_backptr;
+		public PFN_av_fast_realloc av_fast_realloc;
+		public PFN_av_fast_malloc av_fast_malloc;
+
 	}
 
 }
