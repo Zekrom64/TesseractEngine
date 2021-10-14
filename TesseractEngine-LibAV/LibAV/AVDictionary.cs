@@ -14,6 +14,10 @@ namespace Tesseract.LibAV {
 		[NativeType("AVDictionary*")]
 		public IntPtr Dictionary => dictionary;
 
+		public AVDictionary([NativeType("AVDictionary*")] IntPtr pDictionary) {
+			dictionary = pDictionary;
+		}
+
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (dictionary != IntPtr.Zero) {

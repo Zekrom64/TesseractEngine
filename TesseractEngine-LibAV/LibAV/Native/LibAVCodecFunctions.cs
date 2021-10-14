@@ -56,9 +56,9 @@ namespace Tesseract.LibAV.Native {
 		[return: NativeType("AVCodecParameters*")]
 		public delegate IntPtr PFN_avcodec_parameters_alloc();
 		public delegate void PFN_avcodec_parameters_free([NativeType("AVCodecParameters**")] IntPtr par);
-		public delegate int PFN_avcodec_parameters_copy([NativeType("AVCodecParameters*")] IntPtr dst, [NativeType("const AVCodecParameters*")] IntPtr src);
-		public delegate int PFN_avcodec_parameters_from_context([NativeType("AVCodecParameters*")] IntPtr par, [NativeType("const AVCodecContext*")] IntPtr codec);
-		public delegate int PFN_avcodec_parameters_to_context([NativeType("AVCodecContext*")] IntPtr codec, [NativeType("const AVCodecParameters*")] IntPtr par);
+		public delegate AVError PFN_avcodec_parameters_copy([NativeType("AVCodecParameters*")] IntPtr dst, [NativeType("const AVCodecParameters*")] IntPtr src);
+		public delegate AVError PFN_avcodec_parameters_from_context([NativeType("AVCodecParameters*")] IntPtr par, [NativeType("const AVCodecContext*")] IntPtr codec);
+		public delegate AVError PFN_avcodec_parameters_to_context([NativeType("AVCodecContext*")] IntPtr codec, [NativeType("const AVCodecParameters*")] IntPtr par);
 		public delegate AVError PFN_avcodec_open2([NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("const AVCodec*")] IntPtr codec, [NativeType("AVDictionary**")] IntPtr options);
 		[Obsolete("The functionality provided by this function is no longer supported by libav")]
 		public delegate int PFN_avcodec_close([NativeType("AVCodecContext*")] IntPtr avctx);
@@ -121,8 +121,8 @@ namespace Tesseract.LibAV.Native {
 		[return: NativeType("AVCodec*")]
 		public delegate IntPtr PFN_avcodec_find_decoder_by_name([MarshalAs(UnmanagedType.LPStr)] string name);
 		public delegate int PFN_avcodec_default_get_buffer2([NativeType("AVCodecContext*")] IntPtr s, [NativeType("AVFrame*")] IntPtr frame, int flags);
-		public delegate void PFN_avcodec_align_dimensions([NativeType("AVCodecContext*")] IntPtr s, [NativeType("int*")] IntPtr width, [NativeType("int*")] IntPtr height);
-		public delegate void PFN_avcodec_align_dimensions2([NativeType("AVCodecContext*")] IntPtr s, [NativeType("int*")] IntPtr width, [NativeType("int*")] IntPtr height, [MarshalAs(UnmanagedType.LPArray, SizeConst = AVFrame.NumDataPointers)] int[] linesizeAlign);
+		public delegate void PFN_avcodec_align_dimensions([NativeType("AVCodecContext*")] IntPtr s, ref int width, ref int height);
+		public delegate void PFN_avcodec_align_dimensions2([NativeType("AVCodecContext*")] IntPtr s, ref int width, ref int height, [NativeType("int[AV_NUM_DATA_POINTERS]")] IntPtr linesizeAlign);
 		[Obsolete("Use avcodec_send_packet() and avcodec_receive_frame()")]
 		public delegate int PFN_avcodec_decode_audio4([NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("AVFrame*")] IntPtr frame, out int gotFramePtr, [NativeType("AVPacket*")] IntPtr avpkt);
 		[Obsolete("Use avcodec_send_packet() and avcodec_receive_frame()")]
@@ -167,9 +167,9 @@ namespace Tesseract.LibAV.Native {
 		public delegate void PFN_av_register_codec_parser([NativeType("AVCodecParser*")] IntPtr parser);
 		[return: NativeType("AVCodecParserContext*")]
 		public delegate IntPtr PFN_av_parser_init(int codecID);
-		public delegate int PFN_av_parser_parse2([NativeType("AVCodecParserContext*")] IntPtr s, [NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("uint8_t**")] out IntPtr outBuf, out int outBufSize, [NativeType("const uint8_t*")] IntPtr buf, int bufSize, long pts, long dts, long pos);
+		public delegate int PFN_av_parser_parse2([NativeType("AVCodecParserContext*")] IntPtr s, [NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("uint8_t**")] IntPtr pOutBuf, [NativeType("int*")] IntPtr outBufSize, [NativeType("const uint8_t*")] IntPtr buf, int bufSize, long pts, long dts, long pos);
 		[Obsolete("Use AVBitstreamFilter")]
-		public delegate bool PFN_av_parser_change([NativeType("AVCodecParserContext*")] IntPtr s, [NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("uint8_t**")] out IntPtr outBuf, out int outBufSize, [NativeType("const uint8_t*")] IntPtr buf, int bufSize, int keyframe);
+		public delegate bool PFN_av_parser_change([NativeType("AVCodecParserContext*")] IntPtr s, [NativeType("AVCodecContext*")] IntPtr avctx, [NativeType("uint8_t**")] IntPtr pOutBuf, [NativeType("int*")] IntPtr pOutBufSize, [NativeType("const uint8_t*")] IntPtr buf, int bufSize, int keyframe);
 		public delegate void PFN_av_parser_close([NativeType("AVCodecParserContext*")] IntPtr s);
 		[return: NativeType("AVCodec*")]
 		public delegate IntPtr PFN_avcodec_find_encoder(AVCodecID id);
@@ -232,7 +232,7 @@ namespace Tesseract.LibAV.Native {
 		public PFN_av_picture_pad avpicture_pad;
 #endif
 
-		public delegate int PFN_avcodec_pix_fmt_to_codec_tag(AVPixelFormat format);
+		public delegate uint PFN_avcodec_pix_fmt_to_codec_tag(AVPixelFormat format);
 		public delegate AVLossFlags PFN_avcodec_get_pix_fmt_loss(AVPixelFormat dstFormat, AVPixelFormat srcFormat, bool hasAlpha);
 		public delegate AVPixelFormat PFN_avcodec_find_best_pix_fmt2([NativeType("AVPixelFormat*")] IntPtr pixelFormatList, AVPixelFormat srcPixelFormat, bool hasAlpha, out AVLossFlags loss);
 		public delegate AVPixelFormat PFN_avcodec_default_get_format([NativeType("AVCodecContext*")] IntPtr s, [NativeType("const AVPixelFormat")] IntPtr format);
@@ -267,7 +267,7 @@ namespace Tesseract.LibAV.Native {
 		public PFN_avcodec_flush_buffers avcodec_flush_buffers;
 
 		public delegate int PFN_av_get_bits_per_sample(AVCodecID codecID);
-		public delegate int PFN_av_get_exact_bits_per_sample(AVCodec codecID);
+		public delegate int PFN_av_get_exact_bits_per_sample(AVCodecID codecID);
 		public delegate int PFN_av_get_audio_frame_duration([NativeType("AVCodecContext*")] IntPtr c, int frameBytes);
 		public delegate int PFN_av_get_audio_frame_duration2([NativeType("AVCodecParameters*")] IntPtr par, int frameBytes);
 
@@ -325,7 +325,7 @@ namespace Tesseract.LibAV.Native {
 		public PFN_av_bsf_free av_bsf_free;
 		public PFN_av_bsf_get_class av_bsf_get_class;
 
-		public delegate void PFN_av_fast_padded_malloc(IntPtr ptr, ref uint size, nuint minSize);
+		public delegate void PFN_av_fast_padded_malloc(IntPtr ptr, out uint size, nuint minSize);
 		public delegate uint PFN_av_xiphlacing([NativeType("unsigned char*")] IntPtr s, uint v);
 
 		public PFN_av_fast_padded_malloc av_fast_padded_malloc;
