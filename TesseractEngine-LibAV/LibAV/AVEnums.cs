@@ -1478,4 +1478,28 @@ namespace Tesseract.LibAV {
 		Default = 5
 	}
 
+	// --==[ libavformat ]==--
+	// avio.h
+
+	public enum AVIOSeekableFlags : int {
+		Normal = 1,
+		Time = 2
+	}
+
+	public enum AVIODataMarkerType : int {
+		Header,
+		SyncPoint,
+		BoundaryPoint,
+		Unknown,
+		Trailer
+	}
+
+	public enum AVIOOpenFlags : int {
+		Read = 1,
+		Write = 2,
+		ReadWrite = Read | Write,
+
+		NonBlock = 8
+	}
+
 }

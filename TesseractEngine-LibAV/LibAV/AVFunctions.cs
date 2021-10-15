@@ -30,4 +30,10 @@ namespace Tesseract.LibAV {
 
 	public delegate int AVLockMgrCB(ref IntPtr mutex, AVLockOp op);
 
+	// avio.h
+
+	public delegate int AVReadPacket(IntPtr opaque, [NativeType("uint8_t*")] IntPtr buf, int bufSize);
+	public delegate int AVWritePacket(IntPtr opaque, [NativeType("uint8_t*")] IntPtr buf, int bufSize);
+	public delegate long AVSeek(IntPtr opaque, long offset, int whence);
+
 }

@@ -1442,4 +1442,98 @@ namespace Tesseract.LibAV {
 	// --==[ libavresample ]==--
 	// avresample.h
 
+	// --==[ libavformat ]==--
+	// avio.h
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct AVIOInterruptCB {
+
+		public delegate int CallbackFn(IntPtr arg);
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public CallbackFn Callback;
+
+		public IntPtr Opaque;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct AVIOContext {
+		
+		[NativeType("const AVClass*")]
+		public IntPtr AVClass;
+
+		[NativeType("unsigned char*")]
+		public IntPtr Buffer;
+
+		public int BufferSize;
+
+		[NativeType("unsigned char*")]
+		public IntPtr BufPtr;
+
+		[NativeType("unsigned char*")]
+		public IntPtr BufEnd;
+
+		public IntPtr Opaque;
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public AVReadPacket ReadPacket;
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public AVReadPacket WritePacket;
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public AVSeek Seek;
+
+		public long Pos;
+
+		public bool MustFlush;
+
+		public bool EofReached;
+
+		public bool WriteFlag;
+
+		public int MaxPacketSize;
+
+		public uint Checksum;
+
+		[NativeType("unsigned char*")]
+		public IntPtr ChecksumPtr;
+
+		public delegate uint UpdateChecksumFn(uint checksum, [NativeType("const uint8_t*")] IntPtr buf, uint size);
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public UpdateChecksumFn UpdateChecksum;
+
+		public int Error;
+
+		public delegate int ReadPauseFn(IntPtr opaque, bool pause);
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public ReadPauseFn ReadPause;
+
+		public delegate long ReadSeekFn(IntPtr opaque, int streamIndex, long timestamp, AVIOSeekableFlags flags);
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public ReadSeekFn ReadSeek;
+
+		public AVIOSeekableFlags Seekable;
+
+		public delegate int WriteDataTypeFn(IntPtr opaque, [NativeType("uint8_t*")] IntPtr buf, int bufSize, AVIODataMarkerType type, long time);
+
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public WriteDataTypeFn WriteDataType;
+
+		public bool IgnoreBoundaryPoint;
+
+		public AVIODataMarkerType CurrentType;
+
+		public long LastTime;
+
+		public long Written;
+
+	}
+
+
+
 }
