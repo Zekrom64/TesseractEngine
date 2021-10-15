@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Utilities",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-LMDB", "TesseractEngine-LMDB\TesseractEngine-LMDB.csproj", "{FF9D16C2-344B-46CA-A66C-73F921094F55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-AL", "TesseractEngine-OpenAL\TesseractEngine-AL.csproj", "{5A243E15-C1A0-4210-89D8-A296ECF0CD02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-AL", "TesseractEngine-AL\TesseractEngine-AL.csproj", "{5A243E15-C1A0-4210-89D8-A296ECF0CD02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
