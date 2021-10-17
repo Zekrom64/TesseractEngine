@@ -307,53 +307,53 @@ namespace Tesseract.OpenAL {
 
 	}
 
-	public static class AL11 {
+	public class AL11 {
 
-		public static LibrarySpec LibrarySpec { get; } = new() { Name = "OpenAL32" };
-		public static Library Library { get; } = LibraryManager.Load(LibrarySpec);
-		public static AL11Functions Functions { get; } = new();
+		public AL AL { get; }
+		public AL11Functions Functions { get; } = new();
 
-		static AL11() {
-			Library.LoadFunctions(Functions);
+		public AL11(AL al) {
+			AL = al;
+			Library.LoadFunctions(al.GetProcAddress, Functions);
 		}
 
-		public static float DopplerFactor {
+		public float DopplerFactor {
 			get => Functions.alGetFloat(ALGetFloat.DopplerFactor);
 			set => Functions.alDopplerFactor(value);
 		}
 
-		public static float DopplerVelocity {
+		public float DopplerVelocity {
 			get => Functions.alGetFloat(ALGetFloat.DopplerVelocity);
 			set => Functions.alDopplerVelocity(value);
 		}
 
-		public static float SpeedOfSound {
+		public float SpeedOfSound {
 			get => Functions.alGetFloat(ALGetFloat.SpeedOfSound);
 			set => Functions.alSpeedOfSound(value);
 		}
 
-		public static ALDistanceModel DistanceModel {
+		public ALDistanceModel DistanceModel {
 			get => (ALDistanceModel)Functions.alGetInteger(ALGetInteger.DistanceModel);
 			set => Functions.alDistanceModel(value);
 		}
 
-		public static void Enable(ALenum capability) => Functions.alEnable(capability);
+		public void Enable(ALenum capability) => Functions.alEnable(capability);
 
-		public static void Disable(ALenum capability) => Functions.alDisable(capability);
+		public void Disable(ALenum capability) => Functions.alDisable(capability);
 
-		public static bool IsEnabled(ALenum capability) => Functions.alIsEnabled(capability) != 0;
+		public bool IsEnabled(ALenum capability) => Functions.alIsEnabled(capability) != 0;
 
-		public static string GetString(ALGetString param) => MemoryUtil.GetASCII(Functions.alGetString(param));
+		public string GetString(ALGetString param) => MemoryUtil.GetASCII(Functions.alGetString(param));
 
-		public static ALError GetError() => Functions.alGetError();
+		public ALError GetError() => Functions.alGetError();
 
-		public static bool IsExtensionPresent(string extname) => Functions.alIsExtensionPresent(extname) != 0;
+		public bool IsExtensionPresent(string extname) => Functions.alIsExtensionPresent(extname) != 0;
 
-		public static IntPtr GetProcAddress(string fname) => Functions.alGetProcAddress(fname);
+		public IntPtr GetProcAddress(string fname) => Functions.alGetProcAddress(fname);
 
-		public static ALenum GetEnumValue(string ename) => Functions.alGetEnumValue(ename);
+		public ALenum GetEnumValue(string ename) => Functions.alGetEnumValue(ename);
 
-		public static Vector3 ListenerPosition {
+		public Vector3 ListenerPosition {
 			get {
 				Functions.alGetListener3f(ALListenerAttrib.Position, out float x, out float y, out float z);
 				return new Vector3(x, y, z);
@@ -361,7 +361,7 @@ namespace Tesseract.OpenAL {
 			set => Functions.alListener3f(ALListenerAttrib.Position, value.X, value.Y, value.Z);
 		}
 
-		public static Vector3 ListenerVelocity {
+		public Vector3 ListenerVelocity {
 			get {
 				Functions.alGetListener3f(ALListenerAttrib.Velocity, out float x, out float y, out float z);
 				return new Vector3(x, y, z);
@@ -369,7 +369,7 @@ namespace Tesseract.OpenAL {
 			set => Functions.alListener3f(ALListenerAttrib.Velocity, value.X, value.Y, value.Z);
 		}
 
-		public static float ListenerGain {
+		public float ListenerGain {
 			get {
 				Functions.alGetListenerf(ALListenerAttrib.Gain, out float value);
 				return value;
@@ -377,7 +377,7 @@ namespace Tesseract.OpenAL {
 			set => Functions.alListenerf(ALListenerAttrib.Gain, value);
 		}
 
-		public static (Vector3, Vector3) ListenerOrientation {
+		public (Vector3, Vector3) ListenerOrientation {
 			get {
 				Span<float> values = stackalloc float[6];
 				unsafe {
@@ -413,26 +413,28 @@ namespace Tesseract.OpenAL {
 			}
 		}
 
-		public static void Play(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourcePlayv));
+		public void Play(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourcePlayv));
 
-		public static void Pause(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourcePausev));
+		public void Pause(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourcePausev));
 
-		public static void Stop(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourceStopv));
+		public void Stop(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourceStopv));
 
-		public static void Rewind(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourceRewindv));
+		public void Rewind(params ALSource[] sources) => SourceOpVector(sources, new(Functions.alSourceRewindv));
 
-		public static void Play(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourcePlayv));
+		public void Play(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourcePlayv));
 
-		public static void Pause(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourcePausev));
+		public void Pause(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourcePausev));
 
-		public static void Stop(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourceStopv));
+		public void Stop(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourceStopv));
 
-		public static void Rewind(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourceRewindv));
+		public void Rewind(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourceRewindv));
 
 	}
 
-	public class ALSource : IDisposable {
+	public class ALSource : IDisposable, IALObject {
 
+		public AL11 AL11 { get; }
+		public AL AL => AL11.AL;
 		public ALuint Source { get; }
 
 		public bool Relative {
@@ -578,7 +580,8 @@ namespace Tesseract.OpenAL {
 
 		public ALSource(ALuint source) { Source = source; }
 
-		public ALSource() {
+		public ALSource(AL11 al11) {
+			AL11 = al11;
 			ALuint source = 0;
 			unsafe {
 				AL11.Functions.alGenSources(1, (IntPtr)(&source));
@@ -641,8 +644,10 @@ namespace Tesseract.OpenAL {
 
 	}
 
-	public class ALBuffer : IDisposable {
+	public class ALBuffer : IDisposable, IALObject {
 
+		public AL11 AL11 { get; }
+		public AL AL => AL11.AL;
 		public ALuint Buffer { get; }
 
 		public int Frequency {
@@ -675,7 +680,8 @@ namespace Tesseract.OpenAL {
 
 		public ALBuffer(ALuint buffer) { Buffer = buffer; }
 
-		public ALBuffer() {
+		public ALBuffer(AL11 al11) {
+			AL11 = al11;
 			ALuint buffer = 0;
 			unsafe {
 				AL11.Functions.alGenBuffers(1, (IntPtr)(&buffer));

@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Tesseract.OpenAL {
 	
+	public interface IALObject {
+
+		public AL AL { get; }
+
+	}
+
 	public class ALException : Exception {
 
 		public ALException(string msg) : base(msg) { }

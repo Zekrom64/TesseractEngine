@@ -127,9 +127,16 @@ namespace Tesseract.OpenAL {
 		public static Library Library { get; } = LibraryManager.Load(LibrarySpec);
 		public static ALCFunctions Functions { get; } = new();
 
+		public static SOFTLoopback SOFTLoopback { get; }
+
 		static ALC() {
 			Library.LoadFunctions(Functions);
+			if (IsExtensionPresent(SOFTLoopback.ExtensionName)) SOFTLoopback = new();
 		}
+
+		public static bool IsExtensionPresent(string extname) => Functions.alcIsExtensionPresent(IntPtr.Zero, extname) != 0;
+
+		public static IntPtr GetProcAddress(string name) => Functions.alcGetProcAddress(IntPtr.Zero, name);
 
 	}
 
@@ -220,6 +227,20 @@ namespace Tesseract.OpenAL {
 				}
 			}
 		}
+
+		public bool IsRenderFormatSupportedSOFT(ALCsizei freq, ALCChannelConfiguration channels, ALCSampleType type) =>
+			ALC.SOFTLoopback.Functions.alcIsRenderFormatSupportedSOFT(Device, freq, channels, type) != 0;
+
+		public void RenderSamplesSOFT<T>(Span<T> buffer, int samples) where T : unmanaged {
+			unsafe {
+				fixed(T* pBuffer = buffer) {
+					ALC.SOFTLoopback.Functions.alcRenderSamplesSOFT(Device, (IntPtr)pBuffer, samples);
+				}
+			}
+		}
+
+		public void RenderSamplesSOFT<T>(IPointer<T> buffer, int samples) where T : unmanaged =>
+			ALC.SOFTLoopback.Functions.alcRenderSamplesSOFT(Device, buffer.Ptr, samples);
 
 	}
 
