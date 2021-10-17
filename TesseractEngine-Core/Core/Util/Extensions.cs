@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -160,6 +161,76 @@ namespace Tesseract.Core.Util {
 				value = default;
 				return false;
 			}
+		}
+
+	}
+
+	public static class VectorExtensions {
+
+		public static void CopyTo(this Vector2 v, Span<float> span, int offset = 0) {
+			span[offset++] = v.X;
+			span[offset] = v.Y;
+		}
+
+		public static void CopyTo(this Vector3 v, Span<float> span, int offset = 1) {
+			span[offset++] = v.X;
+			span[offset++] = v.Y;
+			span[offset] = v.Z;
+		}
+
+		public static void CopyTo(this Vector4 v, Span<float> span, int offset = 1) {
+			span[offset++] = v.X;
+			span[offset++] = v.Y;
+			span[offset++] = v.Z;
+			span[offset] = v.W;
+		}
+
+		public static Vector2 ReadFrom(this Vector2 v, in ReadOnlySpan<float> span, int offset = 0) {
+			int n = span.Length;
+			if (n > 0) {
+				v.X = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.Y = span[offset];
+			}
+			return v;
+		}
+
+		public static Vector3 ReadFrom(this Vector3 v, in ReadOnlySpan<float> span, int offset = 0) {
+			int n = span.Length;
+			if (n > 0) {
+				v.X = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.Y = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.Z = span[offset];
+			}
+			return v;
+		}
+
+		public static Vector4 ReadFrom(this Vector4 v, in ReadOnlySpan<float> span, int offset = 0) {
+			int n = span.Length;
+			if (n > 0) {
+				v.X = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.Y = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.Z = span[offset++];
+				n--;
+			}
+			if (n > 0) {
+				v.W = span[offset];
+			}
+			return v;
 		}
 
 	}
