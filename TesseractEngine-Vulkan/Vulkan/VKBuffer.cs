@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKBuffer : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKBuffer : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkBuffer")]
 		public ulong Buffer { get; }
+
+		public ulong PrimitiveHandle => Buffer;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
@@ -22,6 +24,28 @@ namespace Tesseract.Vulkan {
 			get {
 				Device.VK10Functions.vkGetBufferMemoryRequirements(Device, Buffer, out VKMemoryRequirements requirements);
 				return requirements;
+			}
+		}
+
+		public ulong DeviceAddress {
+			get {
+				var info = new VKBufferDeviceAddressInfo() {
+					Type = VKStructureType.BUFFER_DEVICE_ADDRESS_INFO,
+					Buffer = Buffer
+				};
+				if (Device.VK12Functions) return Device.VK12Functions.vkGetBufferDeviceAddress(Device, info);
+				else return Device.KHRBufferDeviceAddress.vkGetBufferDeviceAddressKHR(Device, info);
+			}
+		}
+
+		public ulong OpaqueCaptureAddress {
+			get {
+				var info = new VKBufferDeviceAddressInfo() {
+					Type = VKStructureType.BUFFER_DEVICE_ADDRESS_INFO,
+					Buffer = Buffer
+				};
+				if (Device.VK12Functions) return Device.VK12Functions.vkGetBufferOpaqueCaptureAddress(Device, info);
+				else return Device.KHRBufferDeviceAddress.vkGetBufferOpaqueCaptureAddressKHR(Device, info);
 			}
 		}
 

@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKPipeline : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKPipeline : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkPipeline")]
 		public ulong Pipeline { get; }
+
+		public ulong PrimitiveHandle => Pipeline;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 

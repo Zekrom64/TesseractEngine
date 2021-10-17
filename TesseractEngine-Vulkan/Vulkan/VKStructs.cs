@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Util;
@@ -138,6 +139,8 @@ namespace Tesseract.Vulkan {
 		public VkBool32 OcclusionQueryPrecise;
 		public VkBool32 PipelineStatisticsQuery;
 		public VkBool32 VertexPipelineStoresAndAtomics;
+		public VkBool32 FragmentStoresAndAtomics;
+		public VkBool32 ShaderTessellationAndGeometryPointSize;
 		public VkBool32 ShaderImageGatherExtended;
 		public VkBool32 ShaderStorageImageExtendedFormats;
 		public VkBool32 ShaderStorageImageMultisample;
@@ -222,6 +225,9 @@ namespace Tesseract.Vulkan {
 
 		uint IReadOnlyIndexer<int, uint>.this[int key] => this[key];
 
+		public static implicit operator Vector3ui(VKExtent3D e) => new(e.Width, e.Height, e.Depth);
+		public static implicit operator VKExtent3D(Vector3ui v) => new(v.X, v.Y, v.Z);
+
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -269,6 +275,7 @@ namespace Tesseract.Vulkan {
 		public uint MaxDescriptorSetInputAttachments;
 		public uint MaxVertexInputAttributes;
 		public uint MaxVertexInputBindings;
+		public uint MaxVertexInputAttributeOffset;
 		public uint MaxVertexInputBindingStride;
 		public uint MaxVertexOutputComponents;
 		public uint MaxTessellationGenerationLevel;
@@ -414,7 +421,7 @@ namespace Tesseract.Vulkan {
 
 		public uint APIVersion;
 		public uint DriverVersion;
-		public uint VendorID;
+		public VKVendorID VendorID;
 		public uint DeviceID;
 		public VKPhysicalDeviceType DeviceType;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxPhysicalDeviceNameSize)]
@@ -674,7 +681,13 @@ namespace Tesseract.Vulkan {
 				2 => Z,
 				_ => 0
 			};
-			set => throw new NotImplementedException();
+			set {
+				switch (key) {
+					case 0: X = value; break;
+					case 1: Y = value; break;
+					case 2: Z = value; break;
+				}
+			}
 		}
 
 		int IReadOnlyIndexer<int, int>.this[int key] => this[key];
@@ -690,6 +703,9 @@ namespace Tesseract.Vulkan {
 		int IReadOnlyTuple<int, int>.Y => Y;
 
 		int IReadOnlyTuple<int, int, int>.Z => Z;
+
+		public static implicit operator VKOffset3D(Vector3i v) => new(v.X, v.Y, v.Z);
+		public static implicit operator Vector3i(VKOffset3D o) => new(o.X, o.Y, o.Z);
 
 	}
 
@@ -1059,6 +1075,22 @@ namespace Tesseract.Vulkan {
 		public float MinDepth;
 		public float MaxDepth;
 
+		public static implicit operator VKViewport(Viewport v) => new() {
+			X = v.Area.Position.X,
+			Y = v.Area.Position.Y,
+			Width = v.Area.Size.X,
+			Height = v.Area.Size.Y,
+			MinDepth = v.DepthBounds.Item1,
+			MaxDepth = v.DepthBounds.Item2
+		};
+		public static implicit operator Viewport(VKViewport v) => new() {
+			Area = new() {
+				Position = new(v.X, v.Y),
+				Size = new(v.Width, v.Height)
+			},
+			DepthBounds = (v.MinDepth, v.MaxDepth)
+		};
+
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -1098,6 +1130,9 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
+		public static implicit operator VKOffset2D(Vector2i v) => new(v.X, v.Y);
+		public static implicit operator Vector2i(VKOffset2D o) => new(o.X, o.Y);
 
 	}
 
@@ -1140,6 +1175,9 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
+		public static implicit operator VKExtent2D(Vector2ui v) => new(v.X, v.Y);
+		public static implicit operator Vector2ui(VKExtent2D e) => new(e.Width, e.Height);
+
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -1147,6 +1185,9 @@ namespace Tesseract.Vulkan {
 
 		public VKOffset2D Offset;
 		public VKExtent2D Extent;
+
+		public static implicit operator VKRect2D(Recti r) => new() { Offset = r.Position, Extent = (Vector2ui)r.Size };
+		public static implicit operator Recti(VKRect2D r) => new() { Position = r.Offset, Size = (Vector2i)(Vector2ui)r.Extent };
 
 	}
 
@@ -1254,7 +1295,7 @@ namespace Tesseract.Vulkan {
 		public VKLogicOp LogicOp;
 		public uint AttachmentCount;
 		[NativeType("const VkPipelineColorBlendAttachmentState*")]
-		public IntPtr Attachment;
+		public IntPtr Attachments;
 		[NativeType("float[4]")]
 		public Vector4 BlendConstant;
 
@@ -1452,7 +1493,7 @@ namespace Tesseract.Vulkan {
 	public struct VKDescriptorPoolSize {
 
 		public VKDescriptorType Type;
-		public uint DescriptorType;
+		public uint DescriptorCount;
 
 	}
 

@@ -46,7 +46,7 @@ namespace Tesseract.Vulkan.Native {
 
 		public delegate void PFN_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
 		public delegate void PFN_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
-		public delegate void PFN_vkCreateRenderPass2(VkDevice device, in VKRenderPassCreateInfo2 createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
+		public delegate VKResult PFN_vkCreateRenderPass2(VkDevice device, in VKRenderPassCreateInfo2 createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
 		public delegate void PFN_vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
 		public delegate void PFN_vkCmdNextSubpass2(VkCommandBuffer commandBuffer, in VKSubpassBeginInfo subpassBeginInfo, in VKSubpassEndInfo subpassEndInfo);
 		public delegate void PFN_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, in VKSubpassEndInfo subpassEndInfo);
@@ -61,6 +61,7 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkCmdDrawIndirectCount vkCmdDrawIndirectCount;
 		public PFN_vkCmdDrawIndexedIndirectCount vkCmdDrawIndexedIndirectCount;
 		public PFN_vkCreateRenderPass2 vkCreateRenderPass2;
+		public PFN_vkCmdBeginRenderPass2 vkCmdBeginRenderPass2;
 		public PFN_vkCmdNextSubpass2 vkCmdNextSubpass2;
 		public PFN_vkCmdEndRenderPass2 vkCmdEndRenderPass2;
 		public PFN_vkResetQueryPool vkResetQueryPool;
@@ -70,6 +71,8 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
 		public PFN_vkGetBufferOpaqueCaptureAddress vkGetBufferOpaqueCaptureAddress;
 		public PFN_vkGetDeviceMemoryOpaqueCaptureAddress vkGetDeviceMemoryOpaqueCaptureAddress;
+
+		public static implicit operator bool(VK12DeviceFunctions fn) => fn != null;
 
 	}
 }

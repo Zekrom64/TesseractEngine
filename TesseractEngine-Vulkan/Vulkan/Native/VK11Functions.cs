@@ -51,16 +51,16 @@ namespace Tesseract.Vulkan.Native {
 	public class VK11InstanceFunctions {
 
 		public delegate VKResult PFN_vkEnumeratePhysicalDeviceGroups(VkInstance instance, ref uint physicalDeviceGroupCount, [NativeType("VkPhysicalDeviceGroupProperties*")] IntPtr pPhysicalDeviceGroupProperties);
-		public delegate void PFN_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceFeatures2 features);
-		public delegate void PFN_vkGetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceProperties2 properties);
-		public delegate void PFN_vkGetPhysicalDeviceFormatProperties2(VkPhysicalDevice physicalDevice, VKFormat format, out VKFormatProperties2 formatProperties);
-		public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceImageFormatInfo2 imageFormatInfo, out VKImageFormatProperties2 imageFormatProperties);
+		public delegate void PFN_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, ref VKPhysicalDeviceFeatures2 features);
+		public delegate void PFN_vkGetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice, ref VKPhysicalDeviceProperties2 properties);
+		public delegate void PFN_vkGetPhysicalDeviceFormatProperties2(VkPhysicalDevice physicalDevice, VKFormat format, ref VKFormatProperties2 formatProperties);
+		public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties2(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceImageFormatInfo2 imageFormatInfo, ref VKImageFormatProperties2 imageFormatProperties);
 		public delegate void PFN_vkGetPhysicalDeviceQueueFamilyProperties2(VkPhysicalDevice physicalDevice, ref uint queueFamilyPropertyCount, [NativeType("VkQueueFamilyProperties2")] IntPtr queueFamilyProperties);
-		public delegate void PFN_vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceMemoryProperties2 memoryProperties);
+		public delegate void PFN_vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice physicalDevice, ref VKPhysicalDeviceMemoryProperties2 memoryProperties);
 		public delegate void PFN_vkGetPhysicalDeviceSparseImageFormatProperties2(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, ref uint propertyCount, [NativeType("VkSparseImageFormatProperties2*")] IntPtr pProperties);
-		public delegate void PFN_vkGetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalBufferInfo info, out VKExternalBufferProperties externalBufferProperties);
-		public delegate void PFN_vkGetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalFenceInfo info, out VKExternalFenceProperties externalFenceProperties);
-		public delegate void PFN_vkGetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalSemaphoreInfo info, out VKExternalSemaphoreProperties externalSemaphoreProperties);
+		public delegate void PFN_vkGetPhysicalDeviceExternalBufferProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalBufferInfo info, ref VKExternalBufferProperties externalBufferProperties);
+		public delegate void PFN_vkGetPhysicalDeviceExternalFenceProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalFenceInfo info, ref VKExternalFenceProperties externalFenceProperties);
+		public delegate void PFN_vkGetPhysicalDeviceExternalSemaphoreProperties(VkPhysicalDevice physicalDevice, in VKPhysicalDeviceExternalSemaphoreInfo info, ref VKExternalSemaphoreProperties externalSemaphoreProperties);
 
 		public PFN_vkEnumeratePhysicalDeviceGroups vkEnumeratePhysicalDeviceGroups;
 		public PFN_vkGetPhysicalDeviceFeatures2 vkGetPhysicalDeviceFeatures2;
@@ -88,12 +88,12 @@ namespace Tesseract.Vulkan.Native {
 		public delegate void PFN_vkGetImageSparseMemoryRequirements2(VkDevice device, in VKImageSparseMemoryRequirementsInfo2 info, ref uint SparseMemoryRequirementCount, [NativeType("VkSparseImageMemoryRequirements2*")] IntPtr pSparseMemoryRequirements);
 		public delegate void PFN_vkTrimCommandPool(VkDevice device, VkCommandPool commandPool, VKCommandPoolTrimFlags flags);
 		public delegate void PFN_vkGetDeviceQueue2(VkDevice device, in VKDeviceQueueInfo2 queueInfo, out VkQueue queue);
-		public delegate VKResult PFN_vkCreateSamplerYcbcrConversion(VkDevice device, in VKSamplerYcbcrConversionInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSamplerYcbcrConversion ycbcrConversion);
+		public delegate VKResult PFN_vkCreateSamplerYcbcrConversion(VkDevice device, in VKSamplerYcbcrConversionCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSamplerYcbcrConversion ycbcrConversion);
 		public delegate void PFN_vkDestroySamplerYcbcrConversion(VkDevice device, VkSamplerYcbcrConversion ycbcrConversion, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
 		public delegate VKResult PFN_vkCreateDescriptorUpdateTemplate(VkDevice device, in VKDescriptorUpdateTemplateCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDescriptorUpdateTemplate descriptorUpdateTemplate);
 		public delegate void PFN_vkDestroyDescriptorUpdateTemplate(VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
 		public delegate void PFN_vkUpdateDescriptorSetWithTemplate(VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, IntPtr pData);
-		public delegate void PFN_vkGetDescriptorSetLayoutSupport(VkDevice device, in VKDescriptorSetLayoutCreateInfo createInfo, out VKDescriptorSetLayoutSupport support);
+		public delegate void PFN_vkGetDescriptorSetLayoutSupport(VkDevice device, in VKDescriptorSetLayoutCreateInfo createInfo, ref VKDescriptorSetLayoutSupport support);
 
 		public PFN_vkBindBufferMemory2 vkBindBufferMemory2;
 		public PFN_vkBindImageMemory2 vkBindImageMemory2;
@@ -111,6 +111,8 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkDestroyDescriptorUpdateTemplate vkDestroyDescriptorUpdateTemplate;
 		public PFN_vkUpdateDescriptorSetWithTemplate vkUpdateDescriptorSetWithTemplate;
 		public PFN_vkGetDescriptorSetLayoutSupport vkGetDescriptorSetLayoutSupport;
+
+		public static implicit operator bool(VK11DeviceFunctions fn) => fn != null;
 
 	}
 

@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKShaderModule : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKShaderModule : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkShaderModule")]
 		public ulong ShaderModule { get; }
+
+		public ulong PrimitiveHandle => ShaderModule;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 

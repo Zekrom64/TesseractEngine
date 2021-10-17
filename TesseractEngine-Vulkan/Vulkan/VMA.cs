@@ -213,7 +213,7 @@ namespace Tesseract.Vulkan {
 	}
 
 	public enum VMAMemoryUsage : int {
-		Unknonwn = 0,
+		Unknown = 0,
 		GPUOnly = 1,
 		CPUOnly = 2,
 		CPUToGPU = 3,

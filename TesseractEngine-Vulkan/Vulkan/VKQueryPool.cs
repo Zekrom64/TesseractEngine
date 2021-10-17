@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKQueryPool : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKQueryPool : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkQueryPool")]
 		public ulong QueryPool { get; }
+
+		public ulong PrimitiveHandle => QueryPool;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
@@ -36,6 +38,13 @@ namespace Tesseract.Vulkan {
 				}
 			}
 			return data;
+		}
+
+		// Vulkan 1.2
+		// VK_EXT_host_query_reset
+		public void Reset(uint firstQuery, uint queryCount) {
+			if (Device.VK12Functions) Device.VK12Functions.vkResetQueryPool(Device, QueryPool, firstQuery, queryCount);
+			else Device.EXTHostQueryReset.vkResetQueryPoolEXT(Device, QueryPool, firstQuery, queryCount);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

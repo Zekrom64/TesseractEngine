@@ -7,7 +7,7 @@ using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
-	public interface IFramebuffer : IDisposable {
+	public interface IFramebuffer : IDisposable, ISwapchainImage {
 
 		public Vector2i Size { get; }
 
@@ -15,11 +15,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
-	public readonly ref struct FramebufferCreateInfo {
+	public record FramebufferCreateInfo {
 
 		public IRenderPass RenderPass { get; init; }
 
-		public ReadOnlySpan<ITextureView> Attachments { get; init; }
+		public ITextureView[] Attachments { get; init; }
 
 		public Vector2i Size { get; init; }
 

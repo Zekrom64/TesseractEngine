@@ -76,6 +76,7 @@ namespace Tesseract.Core.Input {
 	/// <summary>
 	/// Bitmask enumeration of modifier keys. A combination of modifier keys can be made by bitwise ORing multiple keys.
 	/// </summary>
+	[Flags]
 	public enum KeyMod {
 		LCtrl = 0x0001,
 		RCtrl = 0x0002,

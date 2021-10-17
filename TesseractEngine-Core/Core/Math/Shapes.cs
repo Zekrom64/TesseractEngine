@@ -25,7 +25,7 @@ namespace Tesseract.Core.Math {
 
 	}
 
-	public struct Recti : IRect<int> {
+	public struct Recti : IRect<int>, IEquatable<IReadOnlyRect<int>>, IEquatable<Recti> {
 
 		public Vector2i Position;
 		public Vector2i Size;
@@ -57,9 +57,24 @@ namespace Tesseract.Core.Math {
 
 		ITuple2<int> IRect<int>.Size { get => Size; set => Size = new Vector2i(value); }
 
+
+		public bool Equals(IReadOnlyRect<int> r) => Position.Equals(r.Position) && Size.Equals(r.Size);
+
+		public bool Equals(Recti r) => Position == r.Position && Size == r.Size;
+
+		public override bool Equals(object obj) => obj is IReadOnlyRect<int> r && Equals(r);
+
+		public override int GetHashCode() => Position.GetHashCode() ^ Size.GetHashCode();
+
+		public override string ToString() => $"Recti({Size}@{Position})";
+
+		public static bool operator ==(Recti r1, Recti r2) => r1.Equals(r2);
+
+		public static bool operator !=(Recti r1, Recti r2) => !r1.Equals(r2);
+
 	}
 
-	public struct Rectf : IRect<float> {
+	public struct Rectf : IRect<float>, IEquatable<IReadOnlyRect<float>>, IEquatable<Rectf> {
 
 		public Vector2 Position;
 		public Vector2 Size;
@@ -80,6 +95,21 @@ namespace Tesseract.Core.Math {
 		IReadOnlyTuple2<float> IReadOnlyRect<float>.Size => new Tuple2<float>(Size.X, Size.Y);
 
 		ITuple2<float> IRect<float>.Size { get => new Tuple2<float>(Size.X, Size.Y); set => Size = new Vector2(value.X, value.Y); }
+
+
+		public bool Equals(IReadOnlyRect<float> r) => Position.Equals(r.Position) && Size.Equals(r.Size);
+
+		public bool Equals(Rectf r) => Position == r.Position && Size == r.Size;
+
+		public override bool Equals(object obj) => obj is IReadOnlyRect<float> r && Equals(r);
+
+		public override int GetHashCode() => Position.GetHashCode() ^ Size.GetHashCode();
+
+		public override string ToString() => $"Rectf({Size}@{Position})";
+
+		public static bool operator ==(Rectf r1, Rectf r2) => r1.Equals(r2);
+
+		public static bool operator !=(Rectf r1, Rectf r2) => !r1.Equals(r2);
 
 	}
 

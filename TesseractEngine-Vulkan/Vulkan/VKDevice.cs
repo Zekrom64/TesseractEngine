@@ -10,20 +10,78 @@ using Tesseract.Vulkan.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKDevice : IDisposable, IVKInstanceObject, IVKAllocatedObject {
+	public class VKDevice : IDisposable, IVKInstanceObject, IVKAllocatedObject, IPrimitiveHandle<IntPtr> {
 
 		public VKInstance Instance { get; }
+
+		public uint APIVersion => Instance.APIVersion;
 
 		[NativeType("VkDevice")]
 		public IntPtr Device { get; }
 
+		public IntPtr PrimitiveHandle => Device;
+
 		public VulkanAllocationCallbacks Allocator { get; }
 
+		// Vulkan versions
 		public VK10DeviceFunctions VK10Functions { get; } = new();
 		public VK11DeviceFunctions VK11Functions { get; }
 		public VK12DeviceFunctions VK12Functions { get; }
 
-		public KHRSwapchainDeviceFunctions KHRSwapchainFunctions { get; }
+		// KHR Extensions
+		// Vulkan 1.1
+		public bool KHR16BitStorage { get; }
+		public KHRBindMemory2DeviceFunctions KHRBindMemory2 { get; }
+		public bool KHRDedicatedAllocation { get; }
+		public KHRDescriptorUpdateTemplateDeviceFunctions KHRDescriptorUpdateTemplate { get; }
+		public KHRDeviceGroupDeviceFunctions KHRDeviceGroup { get; }
+		public bool KHRExternalFence { get; }
+		public bool KHRExternalMemory { get; }
+		public bool KHRExternalSemaphore { get; }
+		public KHRGetMemoryRequirements2DeviceFunctions KHRGetMemoryRequirements2 { get; }
+		public KHRMaintenance1DeviceFunctions KHRMaintenance1 { get; }
+		public bool KHRMaintenance2 { get; }
+		public KHRMaintenance3DeviceFunctions KHRMaintenance3 { get; }
+		public bool KHRMultiview { get; }
+		public bool KHRRelaxedBlockLayout { get; }
+		public KHRSamplerYcbcrConversionDeviceFunctions KHRSamplerYcbcrConversion { get; }
+		public bool KHRShaderDrawParameters { get; }
+		public bool KHRStorageBufferStorageClass { get; }
+		public bool KHRVariablePointers { get; }
+		// Vulkan 1.2
+		public bool KHR8BitStorage { get; }
+		public KHRBufferDeviceAddressDeviceFunctions KHRBufferDeviceAddress { get; }
+		public KHRCreateRenderpass2DeviceFunctions KHRCreateRenderpass2 { get; }
+		public bool KHRDepthStencilResolve { get; }
+		public KHRDrawIndirectCountDeviceFunctions KHRDrawIndirectCount { get; }
+		public bool KHRDriverProperties { get; }
+		public bool KHRImageFormatList { get; }
+		public bool KHRImagelessFramebuffer { get; }
+		public bool KHRSamplerMirrorClampToEdge { get; }
+		public bool KHRSeparateDepthStencilLayouts { get; }
+		public bool KHRShaderAtomicInt64 { get; }
+		public bool KHRShaderFloat16Int8 { get; }
+		public bool KHRShaderFloatControls { get; }
+		public bool KHRShaderSubgroupExtendedTypes { get; }
+		public bool KHRSPIRV14 { get; }
+		public KHRTimelineSemaphoreDeviceFunctions KHRTimelineSemaphore { get; }
+		public bool KHRUniformBufferStandardLayout { get; }
+		public bool KHRVulkanMemoryModel { get; }
+		// Miscellaneous
+		public KHRSwapchainDeviceFunctions KHRSwapchain { get; }
+
+		// EXT Extensions
+		// Vulkan 1.2
+		public bool EXTDescriptorIndexing { get; }
+		public EXTHostQueryResetDeviceFunctions EXTHostQueryReset { get; }
+		public bool EXTSamplerFilterMinmax { get; }
+		public bool EXTScalarBlockLayout { get; }
+		public bool EXTSeparateStencilUsage { get; }
+		public bool EXTShaderViewportIndexLayer { get; }
+		// Miscellaneous
+		public bool EXTCustomBorderColor { get; }
+		public EXTLineRasterizationDeviceFunctions EXTLineRasterization { get; }
+		public EXTExtendedDynamicStateDeviceFunctions EXTExtendedDynamicState { get; }
 
 		public VKGetDeviceProcAddr DeviceGetProcAddress;
 
@@ -48,7 +106,56 @@ namespace Tesseract.Vulkan {
 			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetUTF8(pExts[i]));
 
 			// Load device extensions
-			if (exts.Contains(KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchainFunctions = new());
+			// Vulkan 1.1
+			KHR16BitStorage = exts.Contains(Vulkan.KHR16BitStorage.ExtensionName);
+			if (exts.Contains(Vulkan.KHRBindMemory2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRBindMemory2 = new());
+			KHRDedicatedAllocation = exts.Contains(Vulkan.KHRDedicatedAllocation.ExtensionName);
+			if (exts.Contains(Vulkan.KHRDescriptorUpdateTemplate.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDescriptorUpdateTemplate = new());
+			if (exts.Contains(Vulkan.KHRDeviceGroup.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDescriptorUpdateTemplate = new());
+			KHRExternalFence = exts.Contains(Vulkan.KHRExternalFence.ExtensionName);
+			KHRExternalMemory = exts.Contains(Vulkan.KHRExternalMemory.ExtensionName);
+			KHRExternalSemaphore = exts.Contains(Vulkan.KHRExternalSemaphore.ExtensionName);
+			if (exts.Contains(Vulkan.KHRGetMemoryRequirements2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRGetMemoryRequirements2 = new());
+			if (exts.Contains(Vulkan.KHRMaintenance1.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRMaintenance1 = new());
+			KHRMaintenance2 = exts.Contains(Vulkan.KHRMaintenance2.ExtensionName);
+			if (exts.Contains(Vulkan.KHRMaintenance3.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRMaintenance3 = new());
+			KHRMultiview = exts.Contains(Vulkan.KHRMultiview.ExtensionName);
+			KHRRelaxedBlockLayout = exts.Contains(Vulkan.KHRRelaxedBlockLayout.ExtensionName);
+			if (exts.Contains(Vulkan.KHRSamplerYcbcrConversion.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSamplerYcbcrConversion = new());
+			KHRShaderDrawParameters = exts.Contains(Vulkan.KHRShaderDrawParameters.ExtensionName);
+			KHRStorageBufferStorageClass = exts.Contains(Vulkan.KHRStorageBufferStorageClass.ExtensionName);
+			KHRVariablePointers = exts.Contains(Vulkan.KHRVariablePointers.ExtensionName);
+			// Vulkan 1.2
+			KHR8BitStorage = exts.Contains(Vulkan.KHR8BitStorage.ExtensionName);
+			if (exts.Contains(Vulkan.KHRBufferDeviceAddress.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRBufferDeviceAddress = new());
+			if (exts.Contains(Vulkan.KHRCreateRenderpass2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRCreateRenderpass2 = new());
+			KHRDepthStencilResolve = exts.Contains(Vulkan.KHRDepthStencilResolve.ExtensionName);
+			if (exts.Contains(Vulkan.KHRDrawIndirectCount.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDrawIndirectCount = new());
+			KHRDriverProperties = exts.Contains(Vulkan.KHRDriverProperties.ExtensionName);
+			KHRImageFormatList = exts.Contains(Vulkan.KHRImageFormatList.ExtensionName);
+			KHRImagelessFramebuffer = exts.Contains(Vulkan.KHRImagelessFramebuffer.ExtensionName);
+			KHRSamplerMirrorClampToEdge = exts.Contains(Vulkan.KHRSamplerMirrorClampToEdge.ExtesionName);
+			KHRSeparateDepthStencilLayouts = exts.Contains(Vulkan.KHRSeparateDepthStencilLayouts.ExtensionName);
+			KHRShaderAtomicInt64 = exts.Contains(Vulkan.KHRShaderAtomicInt64.ExtensionName);
+			KHRShaderFloat16Int8 = exts.Contains(Vulkan.KHRShaderFloat16Int8.ExtensionName);
+			KHRShaderFloatControls = exts.Contains(Vulkan.KHRShaderFloatControls.ExtensionName);
+			KHRShaderSubgroupExtendedTypes = exts.Contains(Vulkan.KHRShaderSubgroupExtendedTypes.ExtensionName);
+			KHRSPIRV14 = exts.Contains(Vulkan.KHRSPIRV14.ExtensionName);
+			if (exts.Contains(Vulkan.KHRTimelineSemaphore.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRTimelineSemaphore = new());
+			KHRUniformBufferStandardLayout = exts.Contains(Vulkan.KHRUniformBufferStandardLayout.ExtensionName);
+			KHRVulkanMemoryModel = exts.Contains(Vulkan.KHRVulkanMemoryModel.ExtensionName);
+			EXTDescriptorIndexing = exts.Contains(Vulkan.EXTDescriptorIndexing.ExtensionName);
+			if (exts.Contains(Vulkan.EXTHostQueryReset.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTHostQueryReset = new());
+			EXTSamplerFilterMinmax = exts.Contains(Vulkan.EXTSamplerFilterMinmax.ExtensionName);
+			EXTScalarBlockLayout = exts.Contains(Vulkan.EXTScalarBlockLayout.ExtensionName);
+			EXTSeparateStencilUsage = exts.Contains(Vulkan.EXTSeparateStencilUsage.ExtensionName);
+			EXTShaderViewportIndexLayer = exts.Contains(Vulkan.EXTShaderViewportIndexLayer.ExtensionName);
+
+			if (exts.Contains(Vulkan.KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchain = new());
+
+			EXTCustomBorderColor = exts.Contains(Vulkan.EXTCustomBorderColor.ExtensionName);
+			if (exts.Contains(Vulkan.EXTLineRasterization.ExtensionName)) Library.LoadFunctions(this.GetProcAddr, EXTLineRasterization = new());
+			if (exts.Contains(Vulkan.EXTExtendedDynamicState.ExtensionName)) Library.LoadFunctions(this.GetProcAddr, EXTExtendedDynamicState = new());
 		}
 
 		public void Dispose() {
@@ -163,6 +270,12 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public VKPipelineCache CreatePipelineCache(in VKPipelineCacheCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError(VK10Functions.vkCreatePipelineCache(Device, createInfo, allocator, out ulong pipelineCache), "Failed to create pipeline cache");
+			return new VKPipelineCache(this, pipelineCache, allocator);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKPipeline CreateGraphicsPipelines(VKPipelineCache pipelineCache, in VKGraphicsPipelineCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
 			ulong pipeline = 0;
 			unsafe {
@@ -264,32 +377,165 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKSwapchainKHR CreateSwapchainKHR(in VKSwapchainCreateInfoKHR createInfo, VulkanAllocationCallbacks allocator = null) {
-			VK.CheckError(KHRSwapchainFunctions.vkCreateSwapchainKHR(Device, createInfo, allocator, out ulong swapchain), "Failed to create swapchain");
+			VK.CheckError(KHRSwapchain.vkCreateSwapchainKHR(Device, createInfo, allocator, out ulong swapchain), "Failed to create swapchain");
 			return new VKSwapchainKHR(this, swapchain, allocator);
 		}
 
 		public VKDeviceGroupPresentCapabilitiesKHR DeviceGroupPresentCapabilitiesKHR {
 			get {
-				VK.CheckError(KHRSwapchainFunctions.vkGetDeviceGroupPresentCapabilitiesKHR(Device, out VKDeviceGroupPresentCapabilitiesKHR deviceGroupPresentCapabilities), "Failed to get device group present capabilities");
+				VK.CheckError(KHRSwapchain.vkGetDeviceGroupPresentCapabilitiesKHR(Device, out VKDeviceGroupPresentCapabilitiesKHR deviceGroupPresentCapabilities), "Failed to get device group present capabilities");
 				return deviceGroupPresentCapabilities;
 			}
 		}
 
 		public VKDeviceGroupPresentModeFlagBitsKHR GetDeviceGroupSurfacePresentModesKHR(VKSurfaceKHR surface) {
-			VK.CheckError(KHRSwapchainFunctions.vkGetDeviceGroupSurfacePresentModesKHR(Device, surface, out VKDeviceGroupPresentModeFlagBitsKHR modes), "Failed to get device group surface present modes");
+			VK.CheckError(KHRSwapchain.vkGetDeviceGroupSurfacePresentModesKHR(Device, surface, out VKDeviceGroupPresentModeFlagBitsKHR modes), "Failed to get device group surface present modes");
 			return modes;
 		}
 
 		public VKRect2D[] GetPhysicalDevicePresentRectanglesKHR(VKPhysicalDevice physicalDevice, VKSurfaceKHR surface) {
 			uint count = 0;
-			VK.CheckError(KHRSwapchainFunctions.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device present rectangles");
+			VK.CheckError(KHRSwapchain.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device present rectangles");
 			VKRect2D[] rects = new VKRect2D[count];
 			unsafe {
-				fixed(VKRect2D* pRects = rects) {
-					VK.CheckError(KHRSwapchainFunctions.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, (IntPtr)pRects), "Failed to get physical device present rectangles");
+				fixed (VKRect2D* pRects = rects) {
+					VK.CheckError(KHRSwapchain.vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, ref count, (IntPtr)pRects), "Failed to get physical device present rectangles");
 				}
 			}
 			return rects;
+		}
+
+		// Vulkan 1.1
+		// VK_KHR_bind_memory2
+
+		public void BindBufferMemory2(VKBindBufferMemoryInfo bindInfo) {
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
+			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2.vkBindBufferMemory2KHR);
+			unsafe {
+				VK.CheckError(vkBindBufferMemory2(Device, 1, (IntPtr)(&bindInfo)));
+			}
+		}
+
+		public void BindBufferMemory2(params VKBindBufferMemoryInfo[] bindInfos) {
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
+			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2.vkBindBufferMemory2KHR);
+			unsafe {
+				fixed (VKBindBufferMemoryInfo* pBindInfos = bindInfos) {
+					VK.CheckError(vkBindBufferMemory2(Device, (uint)bindInfos.Length, (IntPtr)pBindInfos));
+				}
+			}
+		}
+
+		public void BindBufferMemory2(ReadOnlySpan<VKBindBufferMemoryInfo> bindInfos) {
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
+			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2.vkBindBufferMemory2KHR);
+			unsafe {
+				fixed (VKBindBufferMemoryInfo* pBindInfos = bindInfos) {
+					VK.CheckError(vkBindBufferMemory2(Device, (uint)bindInfos.Length, (IntPtr)pBindInfos));
+				}
+			}
+		}
+
+		public void BindImageMemory2(VKBindImageMemoryInfo bindInfo) {
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
+			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2.vkBindImageMemory2KHR);
+			unsafe {
+				VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)(&bindInfo)));
+			}
+		}
+
+		public void BindImageMemory2(params VKBindImageMemoryInfo[] bindInfos) {
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
+			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2.vkBindImageMemory2KHR);
+			unsafe {
+				fixed(VKBindImageMemoryInfo* pBindInfos = bindInfos) {
+					VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)pBindInfos));
+				}
+			}
+		}
+
+		public void BindImageMemory2(ReadOnlySpan<VKBindImageMemoryInfo> bindInfos) {
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
+			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2.vkBindImageMemory2KHR);
+			unsafe {
+				fixed (VKBindImageMemoryInfo* pBindInfos = bindInfos) {
+					VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)pBindInfos));
+				}
+			}
+		}
+
+		// Vulkan 1.1		
+		// VK_KHR_descriptor_update_template
+		public VKDescriptorUpdateTemplate CreateDescriptorUpdateTemplate(in VKDescriptorUpdateTemplateCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
+			ulong descriptorUpdateTemplate;
+			VKResult err;
+			if (VK11Functions) err = VK11Functions.vkCreateDescriptorUpdateTemplate(Device, createInfo, allocator, out descriptorUpdateTemplate);
+			else err = KHRDescriptorUpdateTemplate.vkCreateDescriptorUpdateTemplateKHR(Device, createInfo, allocator, out descriptorUpdateTemplate);
+			VK.CheckError(err);
+			return new VKDescriptorUpdateTemplate(this, descriptorUpdateTemplate, allocator);
+		}
+
+		// Vulkan 1.1
+		// VK_KHR_device_group
+		public VKPeerMemoryFeatureFlagBits GetGroupPeerMemoryFeatures(uint heapIndex, uint localDeviceIndex, uint remoteDeviceIndex) {
+			VKPeerMemoryFeatureFlagBits flags;
+			if (VK11Functions) VK11Functions.vkGetDeviceGroupPeerMemoryFeatures(Device, heapIndex, localDeviceIndex, remoteDeviceIndex, out flags);
+			else KHRDeviceGroup.vkGetDeviceGroupPeerMemoryFeaturesKHR(Device, heapIndex, localDeviceIndex, remoteDeviceIndex, out flags);
+			return flags;
+		}
+
+		// Vulkan 1.1
+		// VK_KHR_maintenance3
+
+		public void GetDescriptorSetLayoutSupport(in VKDescriptorSetLayoutCreateInfo createInfo, ref VKDescriptorSetLayoutSupport support) {
+			if (VK11Functions) VK11Functions.vkGetDescriptorSetLayoutSupport(Device, createInfo, ref support);
+			else KHRMaintenance3.vkGetDescriptorSetLayoutSupportKHR(Device, createInfo, ref support);
+		}
+
+		// Vulkan 1.1
+		// VK_KHR_sampler_ycbcr_conversion
+		public VKSamplerYcbcrConversion CreateSamplerYcbcrConversion(in VKSamplerYcbcrConversionCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
+			ulong samplerYcbcrConversion;
+			VKResult err;
+			if (VK11Functions) err = VK11Functions.vkCreateSamplerYcbcrConversion(Device, createInfo, allocator, out samplerYcbcrConversion);
+			else err = KHRSamplerYcbcrConversion.vkCreateSamplerYcbcrConversionKHR(Device, createInfo, allocator, out samplerYcbcrConversion);
+			VK.CheckError(err);
+			return new VKSamplerYcbcrConversion(this, samplerYcbcrConversion, allocator);
+		}
+
+		// Vulkan 1.2
+		// VK_KHR_create_renderpass2
+		public VKRenderPass CreateRenderPass2(in VKRenderPassCreateInfo2 createInfo, VulkanAllocationCallbacks allocator = null) {
+			ulong renderpass;
+			VKResult err;
+			if (VK12Functions) err = VK12Functions.vkCreateRenderPass2(Device, createInfo, allocator, out renderpass);
+			else err = KHRCreateRenderpass2.vkCreateRenderPass2KHR(Device, createInfo, allocator, out renderpass);
+			VK.CheckError(err);
+			return new VKRenderPass(this, renderpass, allocator);
+		}
+
+		// Vulkan 1.2
+		// VK_KHR_timeline_semaphore
+		public void SignalSemaphore(in VKSemaphoreSignalInfo signalInfo) {
+			VKResult err;
+			if (VK12Functions) err = VK12Functions.vkSignalSemaphore(Device, signalInfo);
+			else err = KHRTimelineSemaphore.vkSignalSemaphoreKHR(Device, signalInfo);
+			VK.CheckError(err);
+		}
+
+		public VKResult WaitSemaphores(in VKSemaphoreWaitInfo waitInfo, ulong timeout) {
+			VKResult err;
+			if (VK12Functions) err = VK12Functions.vkWaitSemaphores(Device, waitInfo, timeout);
+			else err = KHRTimelineSemaphore.vkWaitSemaphoresKHR(Device, waitInfo, timeout);
+			switch(err) {
+				case VKResult.Success:
+				case VKResult.Timeout:
+					break;
+				default:
+					VK.CheckError(err);
+					break;
+			}
+			return err;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

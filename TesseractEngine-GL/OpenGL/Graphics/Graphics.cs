@@ -61,9 +61,12 @@ namespace Tesseract.OpenGL.Graphics {
 
 			public bool TextureSubView { get; } // Supported by ARB_texture_view
 
-			public bool SamplerNoFormat => true;
-
 			public bool SamplerCustomBorderColor => true;
+
+			private readonly HashSet<ShaderSourceType> sourceTypes = new();
+			public IReadOnlyIndexer<ShaderSourceType, bool> SupportedShaderSourceTypes { get; }
+
+			public ShaderSourceType PreferredShaderSourceType => ShaderSourceType.GLSL;
 
 			public GLGraphicsFeatures(GL gl, GraphicsHardwareFeatures features) {
 				int contextFlags = gl.GL11.GetInteger(Native.GLEnums.GL_CONTEXT_FLAGS);
@@ -85,6 +88,8 @@ namespace Tesseract.OpenGL.Graphics {
 				};
 
 				TextureSubView = gl.Extensions.Contains("GL_ARB_texture_view"); // TODO: Check against extension object
+
+				SupportedShaderSourceTypes = new FuncReadOnlyIndexer<ShaderSourceType, bool>(type => sourceTypes.Contains(type));
 			}
 
 		}
@@ -274,6 +279,9 @@ namespace Tesseract.OpenGL.Graphics {
 		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) => throw new NotImplementedException();
 		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo) => throw new NotImplementedException();
 		public ISync CreateSync(SyncCreateInfo createInfo) => throw new NotImplementedException();
+		public IVertexArray CreateVertexArray(VertexArrayCreateInfo createInfo) => throw new NotImplementedException();
+		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => throw new NotImplementedException();
+		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) => throw new NotImplementedException();
 
 		public void RunCommands(Action<ICommandSink> cmdSink, in IGraphics.CommandBufferSubmitInfo submitInfo) {
 			throw new NotImplementedException();
@@ -284,6 +292,10 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		public void TrimCommandBufferMemory() { } // No-op
+
+		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in IGraphics.CommandBufferSubmitInfo submitInfo) => throw new NotImplementedException();
+
+		public void WaitIdle() => throw new NotImplementedException();
 	}
 
 }

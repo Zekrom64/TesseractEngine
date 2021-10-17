@@ -8,7 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKDeviceMemory : IDisposable, IVKDeviceObject, IVKAllocatedObject {
+	public class VKDeviceMemory : IDisposable, IVKDeviceObject, IVKAllocatedObject, IEquatable<VKDeviceMemory>, IPrimitiveHandle<ulong> {
 
 		[NativeType("VkDeviceMemory")]
 		public ulong DeviceMemory;
@@ -17,10 +17,23 @@ namespace Tesseract.Vulkan {
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
+		public ulong PrimitiveHandle => DeviceMemory;
+
 		public ulong MemoryCommitment {
 			get {
 				Device.VK10Functions.vkGetDeviceMemoryCommitment(Device, DeviceMemory, out ulong commit);
 				return commit;
+			}
+		}
+
+		public ulong OpaqueCaptureAddress {
+			get {
+				var info = new VKDeviceMemoryOpaqueCaptureAddressInfo() {
+					Type = VKStructureType.DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
+					Memory = DeviceMemory
+				};
+				if (Device.VK12Functions) return Device.VK12Functions.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
+				else return Device.KHRBufferDeviceAddress.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
 			}
 		}
 
@@ -46,6 +59,24 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ulong(VKDeviceMemory memory) => memory != null ? memory.DeviceMemory : 0;
+
+
+		public override bool Equals(object obj) => obj is VKDeviceMemory mem && Equals(mem);
+
+		public override int GetHashCode() => (int)DeviceMemory;
+
+		public bool Equals(VKDeviceMemory mem) {
+			if (mem == null) return false;
+			return DeviceMemory == mem.DeviceMemory;
+		}
+
+		public static bool operator==(VKDeviceMemory m1, VKDeviceMemory m2) {
+			if (m1 != null ^ m2 != null) return false;
+			if (m1 != null) return m1.Equals(m2);
+			return false;
+		}
+
+		public static bool operator !=(VKDeviceMemory m1, VKDeviceMemory m2) => !(m1 == m2);
 
 	}
 

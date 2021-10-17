@@ -44,13 +44,18 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// A layout optimized as a destination for plain image copies.
 		/// </summary>
-		TransferDst
+		TransferDst,
+		/// <summary>
+		/// A layout optimized as a source for presentation.
+		/// </summary>
+		PresentSrc
 	}
 
 	/// <summary>
 	/// A bitmask of different aspects of a texture. Texture formats may have different
 	/// aspects with distinct purposes such as color, depth, and stencil values.
 	/// </summary>
+	[Flags]
 	public enum TextureAspect {
 		Color = 0x01,
 		Depth = 0x02,
@@ -127,6 +132,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Bitmask of usages of textures.
 	/// </summary>
+	[Flags]
 	public enum TextureUsage {
 		/// <summary>
 		/// The texture can be the source for transfer operations.
@@ -165,7 +171,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A texture is a multidimensional structure for storing
 	/// </summary>
-	public interface ITexture : IDisposable {
+	public interface ITexture : IDisposable, ISwapchainImage {
 		
 		/// <summary>
 		/// Gets the dimensions of the given texture type.
@@ -324,7 +330,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The number of mip levels in this subresource.
 		/// </summary>
-		public uint LevelCount;
+		public uint MipLevelCount;
 
 		/// <summary>
 		/// The first array layer in the subresource.

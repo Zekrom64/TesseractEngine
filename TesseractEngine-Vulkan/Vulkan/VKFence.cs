@@ -8,13 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKFence : IDisposable, IVKDeviceObject, IVKAllocatedObject {
+	public class VKFence : IDisposable, IVKDeviceObject, IVKAllocatedObject, IPrimitiveHandle<ulong> {
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
 		public VKDevice Device { get; }
 
+		[NativeType("VkFence")]
 		public ulong Fence { get; }
+
+		public ulong PrimitiveHandle => Fence;
 
 		public bool Status {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

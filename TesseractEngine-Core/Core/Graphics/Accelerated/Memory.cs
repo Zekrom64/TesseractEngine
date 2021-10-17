@@ -11,6 +11,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Bitmask of flags to apply during memory mapping.
 	/// </summary>
+	[Flags]
 	public enum MemoryMapFlags {
 		/// <summary>
 		/// No memory mapping may be done. This may hint that memory using this flag is purely device local and not directly accessible by host.
@@ -56,6 +57,20 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public ulong Length { get; set; }
 
+		/// <summary>
+		/// Constrains the memory range within a fixed length of memory. This will always
+		/// result in "real" memory range values. If the offset is outside of the length
+		/// of memory the resulting range will have a length of zero.
+		/// </summary>
+		/// <param name="length">Known memory length</param>
+		/// <returns>Constrained memory range</returns>
+		public MemoryRange Constrain(ulong length) {
+			ulong remain = length - Offset;
+			ulong newlen = remain;
+			if (Length > 0) newlen = System.Math.Min(remain, Length);
+			return new MemoryRange() { Offset = Offset, Length = newlen };
+		}
+
 	}
 
 	/// <summary>
@@ -66,6 +81,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Bitmask of buffer usage flags.
 	/// </summary>
+	[Flags]
 	public enum BufferUsage {
 		/// <summary>
 		/// The buffer may be used to to read data from.
@@ -108,6 +124,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Memory access type bitmask.
 	/// </summary>
+	[Flags]
 	public enum MemoryAccess {
 		/// <summary>
 		/// Memory read of indirect draw parameters.

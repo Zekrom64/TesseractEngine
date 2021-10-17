@@ -46,7 +46,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A render pass attachment describes layout and load/store for an image that will be attached to a framebuffer.
 	/// </summary>
-	public struct RenderPassAttachment {
+	public readonly struct RenderPassAttachment {
 
 		/// <summary>
 		/// The format of the texture view that will be used by this attachment.
@@ -56,7 +56,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The number of samples that will be used with this attachment
 		/// </summary>
-		public int Samples { get; init; }
+		public uint Samples { get; init; }
 
 		public AttachmentLoadOp LoadOp { get; init; }
 
@@ -75,7 +75,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// An attachment reference specifies the details of how an attachment is used in a subpass.
 	/// </summary>
-	public struct RenderPassAttachmentReference {
+	public readonly struct RenderPassAttachmentReference {
 
 		public uint Attachment { get; init; }
 
@@ -83,7 +83,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
-	public struct RenderPassSubpass {
+	public readonly struct RenderPassSubpass {
 
 		/// <summary>
 		/// The type of pipeline that will be bound.
@@ -105,7 +105,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
-	public struct RenderPassDependency {
+	public readonly struct RenderPassDependency {
 
 		public uint SrcSubpass { get; init; }
 
@@ -114,6 +114,10 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public PipelineStage SrcStages { get; init; }
 
 		public PipelineStage DstStages { get; init; }
+
+		public MemoryAccess SrcAccess { get; init; }
+
+		public MemoryAccess DstAccess { get; init; }
 
 	}
 

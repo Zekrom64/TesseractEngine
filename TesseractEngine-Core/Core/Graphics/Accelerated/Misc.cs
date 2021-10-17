@@ -12,7 +12,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// using a rectangle describing the 2D area in the X and Y axes, and a pair of depth bounds values
 	/// describing the area in the Z axis.
 	/// </summary>
-	public struct Viewport {
+	public struct Viewport : IEquatable<Viewport> {
 
 		// Note for OpenGL: glViewport takes ints in pixel coordinates, this can be computed knowing the current FB size and converting area based on NDC
 
@@ -25,6 +25,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The minimum and maximum depth bounds values.
 		/// </summary>
 		public (float, float) DepthBounds;
+
+		
+		public bool Equals(Viewport other) => Area.Equals(other.Area) && DepthBounds.Equals(other.DepthBounds);
+
+		public override bool Equals(object obj) => obj is Viewport v && Equals(v);
+
+		public override int GetHashCode() => Area.GetHashCode() ^ DepthBounds.GetHashCode();
+
+		public static bool operator ==(Viewport v1, Viewport v2) => v1.Equals(v2);
+
+		public static bool operator !=(Viewport v1, Viewport v2) => !v1.Equals(v2);
 
 	}
 
@@ -49,6 +60,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// The culling mode determines if geometry can be discarded based on the direction it is facing, either "front" or "back" facing.
 	/// </summary>
+	[Flags]
 	public enum CullFace {
 		/// <summary>
 		/// Front-facing geometry is kept, back-facing geometry is discarded.
@@ -312,7 +324,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Where D and S are the destination and source color values and 'd' and 's' are the destination and source
 	/// blend factors.
 	/// </summary>
-	public struct BlendEquation {
+	public struct BlendEquation : IEquatable<BlendEquation> {
 
 		/// <summary>
 		/// Implements a passthrough blend equation, i.e. <c>D = S</c>
@@ -396,6 +408,29 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public BlendOp AlphaOp;
 
+
+		public bool Equals(BlendEquation other) =>
+			SrcRGB == other.SrcRGB &&
+			DstRGB == other.DstRGB &&
+			RGBOp == other.RGBOp &&
+			SrcAlpha == other.SrcAlpha &&
+			DstAlpha == other.DstAlpha &&
+			AlphaOp == other.AlphaOp;
+
+		public override bool Equals(object obj) => obj is BlendEquation eq && Equals(eq);
+
+		public override int GetHashCode() =>
+			SrcRGB.GetHashCode() ^
+			(DstRGB.GetHashCode() << 3) ^
+			(RGBOp.GetHashCode() << 6) ^
+			(SrcAlpha.GetHashCode() << 8) ^
+			(DstAlpha.GetHashCode() << 11) ^
+			(AlphaOp.GetHashCode() << 14);
+
+		public static bool operator ==(BlendEquation e1, BlendEquation e2) => e1.Equals(e2);
+
+		public static bool operator !=(BlendEquation e1, BlendEquation e2) => !e1.Equals(e2);
+
 	}
 
 	/// <summary>
@@ -427,6 +462,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A color component specifies the channels of an RGBA color value.
 	/// </summary>
+	[Flags]
 	public enum ColorComponent {
 		/// <summary>
 		/// Red color component.
