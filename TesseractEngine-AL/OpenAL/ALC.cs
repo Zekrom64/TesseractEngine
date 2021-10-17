@@ -26,7 +26,10 @@ namespace Tesseract.OpenAL {
 		Refresh = 0x1008,
 		Sync = 0x1009,
 		MonoSources = 0x1010,
-		StereoSources = 0x1011
+		StereoSources = 0x1011,
+
+		FormatChannelsSOFT = 0x1990,
+		FormatTypeSOFT = 0x1991
 	}
 
 	public enum ALCError : ALCenum {

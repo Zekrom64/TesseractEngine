@@ -80,7 +80,12 @@ namespace Tesseract.OpenAL {
 		Frequency = 0x2001,
 		Bits = 0x2002,
 		Channels = 0x2003,
-		Size = 0x2004
+		Size = 0x2004,
+
+		InternalFormatSOFT = 0x2008,
+		ByteLengthSOFT = 0x2009,
+		SampleLengthSOFT = 0x200A,
+		SecLengthSOFT = 0x200B
 	}
 
 	public enum ALBufferState : ALint {
@@ -699,7 +704,7 @@ namespace Tesseract.OpenAL {
 
 		public void BufferData<T>(ALFormat format, in ReadOnlySpan<T> data, ALsizei frequency) where T : unmanaged {
 			unsafe {
-				fixed(T* pData = data) {
+				fixed (T* pData = data) {
 					AL11.Functions.alBufferData(Buffer, format, (IntPtr)pData, data.Length * sizeof(T), frequency);
 				}
 			}
@@ -708,6 +713,37 @@ namespace Tesseract.OpenAL {
 		public void BufferData<T>(ALFormat format, IConstPointer<T> data, ALsizei size, ALsizei frequency) where T : unmanaged =>
 			AL11.Functions.alBufferData(Buffer, format, data.Ptr, size, frequency);
 
-	}
+		public void BufferSamplesSOFT<T>(ALuint sampleRate, ALStorageFormatSOFT internalFormat, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, in ReadOnlySpan<T> data) where T : unmanaged {
+			unsafe {
+				fixed (T* pData = data) {
+					AL.SOFTBufferSamples.Functions.alBufferSamplesSOFT(Buffer, sampleRate, internalFormat, samples, channels, type, (IntPtr)pData);
+				}
+			}
+		}
 
+		public void BufferSamplesSOFT<T>(ALuint sampleRate, ALStorageFormatSOFT internalFormat, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IConstPointer<T> data) where T : unmanaged =>
+					AL.SOFTBufferSamples.Functions.alBufferSamplesSOFT(Buffer, sampleRate, internalFormat, samples, channels, type, data.Ptr);
+
+		public void BufferSubSamplesSOFT<T>(ALsizei offset, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, in ReadOnlySpan<T> data) where T : unmanaged {
+			unsafe {
+				fixed (T* pData = data) {
+					AL.SOFTBufferSamples.Functions.alBufferSubSamplesSOFT(Buffer, offset, samples, channels, type, (IntPtr)pData);
+				}
+			}
+		}
+
+		public void BufferSubSamplesSOFT<T>(ALsizei offset, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IConstPointer<T> data) where T : unmanaged =>
+			AL.SOFTBufferSamples.Functions.alBufferSubSamplesSOFT(Buffer, offset, samples, channels, type, data.Ptr);
+
+		public void GetBufferSamplesSOFT<T>(ALsizei offset, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, Span<T> data) where T : unmanaged {
+			unsafe {
+				fixed (T* pData = data) {
+					AL.SOFTBufferSamples.Functions.alGetBufferSamplesSOFT(Buffer, offset, samples, channels, type, (IntPtr)pData);
+				}
+			}
+		}
+
+		public void GetBufferSamplesSOFT<T>(ALsizei offset, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IPointer<T> data) where T : unmanaged =>
+			AL.SOFTBufferSamples.Functions.alGetBufferSamplesSOFT(Buffer, offset, samples, channels, type, data.Ptr);
+	}
 }
