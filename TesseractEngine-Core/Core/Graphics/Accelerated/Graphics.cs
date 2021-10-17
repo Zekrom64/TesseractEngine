@@ -396,6 +396,71 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public bool DrawIndirect { get; init; }
 
+
+		/// <summary>
+		/// Masks this hardware feature set with another set. The returned
+		/// feature set will only have features enabled that are available
+		/// in both sets.
+		/// </summary>
+		/// <param name="g2">Feature set to mask by</param>
+		/// <returns>Masked feature set</returns>
+		public GraphicsHardwareFeatures Mask(GraphicsHardwareFeatures g2) => new() { 
+			RobustBufferAccess = RobustBufferAccess && g2.RobustBufferAccess,
+			FullDrawIndexUInt32 = FullDrawIndexUInt32 && g2.FullDrawIndexUInt32,
+			CubeMapArray = CubeMapArray && g2.CubeMapArray,
+			IndependentBlend = IndependentBlend && g2.IndependentBlend,
+			GeometryShader = GeometryShader && g2.GeometryShader,
+			TessellationShader = TessellationShader && g2.TessellationShader,
+			SampleRateShading = SampleRateShading && g2.SampleRateShading,
+			DualSrcBlend = DualSrcBlend && g2.DualSrcBlend,
+			LogicOp = LogicOp && g2.LogicOp,
+			MultiDrawIndirect = MultiDrawIndirect && g2.MultiDrawIndirect,
+			DrawIndirectFirstInstance = DrawIndirectFirstInstance && g2.DrawIndirectFirstInstance,
+			DepthClamp = DepthClamp && g2.DepthClamp,
+			DepthBiasClamp = DepthBiasClamp && g2.DepthBiasClamp,
+			FillModeNonSolid = FillModeNonSolid && g2.FillModeNonSolid,
+			DepthBounds = DepthBounds && g2.DepthBounds,
+			WideLines = WideLines && g2.WideLines,
+			LargePoints = LargePoints && g2.LargePoints,
+			AlphaToOne = AlphaToOne && g2.AlphaToOne,
+			MultiViewport = MultiViewport && g2.MultiViewport,
+			SamplerAnisotropy = SamplerAnisotropy && g2.SamplerAnisotropy,
+			TextureCompressionETC2 = TextureCompressionETC2 && g2.TextureCompressionETC2,
+			TextureCompressionASTC = TextureCompressionASTC && g2.TextureCompressionASTC,
+			TextureCompressionBC = TextureCompressionBC && g2.TextureCompressionBC,
+			OcclusionQueryPrecise = OcclusionQueryPrecise && g2.OcclusionQueryPrecise,
+			PipelineStatisticsQuery = PipelineStatisticsQuery && g2.PipelineStatisticsQuery,
+			VertexPipelineStoresAndAtomics = VertexPipelineStoresAndAtomics && g2.VertexPipelineStoresAndAtomics,
+			FragmentStoresAndAtomics = FragmentStoresAndAtomics && g2.FragmentStoresAndAtomics,
+			ShaderTessellationAndGeometryPointSize = ShaderTessellationAndGeometryPointSize && g2.ShaderTessellationAndGeometryPointSize,
+			ShaderImageGatherExtended = ShaderImageGatherExtended && g2.ShaderImageGatherExtended,
+			ShaderStorageImageExtendedFormats = ShaderStorageImageExtendedFormats && g2.ShaderStorageImageExtendedFormats,
+			ShaderStorageImageMultisample = ShaderStorageImageMultisample && g2.ShaderStorageImageMultisample,
+			ShaderStorageImageReadWithoutFormat = ShaderStorageImageReadWithoutFormat && g2.ShaderStorageImageReadWithoutFormat,
+			ShaderStorageImageWriteWithoutFormat = ShaderStorageImageWriteWithoutFormat && g2.ShaderStorageImageWriteWithoutFormat,
+			ShaderUniformBufferArrayDynamicIndexing = ShaderUniformBufferArrayDynamicIndexing && g2.ShaderUniformBufferArrayDynamicIndexing,
+			ShaderSampledImageArrayDynamicIndexing = ShaderSampledImageArrayDynamicIndexing && g2.ShaderSampledImageArrayDynamicIndexing,
+			ShaderStorageBufferArrayDynamicIndexing = ShaderStorageBufferArrayDynamicIndexing && g2.ShaderStorageBufferArrayDynamicIndexing,
+			ShaderStorageImageArrayDynamicIndexing = ShaderStorageImageArrayDynamicIndexing && g2.ShaderStorageImageArrayDynamicIndexing,
+			ShaderClipDistance = ShaderClipDistance && g2.ShaderClipDistance,
+			ShaderCullDistance = ShaderCullDistance && g2.ShaderCullDistance,
+			ShaderFloat64 = ShaderFloat64 && g2.ShaderFloat64,
+			ShaderInt64 = ShaderInt64 && g2.ShaderInt64,
+			ShaderInt16 = ShaderInt16 && g2.ShaderInt16,
+			ShaderResourceResidency = ShaderResourceResidency && g2.ShaderResourceResidency,
+			ShaderResourceMinLOD = ShaderResourceMinLOD && g2.ShaderResourceMinLOD,
+			SparseBinding = SparseBinding && g2.SparseBinding,
+			SparseResidencyBuffer = SparseResidencyBuffer && g2.SparseResidencyBuffer,
+			SparseResidencyImage2D = SparseResidencyImage2D && g2.SparseResidencyImage2D,
+			SparseResidencyImage3D = SparseResidencyImage3D && g2.SparseResidencyImage3D,
+			SparseResidency2Samples = SparseResidency2Samples && g2.SparseResidency2Samples,
+			SparseResidency4Samples = SparseResidency4Samples && g2.SparseResidency4Samples,
+			SparseResidency8Samples = SparseResidency8Samples && g2.SparseResidency8Samples,
+			SparseResidency16Samples = SparseResidency16Samples && g2.SparseResidency16Samples,
+			SparseResidencyAliased = SparseResidencyAliased,
+			DrawIndirect = DrawIndirect && g2.DrawIndirect
+		};
+
 	}
 
 	public interface IGraphicsFeatures {
@@ -430,14 +495,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public bool TextureSubView { get; }
 
 		/// <summary>
-		/// If samplers do not require a format to be supplied during creation.
-		/// </summary>
-		public bool SamplerNoFormat { get; }
-
-		/// <summary>
 		/// If samplers support a custom border color.
 		/// </summary>
 		public bool SamplerCustomBorderColor { get; }
+
+		/// <summary>
+		/// Getter to test if a given shader source type is supported.
+		/// </summary>
+		public IReadOnlyIndexer<ShaderSourceType, bool> SupportedShaderSourceTypes { get; }
+
+		/// <summary>
+		/// The preferred shader source type for this backend. Backends may only support this type of shader source.
+		/// </summary>
+		public ShaderSourceType PreferredShaderSourceType { get; }
 
 	}
 
@@ -711,39 +781,67 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public IBuffer CreateBuffer(BufferCreateInfo createInfo);
 
 		/// <summary>
-		/// 
+		/// Creates a new vertex array.
 		/// </summary>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
+		/// <param name="createInfo">Vertex array creation information</param>
+		/// <returns>The created vertex array</returns>
+		public IVertexArray CreateVertexArray(VertexArrayCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new texture.
+		/// </summary>
+		/// <param name="createInfo">Texture creation information</param>
+		/// <returns>The created texture</returns>
 		public ITexture CreateTexture(TextureCreateInfo createInfo);
 
 		/// <summary>
-		/// 
+		/// Creates a new texture view.
 		/// </summary>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
+		/// <param name="createInfo">Texture view creation information</param>
+		/// <returns>The created texture view</returns>
 		public ITextureView CreateTextureView(TextureViewCreateInfo createInfo);
 
 		/// <summary>
-		/// 
+		/// Creates a new sampler.
 		/// </summary>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
+		/// <param name="createInfo">Sampler creation information</param>
+		/// <returns>The created sampler</returns>
 		public ISampler CreateSampler(SamplerCreateInfo createInfo);
 
 		/// <summary>
-		/// 
+		/// Creates a new shader.
 		/// </summary>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
+		/// <param name="createInfo">Shader creation information</param>
+		/// <returns>The created shader</returns>
 		public IShader CreateShader(ShaderCreateInfo createInfo);
 
 		/// <summary>
-		/// 
+		/// Creates a new pipeline layout.
 		/// </summary>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
+		/// <param name="createInfo">Pipeline layout creation information</param>
+		/// <returns>The created pipeline layout</returns>
 		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new bind set layout.
+		/// </summary>
+		/// <param name="createInfo">Bind set layout creation information</param>
+		/// <returns>The created bind set layout</returns>
+		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new bind pool.
+		/// </summary>
+		/// <param name="createInfo">Bind pool creation information</param>
+		/// <returns>The created bind pool</returns>
+		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo);
+
+		/// <summary>
+		/// Creates a new render pass.
+		/// </summary>
+		/// <param name="createInfo">Render pass creation information</param>
+		/// <returns>The created render pass</returns>
+		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo);
 
 		/// <summary>
 		/// Creates a new pipeline cache.
@@ -765,13 +863,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="createInfo">Pipeline set creation information</param>
 		/// <returns>The created pipeline set</returns>
 		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo);
-
-		/// <summary>
-		/// Creates a new render pass.
-		/// </summary>
-		/// <param name="createInfo">Render pass creation information</param>
-		/// <returns>The created render pass</returns>
-		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo);
 
 		/// <summary>
 		/// Creates a new framebuffer.
@@ -820,22 +911,35 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			public ReadOnlySpan<ISync> SignalSync { get; init; }
 
 		}
-		
+
 		/// <summary>
-		/// Runs the supplied commands once. Note that the command buffers in the supplied submission
+		/// Runs the supplied commands once. 
+		/// <para>Note that the command buffers in the supplied submission
 		/// info are ignored and the provided method is used to generate the commands instead. The synchronization
 		/// parameters provided in the submission info are respected for the generated commands. This is more
 		/// efficient on backends such as OpenGL which natively use immediate-based commands versus
-		/// using a one-time command buffer.
+		/// using a one-time command buffer.</para>
+		/// <para>Additionally, care should be taken when signaling fence-like sync objects using this method; the backend
+		/// needs to know when commands are finished so they can safely be discarded so internally it will insert a fence
+		/// to track this. However, if one is provided in the submission info it will be used instead, but it is assumed
+		/// that this fence will be managed (destroyed) externally. Therefore, any fences passed in the submission info
+		/// must only be destroyed after a call to <see cref="WaitIdle"/> which ensures that the associated commands
+		/// are finished.</para>
 		/// </summary>
 		/// <param name="cmdSink">The method that will supply the commands</param>
+		/// <param name="usage">Usage flags for the commands that will be run</param>
 		/// <param name="submitInfo">Submission info for the commands</param>
-		public void RunCommands(Action<ICommandSink> cmdSink, in CommandBufferSubmitInfo submitInfo);
+		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in CommandBufferSubmitInfo submitInfo);
 
 		/// <summary>
 		/// Submits command buffers for execution, setting up the required synchronization for the commands.
+		/// <para>
+		/// All command buffers submitted must target the same command queue (ie. <see cref="ICommandBuffer.QueueID"/>
+		/// must be equal for all), as synchronization is not possible if the command buffers must be
+		/// submitted to different queues.
+		/// </para>
 		/// </summary>
-		/// <param name="submitInfo"></param>
+		/// <param name="submitInfo">Command buffer submission information</param>
 		public void SubmitCommands(in CommandBufferSubmitInfo submitInfo);
 
 		/// <summary>
@@ -850,6 +954,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </para>
 		/// </summary>
 		public void TrimCommandBufferMemory();
+
+		/// <summary>
+		/// Waits until all submitted commands have finished. This <b>should not</b> be called often, as it is a brute-force
+		/// way of synchronizing with the GPU and sync objects are more efficient. However, it can be used sparingly such as
+		/// during framebuffer rebuilding and shutdown as a simple way of ensuring that any commands using objects on the
+		/// GPU are completed before destroying resources.
+		/// </summary>
+		public void WaitIdle();
 
 	}
 

@@ -167,6 +167,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="array">Vertex array to bind</param>
 		public void BindVertexArray(IVertexArray array);
 
+		/// <summary>
+		/// Binds a set of resources described by a list of bind sets to the current pipeline.
+		/// </summary>
+		/// <param name="bindPoint">The binding point, determined by the current pipeline's type</param>
+		/// <param name="layout">The current pipeline's layout</param>
+		/// <param name="sets">The list of sets to bind</param>
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets);
+
 		//=============//
 		// Dispatching //
 		//=============//
@@ -294,7 +302,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 			public Vector3i DstOffset { get; init; }
 
-			public TextureSubresourceLayers DstLevel { get; init; }
+			public TextureSubresourceLayers DstSubresource { get; init; }
 
 			public Vector3i Size { get; init; }
 
@@ -340,13 +348,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 			public uint BufferImageHeight { get; init; }
 
-			public Vector3i ImageOffset { get; init; }
+			public Vector3i TextureOffset { get; init; }
 
-			public Vector3i ImageSize { get; init; }
+			public Vector3i TextureSize { get; init; }
 
-			public uint ImageLevel { get; init; }
-
-			public TextureAspect ImageAspect { get; init; }
+			public TextureSubresourceLayers TextureSubresource { get; init; }
 
 		}
 
@@ -372,23 +378,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data);
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4 color, in ReadOnlySpan<TextureSubresourceRange> regions);
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions);
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4 color, params TextureSubresourceRange[] regions);
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions);
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4 color, in TextureSubresourceRange region);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4i color, in ReadOnlySpan<TextureSubresourceRange> regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4i color, params TextureSubresourceRange[] regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4i color, in TextureSubresourceRange region);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4ui color, in ReadOnlySpan<TextureSubresourceRange> regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4ui color, params TextureSubresourceRange[] regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, Vector4ui color, in TextureSubresourceRange region);
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region);
 
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
 
@@ -396,21 +390,35 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region);
 
-		public struct ClearColorAttachment {
+		public readonly struct ClearColorValue {
 
-			public Vector4 Color { get; set; }
+			public PixelFormat Format { get; init; }
 
-			public uint Attachment { get; set; }
+			public Vector4 Float32 { get; init; }
+
+			public Vector4i Int32 { get; init; }
+
+			public Vector4ui UInt32 { get; init; }
 
 		}
 
-		public readonly ref struct ClearValues {
+		public readonly struct ClearValue {
 
-			public ReadOnlySpan<ClearColorAttachment> Colors { get; init; }
+			public TextureAspect Aspect { get; init; }
 
-			public float? Depth { get; init; }
+			public ClearColorValue Color { get; init; }
 
-			public uint? Stencil { get; init; }
+			public float Depth { get; init; }
+
+			public int Stencil { get; init; }
+
+		}
+
+		public readonly struct ClearAttachment {
+
+			public int Attachment { get; init; }
+
+			public ClearValue Value { get; init; }
 
 		}
 
@@ -424,27 +432,27 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		}
 
-		public void ClearAttachments(in ClearValues values, in ReadOnlySpan<ClearRect> regions);
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ReadOnlySpan<ClearRect> regions);
 
-		public void ClearAttachments(in ClearValues values, params ClearRect[] regions);
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, params ClearRect[] regions);
 
-		public void ClearAttachments(in ClearValues values, in ClearRect region);
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region);
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<BlitTextureRegion> regions);
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params BlitTextureRegion[] regions);
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions);
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in BlitTextureRegion region);
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region);
 
 		/// <summary>
 		/// Generates mipmap levels for a texture using the first mip level. The filtering method for minifying the texture images may
 		/// be provided explicitly or use an implementation-specific method.
 		/// </summary>
 		/// <param name="dst">The texture to generate mipmaps for</param>
-		/// <param name="initiaLayout">The initial layout of the texture</param>
+		/// <param name="initialLayout">The initial layout of the texture</param>
 		/// <param name="finalLayout">The final layout of the texture</param>
 		/// <param name="filter">The filtering method to use for minification, or null to use a default method</param>
-		public void GenerateMipmaps(ITexture dst, TextureLayout initiaLayout, TextureLayout finalLayout, TextureFilter? filter = null);
+		public void GenerateMipmaps(ITexture dst, TextureLayout initialLayout, TextureLayout finalLayout, TextureFilter? filter = null);
 
 		//===================================//
 		// Synchronization / Memory Barriers //
@@ -516,13 +524,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		// Push Constants //
 		//================//
 
-		public void PushConstants(IPipelineLayout layout, PipelineStage stages, uint offset, uint size, IntPtr pValues);
+		public void PushConstants(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IntPtr pValues);
 
-		public void PushConstants<T>(IPipelineLayout layout, PipelineStage stages, uint offset, uint size, IConstPointer<T> pValues) => PushConstants(layout, stages, offset, size, pValues.Ptr);
+		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IConstPointer<T> pValues) => PushConstants(layout, stages, offset, size, pValues.Ptr);
 
-		public void PushConstants<T>(IPipelineLayout layout, PipelineStage stages, uint offset, uint size, in ReadOnlySpan<T> values) where T : unmanaged;
+		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged;
 
-		public void PushConstants<T>(IPipelineLayout layout, PipelineStage stages, uint offset, uint size, params T[] values) where T : unmanaged;
+		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, params T[] values) where T : unmanaged;
 
 		//===============//
 		// Render Passes //
@@ -536,7 +544,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 			public Recti RenderArea { get; init; }
 
-			public ClearValues ClearValues { get; init; }
+			public ReadOnlySpan<ClearValue> ClearValues { get; init; }
 
 		}
 
@@ -662,6 +670,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Additional usage flags specify the contents of the command buffer and how it will be used.
 	/// </para>
 	/// </summary>
+	[Flags]
 	public enum CommandBufferUsage {
 		/// <summary>
 		/// The command buffer will use graphics commands.
@@ -699,6 +708,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	public record CommandBufferCreateInfo {
 
 		/// <summary>
+		/// The required granularity of potential texture transfers done by commands in this
+		/// command buffer. A granularity of (0,0,0) will be interpreted as a "don't care".
+		/// </summary>
+		public Vector3ui RequiredTransferGranularity { get; init; }
+
+		/// <summary>
 		/// The type of command buffer to create.
 		/// </summary>
 		public CommandBufferType Type { get; init; }
@@ -715,6 +730,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	public interface ICommandBuffer : IDisposable {
 		
+		/// <summary>
+		/// An opaque ID identifying the queue that the command buffer must be submitted to.
+		/// </summary>
+		public ulong QueueID { get; }
+
 		/// <summary>
 		/// The type of command buffer.
 		/// </summary>

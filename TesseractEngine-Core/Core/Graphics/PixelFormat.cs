@@ -37,7 +37,11 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// Luminance channel.
 		/// </summary>
-		Luminance
+		Luminance,
+		/// <summary>
+		/// Exponent channel (for floating-point formats with a shared exponent).
+		/// </summary>
+		Exponent
 	}
 
 	/// <summary>
@@ -182,6 +186,16 @@ namespace Tesseract.Core.Graphics {
 		/// The common number format of the pixel format's channels, or <see cref="ChannelNumberFormat.Undefined"/> if channel number formats differ.
 		/// </summary>
 		public ChannelNumberFormat NumberFormat { get; init; }
+
+		/// <summary>
+		/// If the number format is floating-point.
+		/// </summary>
+		public bool IsNumberFormatFloating => NumberFormat == ChannelNumberFormat.SignedFloat || NumberFormat == ChannelNumberFormat.UnsignedFloat;
+
+		/// <summary>
+		/// If the number format is normalized.
+		/// </summary>
+		public bool IsNumberFormatNormalized => NumberFormat == ChannelNumberFormat.UnsignedNorm || NumberFormat == ChannelNumberFormat.SignedNorm;
 
 		private PixelFormat() { }
 
@@ -335,6 +349,97 @@ namespace Tesseract.Core.Graphics {
 		//=======================//
 
 		/// <summary>
+		/// A pixel format with an 8-bit unsigned normalized red channel.
+		/// </summary>
+		public static readonly PixelFormat R8UNorm = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm });
+
+		/// <summary>
+		/// A pixel format with an 8-bit signed normalized red channel.
+		/// </summary>
+		public static readonly PixelFormat R8SNorm = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm });
+
+		/// <summary>
+		/// A pixel format with an 8-bit unsigned scaled red channel.
+		/// </summary>
+		public static readonly PixelFormat R8UScaled = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled });
+
+		/// <summary>
+		/// A pixel format with an 8-bit signed scaled red channel.
+		/// </summary>
+		public static readonly PixelFormat R8SScaled = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled });
+
+		/// <summary>
+		/// A pixel format with an 8-bit unsigned integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R8UInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt });
+
+		/// <summary>
+		/// A pixel format with an 8-bit signed integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R8SInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt });
+
+		/// <summary>
+		/// A pixel format with an 8-bit sRGB red channel.
+		/// </summary>
+		public static readonly PixelFormat R8SRGB = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB });
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned normalized red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed normalized red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned scaled red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed scaled red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit sRGB red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8SRGB = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SRGB }
+		);
+
+		/// <summary>
 		/// A pixel format with 8-bit unsigned normalized red, green, and blue channels.
 		/// </summary>
 		public static readonly PixelFormat R8G8B8UNorm = DefineUnpackedFormat(
@@ -344,12 +449,120 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A pixel format with 8-bit signed normalized red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned scaled red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed scaled red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit sRGB red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8SRGB = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SRGB }
+		);
+
+		/// <summary>
 		/// A pixel format with 8-bit unsigned normalized blue, green, and red channels.
 		/// </summary>
 		public static readonly PixelFormat B8G8R8UNorm = DefineUnpackedFormat(
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed normalized blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned scaled blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed scaled blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned integer blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed integer blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit sRGB blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8SRGB = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SRGB }
 		);
 
 		/// <summary>
@@ -363,6 +576,66 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A pixel format with 8-bit signed normalized red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned scaled red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed scaled red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit sRGB red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R8G8B8A8SRGB = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SRGB }
+		);
+
+		/// <summary>
 		/// A pixel format with 8-bit unsigned normalized blue, green, red, and alpha channels.
 		/// </summary>
 		public static readonly PixelFormat B8G8R8A8UNorm = DefineUnpackedFormat(
@@ -370,6 +643,66 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed normalized blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned scaled blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed scaled blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit unsigned integer blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit signed integer blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 8-bit sRGB blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B8G8R8A8SRGB = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 1, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 2, Size = 1, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 3, Size = 1, NumberFormat = ChannelNumberFormat.SRGB }
 		);
 
 		/// <summary>
@@ -393,12 +726,157 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A pixel format with a 16-bit unsigned normalized red channel.
+		/// </summary>
+		public static readonly PixelFormat R16UNorm = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm });
+
+		/// <summary>
+		/// A pixel format with a 16-bit signed normalized red channel.
+		/// </summary>
+		public static readonly PixelFormat R16SNorm = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm });
+
+		/// <summary>
+		/// A pixel format with a 16-bit unsigned scaled red channel.
+		/// </summary>
+		public static readonly PixelFormat R16UScaled = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled });
+
+		/// <summary>
+		/// A pixel format with a 16-bit signed scaled red channel.
+		/// </summary>
+		public static readonly PixelFormat R16SScaled = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled });
+
+		/// <summary>
+		/// A pixel format with a 16-bit unsigned integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R16UInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt });
+
+		/// <summary>
+		/// A pixel format with a 16-bit signed integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R16SInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt });
+
+		/// <summary>
+		/// A pixel format with a 16-bit signed floating-point red channel.
+		/// </summary>
+		public static readonly PixelFormat R16SFloat = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat });
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned normalized red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16UNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed normalized red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned scaled red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed scaled red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed floating-point red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
 		/// A pixel format with 16-bit unsigned normalized red, green, and blue channels.
 		/// </summary>
 		public static readonly PixelFormat R16G16B16UNorm = DefineUnpackedFormat(
 			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed normalized red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned scaled red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed scaled red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed floating-point red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat }
 		);
 
 		/// <summary>
@@ -411,27 +889,288 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 		);
 
+		/// <summary>
+		/// A pixel format with 16-bit signed normalized red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16SNorm = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned scaled red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16UScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed scaled red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16SScaled = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit unsigned integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 16-bit signed floating-point red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R16G16B16A16SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 2, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 6, Size = 2, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with a 32-bit unsigned integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R32UInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt });
+
+		/// <summary>
+		/// A pixel format with a 32-bit signed integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R32SInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt });
+
+		/// <summary>
+		/// A pixel format with a 32-bit signed floating-point red channel.
+		/// </summary>
+		public static readonly PixelFormat R32SFloat = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat });
+
+		/// <summary>
+		/// A pixel format with 32-bit unsigned integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed floating-point red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit unsigned integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed floating-point red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit unsigned integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32A32UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32A32SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 32-bit signed floating-point red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R32G32B32A32SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with a 64-bit unsigned integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R64UInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt });
+
+		/// <summary>
+		/// A pixel format with a 64-bit signed integer red channel.
+		/// </summary>
+		public static readonly PixelFormat R64SInt = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt });
+
+		/// <summary>
+		/// A pixel format with a 64-bit signed floating-point red channel.
+		/// </summary>
+		public static readonly PixelFormat R64SFloat = DefineUnpackedFormat(new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat });
+
+		/// <summary>
+		/// A pixel format with 64-bit unsigned integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed integer red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed floating-point red and green channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit unsigned integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed integer red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed floating-point red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit unsigned integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64A64UInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed integer red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64A64SInt = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A pixel format with 64-bit signed floating-point red, green, blue, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat R64G64B64A64SFloat = DefineUnpackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SignedFloat }
+		);
+
 		//====================//
 		// Packed RGB formats //
 		//====================//
 
 		/// <summary>
-		/// A packed 32-bit pixel format with 8-bit unsigned normalized alpha, blue, green, and red channels.
+		/// A packed 8-bit pixel format with 4-bit unsigned normalized red and green channels.
 		/// </summary>
-		public static readonly PixelFormat A8B8G8R8UNormPack32 = DefinePackedFormat(
-			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		public static readonly PixelFormat R4G4UNormPack8 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 4, Size = 3, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 0, Size = 3, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 		);
 
 		/// <summary>
-		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit blue and red and 6-bit green channels.
+		/// A packed 16-bit pixel format with 4-bit unsigned normalized red, green, blue, and alpha channels.
 		/// </summary>
-		public static readonly PixelFormat B5G6R5UNormPack16 = DefinePackedFormat(
-			new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		public static readonly PixelFormat R4G4B4A4UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with 4-bit unsigned normalized blue, green, red, and alpha channels.
+		/// </summary>
+		public static readonly PixelFormat B4G4R4A4UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 		);
 
 		/// <summary>
@@ -445,6 +1184,44 @@ namespace Tesseract.Core.Graphics {
 		);
 
 		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit red and blue and 6-bit green channels.
+		/// </summary>
+		public static readonly PixelFormat R5G6B5UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit blue and red and 6-bit green channels.
+		/// </summary>
+		public static readonly PixelFormat B5G6R5UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 6, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit red, green, and blue and 1-bit alpha components.
+		/// </summary>
+		public static readonly PixelFormat R5G5B5A1UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Red, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 6, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 1, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 16-bit pixel format with unsigned normalized components, using 5-bit blue, green, and red and 1-bit alpha components.
+		/// </summary>
+		public static readonly PixelFormat B5G5R5A1UNormPack16 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 11, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 6, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 1, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
 		/// A packed 16-bit pixel format with unsigned normalized components, using 1-bit alpha and 5-bit red, green, and blue channels.
 		/// </summary>
 		public static readonly PixelFormat A1R5G5B5UNormPack16 = DefinePackedFormat(
@@ -452,6 +1229,76 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit unsigned normalized alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8UNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit signed normalized alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8SNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit unsigned scaled alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8UScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit signed scaled alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8SScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit unsigned integer alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8UIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit signed integer alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8SIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with 8-bit sRGB alpha, blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A8B8G8R8SRGBPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 24, Size = 8, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 16, Size = 8, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 8, Size = 8, NumberFormat = ChannelNumberFormat.SRGB },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 8, NumberFormat = ChannelNumberFormat.SRGB }
 		);
 
 		/// <summary>
@@ -465,6 +1312,66 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// A packed 32-bit pixel format with unsigned normalized components, using 2-bit alpha and 10-bit red, green, and blue channels.
 		/// </summary>
+		public static readonly PixelFormat A2R10G10B10UNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with signed normalized components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2R10G10B10SNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned scaled components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2R10G10B10UScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with signed scaled components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2R10G10B10SScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned integer components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2R10G10B10UIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with signed integer components, using 2-bit alpha and 10-bit red, green, and blue channels.
+		/// </summary>
+		public static readonly PixelFormat A2R10G10B10SIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned normalized components, using 2-bit alpha and 10-bit blue, green, and red channels.
+		/// </summary>
 		public static readonly PixelFormat A2B10G10R10UNormPack32 = DefinePackedFormat(
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm },
@@ -472,18 +1379,63 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 		);
 
-		//============================//
-		// Floating-point RGB formats //
-		//============================//
+		/// <summary>
+		/// A packed 32-bit pixel format with signed normalized components, using 2-bit alpha and 10-bit blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A2B10G10R10SNormPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedNorm }
+		);
 
 		/// <summary>
-		/// A pixel format with 32-bit signed floating point red, green, blue, and alpha channels.
+		/// A packed 32-bit pixel format with unsigned scaled components, using 2-bit alpha and 10-bit blue, green, and red channels.
 		/// </summary>
-		public static readonly PixelFormat R32G32B32A32SFloat = DefineUnpackedFormat(
-			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
-			new PixelChannel() { Type = ChannelType.Green, Offset = 4, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
-			new PixelChannel() { Type = ChannelType.Blue, Offset = 8, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat },
-			new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.SignedFloat }
+		public static readonly PixelFormat A2B10G10R10UScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with signed scaled components, using 2-bit alpha and 10-bit blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A2B10G10R10SScaledPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedScaled }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned integer components, using 2-bit alpha and 10-bit blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A2B10G10R10UIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with signed integer components, using 2-bit alpha and 10-bit blue, green, and red channels.
+		/// </summary>
+		public static readonly PixelFormat A2B10G10R10SIntPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Alpha, Offset = 30, Size = 2, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 20, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 10, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 10, NumberFormat = ChannelNumberFormat.SignedInt }
+		);
+
+		/// <summary>
+		/// A packed 32-bit pixel format with unsigned floating-point components, using 10-bit blue and 11-bit green and red channels.
+		/// </summary>
+		public static readonly PixelFormat B10G11R11UFloatPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 22, Size = 10, NumberFormat = ChannelNumberFormat.UnsignedFloat },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 11, Size = 11, NumberFormat = ChannelNumberFormat.UnsignedFloat },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 11, NumberFormat = ChannelNumberFormat.UnsignedFloat }
 		);
 
 		//=======================//
@@ -585,6 +1537,16 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		public static readonly PixelFormat A8UNorm = DefineUnpackedFormat(
 			new PixelChannel() { Type = ChannelType.Alpha, Offset = 0, Size = 1, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+		);
+
+		/// <summary>
+		/// A packed pixel format with unsigned floating-point components using a shared 5-bit exponent and 9-bit red, green, and blue mantissas.
+		/// </summary>
+		public static readonly PixelFormat E5B9G9R9UFloatPack32 = DefinePackedFormat(
+			new PixelChannel() { Type = ChannelType.Exponent, Offset = 27, Size = 5, NumberFormat = ChannelNumberFormat.Undefined },
+			new PixelChannel() { Type = ChannelType.Blue, Offset = 18, Size = 9, NumberFormat = ChannelNumberFormat.Undefined },
+			new PixelChannel() { Type = ChannelType.Green, Offset = 9, Size = 9, NumberFormat = ChannelNumberFormat.Undefined },
+			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 9, NumberFormat = ChannelNumberFormat.Undefined }
 		);
 
 	}

@@ -9,7 +9,7 @@ using Tesseract.Vulkan.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKInstance : IDisposable, IVKAllocatedObject {
+	public class VKInstance : IDisposable, IVKAllocatedObject, IPrimitiveHandle<IntPtr> {
 
 		public VK VK { get; }
 
@@ -18,12 +18,19 @@ namespace Tesseract.Vulkan {
 		[NativeType("VkInstance")]
 		public IntPtr Instance { get; }
 
+		public IntPtr PrimitiveHandle => Instance;
+
 		public VulkanAllocationCallbacks Allocator { get; }
 
 		public VK10InstanceFunctions VK10Functions { get; } = new();
 		public VK11InstanceFunctions VK11Functions { get; }
 
 		public KHRSurfaceInstanceFunctions KHRSurfaceFunctions { get; }
+		public KHRDeviceGroupCreationInstanceFunctions KHRDeviceGroupCreationFunctions { get; }
+		public KHRGetPhysicalDeviceProperties2InstanceFunctions KHRGetPhysicalDeviceProperties2Functions { get; }
+		public KHRExternalFenceCapabilitiesInstanceFunctions KHRExternalFenceCapabilitiesFunctions { get; }
+		public KHRExternalMemoryCapabilitiesInstanceFunctions KHRExternalMemoryCapabilitiesFunctions { get; }
+		public KHRExternalSemaphoreCapabilitiesInstanceFunctions KHRExternalSemaphoreCapabilitiesFunctions { get; }
 
 		public VKGetInstanceProcAddr InstanceGetProcAddr {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,6 +58,13 @@ namespace Tesseract.Vulkan {
 			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetASCII(pExts[i]));
 
 			// Load instance extensions
+			// Vulkan 1.1
+			if (exts.Contains(KHRDeviceGroupCreation.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDeviceGroupCreationFunctions = new());
+			if (exts.Contains(KHRExternalFenceCapabilities.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRExternalFenceCapabilitiesFunctions = new());
+			if (exts.Contains(KHRExternalMemoryCapabilities.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRExternalMemoryCapabilitiesFunctions = new());
+			if (exts.Contains(KHRExternalSemaphoreCapabilities.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRExternalSemaphoreCapabilitiesFunctions = new());
+			if (exts.Contains(KHRGetPhysicalDeviceProperties2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRGetPhysicalDeviceProperties2Functions = new());
+
 			if (exts.Contains(KHRSurface.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSurfaceFunctions = new());
 		}
 
@@ -67,6 +81,22 @@ namespace Tesseract.Vulkan {
 				VKPhysicalDevice[] devices = new VKPhysicalDevice[count];
 				for (int i = 0; i < count; i++) devices[i] = new VKPhysicalDevice(this, devs[i]);
 				return devices;
+			}
+		}
+
+		// Vulkan 1.1
+
+		public VKPhysicalDeviceGroupProperties[] PhysicalDeviceGroups {
+			get {
+				var vkEnumeratePhysicalDeviceGroups = VK11Functions?.vkEnumeratePhysicalDeviceGroups;
+				if (vkEnumeratePhysicalDeviceGroups == null) vkEnumeratePhysicalDeviceGroups = new(KHRDeviceGroupCreationFunctions.vkEnumeratePhysicalDeviceGroupsKHR);
+				uint count = 0;
+				VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, IntPtr.Zero));
+				using ManagedPointer<VKPhysicalDeviceGroupProperties> pProperties = new((int)count);
+				VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, pProperties));
+				var properties = new VKPhysicalDeviceGroupProperties[count];
+				for (int i = 0; i < count; i++) properties[i] = pProperties[i];
+				return properties;
 			}
 		}
 

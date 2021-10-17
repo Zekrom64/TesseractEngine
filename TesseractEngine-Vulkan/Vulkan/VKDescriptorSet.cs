@@ -8,7 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKDescriptorSet : IVKDeviceObject, IDisposable {
+	public class VKDescriptorSet : IVKDeviceObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDescriptorPool DescriptorPool { get; }
 
@@ -16,6 +16,8 @@ namespace Tesseract.Vulkan {
 
 		[NativeType("VkDescriptorSet")]
 		public ulong DescriptorSet { get; }
+
+		public ulong PrimitiveHandle => DescriptorSet;
 
 		public VKDescriptorSet(VKDescriptorPool descriptorPool, ulong descriptorSet) {
 			DescriptorPool = descriptorPool;

@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Math;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 	
@@ -27,6 +28,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// A pipeline stage specifies a part of the pipeline that performs certain operations. Pipeline stages
 	/// are stored as a bitmask so multiple stages may be specified in certain parameters.
 	/// </summary>
+	[Flags]
 	public enum PipelineStage {
 		/// <summary>
 		/// Pipeline stage which all commands pass through before any other stage.
@@ -100,15 +102,56 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		AllCommands = 0x00010000
 	}
 
+	/// <summary>
+	/// A pipeline layout describes how bind sets and push constants are connected to a pipeline.
+	/// </summary>
 	public interface IPipelineLayout : IDisposable { }
+
+	/// <summary>
+	/// Push constant range descriptor.
+	/// </summary>
+	public struct PushConstantRange {
+
+		/// <summary>
+		/// The shader stages this range is used in.
+		/// </summary>
+		public ShaderType Stages;
+
+		/// <summary>
+		/// The offset of this range of push constants.
+		/// </summary>
+		public uint Offset;
+
+		/// <summary>
+		/// The size of this range of push constants.
+		/// </summary>
+		public uint Size;
+
+	}
 
 	/// <summary>
 	/// Pipeline layout creation information.
 	/// </summary>
 	public record PipelineLayoutCreateInfo {
 
+		/// <summary>
+		/// The list of bind set layouts that are part of the entire pipeline layout.
+		/// </summary>
+		[DisallowNull]
+		public IBindSetLayout[] Layouts { get; init; }
+
+		/// <summary>
+		/// The list of push constant ranges used by the pipeline layout.
+		/// </summary>
+		public PushConstantRange[] PushConstantRanges { get; init; }
+
 	}
 
+	/// <summary>
+	/// A pipeline cache can be supplied during pipeline creation to provide some reuse of
+	/// resources used by pipelines. Doing so may be more efficient than creating each
+	/// pipeline separately.
+	/// </summary>
 	public interface IPipelineCache : IDisposable {
 	
 		/// <summary>
@@ -148,7 +191,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The shader to use for this shader stage.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public IShader Shader { get; init; }
 
 		/// <summary>
@@ -156,7 +199,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// If the entry point is the default value of <c>null</c> it is assumed that
 		/// the entry point is called "<c>main</c>".
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public string EntryPoint { get; init; } = "main";
 
 	}
@@ -347,7 +390,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The color write state for the output attachments may be dynamically enabled or disabled.
 		/// </summary>
-		ColorWrite
+		ColorWrite,
+		/// <summary>
+		/// The number of viewports may be dynamically modified.
+		/// </summary>
+		ViewportCount,
+		/// <summary>
+		/// The number of scissors may be dynamically modified.
+		/// </summary>
+		ScissorCount
 	}
 
 	/// <summary>
@@ -360,7 +411,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format that vertex attributes are fetched into the pipeline from vertex buffers.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public VertexFormat VertexFormat { get; init; }
 
 		// Input assembly state
@@ -380,19 +431,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The number of control points for every patch for tessellation.
 		/// </summary>
-		public uint? PatchControlPoints { get; init; }
+		public uint PatchControlPoints { get; init; }
 
 		// Viewport state
 
 		/// <summary>
 		/// The viewports used by this pipeline. Ignored if <see cref="PipelineDynamicState.Viewport"/> is specified.
 		/// </summary>
-		public Viewport[] Viewports { get; init; }
+		public EquatableList<Viewport> Viewports { get; init; }
 
 		/// <summary>
 		/// The scissors used by this pipeline. Ignored if <see cref="PipelineDynamicState.Scissor"/> is specified.
 		/// </summary>
-		public Recti[] Scissors { get; init; }
+		public EquatableList<Recti> Scissors { get; init; }
 
 		// Rasterization state
 
@@ -420,6 +471,21 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// If depth biasing is enabled.
 		/// </summary>
 		public bool DepthBiasEnable { get; init; }
+
+		/// <summary>
+		/// The constant factor to bias depth values by.
+		/// </summary>
+		public float DepthBiasConstantFactor { get; init; }
+
+		/// <summary>
+		/// The absolute maximum value of depth bias to apply.
+		/// </summary>
+		public float DepthBiasClamp { get; init; }
+
+		/// <summary>
+		/// The constant factor to scale depth values by.
+		/// </summary>
+		public float DepthBiasSlopeFactor { get; init; }
 
 		// Depth/stencil state
 
@@ -451,13 +517,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The stencil state for front-facing geometry.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public PipelineStencilState FrontStencilState { get; init; }
 
 		/// <summary>
 		/// The stencil state for back-facing geometry.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public PipelineStencilState BackStencilState { get; init; }
 
 		/// <summary>
@@ -482,6 +548,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public Vector4 BlendConstant { get; init; }
 
+		/// <summary>
+		/// The color write enable flags used for color output.
+		/// </summary>
+		public EquatableList<bool> ColorWriteEnable { get; init; }
+
 	}
 
 	/// <summary>
@@ -494,20 +565,20 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The set of shader stages to use.
 		/// </summary>
-		[NotNull]
-		public PipelineShaderStageInfo[] Shaders { get; init; }
+		[DisallowNull]
+		public EquatableList<PipelineShaderStageInfo> Shaders { get; init; }
 
 		// Viewport state
 
 		/// <summary>
-		/// The number of viewports used by this pipeline. Ignored if <see cref="PipelineDynamicState.Viewport"/> is not specified.
+		/// The number of viewports used by this pipeline. Required if <see cref="PipelineDynamicState.ViewportCount"/> is not specified.
 		/// </summary>
-		public uint? ViewportCount { get; init; }
+		public uint ViewportCount { get; init; }
 
 		/// <summary>
-		/// The number of scissors used by this pipeline. Ignored if <see cref="PipelineDynamicState.Scissor"/> is not specified.
+		/// The number of scissors used by this pipeline. Required if <see cref="PipelineDynamicState.ScissorCount"/> is not specified.
 		/// </summary>
-		public uint? ScissorCount { get; init; }
+		public uint ScissorCount { get; init; }
 
 		// Rasterization state
 
@@ -521,21 +592,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public PolygonMode PolygonMode { get; init; }
 
-		/// <summary>
-		/// The constant factor to bias depth values by.
-		/// </summary>
-		public float DepthBiasConstantFactor { get; init; }
-
-		/// <summary>
-		/// The absolute maximum value of depth bias to apply.
-		/// </summary>
-		public float DepthBiasClamp { get; init; }
-
-		/// <summary>
-		/// The constant factor to scale depth values by.
-		/// </summary>
-		public float DepthBiasSlopeFactor { get; init; }
-
 		// Color blend state
 
 		/// <summary>
@@ -546,22 +602,33 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of color attachments bound to the pipeline.
 		/// </summary>
-		[NotNull]
-		public PipelineColorAttachmentState[] Attachments { get; init; }
+		[DisallowNull]
+		public EquatableList<PipelineColorAttachmentState> Attachments { get; init; }
 
 		// Dynamic state
 
 		/// <summary>
 		/// The initial dynamic state to create the pipeline with.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public PipelineDynamicCreateInfo DynamicInfo { get; init; }
 
 		/// <summary>
 		/// The list of dynamic properties the pipeline has.
 		/// </summary>
-		[NotNull]
-		public PipelineDynamicState[] DynamicState { get; init; } = Array.Empty<PipelineDynamicState>();
+		[DisallowNull]
+		public EquatableSet<PipelineDynamicState> DynamicState { get; init; }
+
+		/// <summary>
+		/// The render pass this pipeline must be used with. The pipeline can be used
+		/// with other render passes as long as they are compatible.
+		/// </summary>
+		public IRenderPass RenderPass { get; init; }
+
+		/// <summary>
+		/// The subpass of the <see cref="RenderPass"/> this pipeline must be used with.
+		/// </summary>
+		public uint Subpass { get; init; }
 
 	}
 
@@ -573,7 +640,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The compute shader binding.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public PipelineShaderStageInfo Shader { get; init; } 
 
 	}
@@ -591,7 +658,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The layout of the pipeline.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public IPipelineLayout Layout { get; init; }
 
 		/// <summary>
@@ -624,9 +691,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </para>
 	/// <para>
 	/// The basic creation information for the pipeline is provided when the set is created and used to derive
-	/// how binding is performed with dynamic parameters and what parameters should be used to generate
-	/// new pipelines if changed. If a pipeline cache is provided all new pipelines will be created from the
+	/// how binding is performed with dynamic parameters. If a pipeline cache is provided all new pipelines will
+	/// be created from the
 	/// cache as well.
+	/// </para>
+	/// <para>
+	/// It is suggested to only use pipeline sets with parameters that vary only a little such as boolean
+	/// values and enumerations, as a new pipeline will be created for every used variation of non-dynamic
+	/// state. In cases where more complex dynamic state is needed (such as numeric values or complex state),
+	/// regular dynamic state should be used or the problem should be re-evaluated.
 	/// </para>
 	/// </summary>
 	public interface IPipelineSet : IDisposable { }
@@ -639,8 +712,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pipeline creation information.
 		/// </summary>
-		[NotNull]
+		[DisallowNull]
 		public PipelineCreateInfo CreateInfo { get; init; }
+
+		/// <summary>
+		/// The set of states that are allowed to vary within this pipeline set. Any
+		/// sets marked as dynamic in the creation information will be ignored as
+		/// unique pipelines do not need to be created for them.
+		/// </summary>
+		public EquatableSet<PipelineDynamicState> VariableStates { get; init; }
 
 	}
 

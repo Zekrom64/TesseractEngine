@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKQueue : IVKDeviceObject {
+	public class VKQueue : IVKDeviceObject, IPrimitiveHandle<IntPtr> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkQueue")]
 		public IntPtr Queue { get; }
+
+		public IntPtr PrimitiveHandle => Queue;
 
 		public VKQueue(IntPtr queue, VKDevice device) {
 			Queue = queue;
@@ -60,8 +62,8 @@ namespace Tesseract.Vulkan {
 		// VK_KHR_swapchain
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PresentKHR(in VKPresentInfoKHR presentInfo) =>
-			VK.CheckError(Device.KHRSwapchainFunctions.vkQueuePresentKHR(Queue, presentInfo));
+		public VKResult PresentKHR(in VKPresentInfoKHR presentInfo) =>
+			Device.KHRSwapchain.vkQueuePresentKHR(Queue, presentInfo);
 
 	}
 

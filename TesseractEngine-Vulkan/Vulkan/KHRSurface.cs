@@ -101,11 +101,13 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public class VKSurfaceKHR : IVKInstanceObject, IVKAllocatedObject, IDisposable {
+	public class VKSurfaceKHR : IVKInstanceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKInstance Instance { get; }
 
 		public ulong SurfaceKHR { get; }
+
+		public ulong PrimitiveHandle => SurfaceKHR;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 

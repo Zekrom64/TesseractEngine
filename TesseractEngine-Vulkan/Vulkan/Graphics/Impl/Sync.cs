@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Vulkan.Native;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Graphics.Impl {
 
 	public class VulkanFenceSync : ISync {
 
@@ -30,15 +31,21 @@ namespace Tesseract.Vulkan.Graphics {
 
 		public bool HostPoll() => Fence.Status;
 
-		public void HostReset() => throw new NotSupportedException("Cannot modify a Vulkan fence from the host");
+		public void HostReset() => Fence.Reset();
 
-		public void HostSet() => throw new NotSupportedException("Cannot modify a Vulkan fence from the host");
+		public void HostSet() => throw new NotSupportedException("Cannot signal a Vulkan fence from the host");
 
 		public bool HostWait(ulong timeout) => !Fence.WaitFor(timeout);
 
 	}
 
 	public class VulkanEventSync : ISync {
+
+		public VKEvent Event { get; }
+
+		public VulkanEventSync(VKEvent evt) {
+			Event = evt;
+		}
 
 		public SyncGranularity Granularity => SyncGranularity.PipelineStage;
 
@@ -48,36 +55,44 @@ namespace Tesseract.Vulkan.Graphics {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			throw new NotImplementedException();
+			Event.Dispose();
 		}
 
-		public bool HostPoll() {
-			throw new NotImplementedException();
-		}
+		public bool HostPoll() => Event.Status;
 
-		public void HostReset() {
-			throw new NotImplementedException();
-		}
+		public void HostReset() => Event.Status = false;
 
-		public void HostSet() {
-			throw new NotImplementedException();
-		}
+		public void HostSet() => Event.Status = true;
 
 		public bool HostWait(ulong timeout) {
-			throw new NotImplementedException();
+			var spin = new SpinWait();
+			Stopwatch sw = new();
+			sw.Start();
+			while(!Event.Status) {
+				if ((ulong)sw.ElapsedMilliseconds > timeout) return true;
+				spin.SpinOnce();
+			}
+			return false;
 		}
 	}
 
 	public class VulkanSemaphoreSync : ISync {
-		public SyncGranularity Granularity => throw new NotImplementedException();
 
-		public SyncDirection Direction => throw new NotImplementedException();
+		public VKSemaphore Semaphore { get; }
 
-		public SyncFeatures Features => throw new NotImplementedException();
+		public VulkanSemaphoreSync(VKSemaphore semaphore) {
+			Semaphore = semaphore;
+		}
+
+		public SyncGranularity Granularity => SyncGranularity.CommandBuffer;
+
+		public SyncDirection Direction => SyncDirection.GPUToGPU;
+
+		public SyncFeatures Features => SyncFeatures.GPUWorkSignaling | SyncFeatures.GPUWorkWaiting | SyncFeatures.GPUMultiQueue;
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			throw new NotImplementedException();
+			Semaphore.Dispose();
 		}
 
 		public bool HostPoll() => throw new NotSupportedException("Cannot poll a Vulkan semaphore from the host");

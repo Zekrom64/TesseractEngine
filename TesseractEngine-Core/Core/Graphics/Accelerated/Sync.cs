@@ -46,6 +46,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Synchronization features define what specific operations a sync object supports.
 	/// </summary>
+	[Flags]
 	public enum SyncFeatures {
 		/// <summary>
 		/// The state of the sync object can be polled by the Host.
@@ -60,7 +61,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		GPUWaiting =       0x0004,
 		/// <summary>
-		/// The state of the sync object can be modified by the Host.
+		/// The state of the sync object can be modified by the Host. All host-accessible
+		/// objects may be reset, but signaling implies that the host can both set the object
+		/// and that this change can signal something on the GPU.
 		/// </summary>
 		HostSignaling =    0x0008,
 		/// <summary>
@@ -104,6 +107,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// of; host/GPU signaling and waiting, host polling, and GPU work waiting/signaling.
 	/// Work waiting/signaling differs from regular waiting/signaling in that it is used to
 	/// control the order of execution of command buffers submitted to the GPU.
+	/// </para>
+	/// <para>While backends will not support every combination of these properties, there
+	/// are two major types of objects that are always supported:
+	/// <list type="bullet">
+	/// <item><b>Semaphores</b> - Only support <see cref="SyncFeatures.GPUWorkSignaling"/> and <see cref="SyncFeatures.GPUWorkWaiting"/>
+	/// with a granularity of <see cref="SyncGranularity.CommandBuffer"/> and a direction <see cref="SyncDirection.GPUToGPU"/>,
+	/// and are used to synchronize command execution on the GPU.</item>
+	/// <item><b>Fences</b> - Only support <see cref="SyncFeatures.GPUWorkSignaling"/>, <see cref="SyncFeatures.HostWaiting"/> and
+	/// <see cref="SyncFeatures.HostPolling"/> with a granularity of <see cref="SyncGranularity.CommandBuffer"/> and
+	/// a direction <see cref="SyncDirection.GPUToHost"/>. and are used to signal completion of GPU work to the host.</item>
+	/// </list>
+	/// Most backends also support some variation of an <b>Event</b> object with features <see cref="SyncFeatures.GPUWaiting"/>,
+	/// <see cref="SyncFeatures.GPUSignaling"/>, <see cref="SyncFeatures.HostPolling"/>, and <see cref="SyncFeatures.HostSignaling"/>,
+	/// and direction <see cref="SyncDirection.Any"/>. Events allow more fine-grained control over when commands are executed on
+	/// the GPU and are host-accessible, but the granularity of events may vary significantly between backends and they
+	/// may be emulated on some such as OpenGL which has no such concept of events. Therefore they are not preferred as sync objects.
 	/// </para>
 	/// </summary>
 	public interface ISync : IDisposable {

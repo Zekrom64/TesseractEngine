@@ -55,7 +55,7 @@ namespace Tesseract.Vulkan {
 
 		public VulkanException(VKResult result) : base(GetResultString(result)) { }
 
-		public VulkanException(string msg, VKResult result) : base(msg + GetResultString(result)) { }
+		public VulkanException(string msg, VKResult result) : base(msg + ": " + GetResultString(result)) { }
 
 		public VulkanException(string msg) : base(msg) { }
 

@@ -678,6 +678,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="size">The number of values to allocate</param>
 		/// <returns>Pointer to allocated memory</returns>
 		public UnmanagedPointer<T> Alloc<T>(int size = 1) where T : unmanaged {
+			if (size <= 0) return default;
 			unsafe {
 				int bytesize = size * sizeof(T);
 				int newoffset = offset - bytesize;
@@ -705,11 +706,40 @@ namespace Tesseract.Core.Native {
 		/// Allocates and initializes values in stack memory.
 		/// </summary>
 		/// <typeparam name="T">The data type to allocate</typeparam>
+		/// <param name="values">The list of values to initialize memory with</param>
+		/// <returns>Pointer to values in memory</returns>
+		public UnmanagedPointer<T> Values<T>(in ReadOnlySpan<T> values) where T : unmanaged {
+			unsafe {
+				UnmanagedPointer<T> ptr = Alloc<T>(values.Length);
+				MemoryUtil.Copy(ptr, values, values.Length * sizeof(T));
+				return ptr;
+			}
+		}
+
+		/// <summary>
+		/// Allocates and initializes values in stack memory.
+		/// </summary>
+		/// <typeparam name="T">The data type to allocate</typeparam>
 		/// <param name="values">The collection of values to initialize memory with</param>
 		/// <returns>Pointer to values in memory</returns>
 		public UnmanagedPointer<T> Values<T>(IReadOnlyCollection<T> values) where T : unmanaged {
 			unsafe {
 				UnmanagedPointer<T> ptr = Alloc<T>(values.Count);
+				int i = 0;
+				foreach (T value in values) ptr[i++] = value;
+				return ptr;
+			}
+		}
+
+		/// <summary>
+		/// Allocates and initializes values in stack memory.
+		/// </summary>
+		/// <typeparam name="T">The data type to allocate</typeparam>
+		/// <param name="values">The enumeration of values to initialize memory with</param>
+		/// <returns>Pointer to values in memory</returns>
+		public UnmanagedPointer<T> Values<T>(IEnumerable<T> values) where T : unmanaged {
+			unsafe {
+				UnmanagedPointer<T> ptr = Alloc<T>(values.Count());
 				int i = 0;
 				foreach (T value in values) ptr[i++] = value;
 				return ptr;
@@ -760,6 +790,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="size">The number of values to allocate</param>
 		/// <returns>Span of values in stack memory</returns>
 		public Span<T> AllocSpan<T>(int size) where T : unmanaged {
+			if (size <= 0) return Span<T>.Empty;
 			int bytesize = size * Marshal.SizeOf<T>();
 			int newoffset = offset - bytesize;
 			if (newoffset < 0) throw new ArgumentOutOfRangeException(nameof(size), "Not enough memory to allocate structure");
@@ -776,7 +807,7 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="text">String text</param>
 		/// <returns>String pointer</returns>
-		public UnmanagedPointer<byte> ASCII(string text) => Values(Encoding.ASCII.GetBytes(text + '\0'));
+		public UnmanagedPointer<byte> ASCII(string text) => text != null ? Values(Encoding.ASCII.GetBytes(text + '\0')) : default;
 
 		/// <summary>
 		/// Allocates an array of ASCII strings.
@@ -817,7 +848,7 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="text">String text</param>
 		/// <returns>String pointer</returns>
-		public UnmanagedPointer<byte> UTF8(string text) => Values(Encoding.UTF8.GetBytes(text + '\0'));
+		public UnmanagedPointer<byte> UTF8(string text) => text != null ? Values(Encoding.UTF8.GetBytes(text + '\0')) : default;
 
 		/// <summary>
 		/// Allocates an array of UTF-8 strings.

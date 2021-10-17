@@ -15,7 +15,7 @@ namespace Tesseract.Core.Input {
 	/// <summary>
 	/// A simple light pattern setting all lights to a single color.
 	/// </summary>
-	public record SingleLightPattern {
+	public record SingleLightPattern : ILightPattern {
 
 		/// <summary>
 		/// The color of the light.

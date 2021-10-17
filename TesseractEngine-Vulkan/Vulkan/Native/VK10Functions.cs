@@ -323,6 +323,8 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
 		public PFN_vkCmdExecuteCommands vkCmdExecuteCommands;
 
+		public static implicit operator bool(VK10DeviceFunctions fn) => fn != null;
+
 	}
 
 }

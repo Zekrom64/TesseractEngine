@@ -181,6 +181,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
 		public PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
 		public PFN_vkQueuePresentKHR vkQueuePresentKHR;
+		// With Vulkan 1.1 or VK_KHR_device_group
 		[ExternFunction(Relaxed = true)]
 		public PFN_vkGetDeviceGroupPresentCapabilitiesKHR vkGetDeviceGroupPresentCapabilitiesKHR;
 		[ExternFunction(Relaxed = true)]
@@ -198,12 +199,14 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public class VKSwapchainKHR : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKSwapchainKHR : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkSwapchainKHR")]
 		public ulong SwapchainKHR { get; }
+
+		public ulong PrimitiveHandle => SwapchainKHR;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
@@ -215,17 +218,17 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.KHRSwapchainFunctions.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
+			Device.KHRSwapchain.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
 		}
 
 		public VKImage[] Images {
 			get {
 				uint count = 0;
-				VK.CheckError(Device.KHRSwapchainFunctions.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, IntPtr.Zero), "Failed to get swapchain images");
+				VK.CheckError(Device.KHRSwapchain.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, IntPtr.Zero), "Failed to get swapchain images");
 				Span<ulong> images = stackalloc ulong[(int)count];
 				unsafe {
 					fixed(ulong* pImages = images) {
-						VK.CheckError(Device.KHRSwapchainFunctions.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, (IntPtr)pImages), "Failed to get swapchain images");
+						VK.CheckError(Device.KHRSwapchain.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, (IntPtr)pImages), "Failed to get swapchain images");
 					}
 				}
 				VKImage[] imgs = new VKImage[count];
@@ -236,11 +239,11 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage(ulong timeout, VKSemaphore semaphore, VKFence fence, out uint imageIndex) =>
-			Device.KHRSwapchainFunctions.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
+			Device.KHRSwapchain.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) =>
-			Device.KHRSwapchainFunctions.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
+			Device.KHRSwapchain.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
 
 		public static implicit operator ulong(VKSwapchainKHR swapchain) => swapchain != null ? swapchain.SwapchainKHR : 0;
 

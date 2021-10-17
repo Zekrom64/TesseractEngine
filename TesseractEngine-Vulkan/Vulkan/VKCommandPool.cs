@@ -8,12 +8,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKCommandPool : IVKDeviceObject, IVKAllocatedObject, IDisposable {
+	public class VKCommandPool : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
 		public VKDevice Device { get; }
 
 		[NativeType("VkCommandPool")]
 		public ulong CommandPool { get; }
+
+		public ulong PrimitiveHandle => CommandPool;
 
 		public VulkanAllocationCallbacks Allocator { get; }
 
@@ -27,6 +29,8 @@ namespace Tesseract.Vulkan {
 			GC.SuppressFinalize(this);
 			Device.VK10Functions.vkDestroyCommandPool(Device, CommandPool, Allocator);
 		}
+
+		// Vulkan 1.0
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Reset(VKCommandPoolResetFlagBits flags) =>
@@ -57,6 +61,14 @@ namespace Tesseract.Vulkan {
 					Device.VK10Functions.vkFreeCommandBuffers(Device, CommandPool, (uint)cmdbufs.Length, (IntPtr)pCmdbufs);
 				}
 			}
+		}
+		
+		// Vulkan 1.1
+		// VK_KHR_maintenance1
+
+		public void Trim(VKCommandPoolTrimFlags flags = 0) {
+			if (Device.VK11Functions) Device.VK11Functions.vkTrimCommandPool(Device, CommandPool, flags);
+			else Device.KHRMaintenance1.vkTrimCommandPoolKHR(Device, CommandPool, flags);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

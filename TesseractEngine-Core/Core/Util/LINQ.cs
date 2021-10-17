@@ -22,5 +22,16 @@ namespace Tesseract.Core.Util {
 			for (int i = 0, j = start; i < count; i++, j += advance) yield return j;
 		}
 
+		/// <summary>
+		/// Generates a sequence of duplicate values.
+		/// </summary>
+		/// <typeparam name="T">Value type</typeparam>
+		/// <param name="value">The value to duplicate</param>
+		/// <param name="times">The number of duplicate values</param>
+		/// <returns>Sequence of duplicates</returns>
+		public static IEnumerable<T> Dup<T>(T value, int times) {
+			while (times-- > 0) yield return value;
+		}
+
 	}
 }

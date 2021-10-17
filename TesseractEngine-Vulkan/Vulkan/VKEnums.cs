@@ -230,6 +230,7 @@ namespace Tesseract.Vulkan {
 		MemoryBarrier = 46,
 		LoaderInstanceCreateInfo = 47,
 		LoaderDeviceCreateInfo = 48,
+		// Vulkan 1.1
 		PhysicalDeviceSubgroupProperties = 1000094000,
 		BindBufferMemoryInfo = 1000157000,
 		BindImageMemoryInfo = 1000157001,
@@ -295,6 +296,7 @@ namespace Tesseract.Vulkan {
 		PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES = 1000168000,
 		DESCRIPTOR_SET_LAYOUT_SUPPORT = 1000168001,
 		PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES = 1000063000,
+		// Vulkan 1.2
 		PHYSICAL_DEVICE_VULKAN_1_1_FEATURES = 49,
 		PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES = 50,
 		PHYSICAL_DEVICE_VULKAN_1_2_FEATURES = 51,
@@ -345,23 +347,34 @@ namespace Tesseract.Vulkan {
 		BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO = 1000257002,
 		MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO = 1000257003,
 		DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO = 1000257004,
+		// VK_KHR_swapchain
 		SWAPCHAIN_CREATE_INFO_KHR = 1000001000,
 		PRESENT_INFO_KHR = 1000001001,
+		// VK_KHR_swapchain w/ VK_KHR_device_group or Vulkan 1.1
 		DEVICE_GROUP_PRESENT_CAPABILITIES_KHR = 1000060007,
 		IMAGE_SWAPCHAIN_CREATE_INFO_KHR = 1000060008,
 		BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR = 1000060009,
 		ACQUIRE_NEXT_IMAGE_INFO_KHR = 1000060010,
 		DEVICE_GROUP_PRESENT_INFO_KHR = 1000060011,
 		DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR = 1000060012,
+		// VK_KHR_display
 		DISPLAY_MODE_CREATE_INFO_KHR = 1000002000,
 		DISPLAY_SURFACE_CREATE_INFO_KHR = 1000002001,
+		// VK_KHR_display_swapchain
 		DISPLAY_PRESENT_INFO_KHR = 1000003000,
-		XLIB_SURFACE_CREATE_INFO_KHR = 1000004000,
+		// VK_KHR_xlib_surface
+		XLIB_SURFACE_CREATE_INFO_KHR = 1000004000, 
+		// VK_KHR_xcb_surface
 		XCB_SURFACE_CREATE_INFO_KHR = 1000005000,
+		// VK_KHR_wayland_surface
 		WAYLAND_SURFACE_CREATE_INFO_KHR = 1000006000,
+		// VK_KHR_android_surface
 		ANDROID_SURFACE_CREATE_INFO_KHR = 1000008000,
+		// VK_KHR_win32_surface
 		WIN32_SURFACE_CREATE_INFO_KHR = 1000009000,
+		// VK_EXT_debug_report
 		DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT = 1000011000,
+		// VK_AMD_rasterization_order
 		PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD = 1000018000,
 		DEBUG_MARKER_OBJECT_NAME_INFO_EXT = 1000022000,
 		DEBUG_MARKER_OBJECT_TAG_INFO_EXT = 1000022001,
@@ -585,6 +598,7 @@ namespace Tesseract.Vulkan {
 		PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT = 1000259001,
 		PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT = 1000259002,
 		PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT = 1000265000,
+		PhysicalDeviceExtendedDynamicStateFeaturesEXT = 1000267000,
 		DEFERRED_OPERATION_INFO_KHR = 1000268000,
 		PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR = 1000269000,
 		PIPELINE_INFO_KHR = 1000269001,
@@ -616,7 +630,9 @@ namespace Tesseract.Vulkan {
 		PrivateDataSlotCreateInfoEXT = 1000295002,
 		PhysicalDevicePipelineCreationCacheControlFeaturesEXT = 1000297000,
 		PhysicalDeviceDiagnosticsConfigFeaturesNV = 1000300000,
-		DeviceDiagnosticsConfigCreateInfoNV = 1000300001
+		DeviceDiagnosticsConfigCreateInfoNV = 1000300001,
+		// TODO
+		PhysicalDeviceExtendedDynamicState2FeaturesEXT = 1000377000
     }
 
 	public enum VKSystemAllocationScope : int {
@@ -667,7 +683,7 @@ namespace Tesseract.Vulkan {
 		B8G8R8UScaled = 32,
 		B8G8R8SScaled = 33,
 		B8G8R8UInt = 34,
-		B8R8G8SInt = 35,
+		B8G8R8SInt = 35,
 		B8G8R8SRGB = 36,
 		R8G8B8A8UNorm = 37,
 		R8G8B8A8SNorm = 38,
@@ -1111,13 +1127,46 @@ namespace Tesseract.Vulkan {
 		StencilCompareMask = 6,
 		StencilWriteMask = 7,
 		StencilReference = 8,
+		// VK_NV_clip_space_w_scaling
 		ViewportWScalingNV = 1000087000,
+		// VK_EXT_discard_rectangles
 		DiscardRectangleEXT = 1000099000,
+		// VK_EXT_sample_locations
 		SampleLocationsEXT = 1000143000,
+		// VK_KHR_ray_tracing_pipeline
+		RayTracingPipelineStackSizeKHR = 1000347000,
+		// VK_NV_shading_rate_image
 		ViewportShadingRatePaletteNV = 1000164004,
 		ViewportCoarseSampleOrderNV = 1000164006,
+		// VK_NV_scissor_exclusive
 		ExclusiveScissorNV = 1000205001,
-		LineStippleEXT = 1000259000
+		// VK_KHR_fragment_shading_rate
+		FragmentShadingRate = 1000226000,
+		// VK_EXT_line_rasterization
+		LineStippleEXT = 1000259000,
+		// VK_EXT_extended_dynamic_state
+		CullModeEXT = 1000267000,
+		FrontFaceEXT,
+		PrimitiveTopologyEXT,
+		ViewportWithCountEXT,
+		ScissorWithCountEXT,
+		VertexInputBindingStrideEXT,
+		DepthTestEnableEXT,
+		DepthWriteEnableEXT,
+		DepthCompareOpEXT,
+		DepthBoundsTestEnableEXT,
+		StencilTestEnableEXT,
+		StencilOpEXT,
+		// VK_EXT_vertex_input_dynamic_state
+		VertexInputEXT = 1000352000,
+		// VK_EXT_extended_dynamic_state2
+		PatchControlPointsEXT = 1000377000,
+		RasterizerDiscardEnableEXT,
+		DepthBiasEnableEXT,
+		LogicOpEXT,
+		PrimitiveRestartEnableEXT,
+		// VK_EXT_color_write_enable
+		ColorWriteEnableEXT = 1000381000
 	}
 
 	public enum VKFilter : int {
@@ -1828,6 +1877,23 @@ namespace Tesseract.Vulkan {
 
 	public enum VKSemaphoreWaitFlagBits {
 		Any = 0x00000001
+	}
+
+	// Miscellaneous
+
+	public enum VKVendorId : uint {
+		// PCI-based IDs
+		Intel = 0x8086,
+		AMD = 0x1022,
+		NVidia = 0x10DE,
+
+		// Unique Khronos-assigned IDs
+		VIV = 0x10001,
+		VSI = 0x10002,
+		Kazan = 0x10003,
+		Codeplay = 0x10004,
+		Mesa = 0x10005,
+		POCL = 0x10006
 	}
 
 }

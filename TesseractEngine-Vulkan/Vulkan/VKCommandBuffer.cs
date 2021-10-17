@@ -10,7 +10,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
-	public class VKCommandBuffer : IVKDeviceObject, IDisposable {
+	public class VKCommandBuffer : IVKDeviceObject, IDisposable, IPrimitiveHandle<IntPtr> {
 
 		public VKCommandPool CommandPool { get; }
 
@@ -18,6 +18,8 @@ namespace Tesseract.Vulkan {
 		
 		[NativeType("VkCommandBuffer")]
 		public IntPtr CommandBuffer { get; }
+
+		public IntPtr PrimitiveHandle => CommandBuffer;
 
 		public VKCommandBuffer(VKCommandPool commandPool, IntPtr commandBuffer) {
 			CommandPool = commandPool;
@@ -40,7 +42,7 @@ namespace Tesseract.Vulkan {
 		public void End() => VK.CheckError(Device.VK10Functions.vkEndCommandBuffer(CommandBuffer), "Failed to end command buffer recording");
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Reset(VKCommandBufferResetFlagBits flags) =>
+		public void Reset(VKCommandBufferResetFlagBits flags = 0) =>
 			VK.CheckError(Device.VK10Functions.vkResetCommandBuffer(CommandBuffer, flags), "Failed to reset command buffer");
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -561,6 +563,131 @@ namespace Tesseract.Vulkan {
 					Device.VK10Functions.vkCmdExecuteCommands(CommandBuffer, (uint)cmdbufs.Length, (IntPtr)pCmdBufs);
 				}
 			}
+		}
+
+		// Vulkan 1.1
+		// VK_KHR_device_group
+
+		public void DispatchBase(Vector3ui bases, Vector3ui count) {
+			if (Device.VK11Functions) Device.VK11Functions.vkCmdDispatchBase(CommandBuffer, bases.X, bases.Y, bases.Z, count.X, count.Y, count.Z);
+			else Device.KHRDeviceGroup.vkCmdDispatchBaseKHR(CommandBuffer, bases.X, bases.Y, bases.Z, count.X, count.Y, count.Z);
+		}
+
+		public void SetDeviceMask(uint deviceMask) {
+			if (Device.VK11Functions) Device.VK11Functions.vkCmdSetDeviceMask(CommandBuffer, deviceMask);
+			else Device.KHRDeviceGroup.vkCmdSetDeviceMaskKHR(CommandBuffer, deviceMask);
+		}
+
+		// EXT_line_rasterization
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetLineStippleEXT(uint lineStippleFactor, ushort lineStipplePattern) => Device.EXTLineRasterization.vkCmdSetLineStippleEXT(CommandBuffer, lineStippleFactor, lineStipplePattern);
+
+		// EXT_extended_dynamic_state
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetCullModeEXT(VKCullModeFlagBits cullMode) => Device.EXTExtendedDynamicState.vkCmdSetCullModeEXT(CommandBuffer, cullMode);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetFrontFaceEXT(VKFrontFace frontFace) => Device.EXTExtendedDynamicState.vkCmdSetFrontFaceEXT(CommandBuffer, frontFace);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetPrimitiveTopologyEXT(VKPrimitiveTopology primitiveTopology) => Device.EXTExtendedDynamicState.vkCmdSetPrimitiveTopologyEXT(CommandBuffer, primitiveTopology);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetViewportWithCountEXT(in ReadOnlySpan<VKViewport> viewports) {
+			unsafe {
+				fixed(VKViewport* pViewports = viewports) {
+					Device.EXTExtendedDynamicState.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)viewports.Length, (IntPtr)pViewports);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetViewportWithCountEXT(params VKViewport[] viewports) {
+			unsafe {
+				fixed (VKViewport* pViewports = viewports) {
+					Device.EXTExtendedDynamicState.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)viewports.Length, (IntPtr)pViewports);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetScissorWithCountEXT(in ReadOnlySpan<VKRect2D> scissors) {
+			unsafe {
+				fixed (VKRect2D* pScissors = scissors) {
+					Device.EXTExtendedDynamicState.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)scissors.Length, (IntPtr)pScissors);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetScissorWithCountEXT(params VKRect2D[] scissors) {
+			unsafe {
+				fixed (VKRect2D* pScissors = scissors) {
+					Device.EXTExtendedDynamicState.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)scissors.Length, (IntPtr)pScissors);
+				}
+			}
+		}
+
+		public void BindVertexBuffers2EXT(uint firstBinding, in ReadOnlySpan<VKBuffer> buffers, in ReadOnlySpan<ulong> offsets, in ReadOnlySpan<ulong> sizes, in ReadOnlySpan<ulong> strides) {
+			uint n = (uint)ExMath.Min(buffers.Length, offsets.Length, sizes.Length, strides.Length);
+			Span<ulong> bufs = stackalloc ulong[(int)n];
+			for (int i = 0; i < n; i++) bufs[i] = buffers[i];
+			unsafe {
+				fixed(ulong* pBuffers = bufs, pOffsets = offsets, pSizes = sizes, pStrides = strides) {
+					Device.EXTExtendedDynamicState.vkCmdBindVertexBuffers2EXT(CommandBuffer, firstBinding, n, (IntPtr)pBuffers, (IntPtr)pOffsets, (IntPtr)pSizes, (IntPtr)pStrides);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetDepthTestEnableEXT(bool enable) => Device.EXTExtendedDynamicState.vkCmdSetDepthTestEnableEXT(CommandBuffer, enable);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetDepthWriteEnableEXT(bool enable) => Device.EXTExtendedDynamicState.vkCmdSetDepthWriteEnableEXT(CommandBuffer, enable);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetDepthCompareOpEXT(VKCompareOp compareOp) => Device.EXTExtendedDynamicState.vkCmdSetDepthCompareOpEXT(CommandBuffer, compareOp);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetDepthBoundsTestEnableEXT(bool enable) => Device.EXTExtendedDynamicState.vkCmdSetDepthBoundsTestEnableEXT(CommandBuffer, enable);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetStencilTestEnableEXT(bool enable) => Device.EXTExtendedDynamicState.vkCmdSetStencilTestEnableEXT(CommandBuffer, enable);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetStencilOpEXT(VKStencilFaceFlagBits faceMask, VKStencilOp failOp, VKStencilOp passOp, VKStencilOp depthFailOp, VKCompareOp compareOp) =>
+			Device.EXTExtendedDynamicState.vkCmdSetStencilOpEXT(CommandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
+
+		// VK_KHR_create_renderpass2
+		// Vulkan 1.2
+		public void BeginRenderPass2(in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBegin) {
+			if (Device.VK12Functions) Device.VK12Functions.vkCmdBeginRenderPass2(CommandBuffer, renderPassBegin, subpassBegin);
+			else Device.KHRCreateRenderpass2.vkCmdBeginRenderPass2KHR(CommandBuffer, renderPassBegin, subpassBegin);
+		}
+
+		public void NextSubpass2(in VKSubpassBeginInfo beginInfo, in VKSubpassEndInfo endInfo) {
+			if (Device.VK12Functions) Device.VK12Functions.vkCmdNextSubpass2(CommandBuffer, beginInfo, endInfo);
+			else Device.KHRCreateRenderpass2.vkCmdNextSubpass2KHR(CommandBuffer, beginInfo, endInfo);
+		}
+
+		public void EndRenderPass2(in VKSubpassEndInfo endInfo) {
+			if (Device.VK12Functions) Device.VK12Functions.vkCmdEndRenderPass2(CommandBuffer, endInfo);
+			else Device.KHRCreateRenderpass2.vkCmdEndRenderPass2KHR(CommandBuffer, endInfo);
+		}
+		
+		// VK_KHR_draw_indirect_count
+		// Vulkan 1.2
+
+		public void DrawIndexedIndirectCount(VKBuffer buffer, ulong offset, VKBuffer countBuffer, ulong countBufferOffset, uint maxDrawCount, uint stride) {
+			if (Device.VK12Functions) Device.VK12Functions.vkCmdDrawIndexedIndirectCount(CommandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+			else Device.KHRDrawIndirectCount.vkCmdDrawIndexedIndirectCountKHR(CommandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+		}
+
+		public void DrawIndirectCount(VKBuffer buffer, ulong offset, VKBuffer countBuffer, ulong countBufferOffset, uint maxDrawCount, uint stride) {
+			if (Device.VK12Functions) Device.VK12Functions.vkCmdDrawIndirectCount(CommandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+			else Device.KHRDrawIndirectCount.vkCmdDrawIndirectCountKHR(CommandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 		}
 
 		public static implicit operator IntPtr(VKCommandBuffer commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;

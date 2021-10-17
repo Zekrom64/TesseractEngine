@@ -143,6 +143,8 @@ namespace Tesseract.Core.Math {
 		public static implicit operator Vector<uint>(Vector2ui v) => new(stackalloc[] { v.X, v.Y });
 		public static implicit operator Vector2ui(Vector<uint> v) => new(v[0], v[1]);
 
+		public static explicit operator Vector2i(Vector2ui v) => new((int)v.X, (int)v.Y);
+
 	}
 
 }

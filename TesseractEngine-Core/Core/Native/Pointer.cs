@@ -79,16 +79,30 @@ namespace Tesseract.Core.Native {
 
 		public int ArraySize { get; }
 
+		/// <summary>
+		/// If the pointer is read-only. This is an extra layer of protection over
+		/// just passing this as a <see cref="IConstPointer{T}"/>, where methods that
+		/// attempt to write to memory will throw an exception.
+		/// </summary>
+		public bool IsReadOnly { get; }
+
 		public T Value {
 			get => Marshal.PtrToStructure<T>(Ptr);
-			set => Marshal.StructureToPtr(value, Ptr, true);
+			set {
+				if (IsReadOnly) throw new InvalidOperationException("Cannot set value of read-only memory");
+				Marshal.StructureToPtr(value, Ptr, true);
+			}
 		}
 
 		public Span<T> Span {
 			get {
-				unsafe {
-					return new Span<T>((void*)Ptr, ArraySize);
-				}
+				// Note: This does not respect the read-only flag but that is less bad for unmanaged types
+				// No cheeky attempts to trash memory of non-unmanaged types
+				if (MemoryUtil.IsUnmanaged<T>()) {
+					unsafe {
+						return new Span<T>((void*)Ptr, ArraySize);
+					}
+				} else throw new InvalidOperationException("Cannot wrap span to non-unmanaged type");
 			}
 		}
 
@@ -100,17 +114,20 @@ namespace Tesseract.Core.Native {
 		/// <param name="ptr">Raw pointer</param>
 		/// <param name="release">Releaser for pointer, or null</param>
 		/// <param name="count">The number of array elements</param>
-		public ManagedPointer(IntPtr ptr, Releaser release = null, int count = 1) {
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(IntPtr ptr, Releaser release = null, int count = 1, bool readOnly = false) {
 			Ptr = ptr;
 			this.release = release;
 			ArraySize = count;
+			IsReadOnly = readOnly;
 		}
 
 		/// <summary>
 		/// Allocates a pointer to a value and marshals the given value to the new memory.
 		/// </summary>
 		/// <param name="value">Value to store in memory</param>
-		public ManagedPointer(T value) {
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(T value, bool readOnly) {
 			Ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
 			Marshal.StructureToPtr(value, Ptr, false);
 			release = ptr => {
@@ -118,6 +135,7 @@ namespace Tesseract.Core.Native {
 				Marshal.FreeHGlobal(ptr);
 			};
 			ArraySize = 1;
+			IsReadOnly = readOnly;
 		}
 
 		/// <summary>
@@ -125,7 +143,8 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="count">Number of array elements</param>
 		/// <param name="defVal">The default value in the array</param>
-		public ManagedPointer(int count, T defVal = default) {
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(int count, T defVal = default, bool readOnly = false) {
 			int sz = Marshal.SizeOf<T>();
 			Ptr = Marshal.AllocHGlobal(sz * count);
 			for (int i = 0; i < count; i++) Marshal.StructureToPtr(defVal, Ptr + sz * i, false);
@@ -134,6 +153,7 @@ namespace Tesseract.Core.Native {
 				Marshal.FreeHGlobal(ptr);
 			};
 			ArraySize = count;
+			IsReadOnly = readOnly;
 		}
 
 		/// <summary>
@@ -150,13 +170,15 @@ namespace Tesseract.Core.Native {
 				Marshal.FreeHGlobal(ptr);
 			};
 			ArraySize = count;
+			IsReadOnly = false;
 		}
 
 		/// <summary>
 		/// Allocates a pointer to an array of values and marshals the given array to the new memory.
 		/// </summary>
+		/// <param name="readOnly">If the pointer should be read-only</param>
 		/// <param name="values">The array element values</param>
-		public ManagedPointer(in ReadOnlySpan<T> values) {
+		public ManagedPointer(bool readOnly, params T[] values) {
 			int sz = Marshal.SizeOf<T>();
 			int count = values.Length;
 			Ptr = Marshal.AllocHGlobal(sz * count);
@@ -166,13 +188,33 @@ namespace Tesseract.Core.Native {
 				Marshal.FreeHGlobal(ptr);
 			};
 			ArraySize = count;
+			IsReadOnly = readOnly;
+		}
+
+		/// <summary>
+		/// Allocates a pointer to an array of values and marshals the given array to the new memory.
+		/// </summary>
+		/// <param name="values">The array element values</param>
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(in ReadOnlySpan<T> values, bool readOnly) {
+			int sz = Marshal.SizeOf<T>();
+			int count = values.Length;
+			Ptr = Marshal.AllocHGlobal(sz * count);
+			for (int i = 0; i < count; i++) Marshal.StructureToPtr(values[i], Ptr + sz * i, false);
+			release = ptr => {
+				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
+				Marshal.FreeHGlobal(ptr);
+			};
+			ArraySize = count;
+			IsReadOnly = readOnly;
 		}
 
 		/// <summary>
 		/// Allocates a pointer to an array of values and marshals the given collection to the new memory.
 		/// </summary>
 		/// <param name="values">The array element values</param>
-		public ManagedPointer(IReadOnlyCollection<T> values) {
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(IReadOnlyCollection<T> values, bool readOnly = false) {
 			int sz = Marshal.SizeOf<T>();
 			int count = values.Count;
 			Ptr = Marshal.AllocHGlobal(sz * count);
@@ -183,6 +225,7 @@ namespace Tesseract.Core.Native {
 				Marshal.FreeHGlobal(ptr);
 			};
 			ArraySize = count;
+			IsReadOnly = readOnly;
 		}
 
 		/// <summary>
@@ -190,12 +233,14 @@ namespace Tesseract.Core.Native {
 		/// managed pointer will unpin the memory.
 		/// </summary>
 		/// <param name="memory">Memory to pin</param>
-		public ManagedPointer(Memory<T> memory) {
+		/// <param name="readOnly">If the pointer should be read-only</param>
+		public ManagedPointer(Memory<T> memory, bool readOnly) {
 			MemoryUtil.AssertUnmanaged<T>(); // Don't allow cheeky things like converting memory w/ managed objects to pointers
 			MemoryHandle handle = memory.Pin();
 			unsafe { Ptr = (IntPtr)handle.Pointer; }
 			release = ptr => { handle.Dispose(); };
 			ArraySize = memory.Length;
+			IsReadOnly = readOnly;
 		}
 
 		public void Dispose() {
@@ -213,6 +258,7 @@ namespace Tesseract.Core.Native {
 				return Marshal.PtrToStructure<T>(Ptr + Marshal.SizeOf<T>() * index);
 			}
 			set {
+				if (IsReadOnly) throw new InvalidOperationException("Cannot set value of read-only memory");
 				if (index < 0 || index >= ArraySize) throw new IndexOutOfRangeException();
 				Marshal.StructureToPtr(value, Ptr + Marshal.SizeOf<T>() * index, true);
 			}

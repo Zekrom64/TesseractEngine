@@ -293,24 +293,43 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
+	/// Enumeration of index value types.
+	/// </summary>
+	public enum IndexType {
+		/// <summary>
+		/// Unsigned 8-bit indices.
+		/// </summary>
+		UInt8,
+		/// <summary>
+		/// Unsigned 16-bit indices.
+		/// </summary>
+		UInt16,
+		/// <summary>
+		/// Unsigned 32-bit indices.
+		/// </summary>
+		UInt32
+	}
+
+	/// <summary>
 	/// Creation information structure for vertex arrays.
 	/// </summary>
-	public struct VertexArrayCreateInfo {
+	public record VertexArrayCreateInfo {
 
 		/// <summary>
 		/// The format of vertices in the vertex array.
 		/// </summary>
-		public VertexFormat Format { get; set; }
+		public VertexFormat Format { get; init; }
 
 		/// <summary>
-		/// The list of buffer bindings for vertex buffers.
+		/// The list of buffer bindings for vertex buffers with their associated
+		/// binding indices.
 		/// </summary>
-		public BufferBinding[] VertexBuffers { get; set; }
+		public (BufferBinding, uint)[] VertexBuffers { get; init; }
 
 		/// <summary>
 		/// The buffer binding for an index buffer.
 		/// </summary>
-		public BufferBinding IndexBuffer { get; set; }
+		public (BufferBinding, IndexType)? IndexBuffer { get; init; }
 
 	}
 
