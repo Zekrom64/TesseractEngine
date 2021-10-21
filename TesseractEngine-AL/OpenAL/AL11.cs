@@ -46,14 +46,25 @@ namespace Tesseract.OpenAL {
 		SecOffset = 0x1024,
 		SampleOffset = 0x1025,
 		ByteOffset = 0x1026,
-		Type = 0x1027
+		Type = 0x1027,
+
+		DirectFilter = 0x20005,
+		AuxiliarySendFilter = 0x20006,
+		AirAbsorptionFactor = 0x20007,
+		RoomRolloffFactor = 0x20008,
+		ConeOuterGainHF = 0x20009,
+		DirectFilterGainHFAuto = 0x2000A,
+		AuxiliarySendFilterGainAuto = 0x2000B,
+		AuxiliarySendFilterGainHFAuto = 0x2000C
 	}
 
 	public enum ALListenerAttrib : ALenum {
 		Position = 0x1004,
 		Velocity = 0x1006,
 		Gain = 0x100A,
-		Orientation = 0x100F
+		Orientation = 0x100F,
+
+		MetersPerUnit = 0x20004
 	}
 
 	public enum ALSourceState : ALint {
@@ -73,7 +84,37 @@ namespace Tesseract.OpenAL {
 		Mono8 = 0x1100,
 		Mono16 = 0x1101,
 		Stereo8 = 0x1102,
-		Stereo16 = 0x1103
+		Stereo16 = 0x1103,
+
+		// AL_EXT_float32
+		MonoFloat32 = 0x10010,
+		StereoFloat32 = 0x10011,
+
+		// AL_EXT_MCFORMATS
+		Quad8 = 0x1204,
+		Quad16 = 0x1205,
+		Quad32 = 0x1206,
+		Rear8 = 0x1207,
+		Rear16 = 0x1208,
+		Rear32 = 0x1209,
+		_5_1Channel8 = 0x120A,
+		_5_1Channel16 = 0x120B,
+		_5_1Channel32 = 0x120C,
+		_6_1Channel8 = 0x120D,
+		_6_1Channel16 = 0x120E,
+		_6_1Channel32 = 0x120F,
+		_7_1Channel8 = 0x1210,
+		_7_1Channel16 = 0x1211,
+		_7_1Channel32 = 0x1212,
+
+		// AL_EXT_MULAW_MCFORMATS
+		MonoMulaw = 0x10014,
+		StereoMulaw = 0x10015,
+		QuadMulaw = 0x10021,
+		RearMulaw = 0x10022,
+		_5_1ChannelMulaw = 0x10023,
+		_6_1ChannelMulaw = 0x10024,
+		_7_1ChannelMulaw = 0x10025
 	}
 
 	public enum ALBufferAttrib : ALenum {
@@ -434,6 +475,16 @@ namespace Tesseract.OpenAL {
 
 		public void Rewind(IEnumerable<ALSource> sources) => SourceOpVector(sources, new(Functions.alSourceRewindv));
 
+		// AL_EXT_EFX
+
+		public float ListenerMetersPerUnit {
+			get {
+				Functions.alGetListenerf(ALListenerAttrib.MetersPerUnit, out float value);
+				return value;
+			}
+			set => Functions.alListenerf(ALListenerAttrib.MetersPerUnit, value);
+		}
+
 	}
 
 	public class ALSource : IDisposable, IALObject {
@@ -606,7 +657,7 @@ namespace Tesseract.OpenAL {
 			Span<ALuint> bufs = stackalloc ALuint[buffers.Length];
 			for (int i = 0; i < buffers.Length; i++) bufs[i] = buffers[i].Buffer;
 			unsafe {
-				fixed(ALuint* pBufs = bufs) {
+				fixed (ALuint* pBufs = bufs) {
 					AL11.Functions.alSourceQueueBuffers(Source, buffers.Length, (IntPtr)pBufs);
 				}
 			}
@@ -627,12 +678,12 @@ namespace Tesseract.OpenAL {
 			int n = BuffersProcessed;
 			Span<ALuint> bufs = stackalloc ALuint[n];
 			unsafe {
-				fixed(ALuint* pBufs = bufs) {
+				fixed (ALuint* pBufs = bufs) {
 					AL11.Functions.alSourceUnqueueBuffers(Source, n, (IntPtr)pBufs);
 				}
 			}
 			ALBuffer[] buffers = new ALBuffer[n];
-			for(int i = 0; i < n; i++) {
+			for (int i = 0; i < n; i++) {
 				ALuint buf = bufs[i];
 				buffers[i] = buf != 0 ? new ALBuffer(buf) : null;
 			}
@@ -646,6 +697,67 @@ namespace Tesseract.OpenAL {
 		public void Stop() => AL11.Functions.alSourceStop(Source);
 
 		public void Rewind() => AL11.Functions.alSourceRewind(Source);
+
+		// AL_EXT_EFX
+
+		public ALFilter DirectFilter {
+			get {
+				AL11.Functions.alGetSourcei(Source, ALSourceAttrib.DirectFilter, out ALint filter);
+				return filter != 0 ? new ALFilter(AL, (uint)filter) : null;
+			}
+			set => AL11.Functions.alSourcei(Source, ALSourceAttrib.DirectFilter, value != null ? (int)value.Filter : 0);
+		}
+
+		public void SetAuxiliarySendFilter(int index, ALAuxiliaryEffectSlot fxslot, ALFilter filter) =>
+			AL11.Functions.alSource3i(Source, ALSourceAttrib.AuxiliarySendFilter, fxslot != null ? (int)fxslot.AuxiliaryEffectSlot : 0, index, filter != null ? (int)filter.Filter : 0);
+
+		public float AirAbsorptionFactor {
+			get {
+				AL11.Functions.alGetSourcef(Source, ALSourceAttrib.AirAbsorptionFactor, out float val);
+				return val;
+			}
+			set => AL11.Functions.alSourcef(Source, ALSourceAttrib.AirAbsorptionFactor, value);
+		}
+
+		public float RoomRolloffFactor {
+			get {
+				AL11.Functions.alGetSourcef(Source, ALSourceAttrib.RoomRolloffFactor, out float val);
+				return val;
+			}
+			set => AL11.Functions.alSourcef(Source, ALSourceAttrib.RoomRolloffFactor, value);
+		}
+
+		public float ConeOuterGainHF {
+			get {
+				AL11.Functions.alGetSourcef(Source, ALSourceAttrib.ConeOuterGainHF, out float val);
+				return val;
+			}
+			set => AL11.Functions.alSourcef(Source, ALSourceAttrib.ConeOuterGainHF, value);
+		}
+
+		public bool DirectFilterGainHFAuto {
+			get {
+				AL11.Functions.alGetSourcei(Source, ALSourceAttrib.DirectFilterGainHFAuto, out int val);
+				return val != 0;
+			}
+			set => AL11.Functions.alSourcei(Source, ALSourceAttrib.DirectFilterGainHFAuto, value ? 1 : 0);
+		}
+
+		public bool AuxiliarySendFilterGainAuto {
+			get {
+				AL11.Functions.alGetSourcei(Source, ALSourceAttrib.AuxiliarySendFilterGainAuto, out int val);
+				return val != 0;
+			}
+			set => AL11.Functions.alSourcei(Source, ALSourceAttrib.AuxiliarySendFilterGainAuto, value ? 1 : 0);
+		}
+
+		public bool AuxiliarySendFilterGainHFAuto {
+			get {
+				AL11.Functions.alGetSourcei(Source, ALSourceAttrib.AuxiliarySendFilterGainHFAuto, out int val);
+				return val != 0;
+			}
+			set => AL11.Functions.alSourcei(Source, ALSourceAttrib.AuxiliarySendFilterGainHFAuto, value ? 1 : 0);
+		}
 
 	}
 
@@ -720,6 +832,8 @@ namespace Tesseract.OpenAL {
 				}
 			}
 		}
+
+		// AL_SOFT_buffer_samples
 
 		public void BufferSamplesSOFT<T>(ALuint sampleRate, ALStorageFormatSOFT internalFormat, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IConstPointer<T> data) where T : unmanaged =>
 					AL.SOFTBufferSamples.Functions.alBufferSamplesSOFT(Buffer, sampleRate, internalFormat, samples, channels, type, data.Ptr);

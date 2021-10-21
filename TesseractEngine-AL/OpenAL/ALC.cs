@@ -47,7 +47,11 @@ namespace Tesseract.OpenAL {
 		AttributesSize = 0x1002,
 		AllAttributes = 0x1003,
 
-		CaptureSamples = 0x312
+		CaptureSamples = 0x312,
+
+		EFXMajorVersion = 0x20001,
+		EFXMinorVersion = 0x20002,
+		MaxAuxiliarySends = 0x20003
 	}
 
 	public enum ALCGetString : ALCenum {

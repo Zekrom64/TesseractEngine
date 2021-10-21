@@ -14,6 +14,7 @@ namespace Tesseract.OpenAL {
 		public AL11 AL11 { get; }
 
 		public SOFTBufferSamples SOFTBufferSamples { get; }
+		public EXTEFX EXTEFX { get; }
 
 		public AL(ALCContext context) {
 			Context = context;
@@ -21,6 +22,7 @@ namespace Tesseract.OpenAL {
 
 			AL11 = new(this);
 			if (AL11.IsExtensionPresent(SOFTBufferSamples.ExtensionName)) SOFTBufferSamples = new(this);
+			if (AL11.IsExtensionPresent(EXTEFX.ExtensionName)) EXTEFX = new(this);
 		}
 
 		public IntPtr GetProcAddress(string name) => Context.Device.GetProcAddress(name);
