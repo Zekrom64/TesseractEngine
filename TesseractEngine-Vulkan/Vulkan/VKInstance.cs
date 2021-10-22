@@ -32,6 +32,8 @@ namespace Tesseract.Vulkan {
 		public KHRExternalMemoryCapabilitiesInstanceFunctions KHRExternalMemoryCapabilitiesFunctions { get; }
 		public KHRExternalSemaphoreCapabilitiesInstanceFunctions KHRExternalSemaphoreCapabilitiesFunctions { get; }
 
+		public EXTDebugReportFunctions EXTDebugReportFunctions { get; }
+
 		public VKGetInstanceProcAddr InstanceGetProcAddr {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => VK.InstanceGetProcAddr;
@@ -66,6 +68,8 @@ namespace Tesseract.Vulkan {
 			if (exts.Contains(KHRGetPhysicalDeviceProperties2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRGetPhysicalDeviceProperties2Functions = new());
 
 			if (exts.Contains(KHRSurface.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSurfaceFunctions = new());
+
+			if (exts.Contains(EXTDebugReport.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTDebugReportFunctions = new());
 		}
 
 		public VKPhysicalDevice[] PhysicalDevices {
@@ -107,6 +111,16 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator IntPtr(VKInstance instance) => instance != null ? instance.Instance : IntPtr.Zero;
+
+		// EXT_debug_report
+
+		public VKDebugReportCallbackEXT CreateDebugReportCallbackEXT(in VKDebugReportCallbackCreateInfoEXT createInfo, VulkanAllocationCallbacks allocator = null) {
+			VK.CheckError(EXTDebugReportFunctions.vkCreateDebugReportCallbackEXT(Instance, createInfo, allocator, out ulong callback));
+			return new VKDebugReportCallbackEXT(this, callback, allocator);
+		}
+
+		public void DebugReportMessageEXT(VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, string layerPrefix, string message) =>
+			EXTDebugReportFunctions.vkDebugReportMessageEXT(Instance, flags, objectType, obj, location, messageCode, layerPrefix, message);
 
 	}
 

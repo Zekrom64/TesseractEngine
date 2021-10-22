@@ -10,10 +10,11 @@ using System.Runtime.InteropServices;
 namespace Tesseract.Core.Native {
 
 	public delegate string NativeLibraryLocator(string name);
-	
+
 	public class LibrarySpec {
 
 		public string Name { get; init; }
+		public string[] AltNames { get; init; }
 		public LibrarySpec[] Dependencies { get; init; }
 
 	}
@@ -91,8 +92,18 @@ namespace Tesseract.Core.Native {
 			if (!loadedLibraries.TryGetValue(spec.Name, out Library library)) {
 				if (spec.Dependencies != null)
 					foreach (LibrarySpec subspec in spec.Dependencies) Load(subspec);
-				library = new Library(NativeLibrary.Load(Locator(spec.Name)));
-				loadedLibraries[spec.Name] = library;
+				List<string> libnames = new() { spec.Name };
+				if (spec.AltNames != null) foreach (string name in spec.AltNames) libnames.Add(name);
+				foreach(string name in libnames) {
+					try {
+						IntPtr pLibrary = NativeLibrary.Load(Locator(spec.Name));
+						if (pLibrary != IntPtr.Zero) {
+							library = new Library(pLibrary);
+							break;
+						}
+					} catch (DllNotFoundException) { }
+				}
+				loadedLibraries[spec.Name] = library ?? throw new DllNotFoundException($"Could not find library \"{spec.Name}\" (or under alternative names)");
 			}
 			return library;
 		}
