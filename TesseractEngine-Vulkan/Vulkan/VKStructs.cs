@@ -1196,6 +1196,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
+		public VKPipelineViewportStateCreateFlagBits Flags;
 		public uint ViewportCount;
 		[NativeType("const VkViewport*")]
 		public IntPtr Viewports;
