@@ -676,12 +676,17 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <typeparam name="T">The data type to allocate</typeparam>
 		/// <param name="size">The number of values to allocate</param>
+		/// <param name="alignment">The required alignment of allocated memory. If 0, aligned to the native integer size</param>
 		/// <returns>Pointer to allocated memory</returns>
-		public UnmanagedPointer<T> Alloc<T>(int size = 1) where T : unmanaged {
+		public UnmanagedPointer<T> Alloc<T>(int size = 1, int alignment = 0) where T : unmanaged {
 			if (size <= 0) return default;
 			unsafe {
+				if (alignment <= 0) alignment = sizeof(nint);
 				int bytesize = size * sizeof(T);
 				int newoffset = offset - bytesize;
+				IntPtr pNew = pBase + newoffset;
+				int alignpad = (int)pNew % alignment;
+				newoffset -= alignpad;
 				if (newoffset < 0) throw new ArgumentOutOfRangeException(nameof(size), "Not enough memory to allocate structure");
 				offset = newoffset;
 				return new UnmanagedPointer<T>(pBase + offset, size);
