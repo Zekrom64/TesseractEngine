@@ -685,8 +685,8 @@ namespace Tesseract.Core.Native {
 				int bytesize = size * sizeof(T);
 				int newoffset = offset - bytesize;
 				IntPtr pNew = pBase + newoffset;
-				int alignpad = (int)pNew % alignment;
-				newoffset -= alignpad;
+				nint alignpad = (nint)pNew % alignment;
+				newoffset -= (int)alignpad;
 				if (newoffset < 0) throw new ArgumentOutOfRangeException(nameof(size), "Not enough memory to allocate structure");
 				offset = newoffset;
 				return new UnmanagedPointer<T>(pBase + offset, size);
