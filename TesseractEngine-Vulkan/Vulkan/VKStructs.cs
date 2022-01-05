@@ -12,7 +12,6 @@ using Tesseract.Core.Util;
 
 namespace Tesseract.Vulkan {
 
-	using VkBool32 = Boolean;
 	using VkDeviceSize = UInt64;
 	using VkSampleMask = UInt32;
 	using VkInstance = IntPtr;
@@ -44,6 +43,15 @@ namespace Tesseract.Vulkan {
 	using VkSamplerYcbcrConversion = UInt64;
 	using VkDescriptorUpdateTemplate = UInt64;
 	
+	public struct VKBool32 {
+
+		public int Value;
+
+		public static implicit operator VKBool32(bool b) => new() { Value = b ? 1 : 0 };
+		public static implicit operator bool(VKBool32 b) => b.Value != 0;
+
+	}
+
 	/* Notes:
 	 * 
 	 *     Some structs are passed as 'in' to native methods, equivalent to passing by const pointer. However,
@@ -113,61 +121,61 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceFeatures {
 
-		public VkBool32 RobustBufferAccess;
-		public VkBool32 FullDrawIndexUInt32;
-		public VkBool32 ImageCubeArray;
-		public VkBool32 IndependentBlend;
-		public VkBool32 GeometryShader;
-		public VkBool32 TessellationShader;
-		public VkBool32 SampleRateShading;
-		public VkBool32 DualSrcBlend;
-		public VkBool32 LogicOp;
-		public VkBool32 MultiDrawIndirect;
-		public VkBool32 DrawIndirectFirstInstance;
-		public VkBool32 DepthClamp;
-		public VkBool32 DepthBiasClamp;
-		public VkBool32 FillModeNonSolid;
-		public VkBool32 DepthBounds;
-		public VkBool32 WideLines;
-		public VkBool32 LargePoints;
-		public VkBool32 AlphaToOne;
-		public VkBool32 MultiViewport;
-		public VkBool32 SamplerAnisotropy;
-		public VkBool32 TextureCompressionETC2;
-		public VkBool32 TextureCompressionASTC_LDR;
-		public VkBool32 TextureCompressionBC;
-		public VkBool32 OcclusionQueryPrecise;
-		public VkBool32 PipelineStatisticsQuery;
-		public VkBool32 VertexPipelineStoresAndAtomics;
-		public VkBool32 FragmentStoresAndAtomics;
-		public VkBool32 ShaderTessellationAndGeometryPointSize;
-		public VkBool32 ShaderImageGatherExtended;
-		public VkBool32 ShaderStorageImageExtendedFormats;
-		public VkBool32 ShaderStorageImageMultisample;
-		public VkBool32 ShaderStorageImageReadWithoutFormat;
-		public VkBool32 ShaderStorageImageWriteWithoutFormat;
-		public VkBool32 ShaderUniformBufferArrayDynamicIndexing;
-		public VkBool32 ShaderSampledImageArrayDynamicIndexing;
-		public VkBool32 ShaderStorageBufferArrayDynamicIndexing;
-		public VkBool32 ShaderStorageImageArrayDynamicIndexing;
-		public VkBool32 ShaderClipDistance;
-		public VkBool32 ShaderCullDistance;
-		public VkBool32 ShaderFloat64;
-		public VkBool32 ShaderInt64;
-		public VkBool32 ShaderInt16;
-		public VkBool32 ShaderResourceResidency;
-		public VkBool32 ShaderResourceMinLod;
-		public VkBool32 SparseBinding;
-		public VkBool32 SparseResidencyBuffer;
-		public VkBool32 SparseResidencyImage2D;
-		public VkBool32 SparseResidencyImage3D;
-		public VkBool32 SparseResidency2Samples;
-		public VkBool32 SparseResidency4Samples;
-		public VkBool32 SparseResidency8Samples;
-		public VkBool32 SparseResidency16Samples;
-		public VkBool32 SparseResidencyAliased;
-		public VkBool32 VariableMultisampleRate;
-		public VkBool32 InheritedQueries;
+		public VKBool32 RobustBufferAccess;
+		public VKBool32 FullDrawIndexUInt32;
+		public VKBool32 ImageCubeArray;
+		public VKBool32 IndependentBlend;
+		public VKBool32 GeometryShader;
+		public VKBool32 TessellationShader;
+		public VKBool32 SampleRateShading;
+		public VKBool32 DualSrcBlend;
+		public VKBool32 LogicOp;
+		public VKBool32 MultiDrawIndirect;
+		public VKBool32 DrawIndirectFirstInstance;
+		public VKBool32 DepthClamp;
+		public VKBool32 DepthBiasClamp;
+		public VKBool32 FillModeNonSolid;
+		public VKBool32 DepthBounds;
+		public VKBool32 WideLines;
+		public VKBool32 LargePoints;
+		public VKBool32 AlphaToOne;
+		public VKBool32 MultiViewport;
+		public VKBool32 SamplerAnisotropy;
+		public VKBool32 TextureCompressionETC2;
+		public VKBool32 TextureCompressionASTC_LDR;
+		public VKBool32 TextureCompressionBC;
+		public VKBool32 OcclusionQueryPrecise;
+		public VKBool32 PipelineStatisticsQuery;
+		public VKBool32 VertexPipelineStoresAndAtomics;
+		public VKBool32 FragmentStoresAndAtomics;
+		public VKBool32 ShaderTessellationAndGeometryPointSize;
+		public VKBool32 ShaderImageGatherExtended;
+		public VKBool32 ShaderStorageImageExtendedFormats;
+		public VKBool32 ShaderStorageImageMultisample;
+		public VKBool32 ShaderStorageImageReadWithoutFormat;
+		public VKBool32 ShaderStorageImageWriteWithoutFormat;
+		public VKBool32 ShaderUniformBufferArrayDynamicIndexing;
+		public VKBool32 ShaderSampledImageArrayDynamicIndexing;
+		public VKBool32 ShaderStorageBufferArrayDynamicIndexing;
+		public VKBool32 ShaderStorageImageArrayDynamicIndexing;
+		public VKBool32 ShaderClipDistance;
+		public VKBool32 ShaderCullDistance;
+		public VKBool32 ShaderFloat64;
+		public VKBool32 ShaderInt64;
+		public VKBool32 ShaderInt16;
+		public VKBool32 ShaderResourceResidency;
+		public VKBool32 ShaderResourceMinLod;
+		public VKBool32 SparseBinding;
+		public VKBool32 SparseResidencyBuffer;
+		public VKBool32 SparseResidencyImage2D;
+		public VKBool32 SparseResidencyImage3D;
+		public VKBool32 SparseResidency2Samples;
+		public VKBool32 SparseResidency4Samples;
+		public VKBool32 SparseResidency8Samples;
+		public VKBool32 SparseResidency16Samples;
+		public VKBool32 SparseResidencyAliased;
+		public VKBool32 VariableMultisampleRate;
+		public VKBool32 InheritedQueries;
 
 	}
 
@@ -371,7 +379,7 @@ namespace Tesseract.Vulkan {
 		public VKSampleCountFlagBits SampledImageStencilSampleCounts;
 		public VKSampleCountFlagBits StorageImageSampleCounts;
 		public uint MaxSampleMaskWords;
-		public VkBool32 TimestampComputeAndGraphics;
+		public VKBool32 TimestampComputeAndGraphics;
 		public float TimestampPeriod;
 		public uint MaxClipDistances;
 		public uint MaxCullDistances;
@@ -397,8 +405,8 @@ namespace Tesseract.Vulkan {
 		}
 		public float PointSizeGranularity;
 		public float LineWidthGranularity;
-		public VkBool32 StrictLines;
-		public VkBool32 StandardSampleLocations;
+		public VKBool32 StrictLines;
+		public VKBool32 StandardSampleLocations;
 		public VkDeviceSize OptimalBufferCopyOffsetAlignment;
 		public VkDeviceSize OptimalBufferCopyRowPitchAlignment;
 		public VkDeviceSize NonCoherentAtomSize;
@@ -408,11 +416,11 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSparseProperties {
 
-		public VkBool32 ResidencyStandard2DBlockShape;
-		public VkBool32 ResidencyStandard2DMultisampleBlockShape;
-		public VkBool32 ResidencyStandard3DBlockShape;
-		public VkBool32 ResidencyAlignedMipSize;
-		public VkBool32 ResidencyNonResidentStrict;
+		public VKBool32 ResidencyStandard2DBlockShape;
+		public VKBool32 ResidencyStandard2DMultisampleBlockShape;
+		public VKBool32 ResidencyStandard3DBlockShape;
+		public VKBool32 ResidencyAlignedMipSize;
+		public VKBool32 ResidencyNonResidentStrict;
 
 	}
 
@@ -1051,7 +1059,7 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next;
 		public VKPipelineInputAssemblyStateCreateFlagBits Flags;
 		public VKPrimitiveTopology Topology;
-		public VkBool32 PrimitiveRestartEnable;
+		public VKBool32 PrimitiveRestartEnable;
 
 	}
 
@@ -1196,6 +1204,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
+		public VKPipelineViewportStateCreateFlagBits Flags;
 		public uint ViewportCount;
 		[NativeType("const VkViewport*")]
 		public IntPtr Viewports;
@@ -1211,12 +1220,12 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public VKPipelineRasterizationStateCreateFlagBits Flags;
-		public VkBool32 DepthClampEnable;
-		public VkBool32 RasterizerDiscardEnable;
+		public VKBool32 DepthClampEnable;
+		public VKBool32 RasterizerDiscardEnable;
 		public VKPolygonMode PolygonMode;
 		public VKCullModeFlagBits CullMode;
 		public VKFrontFace FrontFace;
-		public VkBool32 DepthBiasEnable;
+		public VKBool32 DepthBiasEnable;
 		public float DepthBiasConstantFactor;
 		public float DepthBiasClamp;
 		public float DepthBiasSlopeFactor;
@@ -1231,12 +1240,12 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next;
 		public VKPipelineMultisampleStateCreateFlagBits Flags;
 		public VKSampleCountFlagBits RasterizationSamples;
-		public VkBool32 SampleShadingEnable;
+		public VKBool32 SampleShadingEnable;
 		public float MinSampleShading;
 		[NativeType("const VkSampleMask*")]
 		public IntPtr SampleMask;
-		public VkBool32 AlphaToCoverageEnable;
-		public VkBool32 AlphaToOneEnable;
+		public VKBool32 AlphaToCoverageEnable;
+		public VKBool32 AlphaToOneEnable;
 
 	}
 
@@ -1259,11 +1268,11 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public VKPipelineDepthStencilStateCreateFlagBits Flags;
-		public VkBool32 DepthTestEnable;
-		public VkBool32 DepthWriteEnable;
+		public VKBool32 DepthTestEnable;
+		public VKBool32 DepthWriteEnable;
 		public VKCompareOp DepthCompareOp;
-		public VkBool32 DepthBoundsTestEnable;
-		public VkBool32 StencilTestEnable;
+		public VKBool32 DepthBoundsTestEnable;
+		public VKBool32 StencilTestEnable;
 		public VKStencilOpState Front;
 		public VKStencilOpState Back;
 		public float MinDepthBounds;
@@ -1274,7 +1283,7 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPipelineColorBlendAttachmentState {
 
-		public VkBool32 BlendEnable;
+		public VKBool32 BlendEnable;
 		public VKBlendFactor SrcColorBlendFactor;
 		public VKBlendFactor DstColorBlendFactor;
 		public VKBlendOp ColorBlendOp;
@@ -1291,7 +1300,7 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public VKPipelineColorBlendStateCreateFlagBits Flags;
-		public VkBool32 LogicOpEnable;
+		public VKBool32 LogicOpEnable;
 		public VKLogicOp LogicOp;
 		public uint AttachmentCount;
 		[NativeType("const VkPipelineColorBlendAttachmentState*")]
@@ -1441,12 +1450,12 @@ namespace Tesseract.Vulkan {
 		public VKSamplerAddressMode AddressModeW { get => addressModeW; init { addressModeW = value; } }
 		private readonly float mipLodBias;
 		public float MipLodBias { get => mipLodBias; init => mipLodBias = value; }
-		private readonly VkBool32 anisotropyEnable;
+		private readonly VKBool32 anisotropyEnable;
 		public bool AnisotropyEnable { get => anisotropyEnable; init => anisotropyEnable = value; }
 		private readonly float maxAnisotropy;
 		public float MaxAnisotropy { get => maxAnisotropy; init => maxAnisotropy = value; }
-		private readonly VkBool32 compareEnable;
-		public VkBool32 CompareEnable { get => compareEnable; init => compareEnable = value; }
+		private readonly VKBool32 compareEnable;
+		public VKBool32 CompareEnable { get => compareEnable; init => compareEnable = value; }
 		private readonly VKCompareOp compareOp;
 		public VKCompareOp CompareOp { get => compareOp; init => compareOp = value; }
 		private readonly float minLod;
@@ -1455,8 +1464,8 @@ namespace Tesseract.Vulkan {
 		public float MaxLod { get => maxLod; init => maxLod = value; }
 		private readonly VKBorderColor borderColor;
 		public VKBorderColor BorderColor { get => borderColor; init => borderColor = value; }
-		private readonly VkBool32 unnormalizedCoordinates;
-		public VkBool32 UnnormalizedCoordinates { get => unnormalizedCoordinates; init => unnormalizedCoordinates = value; }
+		private readonly VKBool32 unnormalizedCoordinates;
+		public VKBool32 UnnormalizedCoordinates { get => unnormalizedCoordinates; init => unnormalizedCoordinates = value; }
 
 	}
 
@@ -1732,7 +1741,7 @@ namespace Tesseract.Vulkan {
 		public VkRenderPass RenderPass;
 		public uint Subpass;
 		public VkFramebuffer Framebuffer;
-		public VkBool32 OcclusionQueryEnable;
+		public VKBool32 OcclusionQueryEnable;
 		public VKQueryControlFlagBits QueryFlags;
 		public VKQueryPipelineStatisticFlagBits PipelineStatistics;
 
@@ -2000,7 +2009,7 @@ namespace Tesseract.Vulkan {
 		public uint SubgroupSize;
 		public VKShaderStageFlagBits SupportedStages;
 		public VKSubgroupFeatureFlagBits SupportedOperations;
-		public VkBool32 QuadOperationsInAllStages;
+		public VKBool32 QuadOperationsInAllStages;
 
 	}
 
@@ -2031,10 +2040,10 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 StorageBuffer16BitAccess;
-		public VkBool32 UniformAndStorageBuffer16BitAccess;
-		public VkBool32 StoragePushConstant16;
-		public VkBool32 StorageInputOutput16;
+		public VKBool32 StorageBuffer16BitAccess;
+		public VKBool32 UniformAndStorageBuffer16BitAccess;
+		public VKBool32 StoragePushConstant16;
+		public VKBool32 StorageInputOutput16;
 
 	}
 
@@ -2043,8 +2052,8 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 PrefersDedicatedAllocation;
-		public VkBool32 RequiresDedicatedAllocation;
+		public VKBool32 PrefersDedicatedAllocation;
+		public VKBool32 RequiresDedicatedAllocation;
 
 	}
 
@@ -2149,7 +2158,7 @@ namespace Tesseract.Vulkan {
 		public uint PhysicalDeviceCount;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.MaxDeviceGroupSize)]
 		public VkPhysicalDevice[] PhysicalDevices;
-		public VkBool32 SubsetAllocation;
+		public VKBool32 SubsetAllocation;
 
 	}
 
@@ -2367,9 +2376,9 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 Multiview;
-		public VkBool32 MultiviewGeometryShader;
-		public VkBool32 MultiviewTessellationShader;
+		public VKBool32 Multiview;
+		public VKBool32 MultiviewGeometryShader;
+		public VKBool32 MultiviewTessellationShader;
 
 	}
 
@@ -2388,8 +2397,8 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 VariablePointersStorageBuffer;
-		public VkBool32 VariablePointers;
+		public VKBool32 VariablePointersStorageBuffer;
+		public VKBool32 VariablePointers;
 
 	}
 
@@ -2398,7 +2407,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ProtectedMemory;
+		public VKBool32 ProtectedMemory;
 
 	}
 
@@ -2407,7 +2416,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ProtectedNoFault;
+		public VKBool32 ProtectedNoFault;
 
 	}
 
@@ -2427,7 +2436,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ProtectedSubmit;
+		public VKBool32 ProtectedSubmit;
 
 	}
 
@@ -2443,7 +2452,7 @@ namespace Tesseract.Vulkan {
 		public VKChromaLocation XChromaOffset;
 		public VKChromaLocation YChromaOffset;
 		public VKFilter ChromaFilter;
-		public VkBool32 ForceExplicitReconstruction;
+		public VKBool32 ForceExplicitReconstruction;
 
 	}
 
@@ -2479,7 +2488,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 SamplerYcbcrConversion;
+		public VKBool32 SamplerYcbcrConversion;
 
 	}
 
@@ -2579,7 +2588,7 @@ namespace Tesseract.Vulkan {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.LUIDSize)]
 		public byte[] DeviceLUID;
 		public uint DeviceNodeMask;
-		public VkBool32 DeviceLUIDValid;
+		public VKBool32 DeviceLUIDValid;
 
 	}
 
@@ -2683,7 +2692,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 Supported;
+		public VKBool32 Supported;
 
 	}
 
@@ -2692,7 +2701,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ShaderDrawParameters;
+		public VKBool32 ShaderDrawParameters;
 
 	}
 
@@ -2703,18 +2712,18 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 StorageBuffer16BitAccess;
-		public VkBool32 UniformAndStorageBuffer16BitAccess;
-		public VkBool32 StoragePushConstant16;
-		public VkBool32 StorageInputOutput16;
-		public VkBool32 Multiview;
-		public VkBool32 MultiviewGeometryShader;
-		public VkBool32 MultiviewTessellationShader;
-		public VkBool32 VariablePointersStorageBuffer;
-		public VkBool32 VariablePointers;
-		public VkBool32 ProtectedMemory;
-		public VkBool32 SamplerYcbcrConversion;
-		public VkBool32 ShaderDrawParameters;
+		public VKBool32 StorageBuffer16BitAccess;
+		public VKBool32 UniformAndStorageBuffer16BitAccess;
+		public VKBool32 StoragePushConstant16;
+		public VKBool32 StorageInputOutput16;
+		public VKBool32 Multiview;
+		public VKBool32 MultiviewGeometryShader;
+		public VKBool32 MultiviewTessellationShader;
+		public VKBool32 VariablePointersStorageBuffer;
+		public VKBool32 VariablePointers;
+		public VKBool32 ProtectedMemory;
+		public VKBool32 SamplerYcbcrConversion;
+		public VKBool32 ShaderDrawParameters;
 
 	}
 
@@ -2730,15 +2739,15 @@ namespace Tesseract.Vulkan {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.LUIDSize)]
 		public byte[] DeviceLUID;
 		public uint DeviceNodeMask;
-		public VkBool32 DeviceLUIDValid;
+		public VKBool32 DeviceLUIDValid;
 		public uint SubgroupSize;
 		public VKShaderStageFlagBits SubgroupSupportedStages;
 		public VKSubgroupFeatureFlagBits SubgroupSupportedOperations;
-		public VkBool32 SubgroupQuadOperationsInAllStages;
+		public VKBool32 SubgroupQuadOperationsInAllStages;
 		public VKPointClippingBehavior PointClippingBehavior;
 		public uint MaxMultiviewViewCount;
 		public uint MAxMultiviewInstanceIndex;
-		public VkBool32 ProtectedNoFault;
+		public VKBool32 ProtectedNoFault;
 		public uint MaxPerSetDescriptors;
 		public VkDeviceSize MaxMemoryAllocationSize;
 
@@ -2749,53 +2758,53 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 SamplerMirrorClampToEdge;
-		public VkBool32 DrawIndirectCount;
-		public VkBool32 StorageBuffer8BitAccess;
-		public VkBool32 UniformAndStorageBuffer8BitAccess;
-		public VkBool32 StoragePushConstant8;
-		public VkBool32 ShaderBufferInt64Atomics;
-		public VkBool32 ShaderSharedInt64Atomics;
-		public VkBool32 ShaderFloat16;
-		public VkBool32 ShaderInt8;
-		public VkBool32 DescriptorIndexing;
-		public VkBool32 ShaderInputAttachmentArrayDynamicIndexing;
-		public VkBool32 ShaderUniformTexelBufferArrayDynamicIndexing;
-		public VkBool32 ShaderStorageTexelBufferArrayDynamicIndexing;
-		public VkBool32 ShaderUniformBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderSampledImageArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageImageArrayNonUniformIndexing;
-		public VkBool32 ShaderInputAttachmentArrayNonUniformIndexing;
-		public VkBool32 ShaderUniformTexelBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageTexelBufferArrayNonUniformIndexing;
-		public VkBool32 DescriptorBindingUniformBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingSampledImageUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageImageUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingUniformTexelBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageTexelBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingUpdateUnusedWhilePending;
-		public VkBool32 DescriptorBindingPartiallyBound;
-		public VkBool32 DescriptorBindingVariableDescriptorCount;
-		public VkBool32 RuntimeDescriptorArray;
-		public VkBool32 SamplerFilterMinmax;
-		public VkBool32 ScalarBlockLayout;
-		public VkBool32 ImagelessFramebuffer;
-		public VkBool32 UniformBufferStandardLayout;
-		public VkBool32 ShaderSubgroupExtendedTypes;
-		public VkBool32 SeparateDepthStencilLayouts;
-		public VkBool32 HostQueryRequest;
-		public VkBool32 TimelineSemaphore;
-		public VkBool32 BufferDeviceAddress;
-		public VkBool32 BufferDeviceAddressCaptureReplay;
-		public VkBool32 BufferDeviceAddressMultiDevice;
-		public VkBool32 VulkanMemoryModel;
-		public VkBool32 VulkanMemoryModelDeviceScope;
-		public VkBool32 VulkanMemoryModelAvailabilityVisibilityChains;
-		public VkBool32 ShaderOutputViewportIndex;
-		public VkBool32 ShaderOutputLayer;
-		public VkBool32 SubgroupBroadcastDynamicId;
+		public VKBool32 SamplerMirrorClampToEdge;
+		public VKBool32 DrawIndirectCount;
+		public VKBool32 StorageBuffer8BitAccess;
+		public VKBool32 UniformAndStorageBuffer8BitAccess;
+		public VKBool32 StoragePushConstant8;
+		public VKBool32 ShaderBufferInt64Atomics;
+		public VKBool32 ShaderSharedInt64Atomics;
+		public VKBool32 ShaderFloat16;
+		public VKBool32 ShaderInt8;
+		public VKBool32 DescriptorIndexing;
+		public VKBool32 ShaderInputAttachmentArrayDynamicIndexing;
+		public VKBool32 ShaderUniformTexelBufferArrayDynamicIndexing;
+		public VKBool32 ShaderStorageTexelBufferArrayDynamicIndexing;
+		public VKBool32 ShaderUniformBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderSampledImageArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageImageArrayNonUniformIndexing;
+		public VKBool32 ShaderInputAttachmentArrayNonUniformIndexing;
+		public VKBool32 ShaderUniformTexelBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageTexelBufferArrayNonUniformIndexing;
+		public VKBool32 DescriptorBindingUniformBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingSampledImageUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageImageUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingUniformTexelBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageTexelBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingUpdateUnusedWhilePending;
+		public VKBool32 DescriptorBindingPartiallyBound;
+		public VKBool32 DescriptorBindingVariableDescriptorCount;
+		public VKBool32 RuntimeDescriptorArray;
+		public VKBool32 SamplerFilterMinmax;
+		public VKBool32 ScalarBlockLayout;
+		public VKBool32 ImagelessFramebuffer;
+		public VKBool32 UniformBufferStandardLayout;
+		public VKBool32 ShaderSubgroupExtendedTypes;
+		public VKBool32 SeparateDepthStencilLayouts;
+		public VKBool32 HostQueryRequest;
+		public VKBool32 TimelineSemaphore;
+		public VKBool32 BufferDeviceAddress;
+		public VKBool32 BufferDeviceAddressCaptureReplay;
+		public VKBool32 BufferDeviceAddressMultiDevice;
+		public VKBool32 VulkanMemoryModel;
+		public VKBool32 VulkanMemoryModelDeviceScope;
+		public VKBool32 VulkanMemoryModelAvailabilityVisibilityChains;
+		public VKBool32 ShaderOutputViewportIndex;
+		public VKBool32 ShaderOutputLayer;
+		public VKBool32 SubgroupBroadcastDynamicId;
 
 	}
 
@@ -2824,29 +2833,29 @@ namespace Tesseract.Vulkan {
 		public VKConformanceVersion ConformanceVersion;
 		public VKShaderFloatControlsIndependence DenormBehaviorIndependence;
 		public VKShaderFloatControlsIndependence RoundingModeIndependence;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat16;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat32;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat64;
-		public VkBool32 ShaderDenormPreserveFloat16;
-		public VkBool32 ShaderDenormPreserveFloat32;
-		public VkBool32 ShaderDenormPreserveFloat64;
-		public VkBool32 ShaderDenormFlushToZeroFloat16;
-		public VkBool32 ShaderDenormFlushToZeroFloat32;
-		public VkBool32 ShaderDenormFlushToZeroFloat64;
-		public VkBool32 ShaderRoundingModeRTEFloat16;
-		public VkBool32 ShaderRoundingModeRTEFloat32;
-		public VkBool32 ShaderRoundingModeRTEFloat64;
-		public VkBool32 ShaderRoundingModeRTZFloat16;
-		public VkBool32 ShaderRoundingModeRTZFloat32;
-		public VkBool32 ShaderRoundingModeRTZFloat64;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat16;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat32;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat64;
+		public VKBool32 ShaderDenormPreserveFloat16;
+		public VKBool32 ShaderDenormPreserveFloat32;
+		public VKBool32 ShaderDenormPreserveFloat64;
+		public VKBool32 ShaderDenormFlushToZeroFloat16;
+		public VKBool32 ShaderDenormFlushToZeroFloat32;
+		public VKBool32 ShaderDenormFlushToZeroFloat64;
+		public VKBool32 ShaderRoundingModeRTEFloat16;
+		public VKBool32 ShaderRoundingModeRTEFloat32;
+		public VKBool32 ShaderRoundingModeRTEFloat64;
+		public VKBool32 ShaderRoundingModeRTZFloat16;
+		public VKBool32 ShaderRoundingModeRTZFloat32;
+		public VKBool32 ShaderRoundingModeRTZFloat64;
 		public uint MaxUpdateAfterBindDescriptorsInAllPools;
-		public VkBool32 ShaderUniformBufferArrayNonUniformIndexingNative;
-		public VkBool32 ShaderSampledImageArrayNonUniformIndexingNative;
-		public VkBool32 ShaderStorageBufferArrayNonUniformIndexingNative;
-		public VkBool32 ShaderStorageImageArrayNonUniformIndexingNative;
-		public VkBool32 ShaderInputAttachmentArrayNonUniformIndexingNative;
-		public VkBool32 RobustBufferAccessUpdateAfterBind;
-		public VkBool32 QuadDivergentImplicitLod;
+		public VKBool32 ShaderUniformBufferArrayNonUniformIndexingNative;
+		public VKBool32 ShaderSampledImageArrayNonUniformIndexingNative;
+		public VKBool32 ShaderStorageBufferArrayNonUniformIndexingNative;
+		public VKBool32 ShaderStorageImageArrayNonUniformIndexingNative;
+		public VKBool32 ShaderInputAttachmentArrayNonUniformIndexingNative;
+		public VKBool32 RobustBufferAccessUpdateAfterBind;
+		public VKBool32 QuadDivergentImplicitLod;
 		public uint MaxPerStageDescriptorUpdateAfterBindSamplers;
 		public uint MaxPerStageDescriptorUpdateAfterBindUniformBuffers;
 		public uint MaxPerStageDescriptorUpdateAfterBindStorageBuffers;
@@ -2863,10 +2872,10 @@ namespace Tesseract.Vulkan {
 		public uint MaxDescriptorSetUpdateAfterBindInputAttachments;
 		public VKResolveModeFlagBits SupportedDepthResolveModes;
 		public VKResolveModeFlagBits SupportedStencilResolveModes;
-		public VkBool32 IndependentResolveNone;
-		public VkBool32 IndependentResolve;
-		public VkBool32 FilterMinmaxSingleComponentFormats;
-		public VkBool32 FilterMinmaxImageComponentMapping;
+		public VKBool32 IndependentResolveNone;
+		public VKBool32 IndependentResolve;
+		public VKBool32 FilterMinmaxSingleComponentFormats;
+		public VKBool32 FilterMinmaxImageComponentMapping;
 		public ulong MaxTimelineSemaphoreValueDifference;
 		public VKSampleCountFlagBits FramebufferIntegerColorSampleCounts;
 
@@ -2994,9 +3003,9 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 StorageBuffer8BitAccess;
-		public VkBool32 UniformAndStorageBuffer8BitAccess;
-		public VkBool32 StoragePushConstant8;
+		public VKBool32 StorageBuffer8BitAccess;
+		public VKBool32 UniformAndStorageBuffer8BitAccess;
+		public VKBool32 StoragePushConstant8;
 
 	}
 
@@ -3021,8 +3030,8 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ShaderBufferInt64Atomics;
-		public VkBool32 ShaderSharedInt64Atomics;
+		public VKBool32 ShaderBufferInt64Atomics;
+		public VKBool32 ShaderSharedInt64Atomics;
 
 	}
 
@@ -3031,8 +3040,8 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ShaderFloat16;
-		public VkBool32 ShaderInt8;
+		public VKBool32 ShaderFloat16;
+		public VKBool32 ShaderInt8;
 
 	}
 
@@ -3043,21 +3052,21 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next;
 		public VKShaderFloatControlsIndependence DenormBehaviorIndependence;
 		public VKShaderFloatControlsIndependence RoundingModeIndependence;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat16;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat32;
-		public VkBool32 ShaderSignedZeroInfNanPreserveFloat64;
-		public VkBool32 ShaderDenormPreserveFloat16;
-		public VkBool32 ShaderDenormPreserveFloat32;
-		public VkBool32 ShaderDenormPreserveFloat64;
-		public VkBool32 ShaderDenormFlushToZeroFloat16;
-		public VkBool32 ShaderDenormFlushToZeroFloat32;
-		public VkBool32 ShaderDenormFlushToZeroFloat64;
-		public VkBool32 ShaderRoundingModeRTEFloat16;
-		public VkBool32 ShaderRoundingModeRTEFloat32;
-		public VkBool32 ShaderRoundingModeRTEFloat64;
-		public VkBool32 ShaderRoundingModeRTZFloat16;
-		public VkBool32 ShaderRoundingModeRTZFloat32;
-		public VkBool32 ShaderRoundingModeRTZFloat64;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat16;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat32;
+		public VKBool32 ShaderSignedZeroInfNanPreserveFloat64;
+		public VKBool32 ShaderDenormPreserveFloat16;
+		public VKBool32 ShaderDenormPreserveFloat32;
+		public VKBool32 ShaderDenormPreserveFloat64;
+		public VKBool32 ShaderDenormFlushToZeroFloat16;
+		public VKBool32 ShaderDenormFlushToZeroFloat32;
+		public VKBool32 ShaderDenormFlushToZeroFloat64;
+		public VKBool32 ShaderRoundingModeRTEFloat16;
+		public VKBool32 ShaderRoundingModeRTEFloat32;
+		public VKBool32 ShaderRoundingModeRTEFloat64;
+		public VKBool32 ShaderRoundingModeRTZFloat16;
+		public VKBool32 ShaderRoundingModeRTZFloat32;
+		public VKBool32 ShaderRoundingModeRTZFloat64;
 
 	}
 
@@ -3077,26 +3086,26 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ShaderInputAttachmentArrayDynamicIndexing;
-		public VkBool32 ShaderUniformTexelBufferArrayDynamicIndexing;
-		public VkBool32 ShaderStorageTexelBufferArrayDynamicIndexing;
-		public VkBool32 ShaderUniformBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderSampledImageArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageImageArrayNonUniformIndexing;
-		public VkBool32 ShaderInputAttachmentArrayNonUniformIndexing;
-		public VkBool32 ShaderUniformTexelBufferArrayNonUniformIndexing;
-		public VkBool32 ShaderStorageTexelBufferArrayNonUniformIndexing;
-		public VkBool32 DescriptorBindingUniformBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingSampledImageUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageImageUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingUniformTexelBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingStorageTexelBufferUpdateAfterBind;
-		public VkBool32 DescriptorBindingUpdateUnusedWhilePending;
-		public VkBool32 DescriptorBindingPartiallyBound;
-		public VkBool32 DescriptorBindingVariableDescriptorCount;
-		public VkBool32 RuntimeDescriptorArray;
+		public VKBool32 ShaderInputAttachmentArrayDynamicIndexing;
+		public VKBool32 ShaderUniformTexelBufferArrayDynamicIndexing;
+		public VKBool32 ShaderStorageTexelBufferArrayDynamicIndexing;
+		public VKBool32 ShaderUniformBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderSampledImageArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageImageArrayNonUniformIndexing;
+		public VKBool32 ShaderInputAttachmentArrayNonUniformIndexing;
+		public VKBool32 ShaderUniformTexelBufferArrayNonUniformIndexing;
+		public VKBool32 ShaderStorageTexelBufferArrayNonUniformIndexing;
+		public VKBool32 DescriptorBindingUniformBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingSampledImageUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageImageUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingUniformTexelBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingStorageTexelBufferUpdateAfterBind;
+		public VKBool32 DescriptorBindingUpdateUnusedWhilePending;
+		public VKBool32 DescriptorBindingPartiallyBound;
+		public VKBool32 DescriptorBindingVariableDescriptorCount;
+		public VKBool32 RuntimeDescriptorArray;
 
 	}
 
@@ -3106,13 +3115,13 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public uint MaxUpdateAfterBindDescriptorsInAllPools;
-		public VkBool32 ShaderUniformBufferArrayNonUniformIndexingNative;
-		public VkBool32 ShaderSampledImageArrayNonUniformIndexingNative;
-		public VkBool32 ShaderStorageBufferArrayNonUniformIndexingNative;
-		public VkBool32 ShaderStorageImageArrayNonUniformIndexingNative;
-		public VkBool32 ShaderInputAttachmentArrayNonUniformIndexingNative;
-		public VkBool32 RobustBufferAccessUpdateAfterBind;
-		public VkBool32 QuadDivergentImplicitLod;
+		public VKBool32 ShaderUniformBufferArrayNonUniformIndexingNative;
+		public VKBool32 ShaderSampledImageArrayNonUniformIndexingNative;
+		public VKBool32 ShaderStorageBufferArrayNonUniformIndexingNative;
+		public VKBool32 ShaderStorageImageArrayNonUniformIndexingNative;
+		public VKBool32 ShaderInputAttachmentArrayNonUniformIndexingNative;
+		public VKBool32 RobustBufferAccessUpdateAfterBind;
+		public VKBool32 QuadDivergentImplicitLod;
 		public uint MaxPerStageDescriptorUpdateAfterBindSamplers;
 		public uint MaxPerStageDescriptorUpdateAfterBindUniformBuffers;
 		public uint MaxPerStageDescriptorUpdateAfterBindStorageBuffers;
@@ -3169,8 +3178,8 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next;
 		public VKResolveModeFlagBits SupportedDepthResolveModes;
 		public VKResolveModeFlagBits SupportedStencilResolveModes;
-		public VkBool32 IndependentResolveNone;
-		public VkBool32 IndependentResolve;
+		public VKBool32 IndependentResolveNone;
+		public VKBool32 IndependentResolve;
 
 	}
 
@@ -3179,7 +3188,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ScalarBlockLayout;
+		public VKBool32 ScalarBlockLayout;
 
 	}
 
@@ -3206,8 +3215,8 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 FilterMinmaxSingleComponentFormats;
-		public VkBool32 FilterMinmaxImageComponentMapping;
+		public VKBool32 FilterMinmaxSingleComponentFormats;
+		public VKBool32 FilterMinmaxImageComponentMapping;
 
 	}
 
@@ -3216,9 +3225,9 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 VulkanMemoryModel;
-		public VkBool32 VulkanMemoryModelDeviceScope;
-		public VkBool32 VulkanMemoryModelAvailabilityVisibilityChains;
+		public VKBool32 VulkanMemoryModel;
+		public VKBool32 VulkanMemoryModelDeviceScope;
+		public VKBool32 VulkanMemoryModelAvailabilityVisibilityChains;
 
 	}
 
@@ -3227,7 +3236,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ImagelessFramebuffer;
+		public VKBool32 ImagelessFramebuffer;
 
 	}
 
@@ -3274,7 +3283,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 UniformBufferStandardLayout;
+		public VKBool32 UniformBufferStandardLayout;
 
 	}
 
@@ -3283,7 +3292,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 ShaderSubgroupExtendedTypes;
+		public VKBool32 ShaderSubgroupExtendedTypes;
 
 	}
 
@@ -3292,7 +3301,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 SeparateDepthStencilLayouts;
+		public VKBool32 SeparateDepthStencilLayouts;
 
 	}
 
@@ -3320,7 +3329,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 HostQueryReset;
+		public VKBool32 HostQueryReset;
 
 	}
 
@@ -3329,7 +3338,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 TimelineSemaphore;
+		public VKBool32 TimelineSemaphore;
 
 	}
 
@@ -3395,9 +3404,9 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VkBool32 BufferDeviceAddress;
-		public VkBool32 BufferDeviceAddressCaptureReplay;
-		public VkBool32 BufferDeviceAddressMultiDevice;
+		public VKBool32 BufferDeviceAddress;
+		public VKBool32 BufferDeviceAddressCaptureReplay;
+		public VKBool32 BufferDeviceAddressMultiDevice;
 
 	}
 
