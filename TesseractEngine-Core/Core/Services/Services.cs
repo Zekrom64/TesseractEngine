@@ -11,8 +11,8 @@ namespace Tesseract.Core.Services {
 
 	public interface IServiceProvider {
 
-		public T GetService<T>(IService<T> service) {
-			Func<IServiceProvider,T> injectedGetter = ServiceInjector.Lookup<T>(this, service);
+		public T? GetService<T>(IService<T> service) {
+			Func<IServiceProvider,T>? injectedGetter = ServiceInjector.Lookup<T>(this, service);
 			if (injectedGetter != null) return injectedGetter(this);
 			else return default;
 		}
@@ -49,11 +49,17 @@ namespace Tesseract.Core.Services {
 			registry[(typeof(P),typeof(S))] = getter;
 		}
 
-		public static Func<IServiceProvider,T> Lookup<T>(IServiceProvider provider, IService<T> service) {
+		public static Func<IServiceProvider,T>? Lookup<T>(IServiceProvider provider, IService<T> service) {
 			Type tProvider = provider.GetType(), tService = service.GetType();
-			if (registry.TryGetValue((tProvider, tService), out object fn)) {
-				MethodInfo mInvoke = fn.GetType().GetMethod("Invoke");
-				return (IServiceProvider p) => (T)mInvoke.Invoke(fn, new object[] { p });
+			if (registry.TryGetValue((tProvider, tService), out object? fn)) {
+				try {
+#nullable disable
+					MethodInfo mInvoke = fn.GetType().GetMethod("Invoke");
+					return (IServiceProvider p) => (T)mInvoke.Invoke(fn, new object[] { p });
+#nullable restore
+				} catch (Exception ex) {
+					throw new InvalidOperationException("Failed to invoke service injector getter", ex);
+				}
 			} else return null;
 		}
 
