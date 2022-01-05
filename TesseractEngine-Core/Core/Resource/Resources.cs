@@ -116,7 +116,7 @@ namespace Tesseract.Core.Resource {
 		/// <param name="file">The resource to open as a stream</param>
 		/// <returns>The stream accessing the resource location</returns>
 		/// <exception cref="ArgumentException">If the resource location is from a different domain</exception>
-		public abstract Stream? OpenStream(ResourceLocation file);
+		public abstract Stream OpenStream(ResourceLocation file);
 
 		/// <summary>
 		/// Enumerates a resource location as a directory.

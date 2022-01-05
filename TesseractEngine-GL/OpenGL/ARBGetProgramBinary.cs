@@ -47,7 +47,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte[] GetProgramBinary(uint program, out uint binaryFormat) {
-			int length = GL.GL20.GetProgram(program, GLGetProgram.ProgramBinaryLength);
+			int length = GL.GL20!.GetProgram(program, GLGetProgram.ProgramBinaryLength);
 			byte[] binary = new byte[length];
 			unsafe {
 				fixed(byte* pBinary = binary) {

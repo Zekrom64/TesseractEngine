@@ -68,11 +68,11 @@ namespace Tesseract.OpenGL {
 
 		public void GetTransformFeedbackVarying(uint program, uint index, out int size, out GLShaderAttribType type, out string name) {
 			using MemoryStack sp = MemoryStack.Push();
-			int maxLen = GL.GL20.GetProgram(program, GLGetProgram.TransformFeedbackVaryingMaxLength);
+			int maxLen = GL.GL20!.GetProgram(program, GLGetProgram.TransformFeedbackVaryingMaxLength);
 			IntPtr pName = sp.Alloc<byte>(maxLen);
 			Functions.glGetTransformFeedbackVarying(program, index, maxLen, out int length, out size, out uint utype, pName);
 			type = (GLShaderAttribType)utype;
-			name = MemoryUtil.GetASCII(pName, length);
+			name = MemoryUtil.GetASCII(pName, length)!;
 		}
 
 	}

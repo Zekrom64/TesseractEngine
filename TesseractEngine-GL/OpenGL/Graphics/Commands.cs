@@ -73,16 +73,16 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void BeginRenderPass(in ICommandSink.RenderPassBegin begin, SubpassContents contents) => Graphics.State.BeginRenderPass(begin);
 
-		public void BindPipeline(IPipeline pipeline) => Graphics.State.BindPipeline(pipeline as GLPipeline);
+		public void BindPipeline(IPipeline pipeline) => Graphics.State.BindPipeline((GLPipeline)pipeline);
 
 		public void BindPipelineWithState(IPipelineSet set, PipelineDynamicCreateInfo state) => throw new NotImplementedException();
 
 		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets) => throw new NotImplementedException();
 
-		public void BindVertexArray(IVertexArray array) => GL.GL33.BindVertexArray((array as GLVertexArray).ID);
+		public void BindVertexArray(IVertexArray array) => GL.GL33!.BindVertexArray(((GLVertexArray)array).ID);
 
 		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) =>
-			FnBlitFramebuffer(dst as GLFramebuffer, dstArea, src as GLFramebuffer, srcArea, GLEnums.Convert(filter), GLEnums.Convert(aspect));
+			FnBlitFramebuffer((GLFramebuffer)dst, dstArea, (GLFramebuffer)src, srcArea, GLEnums.Convert(filter), GLEnums.Convert(aspect));
 
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<ICommandSink.BlitTextureRegion> regions) => throw new NotImplementedException();
 
@@ -109,17 +109,17 @@ namespace Tesseract.OpenGL.Graphics {
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) => throw new NotImplementedException();
 
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferRegion> regions) {
-			GLBuffer gldst = dst as GLBuffer, glsrc = src as GLBuffer;
+			GLBuffer gldst = (GLBuffer)dst, glsrc = (GLBuffer)src;
 			foreach (ICommandSink.CopyBufferRegion region in regions) FnCopyBuffer(gldst, glsrc, region);
 		}
 
 		public void CopyBuffer(IBuffer dst, IBuffer src, params ICommandSink.CopyBufferRegion[] regions) {
-			GLBuffer gldst = dst as GLBuffer, glsrc = src as GLBuffer;
+			GLBuffer gldst = (GLBuffer)dst, glsrc = (GLBuffer)src;
 			foreach (ICommandSink.CopyBufferRegion region in regions) FnCopyBuffer(gldst, glsrc, region);
 		}
 
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ICommandSink.CopyBufferRegion region) =>
-			FnCopyBuffer(dst as GLBuffer, src as GLBuffer, region);
+			FnCopyBuffer((GLBuffer)dst, (GLBuffer)src, region);
 
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) => throw new NotImplementedException();
 

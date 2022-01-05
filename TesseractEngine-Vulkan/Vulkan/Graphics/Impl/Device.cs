@@ -82,7 +82,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					UnmanagedPointer<VKPhysicalDeviceCustomBorderColorFeaturesEXT> pCustomBorderColorFeatures = default;
 					if (extCustomBorderColor) {
 						pCustomBorderColorFeatures = sp.Values(new VKPhysicalDeviceCustomBorderColorFeaturesEXT() {
-							Type  = VKStructureType.PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
+							Type  = VKStructureType.PhysicalDeviceCustomBorderColorFeaturesEXT,
 							Next = next
 						});
 						next = pCustomBorderColorFeatures;
@@ -91,7 +91,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					UnmanagedPointer<VKPhysicalDeviceLineRasterizationFeaturesEXT> pLineRasterizationFeatures = default;
 					if (extLineRasterization) {
 						pLineRasterizationFeatures = sp.Values(new VKPhysicalDeviceLineRasterizationFeaturesEXT() {
-							Type = VKStructureType.PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT,
+							Type = VKStructureType.PhysicalDeviceLineRasterizationFeaturesEXT,
 							Next = next
 						});
 						next = pLineRasterizationFeatures;
@@ -123,7 +123,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					UnmanagedPointer<VKPhysicalDeviceCustomBorderColorPropertiesEXT> pCustomBorderColorProperties = default;
 					if (extCustomBorderColor) {
 						pCustomBorderColorProperties = sp.Values(new VKPhysicalDeviceCustomBorderColorPropertiesEXT() {
-							Type = VKStructureType.PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT,
+							Type = VKStructureType.PhysicalDeviceCustomBorderColorPropertiesEXT,
 							Next = next
 						});
 						next = pCustomBorderColorProperties;
@@ -132,7 +132,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					UnmanagedPointer<VKPhysicalDeviceLineRasterizationPropertiesEXT> pLineRasterizationProperties = default;
 					if (extLineRasterization) {
 						pLineRasterizationProperties = sp.Values(new VKPhysicalDeviceLineRasterizationPropertiesEXT() {
-							Type = VKStructureType.PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT,
+							Type = VKStructureType.PhysicalDeviceLineRasterizationPropertiesEXT,
 							Next = next
 						});
 						next = pLineRasterizationProperties;
