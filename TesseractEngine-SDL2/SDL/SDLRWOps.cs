@@ -125,7 +125,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = MemoryUtil.GetASCII(error);
+							string strerror = MemoryUtil.GetASCII(error)!;
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -144,7 +144,7 @@ namespace Tesseract.SDL {
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
-							string strerror = MemoryUtil.GetASCII(error);
+							string strerror = MemoryUtil.GetASCII(error)!;
 							SDL2.Functions.SDL_ClearError();
 							throw new SDLException(strerror);
 						}
@@ -207,7 +207,7 @@ namespace Tesseract.SDL {
 
 		private static long RWSize(IntPtr pOps) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
 				return stream.Stream.Length;
 			} catch(Exception) {
 				return -1;
@@ -216,7 +216,7 @@ namespace Tesseract.SDL {
 
 		private static long RWSeek(IntPtr pOps, long offset, SDLRWWhence whence) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
 				if (!stream.Stream.CanSeek) return -1;
 				switch (whence) {
 					case SDLRWWhence.Set:
@@ -239,7 +239,7 @@ namespace Tesseract.SDL {
 
 		private static UIntPtr RWRead(IntPtr pOps, IntPtr pDst, UIntPtr size, UIntPtr maxnum) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
 				long bytes = (long)(size.ToUInt64() * maxnum.ToUInt64());
 				long offset = 0;
 				while (offset < bytes) {
@@ -260,7 +260,7 @@ namespace Tesseract.SDL {
 		private static UIntPtr RWWrite(IntPtr pOps, IntPtr pDst, UIntPtr size, UIntPtr maxnum) {
 			long offset = 0;
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
 				long bytes = (long)(size.ToUInt64() * maxnum.ToUInt64());
 				while (offset < bytes) {
 					unsafe {
@@ -278,7 +278,7 @@ namespace Tesseract.SDL {
 
 		private static int RWClose(IntPtr pOps) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
 				stream.Stream.Dispose();
 				return 0;
 			} catch (Exception) {

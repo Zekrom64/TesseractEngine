@@ -20,7 +20,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public BufferUsage Usage { get; }
 
-		public IMemoryBinding MemoryBinding => null;
+		public IMemoryBinding? MemoryBinding => null;
 
 		public MemoryMapFlags SupportedMappings { get; }
 
@@ -41,7 +41,7 @@ namespace Tesseract.OpenGL.Graphics {
 				dsa.NamedBufferStorage(ID, (nint)Size, storageFlags);
 				SupportedMappings = createInfo.MapFlags;
 			} else {
-				var gl33 = GL.GL33;
+				var gl33 = GL.GL33!;
 				ID = gl33.GenBuffers();
 				Graphics.State.BindBuffer(GLBufferTarget.Array, ID);
 
@@ -58,11 +58,11 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			GL.GL15.DeleteBuffers(ID);
+			GL.GL15!.DeleteBuffers(ID);
 		}
 
 		public void FlushGPUToHost(in MemoryRange range = default) {
-			var gl33 = GL.GL33;
+			var gl33 = GL.GL33!;
 			var sils = GL.ARBShaderImageLoadStore;
 			if (sils != null) {
 				sils.MemoryBarrier(GLMemoryBarrier.ClientMappedBuffer);
@@ -82,7 +82,7 @@ namespace Tesseract.OpenGL.Graphics {
 			if (dsa != null) dsa.FlushMappedNamedBufferRange(ID, offset, length);
 			else {
 				GLBufferTarget target = Graphics.State.BindBufferAny(ID);
-				GL.GL33.FlushMappedBufferRange(target, offset, length);
+				GL.GL33!.FlushMappedBufferRange(target, offset, length);
 			}
 		}
 
@@ -100,7 +100,7 @@ namespace Tesseract.OpenGL.Graphics {
 			if (write) access |= GLMapAccessFlags.Write;
 			if (write && !read) access |= GLMapAccessFlags.InvalidateRange;
 
-			var gl33 = GL.GL33;
+			var gl33 = GL.GL33!;
 			var dsa = GL.ARBDirectStateAccess;
 			IntPtr pData;
 			if (dsa != null) pData = dsa.MapNamedBufferRange(ID, offset, length, access);
@@ -116,7 +116,7 @@ namespace Tesseract.OpenGL.Graphics {
 			if (dsa != null) dsa.UnmapNamedBuffer(ID);
 			else {
 				GLBufferTarget target = Graphics.State.BindBufferAny(ID);
-				GL.GL33.UnmapBuffer(target);
+				GL.GL33!.UnmapBuffer(target);
 			}
 		}
 

@@ -43,7 +43,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default) where T : unmanaged {
 			MemoryRange range2 = range.Constrain(Size);
-			if (range2.Length == 0) return null;
+			if (range2.Length == 0) throw new ArgumentException("Cannot map a range of 0 length", nameof(range));
 			IntPtr ptr = MemoryBinding.Map();
 			unsafe { return new UnmanagedPointer<T>(ptr, (int)(range2.Length / (ulong)sizeof(T))); }
 		}

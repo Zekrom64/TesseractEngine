@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTextureBarrierFunctions {
 
 		public delegate void PFN_glTextureBarrier();
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glTextureBarrier glTextureBarrier;
 
 	}
+#nullable restore
 
 	public class ARBTextureBarrier : IGLObject {
 

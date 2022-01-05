@@ -32,11 +32,11 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	public class VulkanMemoryBinding : IVKMemoryBinding {
 
-		public VulkanMemory MemoryManager { get; init; }
+		public VulkanMemory MemoryManager { get; init; } = null!;
 
-		public VMAAllocation Allocation { get; init; }
+		public VMAAllocation Allocation { get; init; } = null!;
 
-		public VKDeviceMemory DeviceMemory { get; init; }
+		public VKDeviceMemory DeviceMemory { get; init; } = null!;
 
 		public ulong Size => Allocation.Info.Size;
 

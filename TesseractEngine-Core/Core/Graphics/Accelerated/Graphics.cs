@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -198,7 +193,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// ASTC LDR compressed formats are supported.
 		/// </summary>
-		public bool TextureCompressionASTC { get; init; }
+		public bool TextureCompressionASTC_LDR { get; init; }
 
 		/// <summary>
 		/// BC compressed formats are supported.
@@ -236,7 +231,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public bool ShaderImageGatherExtended { get; init; }
 
 		/// <summary>
-		/// Storage images may use the following formats:
+		/// If storage images may use the following formats:
 		/// <list type="bullet">
 		/// <item>R16G16SFloat</item>
 		/// <item>B10G11R11UFloat</item>
@@ -404,7 +399,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="g2">Feature set to mask by</param>
 		/// <returns>Masked feature set</returns>
-		public GraphicsHardwareFeatures Mask(GraphicsHardwareFeatures g2) => new() { 
+		public GraphicsHardwareFeatures Mask(GraphicsHardwareFeatures g2) => new() {
 			RobustBufferAccess = RobustBufferAccess && g2.RobustBufferAccess,
 			FullDrawIndexUInt32 = FullDrawIndexUInt32 && g2.FullDrawIndexUInt32,
 			CubeMapArray = CubeMapArray && g2.CubeMapArray,
@@ -426,7 +421,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			MultiViewport = MultiViewport && g2.MultiViewport,
 			SamplerAnisotropy = SamplerAnisotropy && g2.SamplerAnisotropy,
 			TextureCompressionETC2 = TextureCompressionETC2 && g2.TextureCompressionETC2,
-			TextureCompressionASTC = TextureCompressionASTC && g2.TextureCompressionASTC,
+			TextureCompressionASTC_LDR = TextureCompressionASTC_LDR && g2.TextureCompressionASTC_LDR,
 			TextureCompressionBC = TextureCompressionBC && g2.TextureCompressionBC,
 			OcclusionQueryPrecise = OcclusionQueryPrecise && g2.OcclusionQueryPrecise,
 			PipelineStatisticsQuery = PipelineStatisticsQuery && g2.PipelineStatisticsQuery,
@@ -463,8 +458,16 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	}
 
+	/// <summary>
+	/// Graphics features determine what a graphics instance can or cannot do. Some features are optional
+	/// and must be enabled during creation using <see cref="GraphicsHardwareFeatures"/>, while the other
+	/// features are inherent to the graphics backend and cannot be changed.
+	/// </summary>
 	public interface IGraphicsFeatures {
 
+		/// <summary>
+		/// The hardware features enabled for this graphics instance.
+		/// </summary>
 		public GraphicsHardwareFeatures HardwareFeatures { get; }
 
 		/// <summary>
@@ -482,7 +485,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Getter to test if different dynamic pipeline states are available.
 		/// </summary>
-		public IReadOnlyIndexer<PipelineDynamicState,bool> SupportedDynamicStates { get; }
+		public IReadOnlyIndexer<PipelineDynamicState, bool> SupportedDynamicStates { get; }
 
 		/// <summary>
 		/// If push constants are supported.
@@ -508,6 +511,16 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The preferred shader source type for this backend. Backends may only support this type of shader source.
 		/// </summary>
 		public ShaderSourceType PreferredShaderSourceType { get; }
+
+		/// <summary>
+		/// If framebuffer blitting is supported between sub-views of textures.
+		/// </summary>
+		public bool FramebufferBlitTextureSubView { get; }
+
+		/// <summary>
+		/// If texture blits are functionally limited to 1D and 2D textures.
+		/// </summary>
+		public bool LimitedTextureBlit { get; }
 
 	}
 
@@ -898,7 +911,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// The command buffers to submit.
 			/// </summary>
 			public ReadOnlySpan<ICommandBuffer> CommandBuffer { get; init; }
-			
+
 			/// <summary>
 			/// List of sync objects to wait on and their respective pipeline stages. Granularity may be
 			/// smaller than that of individual pipeline stages in some cases.

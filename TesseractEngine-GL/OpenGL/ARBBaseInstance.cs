@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBBaseInstanceFunctions {
 
 		public delegate void PFN_glDrawArraysInstancedBaseInstance(uint mode, int first, int count, int primcount, uint baseinstance);
@@ -21,6 +22,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glDrawElementsInstancedBaseVertexBaseInstance glDrawElementsInstancedBaseVertexBaseInstance;
 
 	}
+#nullable restore
 
 	public class ARBBaseInstance : IGLObject {
 

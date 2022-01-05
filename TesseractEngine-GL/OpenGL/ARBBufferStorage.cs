@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBBufferStorageFunctions {
 
 		public delegate void PFN_glBufferStorage(uint target, nint size, IntPtr data, uint flags);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glBufferStorage glBufferStorage;
 
 	}
+#nullable restore
 
 	public class ARBBufferStorage : IGLObject {
 

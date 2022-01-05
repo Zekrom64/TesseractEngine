@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => CommandPool;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKCommandPool(VKDevice device, ulong commandPool, VulkanAllocationCallbacks allocator) {
+		public VKCommandPool(VKDevice device, ulong commandPool, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			CommandPool = commandPool;
 			Allocator = allocator;
@@ -72,7 +72,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKCommandPool commandPool) => commandPool != null ? commandPool.CommandPool : 0;
+		public static implicit operator ulong(VKCommandPool? commandPool) => commandPool != null ? commandPool.CommandPool : 0;
 
 	}
 

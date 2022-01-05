@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => ShaderModule;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKShaderModule(VKDevice device, ulong shaderModule, VulkanAllocationCallbacks allocator) {
+		public VKShaderModule(VKDevice device, ulong shaderModule, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			ShaderModule = shaderModule;
 			Allocator = allocator;
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKShaderModule shaderModule) => shaderModule != null ? shaderModule.ShaderModule : 0;
+		public static implicit operator ulong(VKShaderModule? shaderModule) => shaderModule != null ? shaderModule.ShaderModule : 0;
 
 	}
 }

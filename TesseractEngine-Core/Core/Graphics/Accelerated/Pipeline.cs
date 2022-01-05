@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// Enumeration of pipeline types.
 	/// </summary>
@@ -137,13 +132,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of bind set layouts that are part of the entire pipeline layout.
 		/// </summary>
-		[DisallowNull]
-		public IBindSetLayout[] Layouts { get; init; }
+		public IBindSetLayout[] Layouts { get; init; } = Array.Empty<IBindSetLayout>();
 
 		/// <summary>
 		/// The list of push constant ranges used by the pipeline layout.
 		/// </summary>
-		public PushConstantRange[] PushConstantRanges { get; init; }
+		public PushConstantRange[] PushConstantRanges { get; init; } = Array.Empty<PushConstantRange>();
 
 	}
 
@@ -153,12 +147,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// pipeline separately.
 	/// </summary>
 	public interface IPipelineCache : IDisposable {
-	
+
 		/// <summary>
 		/// The data stored by the current pipeline cache.
 		/// </summary>
 		public byte[] Data { get; }
-	
+
 	}
 
 	/// <summary>
@@ -169,8 +163,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The initial data to create the pipeline cache with.
 		/// </summary>
-		public byte[] InitialData { get; init; }
-	
+		public byte[]? InitialData { get; init; }
+
 	}
 
 	/// <summary>
@@ -191,15 +185,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The shader to use for this shader stage.
 		/// </summary>
-		[DisallowNull]
-		public IShader Shader { get; init; }
+		public IShader Shader { get; init; } = null!;
 
 		/// <summary>
 		/// The name of the entry point for this shader stage in the shader object.
 		/// If the entry point is the default value of <c>null</c> it is assumed that
 		/// the entry point is called "<c>main</c>".
 		/// </summary>
-		[DisallowNull]
 		public string EntryPoint { get; init; } = "main";
 
 	}
@@ -411,8 +403,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format that vertex attributes are fetched into the pipeline from vertex buffers.
 		/// </summary>
-		[DisallowNull]
-		public VertexFormat VertexFormat { get; init; }
+		public VertexFormat VertexFormat { get; init; } = null!;
 
 		// Input assembly state
 
@@ -517,24 +508,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The stencil state for front-facing geometry.
 		/// </summary>
-		[DisallowNull]
-		public PipelineStencilState FrontStencilState { get; init; }
+		public PipelineStencilState FrontStencilState { get; init; } = new();
 
 		/// <summary>
 		/// The stencil state for back-facing geometry.
 		/// </summary>
-		[DisallowNull]
-		public PipelineStencilState BackStencilState { get; init; }
+		public PipelineStencilState BackStencilState { get; init; } = new();
 
 		/// <summary>
-		/// The minimum value for depth bounds testing.
+		/// The minimum and maximum values for depth bounds testing.
 		/// </summary>
-		public float MinDepthBounds { get; init; }
-
-		/// <summary>
-		/// The maximum value for depth bounds testing.
-		/// </summary>
-		public float MaxDepthBounds { get; init; }
+		public (float, float) DepthBounds { get; init; }
 
 		// Color blend state
 
@@ -559,13 +543,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Graphics pipeline creation information.
 	/// </summary>
 	public record PipelineGraphicsCreateInfo {
-		
+
 		// Shader state
 
 		/// <summary>
 		/// The set of shader stages to use.
 		/// </summary>
-		[DisallowNull]
 		public EquatableList<PipelineShaderStageInfo> Shaders { get; init; }
 
 		// Viewport state
@@ -602,7 +585,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of color attachments bound to the pipeline.
 		/// </summary>
-		[DisallowNull]
 		public EquatableList<PipelineColorAttachmentState> Attachments { get; init; }
 
 		// Dynamic state
@@ -610,20 +592,18 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The initial dynamic state to create the pipeline with.
 		/// </summary>
-		[DisallowNull]
-		public PipelineDynamicCreateInfo DynamicInfo { get; init; }
+		public PipelineDynamicCreateInfo DynamicInfo { get; init; } = new();
 
 		/// <summary>
 		/// The list of dynamic properties the pipeline has.
 		/// </summary>
-		[DisallowNull]
 		public EquatableSet<PipelineDynamicState> DynamicState { get; init; }
 
 		/// <summary>
 		/// The render pass this pipeline must be used with. The pipeline can be used
 		/// with other render passes as long as they are compatible.
 		/// </summary>
-		public IRenderPass RenderPass { get; init; }
+		public IRenderPass RenderPass { get; init; } = null!;
 
 		/// <summary>
 		/// The subpass of the <see cref="RenderPass"/> this pipeline must be used with.
@@ -640,8 +620,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The compute shader binding.
 		/// </summary>
-		[DisallowNull]
-		public PipelineShaderStageInfo Shader { get; init; } 
+		public PipelineShaderStageInfo Shader { get; init; } = null!;
 
 	}
 
@@ -653,29 +632,28 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pipeline cache to generate this pipeline from.
 		/// </summary>
-		public IPipelineCache Cache { get; init; }
+		public IPipelineCache? Cache { get; init; }
 
 		/// <summary>
 		/// The layout of the pipeline.
 		/// </summary>
-		[DisallowNull]
-		public IPipelineLayout Layout { get; init; }
+		public IPipelineLayout Layout { get; init; } = null!;
 
 		/// <summary>
 		/// Graphics pipeline creation information.
 		/// </summary>
-		public PipelineGraphicsCreateInfo GraphicsInfo { get; init; }
+		public PipelineGraphicsCreateInfo? GraphicsInfo { get; init; }
 
 		/// <summary>
 		/// Compute pipeline creation information.
 		/// </summary>
-		public PipelineComputeCreateInfo ComputeInfo { get; init; }
+		public PipelineComputeCreateInfo? ComputeInfo { get; init; }
 
 		/// <summary>
 		/// A base pipeline to create the pipeline from. Providing a base pipeline may make pipeline creation and binding
 		/// more efficient for congruent pipelines.
 		/// </summary>
-		public IPipeline BasePipeline { get; init; }
+		public IPipeline? BasePipeline { get; init; }
 
 		/// <summary>
 		/// The index of the creation information for the base pipeline similar to <see cref="BasePipeline"/>.
@@ -703,7 +681,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </para>
 	/// </summary>
 	public interface IPipelineSet : IDisposable { }
-	
+
 	/// <summary>
 	/// Creation information for a pipeline set.
 	/// </summary>
@@ -712,8 +690,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pipeline creation information.
 		/// </summary>
-		[DisallowNull]
-		public PipelineCreateInfo CreateInfo { get; init; }
+		public PipelineCreateInfo CreateInfo { get; init; } = null!;
 
 		/// <summary>
 		/// The set of states that are allowed to vary within this pipeline set. Any

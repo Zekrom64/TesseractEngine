@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTransformFeedback3Functions {
 
 		public delegate void PFN_glDrawTransformFeedbackStream(uint mode, uint id, uint stream);
@@ -24,6 +25,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetQueryIndexediv glGetQueryIndexediv;
 
 	}
+#nullable restore
 
 	public class ARBTransformFeedback3 : IGLObject {
 

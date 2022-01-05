@@ -25,14 +25,14 @@ namespace Tesseract.Vulkan {
 		// Vulkan 1.0
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Submit(VKSubmitInfo submitInfo, VKFence fence = null) {
+		public void Submit(VKSubmitInfo submitInfo, VKFence? fence = null) {
 			unsafe {
 				VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, 1, (IntPtr)(&submitInfo), fence), "Failed to submit to queue");
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Submit(in ReadOnlySpan<VKSubmitInfo> infos, VKFence fence = null) {
+		public void Submit(in ReadOnlySpan<VKSubmitInfo> infos, VKFence? fence = null) {
 			unsafe {
 				fixed(VKSubmitInfo* pInfos = infos) {
 					VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, (uint)infos.Length, (IntPtr)pInfos, fence), "Failed to submit to queue");
@@ -44,14 +44,14 @@ namespace Tesseract.Vulkan {
 		public void WaitIdle() => VK.CheckError(Device.VK10Functions.vkQueueWaitIdle(Queue));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindSparse(VKBindSparseInfo info, VKFence fence = null) {
+		public void BindSparse(VKBindSparseInfo info, VKFence? fence = null) {
 			unsafe {
 				VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, 1, (IntPtr)(&info), fence), "Failed to bind sparse memory");
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindSparse(in ReadOnlySpan<VKBindSparseInfo> infos, VKFence fence = null) {
+		public void BindSparse(in ReadOnlySpan<VKBindSparseInfo> infos, VKFence? fence = null) {
 			unsafe {
 				fixed(VKBindSparseInfo* pInfos = infos) {
 					VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, (uint)infos.Length, (IntPtr)pInfos, fence != null ? fence.Fence : 0), "Failed to bind sparse memory");
@@ -63,7 +63,7 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult PresentKHR(in VKPresentInfoKHR presentInfo) =>
-			Device.KHRSwapchain.vkQueuePresentKHR(Queue, presentInfo);
+			Device.KHRSwapchain!.vkQueuePresentKHR(Queue, presentInfo);
 
 	}
 

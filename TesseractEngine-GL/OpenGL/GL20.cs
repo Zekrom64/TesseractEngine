@@ -92,7 +92,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetAttachedShaders(program, shaders.Length, out count, (IntPtr)pShaders);
 				}
 			}
-			return shaders.Slice(0, count);
+			return shaders[..count];
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,7 +107,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetProgramInfoLog(program, maxLen, out length, (IntPtr)pInfoLog);
 				}
 			}
-			return MemoryUtil.GetASCII(logBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(logBytes[..length]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,7 +125,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetShaderInfoLog(shader, maxLen, out length, (IntPtr)pInfoLog);
 				}
 			}
-			return MemoryUtil.GetASCII(logBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(logBytes[..length]);
 		}
 
 		public string GetShaderSource(uint shader) {
@@ -137,7 +137,7 @@ namespace Tesseract.OpenGL {
 					FunctionsGL20.glGetShaderSource(shader, maxLen, out length, (IntPtr)pSrc);
 				}
 			}
-			return MemoryUtil.GetASCII(srcBytes.Slice(0, length));
+			return MemoryUtil.GetASCII(srcBytes[..length]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -159,6 +159,15 @@ namespace Tesseract.OpenGL {
 				fixed (byte* pSrcBytes = srcBytes) {
 					FunctionsGL20.glShaderSource(shader, 1, (IntPtr)(&pSrcBytes), (IntPtr)(&length));
 				}
+			}
+		}
+
+		public void ShaderSource(uint shader, IConstPointer<byte> source) {
+			int length = source.ArraySize;
+			if (length < 0) length = MemoryUtil.FindFirst<byte>(source.Ptr, 0);
+			IntPtr pstr = source.Ptr;
+			unsafe {
+				FunctionsGL20.glShaderSource(shader, 1, (IntPtr)(&pstr), (IntPtr)(&length));
 			}
 		}
 

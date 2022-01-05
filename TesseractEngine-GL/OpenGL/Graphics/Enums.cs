@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
+using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.OpenGL.Graphics {
 
@@ -108,6 +109,81 @@ namespace Tesseract.OpenGL.Graphics {
 			*/
 			return null;
 		}
+
+
+		public static GLTextureWrap Convert(SamplerAddressMode addressMode) => addressMode switch {
+			SamplerAddressMode.Repeat => GLTextureWrap.Repeat,
+			SamplerAddressMode.MirroredRepeat => GLTextureWrap.MirroredRepeat,
+			SamplerAddressMode.ClampToBorder => GLTextureWrap.ClampToBorder,
+			SamplerAddressMode.ClampToEdge => GLTextureWrap.ClampToEdge,
+			SamplerAddressMode.MirrorClampToEdge => GLTextureWrap.MirrorClampToEdge,
+			_ => default
+		};
+
+		public static GLTextureSwizzle Convert(ComponentSwizzle swizzle, GLTextureSwizzle def) => swizzle switch {
+			ComponentSwizzle.Red => GLTextureSwizzle.Red,
+			ComponentSwizzle.Green => GLTextureSwizzle.Green,
+			ComponentSwizzle.Blue => GLTextureSwizzle.Blue,
+			ComponentSwizzle.Alpha => GLTextureSwizzle.Alpha,
+			ComponentSwizzle.One => GLTextureSwizzle.One,
+			ComponentSwizzle.Zero => GLTextureSwizzle.Zero,
+			_ => def
+		};
+
+		public static GLFilter Convert(TextureFilter filter) => filter switch {
+			TextureFilter.Nearest => GLFilter.Nearest,
+			TextureFilter.Linear => GLFilter.Linear,
+			_ => default
+		};
+
+		public static GLCompareFunc Convert(CompareOp op) => op switch {
+			CompareOp.Always => GLCompareFunc.Always,
+			CompareOp.Equal => GLCompareFunc.Equal,
+			CompareOp.Greater => GLCompareFunc.Greater,
+			CompareOp.GreaterOrEqual => GLCompareFunc.GreaterOrEqual,
+			CompareOp.Less => GLCompareFunc.Less,
+			CompareOp.LessOrEqual => GLCompareFunc.LessOrEqual,
+			CompareOp.Never => GLCompareFunc.Never,
+			CompareOp.NotEqual => GLCompareFunc.NotEqual,
+			_ => default
+		};
+
+		public static GLShaderType Convert(ShaderType type) => type switch {
+			ShaderType.Vertex => GLShaderType.Vertex,
+			ShaderType.TessellationControl => GLShaderType.TessellationControl,
+			ShaderType.TessellationEvaluation => GLShaderType.TessellationEvaluation,
+			ShaderType.Geometry => GLShaderType.Geometry,
+			ShaderType.Fragment => GLShaderType.Fragment,
+			ShaderType.Compute => GLShaderType.Compute,
+			_ => default
+		};
+
+		public static GLBufferMask Convert(TextureAspect aspect) {
+			GLBufferMask mask = 0;
+			if ((aspect & TextureAspect.Color) != 0) mask |= GLBufferMask.Color;
+			if ((aspect & TextureAspect.Depth) != 0) mask |= GLBufferMask.Depth;
+			if ((aspect & TextureAspect.Stencil) != 0) mask |= GLBufferMask.Stencil;
+			return mask;
+		}
+
+		public static (GLType, int, bool) Convert(VertexAttribFormat format) => format switch {
+			VertexAttribFormat.X32SFloat => (GLType.Float, 1, true),
+			VertexAttribFormat.X32Y32SFloat => (GLType.Float, 2, true),
+			VertexAttribFormat.X32Y32Z32SFloat => (GLType.Float, 3, true),
+			VertexAttribFormat.X32Y32Z32W32SFloat => (GLType.Float, 4, true),
+			VertexAttribFormat.X32SInt => (GLType.Int, 1, false),
+			VertexAttribFormat.X32Y32SInt => (GLType.Int, 2, false),
+			VertexAttribFormat.X32Y32Z32SInt => (GLType.Int, 3, false),
+			VertexAttribFormat.X32Y32Z32W32SInt => (GLType.Int, 4, false),
+			_ => default
+		};
+
+		public static GLIndexType Convert(IndexType type) => type switch {
+			IndexType.UInt8 => GLIndexType.UnsignedByte,
+			IndexType.UInt16 => GLIndexType.UnsignedShort,
+			IndexType.UInt32 => GLIndexType.UnsignedInt,
+			_ => default
+		};
 
 	}
 

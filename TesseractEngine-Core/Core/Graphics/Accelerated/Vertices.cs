@@ -4,8 +4,6 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -57,7 +55,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class VertexAttribAttribute : Attribute {
-		
+
 		/// <summary>
 		/// The location of the vertex attribute, or -1 to use the implied index given the order of fields.
 		/// </summary>
@@ -80,44 +78,27 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Structure describing vertex attributes.
 	/// </summary>
-	public struct VertexAttrib : IEquatable<VertexAttrib> {
+	public record struct VertexAttrib {
 
 		/// <summary>
 		/// The location of the attribute mapping to a shader input.
 		/// </summary>
-		public uint Location;
+		public uint Location { get; set; }
 
 		/// <summary>
 		/// The binding index of the attribute mapping to a vertex buffer binding.
 		/// </summary>
-		public uint Binding;
+		public uint Binding { get; set; }
 
 		/// <summary>
 		/// The format of the attribute.
 		/// </summary>
-		public VertexAttribFormat Format;
+		public VertexAttribFormat Format { get; set; }
 
 		/// <summary>
 		/// The byte offset of the attribute from the start of a vertex.
 		/// </summary>
-		public uint Offset;
-
-		public bool Equals(VertexAttrib attrib) =>
-			Location == attrib.Location &&
-			Binding == attrib.Binding &&
-			Format == attrib.Format &&
-			Offset == attrib.Offset;
-
-		public override bool Equals(object obj) {
-			if (obj is VertexAttrib attrib) return Equals(attrib);
-			else return false;
-		}
-
-		public override int GetHashCode() => (int)((Location << 8) ^ (Binding << 6) ^ (uint)Format ^ Offset);
-
-		public static bool operator ==(VertexAttrib a1, VertexAttrib a2) => a1.Equals(a2);
-
-		public static bool operator !=(VertexAttrib a1, VertexAttrib a2) => !(a1 == a2);
+		public uint Offset { get; set; }
 
 		private static readonly Dictionary<Type, VertexAttribFormat> attribFormatTypes = new() {
 			{ typeof(float), VertexAttribFormat.X32SFloat },
@@ -139,7 +120,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <returns>List of vertex attributes</returns>
 		public static IReadOnlyList<VertexAttrib> LoadAttribs(Type type, uint binding, int nextLocation = 0) {
 			List<VertexAttrib> attribs = new();
-			foreach(FieldInfo field in type.GetFields().OrderBy(field => field.MetadataToken)) {
+			foreach (FieldInfo field in type.GetFields().OrderBy(field => field.MetadataToken)) {
 				if (field.GetCustomAttribute(typeof(VertexAttribAttribute)) is VertexAttribAttribute attrib) {
 					VertexAttribFormat format = attrib.Format;
 					if (format == VertexAttribFormat.Undefined) {
@@ -184,53 +165,39 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A vertex binding describes how groups of one or more vertex attributes are fetched from a vertex buffer.
 	/// </summary>
-	public struct VertexBinding : IEquatable<VertexBinding> {
+	public record struct VertexBinding {
 
 		/// <summary>
 		/// The index of the vertex buffer to fetch attributes from.
 		/// </summary>
-		public uint Binding;
+		public uint Binding { get; set; }
+
 		/// <summary>
 		/// The stride between groups of attributes in the vertex buffer.
 		/// </summary>
-		public uint Stride;
+		public uint Stride { get; set; }
+
 		/// <summary>
 		/// The rate at which groups of attributes are fetched from the vertex buffer.
 		/// </summary>
 		public VertexInputRate InputRate;
-
-		public bool Equals(VertexBinding binding) =>
-			Binding == binding.Binding &&
-			Stride == binding.Stride &&
-			InputRate == binding.InputRate;
-
-		public override bool Equals(object obj) {
-			if (obj is VertexBinding binding) return Equals(binding);
-			else return false;
-		}
-
-		public override int GetHashCode() => (int)((Binding << 8) ^ Stride ^ ((uint)InputRate << 4));
-
-		public static bool operator ==(VertexBinding b1, VertexBinding b2) => b1.Equals(b2);
-
-		public static bool operator !=(VertexBinding b1, VertexBinding b2) => !(b1 == b2);
 
 	}
 
 	/// <summary>
 	/// A vertex format describes how a set of vertex attributes are ordered and fetched from a set of vertex bindings.
 	/// </summary>
-	public class VertexFormat : IEquatable<VertexFormat> {
+	public record class VertexFormat : IEquatable<VertexFormat> {
 
 		/// <summary>
 		/// The collection of vertex attributes used in the format.
 		/// </summary>
-		public readonly IReadOnlyCollection<VertexAttrib> Attributes;
+		public IReadOnlyCollection<VertexAttrib> Attributes { get; }
 
 		/// <summary>
 		/// The collection of vertex bindings used in the format.
 		/// </summary>
-		public readonly IReadOnlyCollection<VertexBinding> Bindings;
+		public IReadOnlyCollection<VertexBinding> Bindings { get; }
 
 		/// <summary>
 		/// Creates a vertex format using the given collections of attributes and bindings.
@@ -241,31 +208,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			Attributes = new List<VertexAttrib>(attribs);
 			Bindings = new List<VertexBinding>(bindings);
 		}
-
-		public bool Equals(VertexFormat format) {
-			if (format == this) return true;
-			if (format == null) return false;
-			if (Attributes.Count != format.Attributes.Count) return false;
-			if (Bindings.Count != format.Bindings.Count) return false;
-			if (!Attributes.All(format.Attributes.Contains)) return false;
-			if (!Bindings.All(format.Bindings.Contains)) return false;
-			return true;
-		}
-
-		public override bool Equals(object obj) {
-			if (obj is VertexFormat format) return Equals(format);
-			else return false;
-		}
-
-		public override int GetHashCode() => Attributes.GetHashCode() ^ Bindings.GetHashCode();
-
-		public static bool operator ==(VertexFormat f1, VertexFormat f2) {
-			if (f1 == f2) return true;
-			if (f1 == null) return false;
-			return f1.Equals(f2);
-		}
-
-		public static bool operator !=(VertexFormat f1, VertexFormat f2) => !(f1 == f2);
 
 	}
 
@@ -318,13 +260,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format of vertices in the vertex array.
 		/// </summary>
-		public VertexFormat Format { get; init; }
+		public VertexFormat Format { get; init; } = null!;
 
 		/// <summary>
 		/// The list of buffer bindings for vertex buffers with their associated
 		/// binding indices.
 		/// </summary>
-		public (BufferBinding, uint)[] VertexBuffers { get; init; }
+		public (BufferBinding, uint)[] VertexBuffers { get; init; } = Array.Empty<(BufferBinding, uint)>();
 
 		/// <summary>
 		/// The buffer binding for an index buffer.

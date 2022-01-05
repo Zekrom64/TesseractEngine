@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBClearTextureFunctions {
 
 		public delegate void PFN_glClearTexImage(uint texture, int level, uint format, uint type, IntPtr data);
@@ -19,6 +20,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glClearTexSubImage glClearTexSubImage;
 
 	}
+#nullable restore
 
 	public class ARBClearTexture : IGLObject {
 

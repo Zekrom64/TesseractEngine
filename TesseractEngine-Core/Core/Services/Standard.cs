@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract.Core.Graphics;
+﻿using Tesseract.Core.Graphics;
 using Tesseract.Core.Input;
 
 namespace Tesseract.Core.Services {
@@ -32,7 +27,7 @@ namespace Tesseract.Core.Services {
 		/// The processable image service.
 		/// </summary>
 		public static readonly IService<IProcessableImage> ProcessableImage = new OpaqueService<IProcessableImage>();
-		
+
 	}
 
 	/// <summary>

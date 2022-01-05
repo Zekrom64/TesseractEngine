@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// A texture layout determines how the content of a texture
 	/// are internally stored and how it may be used in this layout.
@@ -165,14 +161,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The texture can be used as an input attachment.
 		/// </summary>
-		InputAttachment = 0x0080
+		InputAttachment = 0x0080,
+
+		/// <summary>
+		/// The texture can have sub-views created from it.
+		/// </summary>
+		SubView = 0x1000
 	}
 
 	/// <summary>
 	/// A texture is a multidimensional structure for storing
 	/// </summary>
 	public interface ITexture : IDisposable, ISwapchainImage {
-		
+
 		/// <summary>
 		/// Gets the dimensions of the given texture type.
 		/// </summary>
@@ -227,7 +228,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The memory binding for this texture.
 		/// </summary>
-		public IMemoryBinding MemoryBinding { get; }
+		public IMemoryBinding? MemoryBinding { get; }
 
 	}
 
@@ -244,7 +245,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pixel format of the texture.
 		/// </summary>
-		public PixelFormat Format { get; init; }
+		public PixelFormat Format { get; init; } = null!;
 
 		/// <summary>
 		/// The size of the texture.
@@ -281,7 +282,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Explicit memory binding information for the texture, or <c>null</c> to let the backend
 		/// decide how memory should be bound for the texture.
 		/// </summary>
-		public IMemoryBinding MemoryBinding { get; init; }
+		public IMemoryBinding? MemoryBinding { get; init; }
 
 	}
 
@@ -384,7 +385,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The source texture for the texture view.
 		/// </summary>
-		public ITexture Texture { get; init; }
+		public ITexture Texture { get; init; } = null!;
 
 		/// <summary>
 		/// The type of texture view to create.
@@ -394,7 +395,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pixel format of the texture view.
 		/// </summary>
-		public PixelFormat Format { get; init; }
+		public PixelFormat Format { get; init; } = null!;
 
 		/// <summary>
 		/// The component mapping of the texture view.

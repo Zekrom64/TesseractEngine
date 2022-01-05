@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTimerQueryFunctions {
 
 		public delegate void PFN_glQueryCounter(uint id, uint target);
@@ -21,6 +22,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetQueryObjectui64v glGetQueryObjectui64v;
 
 	}
+#nullable restore
 
 	public class ARBTimerQuery : IGLObject {
 

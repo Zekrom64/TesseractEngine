@@ -36,7 +36,7 @@ namespace Tesseract.LMDB {
 			}
 		}
 
-		public string Path {
+		public string? Path {
 			get {
 				MDBResult err = MDB.Functions.mdb_env_get_path(Env, out IntPtr path);
 				if (err != MDBResult.Success) throw new MDBException("Failed to get environment path", err);

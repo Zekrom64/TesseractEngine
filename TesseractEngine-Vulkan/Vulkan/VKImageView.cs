@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => ImageView;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKImageView(VKDevice device, ulong imageView, VulkanAllocationCallbacks allocator) {
+		public VKImageView(VKDevice device, ulong imageView, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			ImageView = imageView;
 			Allocator = allocator;
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKImageView imageView) => imageView != null ? imageView.ImageView : 0;
+		public static implicit operator ulong(VKImageView? imageView) => imageView != null ? imageView.ImageView : 0;
 
 	}
 

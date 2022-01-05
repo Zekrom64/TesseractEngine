@@ -66,6 +66,7 @@ namespace Tesseract.OpenAL {
 		AllDevicesSpecifier = 0x1013
 	}
 
+#nullable disable
 	public class ALCFunctions {
 
 		[return: NativeType("ALCcontext*")]
@@ -127,6 +128,7 @@ namespace Tesseract.OpenAL {
 		public PFN_alcCaptureSamples alcCaptureSamples;
 
 	}
+#nullable restore
 
 	public static class ALC {
 
@@ -134,7 +136,7 @@ namespace Tesseract.OpenAL {
 		public static Library Library { get; } = LibraryManager.Load(LibrarySpec);
 		public static ALCFunctions Functions { get; } = new();
 
-		public static SOFTLoopback SOFTLoopback { get; }
+		public static SOFTLoopback? SOFTLoopback { get; }
 
 		static ALC() {
 			Library.LoadFunctions(Functions);
@@ -197,7 +199,7 @@ namespace Tesseract.OpenAL {
 			return new ALCContext(pContext);
 		}
 
-		public string GetString(ALCGetString pname) => MemoryUtil.GetASCII(ALC.Functions.alcGetString(Device, (ALCenum)pname));
+		public string? GetString(ALCGetString pname) => MemoryUtil.GetASCII(ALC.Functions.alcGetString(Device, (ALCenum)pname));
 
 		public int GetInteger(ALCGetInteger pname) {
 			int val = 0;
@@ -235,6 +237,7 @@ namespace Tesseract.OpenAL {
 			}
 		}
 
+#nullable disable
 		public bool IsRenderFormatSupportedSOFT(ALCsizei freq, ALCChannelConfiguration channels, ALCSampleType type) =>
 			ALC.SOFTLoopback.Functions.alcIsRenderFormatSupportedSOFT(Device, freq, channels, type) != 0;
 
@@ -248,12 +251,13 @@ namespace Tesseract.OpenAL {
 
 		public void RenderSamplesSOFT<T>(IPointer<T> buffer, int samples) where T : unmanaged =>
 			ALC.SOFTLoopback.Functions.alcRenderSamplesSOFT(Device, buffer.Ptr, samples);
+#nullable restore
 
 	}
 
 	public class ALCContext : IDisposable {
 
-		public static ALCContext Current {
+		public static ALCContext? Current {
 			get {
 				IntPtr pContext = ALC.Functions.alcGetCurrentContext();
 				return pContext == IntPtr.Zero ? null : new(pContext);

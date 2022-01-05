@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
 
@@ -43,7 +41,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="e">Enumerable collection</param>
 		/// <param name="convert">Converter function</param>
 		/// <returns>List of converted elements</returns>
-		public static List<T2> ConvertAll<T1,T2>(IEnumerable<T1> e, Func<T1, T2> convert) {
+		public static List<T2> ConvertAll<T1, T2>(IEnumerable<T1> e, Func<T1, T2> convert) {
 			List<T2> list = new();
 			foreach (T1 t in e) list.Add(convert(t));
 			return list;

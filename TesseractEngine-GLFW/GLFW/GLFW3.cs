@@ -12,7 +12,7 @@ namespace Tesseract.GLFW {
 
 		public static readonly LibrarySpec LibrarySpec = new() { Name = "glfw3" };
 
-		private static Library library;
+		private static Library? library;
 		public static Library Library {
 			get {
 				if (library == null) library = LibraryManager.Load(LibrarySpec);
@@ -20,7 +20,7 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		private static GLFW3Functions functions;
+		private static GLFW3Functions? functions;
 		public static GLFW3Functions Functions {
 			get {
 				if (functions == null) {
@@ -48,11 +48,11 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		public static string VersionString => MemoryUtil.GetUTF8(Functions.glfwGetVersionString());
+		public static string VersionString => MemoryUtil.GetUTF8(Functions.glfwGetVersionString())!;
 
 		public static (GLFWError, string) GetError() {
 			GLFWError err = Functions.glfwGetError(out IntPtr desc);
-			return (err, MemoryUtil.GetUTF8(desc));
+			return (err, MemoryUtil.GetUTF8(desc)!);
 		}
 
 		public static GLFWErrorFun ErrorCallback {
@@ -90,7 +90,7 @@ namespace Tesseract.GLFW {
 
 		public static bool RawMouseMotionSupported => Functions.glfwRawMouseMotionSupported();
 
-		public static string GetKeyName(GLFWKey key, int scancode) => MemoryUtil.GetUTF8(Functions.glfwGetKeyName(key, scancode));
+		public static string? GetKeyName(GLFWKey key, int scancode) => MemoryUtil.GetUTF8(Functions.glfwGetKeyName(key, scancode));
 
 		public static int GetKeyScancode(GLFWKey key) => Functions.glfwGetKeyScancode(key);
 
@@ -110,9 +110,11 @@ namespace Tesseract.GLFW {
 
 		public static bool UpdateGamepadMappings(string str) => Functions.glfwUpdateGamepadMappings(str);
 
-		public static string ClipboardString {
+		public static string? ClipboardString {
 			get => MemoryUtil.GetUTF8(Functions.glfwGetClipboardString(IntPtr.Zero));
-			set => Functions.glfwSetClipboardString(IntPtr.Zero, value);
+			set {
+				if (value != null) Functions.glfwSetClipboardString(IntPtr.Zero, value);
+			}
 		}
 
 		public static double Time {
@@ -124,7 +126,7 @@ namespace Tesseract.GLFW {
 
 		public static ulong TimerFrequency => Functions.glfwGetTimerFrequency();
 
-		public static GLFWWindow CurrentContext {
+		public static GLFWWindow? CurrentContext {
 			get {
 				IntPtr ctx = Functions.glfwGetCurrentContext();
 				return ctx == IntPtr.Zero ? null : new GLFWWindow(ctx);
@@ -146,7 +148,7 @@ namespace Tesseract.GLFW {
 			get {
 				UnmanagedPointer<IntPtr> pExts = new(Functions.glfwGetRequiredInstanceExtensions(out uint count));
 				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pExts[i]);
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pExts[i])!;
 				return exts;
 			}
 		}

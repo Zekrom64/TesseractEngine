@@ -12,6 +12,7 @@ namespace Tesseract.OpenGL {
 
 		public GL43(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_arrays_of_arrays
 
 		// ARB_ES3_compatibility
@@ -187,6 +188,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public string GetObjectPtrLabel(IntPtr ptr) => GL.KHRDebug.GetObjectPtrLabel(ptr);
+#nullable restore
 
 	}
 

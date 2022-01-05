@@ -202,7 +202,7 @@ namespace Tesseract.SDL {
 		_1010102
 	}
 
-	public struct SDLPixelFormatEnum : IValuedEnum<uint> {
+	public record struct SDLPixelFormatEnum : IValuedEnum<uint> {
 
 		public static uint DefinePixelFourCC(char a, char b, char c, char d) =>
 			(uint)((a & 0xFF) | ((b & 0xFF) << 8) | ((c & 0xFF) << 16) | ((d & 0xFF) << 23));
@@ -369,7 +369,7 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The name of the pixel format.
 		/// </summary>
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GetPixelFormatName(Value));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GetPixelFormatName(Value))!;
 
 		public SDLPixelFormatEnum(uint value) {
 			Value = value;
@@ -377,22 +377,11 @@ namespace Tesseract.SDL {
 
 		public bool ToMasks(out int bpp, out uint rmask, out uint gmask, out uint bmask, out uint amask) => SDL2.Functions.SDL_PixelFormatEnumToMasks(Value, out bpp, out rmask, out gmask, out bmask, out amask);
 
-		public bool Equals(IValuedEnum<uint> e) => Value == e.Value;
-
-		public override bool Equals(object obj) {
-			if (obj is SDLPixelFormatEnum format) return Equals(format);
-			else return false;
-		}
-
-		public override int GetHashCode() => (int)Value;
+		public bool Equals(IValuedEnum<uint>? e) => e != null && Value == e.Value;
 
 		public static implicit operator SDLPixelFormatEnum(uint value) => new(value);
 
 		public static implicit operator uint(SDLPixelFormatEnum format) => format.Value;
-
-		public static bool operator ==(SDLPixelFormatEnum left, SDLPixelFormatEnum right) => left.Equals(right);
-
-		public static bool operator !=(SDLPixelFormatEnum left, SDLPixelFormatEnum right) => !left.Equals(right);
 
 	}
 
@@ -455,7 +444,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Palette != null && !Palette.IsNull) {
 				SDL2.Functions.SDL_FreePalette(Palette.Ptr);
-				Palette = null;
+				Palette = null!;
 			}
 		}
 
@@ -535,7 +524,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (PixelFormat != null && !PixelFormat.IsNull) {
 				SDL2.Functions.SDL_FreeFormat(PixelFormat.Ptr);
-				PixelFormat = null;
+				PixelFormat = null!;
 			}
 		}
 

@@ -11,6 +11,7 @@ namespace Tesseract.OpenGL {
 
 		public GL31(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_draw_instanced
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,6 +80,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UniformBlockBinding(uint program, uint uniformBlockIndex, uint uniformBlockBinding) => GL.ARBUniformBufferObject.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+#nullable restore
 
 	}
 

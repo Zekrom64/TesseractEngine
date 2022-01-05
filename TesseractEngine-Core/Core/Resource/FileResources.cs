@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Resource {
 
@@ -19,7 +17,7 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">File name</param>
 		/// <returns>Extension of the file name, or an empty string if there is none</returns>
-		public static string GetExtensionFromFileName(string name) {
+		public static string? GetExtensionFromFileName(string? name) {
 			if (name == null) return null;
 			string extension = string.Empty;
 			int dotpos = name.LastIndexOf('.');
@@ -35,11 +33,10 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">Name of the resource domain</param>
 		/// <param name="directory">Path to root directory of resource domain</param>
-		public FileResourceDomain(string name, string directory) {
-			Name = name;
+		public FileResourceDomain(string name, string directory) : base(name) {
 			this.directory = Path.GetFullPath(directory);
 		}
-		
+
 		// Converts a resource location to an absolute path to the file
 		private string ToFilePath(ResourceLocation location) => directory + Path.DirectorySeparatorChar + location.Path.Replace('/', Path.DirectorySeparatorChar);
 
@@ -63,8 +60,8 @@ namespace Tesseract.Core.Resource {
 			if (file.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(file));
 
 			FileInfo info = new(ToFilePath(file));
-			string mime = null;
-			if (MIME.TryGuessFromExtension(GetExtensionFromFileName(info.Name), out string type)) mime = type;
+			string? mime = null;
+			if (MIME.TryGuessFromExtension(GetExtensionFromFileName(info.Name), out string? type)) mime = type;
 
 			return new ResourceMetadata() {
 				MIMEType = mime,
@@ -90,20 +87,19 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">Name of the resource domain</param>
 		/// <param name="archive">The Zip archive to target</param>
-		public ZipResourceDomain(string name, ZipArchive archive) {
-			Name = name;
+		public ZipResourceDomain(string name, ZipArchive archive) : base(name) {
 			this.archive = archive;
 		}
 
 		// Gets the zip archive entry for a given resource location within this domain
-		private ZipArchiveEntry ToEntry(ResourceLocation location) => archive.GetEntry(location.Path);
+		private ZipArchiveEntry? ToEntry(ResourceLocation location) => archive.GetEntry(location.Path);
 
 		// Gets the resource location for a given zip archive entry
-		private ResourceLocation FromEntry(ZipArchiveEntry entry) => new (this, entry.FullName);
+		private ResourceLocation FromEntry(ZipArchiveEntry entry) => new(this, entry.FullName);
 
 		// Does the actual directory enumeration
 		private IEnumerable<ResourceLocation> DoEnumerateDirectory(ResourceLocation dir) {
-			foreach(ZipArchiveEntry entry in archive.Entries) {
+			foreach (ZipArchiveEntry entry in archive.Entries) {
 				ResourceLocation location = FromEntry(entry);
 				if (location.Parent == dir) yield return location;
 			}
@@ -111,7 +107,7 @@ namespace Tesseract.Core.Resource {
 
 		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) {
 			if (dir.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(dir));
-			if (cachedDirectories.TryGetValue(dir, out List<ResourceLocation> entries)) return entries;
+			if (cachedDirectories.TryGetValue(dir, out List<ResourceLocation>? entries)) return entries;
 			entries = DoEnumerateDirectory(dir).ToList();
 			cachedDirectories[dir] = entries;
 			return entries;
@@ -119,19 +115,21 @@ namespace Tesseract.Core.Resource {
 
 		public override Stream OpenStream(ResourceLocation file) {
 			if (file.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(file));
-			return ToEntry(file).Open();
+			ZipArchiveEntry? entry = ToEntry(file);
+			if (entry == null) throw new IOException("Cannot open stream on a resource that does not exist");
+			return entry.Open();
 		}
 
 		public override ResourceMetadata GetMetadata(ResourceLocation file) {
 			if (file.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(file));
 
-			ZipArchiveEntry entry = ToEntry(file);
-			string mime = null;
-			if (MIME.TryGuessFromExtension(FileResourceDomain.GetExtensionFromFileName(entry.Name), out string type)) mime = type;
+			ZipArchiveEntry? entry = ToEntry(file);
+			string? mime = null;
+			if (entry != null && MIME.TryGuessFromExtension(FileResourceDomain.GetExtensionFromFileName(entry.Name), out string? type)) mime = type;
 
 			return new ResourceMetadata() {
 				MIMEType = mime,
-				Size = entry.Length,
+				Size = entry != null ? entry.Length : -1,
 				Local = true
 			};
 		}

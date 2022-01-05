@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Audio {
-	
+
 	/// <summary>
 	/// Enumeration of audio sample formats.
 	/// </summary>
@@ -38,13 +35,21 @@ namespace Tesseract.Core.Audio {
 	/// </summary>
 	public enum AudioChannel {
 		/// <summary>
+		/// An undefined audio channel. Used as a placeholder for channels whose type is not known.
+		/// </summary>
+		Undefined,
+		/// <summary>
 		/// Left channel.
 		/// </summary>
 		Left,
 		/// <summary>
 		/// Right channel.
 		/// </summary>
-		Right
+		Right,
+		/// <summary>
+		/// Center channel.
+		/// </summary>
+		Center
 	}
 
 	/// <summary>
@@ -70,7 +75,7 @@ namespace Tesseract.Core.Audio {
 		/// The list of channels in this format, in the order they are stored either in individual streams for planar formats or
 		/// by their ordering in a block of samples for interleaved formats.
 		/// </summary>
-		public IReadOnlyList<AudioChannel> Channels { get; init; }
+		public IReadOnlyList<AudioChannel> Channels { get; init; } = Collections<AudioChannel>.EmptyList;
 
 		/// <summary>
 		/// If the audio is accessed in a planar manner, with each channel supplied in an independent stream of samples. Otherwise,

@@ -11,6 +11,7 @@ namespace Tesseract.OpenGL {
 
 		public GL40(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_texture_query_lod
 
 		// ARB_draw_buffers_blend
@@ -145,6 +146,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetQueryIndexed(GLQueryTarget target, uint index, GLGetQuery pname) => GL.ARBTransformFeedback3.GetQueryIndexed(target, index, pname);
+#nullable restore
 
 	}
 

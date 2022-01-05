@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Services;
+﻿using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Core.Graphics.Engine {
 

@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Sampler;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKSampler(VKDevice device, ulong sampler, VulkanAllocationCallbacks allocator) {
+		public VKSampler(VKDevice device, ulong sampler, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Sampler = sampler;
 			Allocator = allocator;
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKSampler sampler) => sampler != null ? sampler.Sampler : 0;
+		public static implicit operator ulong(VKSampler? sampler) => sampler != null ? sampler.Sampler : 0;
 
 	}
 

@@ -39,6 +39,7 @@ namespace Tesseract.OpenGL.Native {
 	using cl_context = IntPtr;
 	using cl_event = IntPtr;
 
+#nullable disable
 	public class ARBES2CompatibilityFunctions {
 
 		public PFN_glClearDepthfARB glClearDepthfARB;
@@ -276,5 +277,7 @@ namespace Tesseract.OpenGL.Native {
 
 	public delegate void PFN_glDrawArraysInstancedARB(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
 	public delegate void PFN_glDrawElementsInstancedARB(GLenum mode, GLsizei count, GLenum type, IntPtr indices, GLsizei primcount);
+
+#nullable restore
 
 }

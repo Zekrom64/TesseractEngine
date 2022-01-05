@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 
@@ -22,7 +18,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		Buffered
 	}
-	
+
 	/// <summary>
 	/// A command sink is an object that can receive commands for accelerated graphics.
 	/// </summary>
@@ -254,7 +250,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// Byte offset of the region in the source buffer.
 			/// </summary>
 			public nuint SrcOffset { get; init; }
-			
+
 			/// <summary>
 			/// Byte offset of the region in the destination buffer.
 			/// </summary>
@@ -378,18 +374,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data);
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions);
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region);
-
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
-
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions);
-
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region);
-
 		public readonly struct ClearColorValue {
 
 			public PixelFormat Format { get; init; }
@@ -401,6 +385,18 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			public Vector4ui UInt32 { get; init; }
 
 		}
+
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions);
+
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions);
+
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region);
+
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
+
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions);
+
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region);
 
 		public readonly struct ClearValue {
 
@@ -453,6 +449,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="finalLayout">The final layout of the texture</param>
 		/// <param name="filter">The filtering method to use for minification, or null to use a default method</param>
 		public void GenerateMipmaps(ITexture dst, TextureLayout initialLayout, TextureLayout finalLayout, TextureFilter? filter = null);
+
+		/// <summary>
+		/// Copies a region from one framebuffer attachment to another, potentially performing scaling or format conversion. This is effectively the same as blitting
+		/// between the underlying framebuffer images, but will be applied using the texture views used as attachments (including format reinterpretation, component
+		/// mapping, subresource range) and it will always be done in 2D. Note that this requires the textures used as attachments to be created with transfer source
+		/// and destination usages.
+		/// </summary>
+		/// <param name="dst">Destination framebuffer</param>
+		/// <param name="dstAttachment">Destination framebuffer attachment</param>
+		/// <param name="dstLayout">Destination texture layout</param>
+		/// <param name="dstArea">Destination area</param>
+		/// <param name="src">Source framebuffer</param>
+		/// <param name="srcAttachment">Source framebuffer attachment</param>
+		/// <param name="srcLayout">Source texture layout</param>
+		/// <param name="srcArea">Source area</param>
+		/// <param name="aspect">Bitmask of aspects to copy</param>
+		/// <param name="filter">Filter to apply during scaling</param>
+		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter);
 
 		//===================================//
 		// Synchronization / Memory Barriers //
@@ -729,7 +743,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// A command buffer stores a list of commands that can be submitted for execution.
 	/// </summary>
 	public interface ICommandBuffer : IDisposable {
-		
+
 		/// <summary>
 		/// An opaque ID identifying the queue that the command buffer must be submitted to.
 		/// </summary>

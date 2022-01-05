@@ -17,7 +17,7 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Buffer;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VKMemoryRequirements MemoryRequirements {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +49,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKBuffer(VKDevice device, ulong buffer, VulkanAllocationCallbacks allocator) {
+		public VKBuffer(VKDevice device, ulong buffer, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Buffer = buffer;
 			Allocator = allocator;
@@ -65,7 +65,7 @@ namespace Tesseract.Vulkan {
 			VK.CheckError(Device.VK10Functions.vkBindBufferMemory(Device, Buffer, memory, memoryOffset), "Failed to bind buffer memory");
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKBuffer buffer) => buffer != null ? buffer.Buffer : 0;
+		public static implicit operator ulong(VKBuffer? buffer) => buffer != null ? buffer.Buffer : 0;
 
 	}
 

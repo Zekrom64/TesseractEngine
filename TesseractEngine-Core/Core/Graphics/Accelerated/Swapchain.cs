@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -22,16 +18,59 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
+	/// Enumeration of swapchain presentation modes. These determine how images/frames are managed
+	/// by the swapchain.
+	/// </summary>
+	public enum SwapchainPresentMode {
+		/// <summary>
+		/// Images are acquired and presented in a first-in-first-out manner; images are acquired
+		/// sequentially and will be presented seqentially, blocking until an image is available or
+		/// presentation is ready. This is equivalent to a "V-sync enabled" mode, and screen tearing
+		/// will be prevented but if a frame is late for presentation submission will block until
+		/// the next refresh period.
+		/// </summary>
+		FIFO,
+		/// <summary>
+		/// Images are acquired and presented immediately, regardless of whether presentation has
+		/// finished on the previous frame. This puts no limit on how fast frames can be presented
+		/// but will likely cause screen tearing. This is equivalent to a "V-sync disabled" mode.
+		/// </summary>
+		Immediate,
+		/// <summary>
+		/// Similar to <see cref="FIFO"/>, but late frame submissions will be accepted immediately.
+		/// When presentation is on-time (faster than the refresh rate) this will act like
+		/// <see cref="FIFO"/>, but when presentation is late (slower than the refresh rate) this will
+		/// act like <see cref="Immediate"/>.
+		/// </summary>
+		RelaxedFIFO,
+		/// <summary>
+		/// <para>
+		/// Similar to <see cref="FIFO"/>, but a special "mailbox" slot is reserved that stores the
+		/// next image for presentation. If a new image is ready for presentation before the currently
+		/// presented image is released, it will enter the mailbox and release any image already there
+		/// for reuse. This allows rendering at higher framerates than a display may be able to present
+		/// without causing screen tearing. This is equivalent to "triple-buffering" in other systems.
+		/// </para>
+		/// <para>
+		///	While some implementations may support using this explicitly if available, some such as
+		///	OpenGL will only enable this if requested by the driver and will not publicly advertise
+		///	support.
+		/// </para>
+		/// </summary>
+		Mailbox
+	}
+
+	/// <summary>
 	/// Interface for objects that may be swapchain images.
 	/// </summary>
 	public interface ISwapchainImage { }
-	
+
 	/// <summary>
 	/// A swapchain contains a set of images that are used for presentation to a display surface.
 	/// Swapchains are created in an implementation-defined manner for different accelerated
 	/// graphics backends, but this interface serves as a backend-agnostic way of using them.
 	/// </summary>
-	public interface ISwapchain {
+	public interface ISwapchain : IDisposable {
 
 		/// <summary>
 		/// The size of the images in the swapchain.
@@ -73,17 +112,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </para>
 		/// </summary>
 		public event Action OnRebuild;
-
-		/// <summary>
-		/// Flag indicating if the next frame should be captured.
-		/// </summary>
-		public bool CaptureNextImage { set; get; }
-
-		/// <summary>
-		/// Event invoked when a frame is captured. The image must be disposed manually
-		/// after the event is invoked.
-		/// </summary>
-		public event Action<IImage> OnCapture;
 
 		/// <summary>
 		/// The list of all the images in the swapchain. All of the images will have a common

@@ -19,6 +19,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class EXTExtendedDynamicStateDeviceFunctions {
 
 		public delegate void PFN_vkCmdSetCullModeEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKCullModeFlagBits cullMode);
@@ -50,6 +51,7 @@ namespace Tesseract.Vulkan {
 		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions fn) => fn != null;
 
 	}
+#nullable restore
 
 	public static class EXTExtendedDynamicState {
 

@@ -17,7 +17,7 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => PipelineCache;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public byte[] Data {
 			get {
@@ -33,7 +33,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKPipelineCache(VKDevice device, ulong pipelineCache, VulkanAllocationCallbacks allocator) {
+		public VKPipelineCache(VKDevice device, ulong pipelineCache, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			PipelineCache = pipelineCache;
 			Allocator = allocator;
@@ -63,7 +63,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKPipelineCache pipelineCache) => pipelineCache != null ? pipelineCache.PipelineCache : 0;
+		public static implicit operator ulong(VKPipelineCache? pipelineCache) => pipelineCache != null ? pipelineCache.PipelineCache : 0;
 
 	}
 

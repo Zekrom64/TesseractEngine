@@ -11,6 +11,7 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class KHRDebugFunctions {
 
 		public delegate void PFN_glDebugMessageControl(uint source, uint type, uint severity, int count, [NativeType("const GLuint*")] IntPtr ids, byte enabled);
@@ -41,6 +42,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetObjectPtrLabel glGetObjectPtrLabel;
 
 	}
+#nullable restore
 
 	public class KHRDebug : IGLObject {
 
@@ -90,7 +92,7 @@ namespace Tesseract.OpenGL {
 					}
 				}
 			}
-			messageLog = MemoryUtil.GetUTF8(msglog.Ptr);
+			messageLog = MemoryUtil.GetUTF8(msglog.Ptr)!;
 			return ret;
 		}
 

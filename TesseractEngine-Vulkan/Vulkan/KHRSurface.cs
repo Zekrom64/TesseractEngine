@@ -79,6 +79,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class KHRSurfaceInstanceFunctions {
 
 		public delegate void PFN_vkDestroySurfaceKHR(IntPtr instance, ulong surface, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator);
@@ -94,6 +95,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR;
 
 	}
+#nullable restore
 
 	public static class KHRSurface {
 
@@ -109,9 +111,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => SurfaceKHR;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKSurfaceKHR(VKInstance instance, ulong surface, VulkanAllocationCallbacks allocator) {
+		public VKSurfaceKHR(VKInstance instance, ulong surface, VulkanAllocationCallbacks? allocator) {
 			Instance = instance;
 			SurfaceKHR = surface;
 			Allocator = allocator;
@@ -119,7 +121,7 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.KHRSurfaceFunctions.vkDestroySurfaceKHR(Instance, SurfaceKHR, Allocator);
+			Instance.KHRSurfaceFunctions!.vkDestroySurfaceKHR(Instance, SurfaceKHR, Allocator);
 		}
 
 		public static implicit operator ulong(VKSurfaceKHR surface) => surface != null ? surface.SurfaceKHR : 0;

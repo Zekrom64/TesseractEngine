@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBSamplerObjectsFunctions {
 
 		public delegate void PFN_glGenSamplers(int count, [NativeType("GLuint*")] IntPtr samplers);
@@ -54,6 +55,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetSamplerParameterIuiv glGetSamplerParameterIuiv;
 
 	}
+#nullable restore
 
 	public class ARBSamplerObjects {
 		

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTransformFeedbackFunctions {
 
 		public delegate void PFN_glBindBufferRange(uint target, uint index, uint buffer, nint offset, nint size);
@@ -33,6 +34,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetTransformFeedbackVarying glGetTransformFeedbackVarying;
 
 	}
+#nullable restore
 
 	public class ARBTransformFeedback : IGLObject {
 

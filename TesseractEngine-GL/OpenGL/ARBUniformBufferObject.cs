@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBUniformBufferObjectFunctions {
 
 		public delegate void PFN_glGetUniformIndices(uint program, int uniformCount, [NativeType("const char* const*")] IntPtr uniformNames, [NativeType("GLuint*")] IntPtr uniformIndices);
@@ -43,6 +44,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glUniformBlockBinding glUniformBlockBinding;
 
 	}
+#nullable restore
 
 	public class ARBUniformBufferObject : IGLObject {
 

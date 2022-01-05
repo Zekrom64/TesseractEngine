@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBVertexArrayObjectFunctions {
 
 		public delegate void PFN_glBindVertexArray(uint array);
@@ -24,6 +25,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glIsVertexArray glIsVertexArray;
 
 	}
+#nullable restore
 
 	public class ARBVertexArrayObject {
 

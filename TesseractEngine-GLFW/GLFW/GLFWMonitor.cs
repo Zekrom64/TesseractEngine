@@ -9,7 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.GLFW {
 
-	public struct GLFWMonitor : IEquatable<GLFWMonitor> {
+	public record struct GLFWMonitor : IEquatable<GLFWMonitor> {
 
 		[NativeType("GLFWmonitor*")]
 		public IntPtr Monitor { get; init; }
@@ -46,7 +46,7 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		public string Name => Monitor == IntPtr.Zero ? null : MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
+		public string? Name => Monitor == IntPtr.Zero ? null : MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetMonitorName(Monitor));
 
 		public IntPtr UserPointer {
 			get => Monitor == IntPtr.Zero ? IntPtr.Zero : GLFW3.Functions.glfwGetMonitorUserPointer(Monitor);
@@ -79,16 +79,6 @@ namespace Tesseract.GLFW {
 				if (Monitor != IntPtr.Zero) GLFW3.Functions.glfwSetGammaRamp(Monitor, value);
 			}
 		}
-
-		public static bool operator ==(GLFWMonitor m1, GLFWMonitor m2) => m1.Monitor == m2.Monitor;
-
-		public static bool operator !=(GLFWMonitor m1, GLFWMonitor m2) => m1.Monitor != m2.Monitor;
-
-		public bool Equals(GLFWMonitor m) => Monitor == m.Monitor;
-
-		public override bool Equals(object o) => o is GLFWMonitor m && Equals(m);
-
-		public override int GetHashCode() => Monitor.GetHashCode();
 
 		public static implicit operator bool(GLFWMonitor monitor) => monitor.Monitor != IntPtr.Zero;
 

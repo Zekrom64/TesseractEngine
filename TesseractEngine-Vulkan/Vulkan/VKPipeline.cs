@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Pipeline;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKPipeline(VKDevice device, ulong pipeline, VulkanAllocationCallbacks allocator) {
+		public VKPipeline(VKDevice device, ulong pipeline, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Pipeline = pipeline;
 			Allocator = allocator;
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKPipeline pipeline) => pipeline != null ? pipeline.Pipeline : 0;
+		public static implicit operator ulong(VKPipeline? pipeline) => pipeline != null ? pipeline.Pipeline : 0;
 
 	}
 

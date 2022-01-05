@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace Tesseract.Core.Media {
-	
+
 	/// <summary>
 	/// A media system controlls encoding & decoding of multimedia files.
 	/// </summary>
@@ -20,14 +15,14 @@ namespace Tesseract.Core.Media {
 		public bool CanDecode(string mimeType);
 
 		//public bool CanEncode(string mimeType);
-		
+
 		/// <summary>
 		/// Opens a stream in decoding mode using a standard IO stream as a source.
 		/// </summary>
 		/// <param name="source">Source stream</param>
 		/// <param name="preferenceInfo">The preferred media info to use during decoding, or null to use the defaults</param>
 		/// <returns>Media stream</returns>
-		public IMediaStream Decode(Stream source, MediaInfo preferenceInfo = null);
+		public IMediaStream Decode(Stream source, MediaInfo? preferenceInfo = null);
 
 		//public IMediaStream Encode(Stream destination, MediaInfo info);
 

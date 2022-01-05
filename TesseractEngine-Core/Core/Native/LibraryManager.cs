@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Tesseract.Core.Native {
 
 	public delegate string NativeLibraryLocator(string name);
-	
-	public class LibrarySpec {
 
-		public string Name { get; init; }
-		public LibrarySpec[] Dependencies { get; init; }
+	public record LibrarySpec {
+
+		public string Name { get; init; } = string.Empty;
+		public LibrarySpec[] Dependencies { get; init; } = Array.Empty<LibrarySpec>();
 
 	}
 
 	public class Library {
 
-		public static void LoadFunctions(Func<string,IntPtr> loader, object funcs) {
+		public static void LoadFunctions(Func<string, IntPtr> loader, object funcs) {
 			foreach (var field in funcs.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)) {
-				ExternFunctionAttribute efa = field.GetCustomAttribute<ExternFunctionAttribute>();
+				ExternFunctionAttribute? efa = field.GetCustomAttribute<ExternFunctionAttribute>();
 				if (efa != null) {
 					if (efa.Manual) continue;
 					if (efa.Platform != default && efa.Platform != Platform.CurrentPlatformType) continue;
@@ -32,13 +29,13 @@ namespace Tesseract.Core.Native {
 				string name = field.Name;
 				IntPtr pfn = loader(name);
 				if (pfn == IntPtr.Zero && efa?.AltNames != null) {
-					foreach(string altname in efa.AltNames) {
+					foreach (string altname in efa.AltNames) {
 						pfn = loader(altname);
 						if (pfn != IntPtr.Zero) break;
 					}
 				}
 				if (pfn == IntPtr.Zero && (efa == null || !efa.Relaxed)) throw new InvalidOperationException($"Could not load function \"{name}\"");
-				Delegate del = null;
+				Delegate? del = null;
 				if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, delegateType);
 				field.SetValue(funcs, del);
 			}
@@ -82,13 +79,13 @@ namespace Tesseract.Core.Native {
 				_ => ""
 			};
 			path += name;
-			string extension = Platform.CurrentPlatform?.NativeLibraryExtension;
+			string? extension = Platform.CurrentPlatform?.NativeLibraryExtension;
 			if (extension != null) path += "." + extension;
 			return path;
 		};
 
 		public static Library Load(LibrarySpec spec) {
-			if (!loadedLibraries.TryGetValue(spec.Name, out Library library)) {
+			if (!loadedLibraries.TryGetValue(spec.Name, out Library? library)) {
 				if (spec.Dependencies != null)
 					foreach (LibrarySpec subspec in spec.Dependencies) Load(subspec);
 				library = new Library(NativeLibrary.Load(Locator(spec.Name)));

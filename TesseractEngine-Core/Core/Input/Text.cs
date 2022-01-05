@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Input {
-	
+
 	/// <summary>
 	/// A text input event is fired when text input is to be appended.
 	/// </summary>
@@ -37,7 +33,7 @@ namespace Tesseract.Core.Input {
 		/// The modified text to replace with.
 		/// </summary>
 		public string Text;
-		
+
 	}
 
 	/// <summary>

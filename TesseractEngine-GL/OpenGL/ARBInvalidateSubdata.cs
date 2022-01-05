@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBInvalidateSubdataFunctions {
 
 		public delegate void PFN_glInvalidateTexSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth);
@@ -31,6 +32,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glInvalidateSubFramebuffer glInvalidateSubFramebuffer;
 
 	}
+#nullable restore
 
 	public class ARBInvalidateSubdata : IGLObject {
 
@@ -64,7 +66,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void InvalidateFramebuffer(GLFramebufferTarget target, params GLFramebufferAttachment[] attachments) {
+			unsafe {
+				fixed (GLFramebufferAttachment* pAttachments = attachments) {
+					Functions.glInvalidateFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void InvalidateSubFramebuffer(GLFramebufferTarget target, in ReadOnlySpan<GLFramebufferAttachment> attachments, Recti area) {
+			unsafe {
+				fixed (GLFramebufferAttachment* pAttachments = attachments) {
+					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void InvalidateSubFramebuffer(GLFramebufferTarget target, Recti area, params GLFramebufferAttachment[] attachments) {
 			unsafe {
 				fixed (GLFramebufferAttachment* pAttachments = attachments) {
 					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);

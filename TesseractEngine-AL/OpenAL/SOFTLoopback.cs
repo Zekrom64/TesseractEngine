@@ -26,7 +26,8 @@ namespace Tesseract.OpenAL {
 		_6Point1 = 0x1505,
 		_7Point1 = 0x1506
 	}
-	
+
+#nullable disable
 	public class SOFTLoopbackFunctions {
 
 		[return: NativeType("ALCdevice*")]
@@ -39,6 +40,7 @@ namespace Tesseract.OpenAL {
 		public PFN_alcRenderSamplesSOFT alcRenderSamplesSOFT;
 
 	}
+#nullable restore
 
 	public class SOFTLoopback {
 

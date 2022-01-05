@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract.Core.Util;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Math {
 
@@ -15,17 +11,17 @@ namespace Tesseract.Core.Math {
 		public T1 X { get; }
 
 		public T2 Y { get; }
-		
+
 	}
 
-	public interface IReadOnlyTuple<T1, T2, T3> : IReadOnlyTuple<T1,T2> { 
-	
+	public interface IReadOnlyTuple<T1, T2, T3> : IReadOnlyTuple<T1, T2> {
+
 		public T3 Z { get; }
 
 	}
 
 	public interface IReadOnlyTuple<T1, T2, T3, T4> : IReadOnlyTuple<T1, T2, T3> {
-		
+
 		public T4 W { get; }
 
 	}
@@ -136,9 +132,9 @@ namespace Tesseract.Core.Math {
 
 	// Tuple2
 
-	public interface IReadOnlyTuple2<T> : IReadOnlyTuple<T, T>,  IReadOnlyIndexer<int,T> { }
+	public interface IReadOnlyTuple2<T> : IReadOnlyTuple<T, T>, IReadOnlyIndexer<int, T> { }
 
-	public interface ITuple2<T> : IReadOnlyTuple2<T>, ITuple<T, T>, IIndexer<int,T> { }
+	public interface ITuple2<T> : IReadOnlyTuple2<T>, ITuple<T, T>, IIndexer<int, T> { }
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple2<T> : ITuple2<T> {
@@ -164,7 +160,7 @@ namespace Tesseract.Core.Math {
 			get => key switch {
 				0 => X,
 				1 => Y,
-				_ => default
+				_ => throw new IndexOutOfRangeException()
 			};
 			set {
 				switch (key) {
@@ -218,7 +214,7 @@ namespace Tesseract.Core.Math {
 				0 => X,
 				1 => Y,
 				2 => Z,
-				_ => default
+				_ => throw new IndexOutOfRangeException()
 			};
 			set {
 				switch (key) {
@@ -277,7 +273,7 @@ namespace Tesseract.Core.Math {
 				1 => Y,
 				2 => Z,
 				3 => W,
-				_ => default
+				_ => throw new IndexOutOfRangeException()
 			};
 			set {
 				switch (key) {

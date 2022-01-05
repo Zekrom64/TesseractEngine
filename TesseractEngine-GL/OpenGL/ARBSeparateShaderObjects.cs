@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBSeparateShaderObjectsFunctions {
 
 		public delegate void PFN_glUseProgramStages(uint pipeline, uint stages, uint program);
@@ -48,6 +49,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetProgramPipelineInfoLog glGetProgramPipelineInfoLog;
 
 	}
+#nullable restore
 
 	public class ARBSeparateShaderObjects : IGLObject {
 

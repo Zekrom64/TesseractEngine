@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class KHRRobustnessFunctions {
 
 		public delegate uint PFN_glGetGraphicsResetStatus();
@@ -22,6 +23,7 @@ namespace Tesseract.OpenGL {
 		// glGetnUniformuiv
 
 	}
+#nullable restore
 
 	public class KHRRobustness : IGLObject {
 

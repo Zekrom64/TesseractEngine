@@ -17,6 +17,7 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_buffer_device_address
 
+#nullable disable
 	public class KHRBufferDeviceAddressDeviceFunctions {
 
 		[return: NativeType("VkDeviceAddress")]
@@ -29,6 +30,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR vkGetDeviceMemoryOpaqueCaptureAddressKHR;
 
 	}
+#nullable restore
 
 	public static class KHRBufferDeviceAddress {
 
@@ -38,6 +40,7 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_create_renderpass2
 
+#nullable disable
 	public class KHRCreateRenderpass2DeviceFunctions {
 
 		public delegate void PFN_vkCmdBeginRenderPass2KHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
@@ -51,6 +54,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR;
 
 	}
+#nullable restore
 
 	public static class KHRCreateRenderpass2 {
 
@@ -68,6 +72,7 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_draw_indirect_count
 
+#nullable disable
 	public class KHRDrawIndirectCountDeviceFunctions {
 
 		public delegate void PFN_vkCmdDrawIndexedIndirectCountKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, [NativeType("VkBuffer")] ulong buffer, ulong offset, [NativeType("VkBuffer")] ulong countBuffer, ulong countBufferOffset, uint maxDrawCount, uint stride);
@@ -77,6 +82,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkCmdDrawIndirectCountKHR vkCmdDrawIndirectCountKHR;
 
 	}
+#nullable restore
 
 	public static class KHRDrawIndirectCount {
 
@@ -166,6 +172,7 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_timeline_semaphore
 
+#nullable disable
 	public class KHRTimelineSemaphoreDeviceFunctions {
 
 		public delegate VKResult PFN_vkGetSemaphoreCounterValueKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSemaphore")] ulong semaphore, out ulong value);
@@ -177,6 +184,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkWaitSemaphoresKHR vkWaitSemaphoresKHR;
 
 	}
+#nullable restore
 
 	public static class KHRTimelineSemaphore {
 
@@ -210,6 +218,7 @@ namespace Tesseract.Vulkan {
 
 	// VK_EXT_host_query_reset
 
+#nullable disable
 	public class EXTHostQueryResetDeviceFunctions {
 
 		public delegate void PFN_vkResetQueryPoolEXT([NativeType("VkDevice")] IntPtr device, [NativeType("VkQueryPool")] ulong queryPool, uint firstQuery, uint queryCount);
@@ -217,6 +226,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkResetQueryPoolEXT vkResetQueryPoolEXT;
 
 	}
+#nullable restore
 
 	public static class EXTHostQueryReset {
 

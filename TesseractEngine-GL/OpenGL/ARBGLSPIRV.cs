@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBGLSPIRVFunctions {
 
 		public delegate void PFN_glSpecializeShader(uint shader, [MarshalAs(UnmanagedType.LPStr)] string entryPoint, uint numSpecializationConstants, [NativeType("const GLuint*")] IntPtr pConstantIndex, [NativeType("const GLuint*")] IntPtr pConstantValue);
@@ -16,6 +17,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glSpecializeShader glSpecializeShader;
 
 	}
+#nullable restore
 
 	public class ARBGLSPIRV : IGLObject {
 

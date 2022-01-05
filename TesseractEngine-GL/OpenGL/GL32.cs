@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class GL32Functions {
 
 		public delegate void PFN_glGetBufferParameteri64v(uint target, uint value, out long data);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetBufferParameteri64v glGetBufferParameteri64v;
 
 	}
+#nullable restore
 
 	public class GL32 : GL31 {
 
@@ -30,6 +32,7 @@ namespace Tesseract.OpenGL {
 			return value;
 		}
 
+#nullable disable
 		// ARB_compatibility
 
 		// ARB_vertex_array_bgra
@@ -85,7 +88,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteSync(nuint sync) => GL.ARBSync.DeleteSync(sync);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => GL.ARBSync.ClientWaitSync(sync, flags, timeout);
+		public GLWaitResult ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => GL.ARBSync.ClientWaitSync(sync, flags, timeout);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void WaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => GL.ARBSync.WaitSync(sync, flags, timeout);
@@ -95,6 +98,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetSync(nuint sync, GLGetSync pname) => GL.ARBSync.GetSync(sync, pname);
+#nullable restore
 
 	}
 

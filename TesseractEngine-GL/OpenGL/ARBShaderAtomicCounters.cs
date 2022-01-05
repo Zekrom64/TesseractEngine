@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBShaderAtomicCountersFunctions {
 
 		public delegate void PFN_glGetActiveAtomicCounterBufferiv(uint program, uint bufferIndex, uint pname, [NativeType("GLint*")] IntPtr _params);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetActiveAtomicCounterBufferiv glGetActiveAtomicCounterBufferiv;
 
 	}
+#nullable restore
 
 	public class ARBShaderAtomicCounters {
 

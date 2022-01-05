@@ -11,6 +11,7 @@ namespace Tesseract.OpenGL {
 
 		public GL42(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_texture_compression_bptc
 
 		// ARB_compressed_texture_pixel_storage
@@ -70,6 +71,7 @@ namespace Tesseract.OpenGL {
 		// ARB_map_buffer_alignment
 
 		// ARB_shading_language_packing
+#nullable restore
 
 	}
 

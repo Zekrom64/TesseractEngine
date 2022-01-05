@@ -40,9 +40,15 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		public string Name => MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetJoystickName(ID));
+		public string? Name => MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetJoystickName(ID));
 
-		public Guid GUID => Guid.Parse(MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetJoystickGUID(ID)));
+		public Guid? GUID {
+			get {
+				string? str = MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetJoystickGUID(ID));
+				if (str == null) return null;
+				return Guid.Parse(str);
+			}
+		}
 
 		public IntPtr UserPointer {
 			get => GLFW3.Functions.glfwGetJoystickUserPointer(ID);
@@ -51,7 +57,7 @@ namespace Tesseract.GLFW {
 
 		public bool IsGamepad => GLFW3.Functions.glfwJoystickIsGamepad(ID);
 
-		public string GamepadName => MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetGamepadName(ID));
+		public string? GamepadName => MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetGamepadName(ID));
 
 		public GLFWGamepadState? GamepadState {
 			get {

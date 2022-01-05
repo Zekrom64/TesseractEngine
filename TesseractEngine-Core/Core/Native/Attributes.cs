@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Native {
 
@@ -29,7 +25,7 @@ namespace Tesseract.Core.Native {
 		/// <summary>
 		/// A list of alternative names to attempt to load the function with.
 		/// </summary>
-		public string[] AltNames { get; init; } = null;
+		public string[]? AltNames { get; init; } = null;
 
 		/// <summary>
 		/// If the function should be manually loaded. If true this field will be ignored by

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBDirectStateAccessFunctions {
 
 		public delegate void PFN_glCreateTransformFeedbacks(int n, [NativeType("GLuint*")] IntPtr ids);
@@ -308,6 +310,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetQueryBufferObjectui64v glGetQueryBufferObjectui64v;
 
 	}
+#nullable restore
 
 	public class ARBDirectStateAccess : IGLObject {
 
@@ -672,6 +675,13 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, Vector4i value) {
+			unsafe {
+				Functions.glClearNamedFramebufferiv(framebuffer, (uint)buffer, drawbuffer, (IntPtr)(&value));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, in ReadOnlySpan<uint> value) {
 			unsafe {
 				fixed (uint* pValue = value) {
@@ -681,11 +691,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, Vector4ui value) {
+			unsafe {
+				Functions.glClearNamedFramebufferuiv(framebuffer, (uint)buffer, drawbuffer, (IntPtr)(&value));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, in ReadOnlySpan<float> value) {
 			unsafe {
 				fixed (float* pValue = value) {
 					Functions.glClearNamedFramebufferfv(framebuffer, (uint)buffer, drawbuffer, (IntPtr)pValue);
 				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, Vector4 value) {
+			unsafe {
+				Functions.glClearNamedFramebufferfv(framebuffer, (uint)buffer, drawbuffer, (IntPtr)(&value));
 			}
 		}
 

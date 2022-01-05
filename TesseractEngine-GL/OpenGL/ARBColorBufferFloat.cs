@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBColorBufferFloatFunctions {
 
 		public delegate void PFN_glClampColor(uint target, uint clamp);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glClampColor glClampColor;
 
 	}
+#nullable restore
 
 	public class ARBColorBufferFloat : IGLObject {
 

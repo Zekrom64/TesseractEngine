@@ -68,9 +68,9 @@ namespace Tesseract.Core.Math {
 			W = tuple.W;
 		}
 
-		public bool Equals(IReadOnlyTuple4<uint> other) => X == other.X && Y == other.Y && Z == other.Z && W == other.W;
+		public bool Equals(IReadOnlyTuple4<uint>? other) => other != null && X == other.X && Y == other.Y && Z == other.Z && W == other.W;
 
-		public override bool Equals(object obj) => obj is IReadOnlyTuple4<uint> other && Equals(other);
+		public override bool Equals(object? obj) => obj is IReadOnlyTuple4<uint> other && Equals(other);
 
 		public override int GetHashCode() => (int)(X ^ (Y << 8) ^ (Z << 16) ^ (W << 24));
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTextureStorageMultisampleFunctions {
 
 		public delegate void PFN_glTexStorage2DMultisample(uint target, int samples, uint internalFormat, int width, int height, byte fixedSampleLocations);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glTexStorage3DMultisample glTexStorage3DMultisample;
 
 	}
+#nullable restore
 
 	public class ARBTextureStorageMultisample : IGLObject {
 

@@ -12,6 +12,7 @@ namespace Tesseract.GLFW.Native {
 
 	using XID = UIntPtr;
 
+#nullable disable
 	public class GLFW3Functions {
 
 		// glfw3.h
@@ -438,5 +439,6 @@ namespace Tesseract.GLFW.Native {
 		public PFN_glfwGetOSMesaContext glfwGetOSMesaContext;
 
 	}
+#nullable restore
 
 }

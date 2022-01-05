@@ -195,6 +195,7 @@ namespace Tesseract.OpenAL {
 		Square = 2
 	}
 
+#nullable disable
 	public class EXTEFXFunctions {
 
 		public delegate void PFN_alGenEffects(int n, [NativeType("ALuint*")] IntPtr effects);
@@ -270,6 +271,7 @@ namespace Tesseract.OpenAL {
 		public PFN_alGetAuxiliaryEffectSlotfv alGetAuxiliaryEffectSlotfv;
 
 	}
+#nullable restore
 
 	public class EXTEFX {
 
@@ -458,6 +460,7 @@ namespace Tesseract.OpenAL {
 		public AL AL { get; }
 		public uint Effect { get; }
 
+#nullable disable
 		public ALEffectType Type {
 			get {
 				AL.EXTEFX.Functions.alGetEffecti(Effect, (int)ALEffectAttrib.Type, out int value);
@@ -509,6 +512,7 @@ namespace Tesseract.OpenAL {
 		public void SetParam(ALEffectParameter param, bool value) {
 			AL.EXTEFX.Functions.alEffecti(Effect, (int)ALEffectAttrib.FirstParameter + (int)param, value ? 1 : 0);
 		}
+#nullable restore
 
 	}
 
@@ -517,6 +521,7 @@ namespace Tesseract.OpenAL {
 		public AL AL { get; }
 		public uint Filter { get; }
 
+#nullable disable
 		public ALFilterType Type {
 			get {
 				AL.EXTEFX.Functions.alGetFilteri(Filter, (int)ALFilterAttrib.Type, out int value);
@@ -564,6 +569,7 @@ namespace Tesseract.OpenAL {
 			AL.EXTEFX.Functions.alGetFilteri(Filter, (int)ALFilterAttrib.FirstParameter + (int)param, out int value);
 			return (E)(object)value;
 		}
+#nullable restore
 
 	}
 
@@ -572,6 +578,7 @@ namespace Tesseract.OpenAL {
 		public AL AL { get; }
 		public uint AuxiliaryEffectSlot { get; }
 
+#nullable disable
 		public ALEffect Effect {
 			get {
 				AL.EXTEFX.Functions.alGetAuxiliaryEffectSloti(AuxiliaryEffectSlot, ALEffectSlotAttrib.Effect, out int value);
@@ -617,6 +624,7 @@ namespace Tesseract.OpenAL {
 				AL.EXTEFX.Functions.alDeleteAuxiliaryEffectSlots(1, (IntPtr)(&effect));
 			}
 		}
+#nullable restore
 
 	}
 

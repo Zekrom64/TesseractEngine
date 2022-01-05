@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBFramebufferNoAttachmentsFunctions {
 
 		public delegate void PFN_glFramebufferParameteri(uint target, uint pname, int param);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetFramebufferParameteriv glGetFramebufferParameteriv;
 
 	}
+#nullable restore
 
 	public class ARBFramebufferNoAttachments : IGLObject {
 

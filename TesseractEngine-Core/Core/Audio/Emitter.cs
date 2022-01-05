@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Audio {
 
@@ -58,7 +54,7 @@ namespace Tesseract.Core.Audio {
 		/// The position of the emitter.
 		/// </summary>
 		public Vector3 Position { get; set; }
-		
+
 		/// <summary>
 		/// The velocity of the emitter.
 		/// </summary>
@@ -161,7 +157,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format this emitter will use.
 		/// </summary>
-		public AudioFormat Format { get; init; }
+		public AudioFormat Format { get; init; } = null!;
 
 	}
 

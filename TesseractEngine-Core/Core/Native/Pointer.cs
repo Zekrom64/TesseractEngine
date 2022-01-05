@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Util;
 
@@ -29,13 +26,13 @@ namespace Tesseract.Core.Native {
 		/// The value stored at the memory reference.
 		/// </summary>
 		public T Value { get; }
-		
+
 		/// <summary>
 		/// The size of the array pointed to by this value. If only a single value this is 1. If the size
 		/// is unknown this is -1.
 		/// </summary>
 		public int ArraySize { get; }
-		
+
 		/// <summary>
 		/// Gets the pointer represented as a read-only span.
 		/// </summary>
@@ -62,7 +59,7 @@ namespace Tesseract.Core.Native {
 		ReadOnlySpan<T> IConstPointer<T>.ReadOnlySpan => Span;
 
 	}
-	
+
 	/// <summary>
 	/// A releaser handles releasing memory held by a managed pointer.
 	/// </summary>
@@ -106,7 +103,7 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
-		private readonly Releaser release;
+		private readonly Releaser? release;
 
 		/// <summary>
 		/// Creates a new managed pointer from an existing raw pointer and an optional releaser.
@@ -115,7 +112,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="release">Releaser for pointer, or null</param>
 		/// <param name="count">The number of array elements</param>
 		/// <param name="readOnly">If the pointer should be read-only</param>
-		public ManagedPointer(IntPtr ptr, Releaser release = null, int count = 1, bool readOnly = false) {
+		public ManagedPointer(IntPtr ptr, Releaser? release = null, int count = 1, bool readOnly = false) {
 			Ptr = ptr;
 			this.release = release;
 			ArraySize = count;
@@ -127,7 +124,7 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="value">Value to store in memory</param>
 		/// <param name="readOnly">If the pointer should be read-only</param>
-		public ManagedPointer(T value, bool readOnly) {
+		public ManagedPointer(T value, bool readOnly = false) {
 			Ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
 			Marshal.StructureToPtr(value, Ptr, false);
 			release = ptr => {
@@ -196,7 +193,7 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="values">The array element values</param>
 		/// <param name="readOnly">If the pointer should be read-only</param>
-		public ManagedPointer(in ReadOnlySpan<T> values, bool readOnly) {
+		public ManagedPointer(in ReadOnlySpan<T> values, bool readOnly = false) {
 			int sz = Marshal.SizeOf<T>();
 			int count = values.Length;
 			Ptr = Marshal.AllocHGlobal(sz * count);
@@ -219,7 +216,7 @@ namespace Tesseract.Core.Native {
 			int count = values.Count;
 			Ptr = Marshal.AllocHGlobal(sz * count);
 			int i = 0;
-			foreach(T val in values) Marshal.StructureToPtr(val, Ptr + sz * i, false); 
+			foreach (T val in values) Marshal.StructureToPtr(val, Ptr + sz * i, false);
 			release = ptr => {
 				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
 				Marshal.FreeHGlobal(ptr);
@@ -234,7 +231,7 @@ namespace Tesseract.Core.Native {
 		/// </summary>
 		/// <param name="memory">Memory to pin</param>
 		/// <param name="readOnly">If the pointer should be read-only</param>
-		public ManagedPointer(Memory<T> memory, bool readOnly) {
+		public ManagedPointer(Memory<T> memory, bool readOnly = false) {
 			MemoryUtil.AssertUnmanaged<T>(); // Don't allow cheeky things like converting memory w/ managed objects to pointers
 			MemoryHandle handle = memory.Pin();
 			unsafe { Ptr = (IntPtr)handle.Pointer; }
@@ -300,7 +297,7 @@ namespace Tesseract.Core.Native {
 			Ptr = ptr;
 			ArraySize = count;
 		}
-		
+
 		/// <summary>
 		/// Creates a new unmanaged pointer to memory represented by a memory handle.
 		/// </summary>
@@ -343,19 +340,24 @@ namespace Tesseract.Core.Native {
 	/// </para>
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
-	public struct ObjectPointer<T> : IDisposable, IConstPointer<T> where T : class {
+	public struct ObjectPointer<T> : IDisposable, IConstPointer<T?> where T : class {
 
 		public IntPtr Ptr { get; }
 
 		public int ArraySize => 1;
 
-		public T Value => (T)Handle.Target;
+		public T? Value {
+			get {
+				object? target = Handle.Target;
+				return (T?)target;
+			}
+		}
 
 		public GCHandle Handle => GCHandle.FromIntPtr(Ptr);
 
-		public ReadOnlySpan<T> ReadOnlySpan => throw new InvalidOperationException("Cannot get an object pointer as a span, underlying memory is opaque");
+		public ReadOnlySpan<T?> ReadOnlySpan => throw new InvalidOperationException("Cannot get an object pointer as a span, underlying memory is opaque");
 
-		public T this[int key] {
+		public T? this[int key] {
 			get {
 				if (key == 0) return Value;
 				else throw new IndexOutOfRangeException();

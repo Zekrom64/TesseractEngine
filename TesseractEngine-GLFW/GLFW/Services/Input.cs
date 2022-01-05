@@ -132,19 +132,19 @@ namespace Tesseract.GLFW.Services {
 
 		public string Name => "GLFW Keyboard";
 
-		public event Action OnDisconnected;
+		public event Action? OnDisconnected;
 		
-		public event Action<KeyEvent> OnKey;
+		public event Action<KeyEvent>? OnKey;
 		
-		public event Action<TextInputEvent> OnTextInput;
+		public event Action<TextInputEvent>? OnTextInput;
 
-		public event Action<TextEditEvent> OnTextEdit;
+		public event Action<TextEditEvent>? OnTextEdit;
 
 		public void EndTextInput() => throw new NotImplementedException();
 
 		public bool GetKeyState(Key key) => throw new NotImplementedException();
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public void StartTextInput() => throw new NotImplementedException();
 
@@ -172,17 +172,17 @@ namespace Tesseract.GLFW.Services {
 
 		public Vector2i MousePosition => throw new NotImplementedException();
 
-		public event Action OnDisconnected;
+		public event Action? OnDisconnected;
 
-		public event Action<MouseMoveEvent> OnMouseMove;
+		public event Action<MouseMoveEvent>? OnMouseMove;
 
-		public event Action<MouseButtonEvent> OnMouseButton;
+		public event Action<MouseButtonEvent>? OnMouseButton;
 
-		public event Action<MouseWheelEvent> OnMouseWheel;
+		public event Action<MouseWheelEvent>? OnMouseWheel;
 
 		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -226,12 +226,12 @@ namespace Tesseract.GLFW.Services {
 			}
 		}
 
-		public string Name => Joystick.Name;
+		public string Name => Joystick.Name!;
 
-		public event Action OnDisconnected;
+		public event Action? OnDisconnected;
 		internal void DoOnDisconnect() => OnDisconnected?.Invoke();
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -284,14 +284,14 @@ namespace Tesseract.GLFW.Services {
 			_ => -1
 		};
 
-		public new T GetService<T>(IService<T> service) => default;
+		public new T? GetService<T>(IService<T> service) => default;
 
 	}
 
 	public class GLFWServiceInputSystem : IInputSystem {
 
 		// Global GLFW events are forwarded to static events in the input system, then passed to invidivual instances
-		private static event Action<int, GLFWConnectState> OnJoystickConnect;
+		private static event Action<int, GLFWConnectState>? OnJoystickConnect;
 
 		private static bool callbacksInstalled = false;
 		private static void InstallCallbacks() {
@@ -363,13 +363,13 @@ namespace Tesseract.GLFW.Services {
 
 		public IReadOnlyList<ILightSystem> LightSystems { get; } = new List<ILightSystem>();
 
-		public event Action<IInputDevice> OnConnected;
+		public event Action<IInputDevice>? OnConnected;
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 		}
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public void RunEvents() => GLFW3.PollEvents();
 	}

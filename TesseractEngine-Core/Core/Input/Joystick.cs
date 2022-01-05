@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tesseract.Core.Input {
+﻿namespace Tesseract.Core.Input {
 
 	public enum GamepadControl {
 		// Buttons
@@ -160,7 +154,7 @@ namespace Tesseract.Core.Input {
 		/// </summary>
 		DownRight
 	}
-	
+
 	/// <summary>
 	/// A joystick is an input device that can have many different input mechanisms including buttons,
 	/// axes (analog linear/directional inputs), and hats (specialized directional switches). Joysticks

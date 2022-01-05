@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -152,7 +153,8 @@ namespace Tesseract.SDL.Services {
 
 		public string Name => "SDL Keyboard";
 
-		public event Action OnDisconnected;
+		public event Action OnDisconnected { add { } remove { } }
+
 		public event Action<KeyEvent> OnKey;
 		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
 		public event Action<TextInputEvent> OnTextInput;
@@ -203,7 +205,8 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public event Action OnDisconnected;
+		public event Action OnDisconnected { add { } remove { } }
+
 		public event Action<MouseMoveEvent> OnMouseMove;
 		internal void DoOnMouseMove(MouseMoveEvent evt) => OnMouseMove?.Invoke(evt);
 		public event Action<MouseButtonEvent> OnMouseButton;

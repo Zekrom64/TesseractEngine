@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// Synchronization granularity determines how the level of specificity of synchronization operations.
 	/// </summary>
@@ -51,25 +48,25 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The state of the sync object can be polled by the Host.
 		/// </summary>
-		HostPolling =      0x0001,
+		HostPolling = 0x0001,
 		/// <summary>
 		/// The sync object may be waited on by the Host.
 		/// </summary>
-		HostWaiting =      0x0002,
+		HostWaiting = 0x0002,
 		/// <summary>
 		/// The sync object may be waited on by the GPU.
 		/// </summary>
-		GPUWaiting =       0x0004,
+		GPUWaiting = 0x0004,
 		/// <summary>
 		/// The state of the sync object can be modified by the Host. All host-accessible
 		/// objects may be reset, but signaling implies that the host can both set the object
 		/// and that this change can signal something on the GPU.
 		/// </summary>
-		HostSignaling =    0x0008,
+		HostSignaling = 0x0008,
 		/// <summary>
 		/// The state of the sync object can be modified by the GPU.
 		/// </summary>
-		GPUSignaling =     0x0010,
+		GPUSignaling = 0x0010,
 		/// <summary>
 		/// The sync object can be signaled by work completion on the GPU.
 		/// </summary>
@@ -77,11 +74,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The sync object can be waited on before work begins on the GPU.
 		/// </summary>
-		GPUWorkWaiting =   0x0040,
+		GPUWorkWaiting = 0x0040,
 		/// <summary>
 		/// The sync object may be signaled across GPU queues.
 		/// </summary>
-		GPUMultiQueue =    0x0080
+		GPUMultiQueue = 0x0080
 	}
 
 	/// <summary>
@@ -131,7 +128,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The granularity of synchronization of this sync object.
 		/// </summary>
 		public SyncGranularity Granularity { get; }
-		
+
 		/// <summary>
 		/// The direction of synchronization of this sync object.
 		/// </summary>
@@ -171,13 +168,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public class SyncAwaiter : INotifyCompletion {
 
 			private bool? status = null;
-			private event Action OnComplete;
+			private event Action? OnComplete;
 
 			/// <summary>
 			/// If the await operation is completed.
 			/// </summary>
 			public bool IsCompleted => status != null;
-			
+
 			/// <summary>
 			/// Queues an action to be performed on completion of the await operation.
 			/// </summary>
@@ -188,7 +185,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// Gets the result of the await operation. This is only valid if <see cref="IsCompleted"/> is set.
 			/// </summary>
 			/// <returns>The result of the awaited operation</returns>
-			public bool GetResult() => status.Value;
+			public bool GetResult() => status != null && status.Value;
 
 			/// <summary>
 			/// Begins a new await operation on a sync object with the given timeout.

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTransformFeedback2Functions {
 
 		public delegate void PFN_glBindTransformFeedback(uint target, uint id);
@@ -33,6 +34,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glDrawTransformFeedback glDrawTransformFeedback;
 
 	}
+#nullable restore
 
 	public class ARBTransformFeedback2 : IGLObject {
 

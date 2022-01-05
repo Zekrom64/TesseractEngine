@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace Tesseract.Core {
@@ -144,7 +140,7 @@ namespace Tesseract.Core {
 		/// The CPU architecture of the platform.
 		/// </summary>
 		public ArchitectureType Architecture { get; init; }
-		
+
 		/// <summary>
 		/// The CPU sub-architecture of the platform.
 		/// </summary>
@@ -218,13 +214,13 @@ namespace Tesseract.Core {
 		/// <summary>
 		/// The current platform.
 		/// </summary>
-		public static readonly Platform CurrentPlatform = CurrentPlatformType switch {
+		public static readonly Platform? CurrentPlatform = CurrentPlatformType switch {
 			PlatformType.Windows => new PlatformWindows(),
 			PlatformType.Linux => new PlatformLinux(),
 			PlatformType.MacOSX => new PlatformMacOSX(),
 			_ => null // TODO: Should current platform be null for unknown systems?
 		};
-		
+
 		/// <summary>
 		/// If the current process is 64-bit. If this is false it is assumed it is 32-bit.
 		/// </summary>

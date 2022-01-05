@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class EXTDrawBuffers2Functions {
 
 		public delegate void PFN_glColorMaski(uint buf, byte r, byte g, byte b, byte a);
@@ -30,6 +31,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glIsEnabledi glIsEnabledi;
 
 	}
+#nullable restore
 
 	public class EXTDrawBuffers2 : IGLObject {
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBGetProgramBinaryFunctions {
 
 		public delegate void PFN_glGetProgramBinary(uint program, int bufSize, out int length, out uint binaryFormat, IntPtr binary);
@@ -21,6 +22,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glProgramParameteri glProgramParameteri;
 
 	}
+#nullable restore
 
 	public class ARBGetProgramBinary : IGLObject {
 

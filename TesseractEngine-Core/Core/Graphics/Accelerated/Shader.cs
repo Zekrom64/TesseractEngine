@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Native;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// Enumeration of types of shader.
 	/// </summary>
@@ -96,7 +93,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The object to use as the source code for the shader.
 		/// </summary>
-		public object Source { get; init; }
+		public object Source { get; init; } = null!;
 
 	}
 

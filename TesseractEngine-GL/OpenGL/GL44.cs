@@ -12,6 +12,7 @@ namespace Tesseract.OpenGL {
 
 		public GL44(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_buffer_storage
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,6 +74,7 @@ namespace Tesseract.OpenGL {
 		// ARB_texture_stencil8
 
 		//  ARB_vertex_type_10f_11f_11f_rev
+#nullable restore
 
 	}
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract.Core.Audio;
+﻿using Tesseract.Core.Audio;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Math;
 
@@ -19,7 +14,7 @@ namespace Tesseract.Core.Media {
 		/// The MIME type of the media format, or null if undefined.
 		/// </para>
 		/// </summary>
-		public string MIMEType { get; init; } = null;
+		public string? MIMEType { get; init; } = null;
 
 		/// <summary>
 		/// <para>The framerate of video in frames per second supplied by this format, otherwise 0.</para>
@@ -38,12 +33,12 @@ namespace Tesseract.Core.Media {
 		/// <summary>
 		/// The pixel format of decompressed video frames that will be used by this media, otherwise null.
 		/// </summary>
-		public PixelFormat PixelFormat { get; init; } = null;
+		public PixelFormat? PixelFormat { get; init; } = null;
 
 		/// <summary>
 		/// The format of audio supplied by this format, otherwise null.
 		/// </summary>
-		public AudioFormat AudioFormat { get; init; } = null;
+		public AudioFormat? AudioFormat { get; init; } = null;
 
 	}
 

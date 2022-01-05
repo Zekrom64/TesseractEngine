@@ -13,8 +13,8 @@ namespace Tesseract.OpenAL {
 
 		public AL11 AL11 { get; }
 
-		public SOFTBufferSamples SOFTBufferSamples { get; }
-		public EXTEFX EXTEFX { get; }
+		public SOFTBufferSamples? SOFTBufferSamples { get; }
+		public EXTEFX? EXTEFX { get; }
 
 		public AL(ALCContext context) {
 			Context = context;

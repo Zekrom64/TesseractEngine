@@ -42,7 +42,7 @@ namespace Tesseract.OpenGL {
 		/// <summary>
 		/// The OpenGL API this object references.
 		/// </summary>
-		public GL GL { get; }
+		public GL? GL { get; }
 
 	}
 
@@ -66,22 +66,22 @@ namespace Tesseract.OpenGL {
 		public IGLContext Context { get; }
 
 		public GL11 GL11 { get; }
-		public GL12 GL12 { get; }
-		public GL13 GL13 { get; }
-		public GL14 GL14 { get; }
-		public GL15 GL15 { get; }
-		public GL20 GL20 { get; }
-		public GL30 GL30 { get; }
-		public GL31 GL31 { get; }
-		public GL32 GL32 { get; }
-		public GL33 GL33 { get; }
-		public GL40 GL40 { get; }
-		public GL41 GL41 { get; }
-		public GL42 GL42 { get; }
-		public GL43 GL43 { get; }
-		public GL44 GL44 { get; }
-		public GL45 GL45 { get; }
-		public GL46 GL46 { get; }
+		public GL12? GL12 { get; }
+		public GL13? GL13 { get; }
+		public GL14? GL14 { get; }
+		public GL15? GL15 { get; }
+		public GL20? GL20 { get; }
+		public GL30? GL30 { get; }
+		public GL31? GL31 { get; }
+		public GL32? GL32 { get; }
+		public GL33? GL33 { get; }
+		public GL40? GL40 { get; }
+		public GL41? GL41 { get; }
+		public GL42? GL42 { get; }
+		public GL43? GL43 { get; }
+		public GL44? GL44 { get; }
+		public GL45? GL45 { get; }
+		public GL46? GL46 { get; }
 
 		private readonly HashSet<string> extensions = new();
 		/// <summary>
@@ -91,13 +91,13 @@ namespace Tesseract.OpenGL {
 
 		// OpenGL 3.0 Extensions
 		// EXT_gpu_shader4
-		public EXTGPUShader4 EXTGPUShader4 { get; }
+		public EXTGPUShader4? EXTGPUShader4 { get; }
 		// NV_conditional_render
-		public NVConditionalRender NVConditionalRender { get; }
+		public NVConditionalRender? NVConditionalRender { get; }
 		// ARB_map_buffer_range - Note: This borrows from APPLE_flush_mapped_buffer BUT unlike what the spec might lead you to believe this is not part of the core
-		public ARBMapBufferRange ARBMapBufferRange { get; }
+		public ARBMapBufferRange? ARBMapBufferRange { get; }
 		// ARB_color_buffer_float
-		public ARBColorBufferFloat ARBColorBufferFloat { get; }
+		public ARBColorBufferFloat? ARBColorBufferFloat { get; }
 		// ARB_depth_buffer_float
 		public bool ARBDepthBufferFloat { get; }
 		// ARB_texture_float
@@ -107,33 +107,33 @@ namespace Tesseract.OpenGL {
 		// EXT_texture_shared_exponent
 		public bool EXTTextureSharedExponent { get; }
 		// ARB_framebuffer_object - Note: This combines EXT_framebuffer_object, EXT_framebuffer_blit, EXT_framebuffer_multisample, and EXT_packed_depth_stencil, and EXT_texture_array
-		public ARBFramebufferObject ARBFramebufferObject { get; }
+		public ARBFramebufferObject? ARBFramebufferObject { get; }
 		// ARB_half_float_pixel
 		public bool ARBHalfFloatPixel { get; }
 		// EXT_texture_integer
-		public EXTTextureInteger EXTTextureInteger { get; }
+		public EXTTextureInteger? EXTTextureInteger { get; }
 		// EXT_draw_buffers2
-		public EXTDrawBuffers2 EXTDrawBuffers2 { get; }
+		public EXTDrawBuffers2? EXTDrawBuffers2 { get; }
 		// EXT_texture_compression_rgtc
 		public bool EXTTextureCompressionRGTC { get; }
 		// ARB_transform_feedback - Note: *Should* be the same as EXT_transform_feedback
-		public ARBTransformFeedback ARBTransformFeedback { get; }
+		public ARBTransformFeedback? ARBTransformFeedback { get; }
 		// ARB_vertex_array_object
-		public ARBVertexArrayObject ARBVertexArrayObject { get; }
+		public ARBVertexArrayObject? ARBVertexArrayObject { get; }
 
 		// OpenGL 3.1 Extensions
 		// ARB_draw_instanced
-		public ARBDrawInstanced ARBDrawInstanced { get; }
+		public ARBDrawInstanced? ARBDrawInstanced { get; }
 		// ARB_copy_buffer
-		public ARBCopyBuffer ARBCopyBuffer { get; }
+		public ARBCopyBuffer? ARBCopyBuffer { get; }
 		// NV_primitive_restart
-		public NVPrimitiveRestart NVPrimitiveRestart { get; }
+		public NVPrimitiveRestart? NVPrimitiveRestart { get; }
 		// ARB_texture_buffer_object
-		public ARBTextureBufferObject ARBTextureBufferObject { get; }
+		public ARBTextureBufferObject? ARBTextureBufferObject { get; }
 		// ARB_texture_rectangle
 		public bool ARBTextureRectangle { get; }
 		// ARB_uniform_buffer_object
-		public ARBUniformBufferObject ARBUniformBufferObject { get; }
+		public ARBUniformBufferObject? ARBUniformBufferObject { get; }
 
 		// OpenGL 3.2 Extensions
 		// ARB_compatibility
@@ -141,41 +141,41 @@ namespace Tesseract.OpenGL {
 		// ARB_vertex_array_bgra
 		public bool ARBVertexArrayBGRA { get; }
 		// ARB_draw_elements_base_vertex
-		public ARBDrawElementsBaseVertex ARBDrawElementsBaseVertex { get; }
+		public ARBDrawElementsBaseVertex? ARBDrawElementsBaseVertex { get; }
 		// ARB_fragment_coord_conventions
 		public bool ARBFragmentCoordConventions { get; }
 		// ARB_provoking_vertex
-		public ARBProvokingVertex ARBProvokingVertex { get; }
+		public ARBProvokingVertex? ARBProvokingVertex { get; }
 		// ARB_seamless_cube_map
 		public bool ARBSeamlessCubeMap { get; }
 		// ARB_texture_multisample
-		public ARBTextureMultisample ARBTextureMultisample { get; }
+		public ARBTextureMultisample? ARBTextureMultisample { get; }
 		// ARB_depth_clamp
 		public bool ARBDepthClamp { get; }
 		// ARB_geometry_shader4
-		public ARBGeometryShader4 ARBGeometryShader4 { get; }
+		public ARBGeometryShader4? ARBGeometryShader4 { get; }
 		// ARB_sync
-		public ARBSync ARBSync { get; }
+		public ARBSync? ARBSync { get; }
 
 		// OpenGL 3.3 Extensions
 		// ARB_shader_bit_encoding
 		public bool ARBShaderBitEncoding { get; }
 		// ARB_blend_func_extended
-		public ARBBlendFuncExtended ARBBlendFuncExtended { get; }
+		public ARBBlendFuncExtended? ARBBlendFuncExtended { get; }
 		// ARB_explicit_attrib_location
 		public bool ARBExplicitAttribLocation { get; }
 		// ARB_occlusion_query2
 		public bool ARBOcclusionQuery2 { get; }
 		// ARB_sampler_objects
-		public ARBSamplerObjects ARBSamplerObjects { get; }
+		public ARBSamplerObjects? ARBSamplerObjects { get; }
 		// ARB_texture_rgb10_a2ui
 		public bool ARBTextureRGB10A2UI { get; }
 		// ARB_texture_swizzle
 		public bool ARBTextureSwizzle { get; }
 		// ARB_timer_query
-		public ARBTimerQuery ARBTimerQuery { get; }
+		public ARBTimerQuery? ARBTimerQuery { get; }
 		// ARB_instanced_arrays
-		public ARBInstancedArrays ARBInstancedArrays { get; }
+		public ARBInstancedArrays? ARBInstancedArrays { get; }
 		// ARB_vertex_type_2_10_10_10_rev
 		public bool ARBVertexType2_10_10_10Rev { get; }
 
@@ -183,19 +183,19 @@ namespace Tesseract.OpenGL {
 		// ARB_texture_query_lod
 		public bool ARBTextureQueryLOD { get; }
 		// ARB_draw_buffers_blend
-		public ARBDrawBuffersBlend ARBDrawBuffersBlend { get; }
+		public ARBDrawBuffersBlend? ARBDrawBuffersBlend { get; }
 		// ARB_draw_indirect
-		public ARBDrawIndirect ARBDrawIndirect { get; }
+		public ARBDrawIndirect? ARBDrawIndirect { get; }
 		// ARB_gpu_shader5
 		public bool ARBGPUShader5 { get; }
 		// ARB_gpu_shader_fp64
 		public bool ARBGPUShaderFP64 { get; }
 		// ARB_sample_shading
-		public ARBSampleShading ARBSampleShading { get; }
+		public ARBSampleShading? ARBSampleShading { get; }
 		// ARB_shader_subroutine
-		public ARBShaderSubroutine ARBShaderSubroutine { get; }
+		public ARBShaderSubroutine? ARBShaderSubroutine { get; }
 		// ARB_tessellation_shader
-		public ARBTessellationShader ARBTessellationShader { get; }
+		public ARBTessellationShader? ARBTessellationShader { get; }
 		// ARB_texture_buffer_object_rgb32
 		public bool ARBTextureBufferObjectRGB32 { get; }
 		// ARB_texture_cube_map_array
@@ -203,23 +203,23 @@ namespace Tesseract.OpenGL {
 		// ARB_texture_gather
 		public bool ARBTextureGather { get; }
 		// ARB_transform_feedback2
-		public ARBTransformFeedback2 ARBTransformFeedback2 { get; }
+		public ARBTransformFeedback2? ARBTransformFeedback2 { get; }
 		// ARB_transform_feedback3
-		public ARBTransformFeedback3 ARBTransformFeedback3 { get; }
+		public ARBTransformFeedback3? ARBTransformFeedback3 { get; }
 
 		// OpenGL 4.1 Extensions
 		// ARB_ES2_compatibility
-		public ARBES2Compatbility ARBES2Compatbility { get; }
+		public ARBES2Compatbility? ARBES2Compatbility { get; }
 		// ARB_get_program_binary
-		public ARBGetProgramBinary ARBGetProgramBinary { get; }
+		public ARBGetProgramBinary? ARBGetProgramBinary { get; }
 		// ARB_separate_shader_objects
-		public ARBSeparateShaderObjects ARBSeparateShaderObjects { get; }
+		public ARBSeparateShaderObjects? ARBSeparateShaderObjects { get; }
 		// ARB_shader_precision
 		public bool ARBShaderPrecision { get; }
 		// ARB_vertex_attrib_64bit
-		public ARBVertexAttrib64Bit ARBVertexAttrib64Bit { get; }
+		public ARBVertexAttrib64Bit? ARBVertexAttrib64Bit { get; }
 		// ARB_viewport_array
-		public ARBViewportArray ARBViewportArray { get; }
+		public ARBViewportArray? ARBViewportArray { get; }
 
 		// OpenGL 4.2 Extensions
 		// ARB_texture_compression_bptc
@@ -227,21 +227,21 @@ namespace Tesseract.OpenGL {
 		// ARB_compressed_texture_pixel_storage
 		public bool ARBCompressedTexturePixelStorage { get; }
 		// ARB_shader_atomic_counters
-		public ARBShaderAtomicCounters ARBShaderAtomicCounters { get; }
+		public ARBShaderAtomicCounters? ARBShaderAtomicCounters { get; }
 		// ARB_texture_storage
-		public ARBTextureStorage ARBTextureStorage { get; }
+		public ARBTextureStorage? ARBTextureStorage { get; }
 		// ARB_transform_feedback_instanced
-		public ARBTransformFeedbackInstanced ARBTransformFeedbackInstanced { get; }
+		public ARBTransformFeedbackInstanced? ARBTransformFeedbackInstanced { get; }
 		// ARB_base_instance
-		public ARBBaseInstance ARBBaseInstance { get; }
+		public ARBBaseInstance? ARBBaseInstance { get; }
 		// ARB_shader_image_load_store
-		public ARBShaderImageLoadStore ARBShaderImageLoadStore { get; }
+		public ARBShaderImageLoadStore? ARBShaderImageLoadStore { get; }
 		// ARB_conservative_depth
 		public bool ARBConservativeDepth { get; }
 		// ARB_shading_language_420pack
 		public bool ARBShadingLanguage420Pack { get; }
 		// ARB_internalformat_query
-		public ARBInternalFormatQuery ARBInternalFormatQuery { get; }
+		public ARBInternalFormatQuery? ARBInternalFormatQuery { get; }
 		// ARB_map_buffer_alignment
 		public bool ARBMapBufferAlignment { get; }
 		// ARB_shading_language_packing
@@ -253,55 +253,55 @@ namespace Tesseract.OpenGL {
 		// ARB_ES3_compatibility
 		public bool ARBES3Compatibility { get; }
 		// ARB_clear_buffer_object
-		public ARBClearBufferObject ARBClearBufferObject { get; }
+		public ARBClearBufferObject? ARBClearBufferObject { get; }
 		// ARB_compute_shader
-		public ARBComputeShader ARBComputeShader { get; }
+		public ARBComputeShader? ARBComputeShader { get; }
 		// ARB_copy_image
-		public ARBCopyImage ARBCopyImage { get; }
+		public ARBCopyImage? ARBCopyImage { get; }
 		// ARB_explicit_uniform_location
 		public bool ARBExplicitUniformLocation { get; }
 		// ARB_fragment_layer_viewport
 		public bool ARBFragmentLayerViewport { get; }
 		// ARB_framebuffer_no_attachments
-		public ARBFramebufferNoAttachments ARBFramebufferNoAttachments { get; }
+		public ARBFramebufferNoAttachments? ARBFramebufferNoAttachments { get; }
 		// ARB_internalformat_query2
-		public ARBInternalFormatQuery2 ARBInternalFormatQuery2 { get; }
+		public ARBInternalFormatQuery2? ARBInternalFormatQuery2 { get; }
 		// ARB_invalidate_subdata
-		public ARBInvalidateSubdata ARBInvalidateSubdata { get; }
+		public ARBInvalidateSubdata? ARBInvalidateSubdata { get; }
 		// ARB_multi_draw_indirect
-		public ARBMultiDrawIndirect ARBMultiDrawIndirect { get; }
+		public ARBMultiDrawIndirect? ARBMultiDrawIndirect { get; }
 		// ARB_program_interface_query
-		public ARBProgramInterfaceQuery ARBProgramInterfaceQuery { get; }
+		public ARBProgramInterfaceQuery? ARBProgramInterfaceQuery { get; }
 		// ARB_robust_buffer_access_behavior
 		public bool ARBRobustBufferAccessBehavior { get; }
 		// ARB_shader_image_size
 		public bool ARBShaderImageSize { get; }
 		// ARB_shader_storage_buffer_object
-		public ARBShaderStorageBufferObject ARBShaderStorageBufferObject { get; }
+		public ARBShaderStorageBufferObject? ARBShaderStorageBufferObject { get; }
 		// ARB_stencil_texturing
 		public bool ARBStencilTexturing { get; }
 		// ARB_texture_buffer_range
-		public ARBTextureBufferRange ARBTextureBufferRange { get; }
+		public ARBTextureBufferRange? ARBTextureBufferRange { get; }
 		// ARB_texture_query_levels
 		public bool ARBTextureQueryLevels { get; }
 		// ARB_texture_storage_multisample
-		public ARBTextureStorageMultisample ARBTextureStorageMultisample { get; }
+		public ARBTextureStorageMultisample? ARBTextureStorageMultisample { get; }
 		// ARB_texture_view
-		public ARBTextureView ARBTextureView { get; }
+		public ARBTextureView? ARBTextureView { get; }
 		// ARB_vertex_attrib_binding
-		public ARBVertexAttribBinding ARBVertexAttribBinding { get; }
+		public ARBVertexAttribBinding? ARBVertexAttribBinding { get; }
 		// KHR_debug / ARB_debug_output
-		public KHRDebug KHRDebug { get; }
+		public KHRDebug? KHRDebug { get; }
 
 		// OpenGL 4.4 Extensions
 		// ARB_buffer_storage
-		public ARBBufferStorage ARBBufferStorage { get; }
+		public ARBBufferStorage? ARBBufferStorage { get; }
 		// ARB_clear_texture
-		public ARBClearTexture ARBClearTexture { get; }
+		public ARBClearTexture? ARBClearTexture { get; }
 		// ARB_enhanced_layouts
 		public bool ARBEnhancedLayouts { get; }
 		// ARB_multi_bind
-		public ARBMultiBind ARBMultiBind { get; }
+		public ARBMultiBind? ARBMultiBind { get; }
 		// ARB_query_buffer_object
 		public bool ARBQueryBufferObject { get; }
 		// ARB_texture_mirror_clamp_to_edge
@@ -313,11 +313,11 @@ namespace Tesseract.OpenGL {
 
 		// OpenGL 4.5 Extensions
 		// ARB_clip_control
-		public ARBClipControl ARBClipControl { get; }
+		public ARBClipControl? ARBClipControl { get; }
 		// ARB_cull_distance
 		public bool ARBCullDistance { get; }
 		// ARB_ES3_1_compatibility
-		public ARBES31Compatibility ARBES31Compatibility { get; }
+		public ARBES31Compatibility? ARBES31Compatibility { get; }
 		// ARB_conditional_render_inverted
 		public bool ARBConditionalRenderInverted { get; }
 		// KHR_context_flush_control
@@ -325,23 +325,23 @@ namespace Tesseract.OpenGL {
 		// ARB_derivative_control
 		public bool ARBDerivativeControl { get; }
 		// ARB_direct_state_access
-		public ARBDirectStateAccess ARBDirectStateAccess { get; }
+		public ARBDirectStateAccess? ARBDirectStateAccess { get; }
 		// ARB_get_texture_sub_image
-		public ARBGetTextureSubImage ARBGetTextureSubImage { get; }
+		public ARBGetTextureSubImage? ARBGetTextureSubImage { get; }
 		// KHR_robustness
-		public KHRRobustness KHRRobustness { get; }
+		public KHRRobustness? KHRRobustness { get; }
 		// ARB_shader_texture_image_samples
 		public bool ARBShaderTextureImageSamples { get; }
 		// ARB_texture_barrier
-		public ARBTextureBarrier ARBTextureBarrier { get; }
+		public ARBTextureBarrier? ARBTextureBarrier { get; }
 
 		// OpenGL 4.6 Extensions
 		// ARB_indirect_parameters
-		public ARBIndirectParameters ARBIndirectParameters { get; }
+		public ARBIndirectParameters? ARBIndirectParameters { get; }
 		// ARB_pipeline_statistics_query
 		public bool ARBPipelineStatisticsQuery { get; }
 		// ARB_polygon_offset_clamp
-		public ARBPolygonOffsetClamp ARBPolygonOffsetClamp { get; }
+		public ARBPolygonOffsetClamp? ARBPolygonOffsetClamp { get; }
 		// KHR_no_error
 		public bool KHRNoError { get; }
 		// ARB_shader_atomic_counter_ops
@@ -351,7 +351,7 @@ namespace Tesseract.OpenGL {
 		// ARB_shader_group_vote
 		public bool ARBShaderGroupVote { get; }
 		// ARB_gl_spirv
-		public ARBGLSPIRV ARBGLSPIRV { get; }
+		public ARBGLSPIRV? ARBGLSPIRV { get; }
 		// ARB_spirv_extensions
 		public bool ARBSPIRVExtensions { get; }
 		// ARB_texture_filter_anisotropic
@@ -363,6 +363,19 @@ namespace Tesseract.OpenGL {
 		// EXT_texture_filter_anisotopic - Note: While anisotropic filtering was blessed with ARB status in GL 4.6, *many* vendors support the EXT form in earlier versions
 		public bool EXTTextureFilterAnisotropic { get; }
 		// EXT_direct_state_access - Note: May be more supported than ARB_direct_state_access on old hardware, but only supports DSA based on OpenGL version and extensions
+		// EXT_depth_bounds_test - Note: Don't know why this isn't core
+		public EXTDepthBoundsTest? EXTDepthBoundsTest { get; }
+		// KHR_texture_compression_astc_hdr
+		public bool KHRTextureCompressionASTC_HDR { get; }
+		// KHR_texture_compression_astc_ldr
+		public bool KHRTextureCompressionASTC_LDR { get; }
+		// EXT_texture_compression_s3tc - Note: Not technically core, but pretty much everyone implements it
+		public bool EXTTextureCompressionS3TC { get; }
+		// ARB_gpu_shader_int64 - Note: While an ARB extension, it is not in any OpenGL version
+		public ARBGPUShaderInt64? ARBGPUShaderInt64 { get; }
+
+		// AMD Extensions
+		public bool AMDGPUShaderInt16 { get; }
 
 		public GL(IGLContext context) {
 			Context = context;
@@ -399,10 +412,10 @@ namespace Tesseract.OpenGL {
 				unsafe {
 					glGetIntegerv(GLEnums.GL_NUM_EXTENSIONS, (IntPtr)(&nexts));
 				}
-				for (int i = 0; i < nexts; i++) extensions.Add(MemoryUtil.GetUTF8(glGetStringi(GLEnums.GL_EXTENSIONS, (uint)i)));
+				for (int i = 0; i < nexts; i++) extensions.Add(MemoryUtil.GetUTF8(glGetStringi(GLEnums.GL_EXTENSIONS, (uint)i))!);
 			} else {
 				var glGetString = Marshal.GetDelegateForFunctionPointer<GL11Functions.PFN_glGetString>(context.GetGLProcAddress("glGetString"));
-				string extstr = MemoryUtil.GetUTF8(glGetString(GLEnums.GL_EXTENSIONS));
+				string extstr = MemoryUtil.GetUTF8(glGetString(GLEnums.GL_EXTENSIONS))!;
 				foreach (string ext in extstr.Split(' ')) if (ext.Length != 0) extensions.Add(ext);
 			}
 
@@ -442,7 +455,7 @@ namespace Tesseract.OpenGL {
 				if (Extensions.Contains("GL_ARB_half_float_pixel")) ARBHalfFloatPixel = true;
 				if (Extensions.Contains("GL_EXT_texture_integer")) EXTTextureInteger = new(this, context);
 				if (Extensions.Contains("GL_EXT_draw_buffers2")) EXTDrawBuffers2 = new(this, context);
-				if (Extensions.Contains("GL_EXT_texture_compression_rgtc")) EXTTextureCompressionRGTC = true;
+				if (Extensions.Contains("GL_EXT_texture_compression_rgtc") || Extensions.Contains("GL_ARB_texture_compression_rgtc")) EXTTextureCompressionRGTC = true;
 				// ARB_transform_feedback and EXT_transform_feedback are interchangeable for the spec ¯\_(ツ)_/¯
 				if (Extensions.Contains("GL_ARB_transform_feedback") || Extensions.Contains("GL_EXT_transform_feedback")) ARBTransformFeedback = new(this, context);
 				if (Extensions.Contains("GL_ARB_vertex_array_object")) ARBVertexArrayObject = new(this, context);
@@ -865,6 +878,15 @@ namespace Tesseract.OpenGL {
 			if (hasGL13) GL13 = GL14 ?? new GL13(this, context);
 			if (hasGL12) GL12 = GL13 ?? new GL12(this, context);
 			GL11 = GL12 ?? new GL11(this, context);
+
+			EXTTextureFilterAnisotropic = Extensions.Contains("GL_EXT_texture_filter_anisotropic");
+			if (Extensions.Contains("GL_EXT_depth_bounds_test")) EXTDepthBoundsTest = new(this, context);
+			KHRTextureCompressionASTC_HDR = Extensions.Contains("GL_KHR_texture_compression_astc_hdr");
+			KHRTextureCompressionASTC_LDR = Extensions.Contains("GL_KHR_texture_compression_astc_ldr");
+			EXTTextureCompressionS3TC = Extensions.Contains("GL_EXT_texture_compression_s3tc");
+			if (Extensions.Contains("GL_ARB_gpu_shader_int64")) ARBGPUShaderInt64 = new(this, context);
+
+			AMDGPUShaderInt16 = Extensions.Contains("GL_AMD_gpu_shader_int16");
 		}
 
 	}

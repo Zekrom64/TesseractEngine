@@ -49,9 +49,9 @@ namespace Tesseract.Core.Math {
 			Y = tuple.Y;
 		}
 
-		public bool Equals(IReadOnlyTuple2<double> other) => X == other.X && Y == other.Y;
+		public bool Equals(IReadOnlyTuple2<double>? other) => other != null && X == other.X && Y == other.Y;
 
-		public override bool Equals(object obj) => obj is IReadOnlyTuple2<double> other && Equals(other);
+		public override bool Equals(object? obj) => obj is IReadOnlyTuple2<double> other && Equals(other);
 
 		public override int GetHashCode() => (int)(BitConverter.DoubleToInt64Bits(X) ^ BitConverter.DoubleToInt64Bits(Y));
 

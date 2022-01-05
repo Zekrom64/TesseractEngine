@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBPolygonOffsetClampFunctions {
 
 		public delegate void PFN_glPolygonOffsetClamp(float factor, float units, float clamp);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glPolygonOffsetClamp glPolygonOffsetClamp;
 
 	}
+#nullable restore
 
 	public class ARBPolygonOffsetClamp : IGLObject {
 

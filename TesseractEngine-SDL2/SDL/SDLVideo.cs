@@ -153,7 +153,7 @@ namespace Tesseract.SDL {
 
 		public readonly int DisplayIndex;
 
-		public string Name => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetDisplayName(DisplayIndex));
+		public string Name => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetDisplayName(DisplayIndex))!;
 
 		public SDLRect Bounds {
 			get {
@@ -259,7 +259,7 @@ namespace Tesseract.SDL {
 		public SDLWindowFlags Flags => (SDLWindowFlags)SDL2.Functions.SDL_GetWindowFlags(Window.Ptr);
 
 		public string Name {
-			get => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetWindowTitle(Window.Ptr));
+			get => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetWindowTitle(Window.Ptr))!;
 			set => SDL2.Functions.SDL_SetWindowTitle(Window.Ptr, value);
 		}
 
@@ -394,7 +394,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Window != null && !Window.IsNull) {
 				SDL2.Functions.SDL_DestroyWindow(Window.Ptr);
-				Window = null;
+				Window = null!;
 			}
 		}
 
@@ -420,7 +420,7 @@ namespace Tesseract.SDL {
 			return new SDLRenderer(pRender);
 		}
 
-		public SDLRenderer Renderer {
+		public SDLRenderer? Renderer {
 			get {
 				IntPtr pRender = SDL2.Functions.SDL_GetRenderer(Window.Ptr);
 				if (pRender == IntPtr.Zero) return null;
@@ -437,7 +437,7 @@ namespace Tesseract.SDL {
 					Version = ver
 				};
 				if (!SDL2.Functions.SDL_GetWindowWMInfo(Window.Ptr, ref info)) return null;
-				object wminfo = null;
+				object? wminfo = null;
 				switch(info.Subsystem) {
 					case SDLSysWMType.Windows:
 						wminfo = info.Info.Win;

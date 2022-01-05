@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBVertexAttribBindingFunctions {
 
 		public delegate void PFN_glBindVertexBuffer(uint bindingIndex, uint buffer, nint offset, int stride);
@@ -30,6 +31,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glVertexBindingDivisor glVertexBindingDivisor;
 
 	}
+#nullable restore
 
 	public class ARBVertexAttribBinding : IGLObject {
 

@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBES2CompatbilityFunctions {
 
 		public delegate void PFN_glReleaseShaderCompiler();
@@ -28,6 +29,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glClearDepthf glClearDepthf;
 
 	}
+#nullable restore
 
 	public class ARBES2Compatbility : IGLObject {
 

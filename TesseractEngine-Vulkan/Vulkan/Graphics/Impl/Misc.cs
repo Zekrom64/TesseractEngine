@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,13 +14,13 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	public class VulkanVertexArray : IVertexArray {
 
-		public VertexFormat Format { get; init; }
+		public VertexFormat Format { get; init; } = null!;
 
 		public void Dispose() => GC.SuppressFinalize(this);
 
 		public (VulkanBuffer, MemoryRange, VKIndexType)? IndexBuffer { get; init; }
 
-		public (VulkanBuffer, MemoryRange, uint)[] VertexBuffers { get; init; }
+		public (VulkanBuffer, MemoryRange, uint)[]? VertexBuffers { get; init; }
 
 	}
 
@@ -61,10 +62,13 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public uint Layers { get; }
 
-		public VulkanFramebuffer(VKFramebuffer framebuffer, Vector2i size, uint layers) {
+		public VulkanTextureView[] Attachments { get; }
+
+		public VulkanFramebuffer(VKFramebuffer framebuffer, Vector2i size, uint layers, VulkanTextureView[] attachments) {
 			Framebuffer = framebuffer;
 			Size = size;
 			Layers = layers;
+			Attachments = attachments;
 		}
 
 		public void Dispose() {
@@ -146,7 +150,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			private int setCount = 0;
 			private readonly int maxSets;
 
-			public bool TryAlloc(BindSetAllocateInfo allocInfo, (BindType, int)[] typeCounts, out VKDescriptorSet set) {
+			public bool TryAlloc(BindSetAllocateInfo allocInfo, (BindType, int)[] typeCounts, [NotNullWhen(true)] out VKDescriptorSet? set) {
 				set = null;
 				lock(Pool) {
 					// If no more sets in the pool cannot alloc
@@ -266,13 +270,13 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			lockSlices.EnterUpgradeableReadLock();
 			try {
 				foreach(Slice slice in slices) {
-					if (slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet set)) return new VulkanBindSet(this, set, typeCounts);
+					if (slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet? set)) return new VulkanBindSet(this, set, typeCounts);
 				}
 				lockSlices.EnterWriteLock();
 				try {
 					Slice slice = new(device, baseInfo, nTargets, allocateInfo);
 					slices.Add(slice);
-					if (!slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet set)) throw new InvalidOperationException("Failed to allocate descriptor set");
+					if (!slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet? set)) throw new InvalidOperationException("Failed to allocate descriptor set");
 					return new VulkanBindSet(this, set, typeCounts);
 				} finally {
 					lockSlices.ExitWriteLock();

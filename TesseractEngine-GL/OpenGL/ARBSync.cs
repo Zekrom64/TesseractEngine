@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBSyncFunctions {
 
 		public delegate nuint PFN_glFenceSync(uint condition, uint flags);
@@ -19,7 +20,7 @@ namespace Tesseract.OpenGL {
 		public delegate void PFN_glDeleteSync(nuint sync);
 		[ExternFunction(AltNames = new string[] { "glDeleteSync" })]
 		public PFN_glDeleteSync glDeleteSync;
-		public delegate void PFN_glClientWaitSync(nuint sync, uint flags, ulong timeout);
+		public delegate GLWaitResult PFN_glClientWaitSync(nuint sync, uint flags, ulong timeout);
 		[ExternFunction(AltNames = new string[] { "glClientWaitSync" })]
 		public PFN_glClientWaitSync glClientWaitSync;
 		public delegate void PFN_glWaitSync(nuint sync, uint flags, ulong timeout);
@@ -33,6 +34,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetSynciv glGetSynciv;
 
 	}
+#nullable restore
 
 	public class ARBSync : IGLObject {
 
@@ -54,7 +56,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteSync(nuint sync) => Functions.glDeleteSync(sync);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => Functions.glClientWaitSync(sync, (uint)flags, timeout);
+		public GLWaitResult ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => Functions.glClientWaitSync(sync, (uint)flags, timeout);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void WaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => Functions.glWaitSync(sync, (uint)flags, timeout);

@@ -8,7 +8,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBBlendFuncExtendedFunctions {
 
 		public delegate void PFN_glBindFragDataLocationIndexed(uint program, uint colorNumber, uint index, [MarshalAs(UnmanagedType.LPStr)] string name);
@@ -19,7 +20,8 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetFragDataIndex glGetFragDataIndex;
 
 	}
-	
+#nullable restore
+
 	public class ARBBlendFuncExtended : IGLObject {
 
 		public GL GL { get; }

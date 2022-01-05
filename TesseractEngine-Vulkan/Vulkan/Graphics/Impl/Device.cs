@@ -56,11 +56,17 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public VulkanPhysicalDeviceInfo(VulkanGraphicsContext context, VKPhysicalDevice physicalDevice) {
 			PhysicalDevice = physicalDevice;
+
 			HashSet<string> extensions = new(), layers = new();
 			foreach (var ext in physicalDevice.DeviceExtensions) extensions.Add(ext.ExtensionName);
 			Extensions = extensions;
 			foreach (var lyr in physicalDevice.DeviceLayers) layers.Add(lyr.LayerName);
 			Layers = layers;
+
+			Features = physicalDevice.Features;
+			Properties = physicalDevice.Properties;
+			MemoryProperties = physicalDevice.MemoryProperties;
+			QueueFamilyProperties = physicalDevice.QueueFamilyProperties;
 
 			if (physicalDevice.Instance.APIVersion >= VK11.ApiVersion || physicalDevice.Instance.KHRGetPhysicalDeviceProperties2Functions != null) {
 				using MemoryStack sp = MemoryStack.Push();
@@ -150,11 +156,6 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 					MemoryProperties = properties2.MemoryProperties;
 				}
-			} else {
-				Features = physicalDevice.Features;
-				Properties = physicalDevice.Properties;
-				MemoryProperties = physicalDevice.MemoryProperties;
-				QueueFamilyProperties = physicalDevice.QueueFamilyProperties;
 			}
 			Score = CalculateScore(context);
 		}
@@ -247,7 +248,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public void Dispose() {
 			QueueSemaphore?.Dispose();
-			QueueSemaphore = null;
+			QueueSemaphore = null!;
 		}
 
 		public void InitQueue(VulkanDevice device) {
@@ -298,7 +299,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			// Else enumerate all devices, sort by score, and select the best
 			}  else {
 				VulkanPhysicalDeviceInfo[] infos = Array.ConvertAll(devices, device => new VulkanPhysicalDeviceInfo(context, device));
-				VulkanPhysicalDeviceInfo devinfo = (
+				VulkanPhysicalDeviceInfo? devinfo = (
 					from info in infos
 					where info.IsSupported
 					orderby info.Score descending
@@ -313,9 +314,16 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			using MemoryStack sp = MemoryStack.Push();
 			PhysicalDevice = SelectPhysicalDevice(context);
 
-			// Enable extensions	
-			HashSet<string> enabledExts = new(context.RequiredDeviceExtensions);
-			foreach (string ext in context.PreferredDeviceExtensions) if (PhysicalDevice.Extensions.Contains(ext)) enabledExts.Add(ext);
+			// Enable extensions
+			HashSet<string> enabledExts = new();
+			if (context.RequiredDeviceExtensions != null) enabledExts.AddAll(context.RequiredDeviceExtensions);
+			if (context.PreferredDeviceExtensions != null) {
+				foreach (string ext in context.PreferredDeviceExtensions)
+					if (PhysicalDevice.Extensions.Contains(ext)) enabledExts.Add(ext);
+			}
+			EnabledExtensions = enabledExts;
+
+			EnabledLayers = new HashSet<string>();
 
 			// Find queue families for each type
 			int graphicsQueueFamily = PhysicalDevice.FindQueue(VKQueueFlagBits.Graphics);

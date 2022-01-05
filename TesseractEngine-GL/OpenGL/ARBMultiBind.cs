@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBMultiBindFunctions {
 
 		public delegate void PFN_glBindBuffersBase(uint target, uint first, int count, [NativeType("const GLuint*")] IntPtr buffers);
@@ -31,6 +32,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glBindVertexBuffers glBindVertexBuffers;
 
 	}
+#nullable restore
 
 	public class ARBMultiBind : IGLObject {
 

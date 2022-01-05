@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBShaderStorageBufferObjectFunctions {
 
 		public delegate void PFN_glShaderStorageBlockBinding(uint program, uint storageBlockIndex, uint storageBlockBinding);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glShaderStorageBlockBinding glShaderStorageBlockBinding;
 
 	}
+#nullable restore
 
 	public class ARBShaderStorageBufferObject : IGLObject {
 

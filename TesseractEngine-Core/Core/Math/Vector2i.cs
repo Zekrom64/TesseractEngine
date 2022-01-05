@@ -50,9 +50,9 @@ namespace Tesseract.Core.Math {
 			Y = tuple.Y;
 		}
 
-		public bool Equals(IReadOnlyTuple2<int> other) => X == other.X && Y == other.Y;
+		public bool Equals(IReadOnlyTuple2<int>? other) => other != null && X == other.X && Y == other.Y;
 
-		public override bool Equals(object obj) => obj is IReadOnlyTuple2<int> other && Equals(other);
+		public override bool Equals(object? obj) => obj is IReadOnlyTuple2<int> other && Equals(other);
 
 		public override int GetHashCode() => X ^ (Y << 16);
 
@@ -85,7 +85,7 @@ namespace Tesseract.Core.Math {
 		public static bool operator !=(Vector2i left, Vector2i right) => !(left == right);
 
 		// Arithmetic operators
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator +(Vector2i left, Vector2i right) => new(left.X + right.X, left.Y + right.Y);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

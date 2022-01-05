@@ -170,6 +170,7 @@ namespace Tesseract.OpenAL {
 		DistanceModel = 0xD000
 	}
 
+#nullable disable
 	public class AL11Functions {
 
 		public delegate void PFN_alDopplerFactor(float value);
@@ -352,6 +353,7 @@ namespace Tesseract.OpenAL {
 		public PFN_alGetBufferiv alGetBufferiv;
 
 	}
+#nullable restore
 
 	public class AL11 {
 
@@ -389,7 +391,7 @@ namespace Tesseract.OpenAL {
 
 		public bool IsEnabled(ALenum capability) => Functions.alIsEnabled(capability) != 0;
 
-		public string GetString(ALGetString param) => MemoryUtil.GetASCII(Functions.alGetString(param));
+		public string? GetString(ALGetString param) => MemoryUtil.GetASCII(Functions.alGetString(param));
 
 		public ALError GetError() => Functions.alGetError();
 
@@ -634,7 +636,10 @@ namespace Tesseract.OpenAL {
 			set => AL11.Functions.alSourcei(Source, ALSourceAttrib.ByteOffset, value);
 		}
 
-		public ALSource(ALuint source) { Source = source; }
+		public ALSource(AL11 al11, ALuint source) {
+			AL11 = al11;
+			Source = source;
+		}
 
 		public ALSource(AL11 al11) {
 			AL11 = al11;
@@ -674,7 +679,7 @@ namespace Tesseract.OpenAL {
 			}
 		}
 
-		public ALBuffer[] UnqueueBuffers() {
+		public ALBuffer?[] UnqueueBuffers() {
 			int n = BuffersProcessed;
 			Span<ALuint> bufs = stackalloc ALuint[n];
 			unsafe {
@@ -682,10 +687,10 @@ namespace Tesseract.OpenAL {
 					AL11.Functions.alSourceUnqueueBuffers(Source, n, (IntPtr)pBufs);
 				}
 			}
-			ALBuffer[] buffers = new ALBuffer[n];
+			ALBuffer?[] buffers = new ALBuffer?[n];
 			for (int i = 0; i < n; i++) {
 				ALuint buf = bufs[i];
-				buffers[i] = buf != 0 ? new ALBuffer(buf) : null;
+				buffers[i] = buf != 0 ? new ALBuffer(AL11, buf) : null;
 			}
 			return buffers;
 		}
@@ -700,7 +705,7 @@ namespace Tesseract.OpenAL {
 
 		// AL_EXT_EFX
 
-		public ALFilter DirectFilter {
+		public ALFilter? DirectFilter {
 			get {
 				AL11.Functions.alGetSourcei(Source, ALSourceAttrib.DirectFilter, out ALint filter);
 				return filter != 0 ? new ALFilter(AL, (uint)filter) : null;
@@ -795,7 +800,10 @@ namespace Tesseract.OpenAL {
 			}
 		}
 
-		public ALBuffer(ALuint buffer) { Buffer = buffer; }
+		public ALBuffer(AL11 al11, ALuint buffer) {
+			AL11 = al11;
+			Buffer = buffer;
+		}
 
 		public ALBuffer(AL11 al11) {
 			AL11 = al11;
@@ -825,6 +833,9 @@ namespace Tesseract.OpenAL {
 		public void BufferData<T>(ALFormat format, IConstPointer<T> data, ALsizei size, ALsizei frequency) where T : unmanaged =>
 			AL11.Functions.alBufferData(Buffer, format, data.Ptr, size, frequency);
 
+#nullable disable
+		// AL_SOFT_buffer_samples
+
 		public void BufferSamplesSOFT<T>(ALuint sampleRate, ALStorageFormatSOFT internalFormat, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, in ReadOnlySpan<T> data) where T : unmanaged {
 			unsafe {
 				fixed (T* pData = data) {
@@ -832,8 +843,6 @@ namespace Tesseract.OpenAL {
 				}
 			}
 		}
-
-		// AL_SOFT_buffer_samples
 
 		public void BufferSamplesSOFT<T>(ALuint sampleRate, ALStorageFormatSOFT internalFormat, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IConstPointer<T> data) where T : unmanaged =>
 					AL.SOFTBufferSamples.Functions.alBufferSamplesSOFT(Buffer, sampleRate, internalFormat, samples, channels, type, data.Ptr);
@@ -859,5 +868,7 @@ namespace Tesseract.OpenAL {
 
 		public void GetBufferSamplesSOFT<T>(ALsizei offset, ALsizei samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IPointer<T> data) where T : unmanaged =>
 			AL.SOFTBufferSamples.Functions.alGetBufferSamplesSOFT(Buffer, offset, samples, channels, type, data.Ptr);
+#nullable restore
+
 	}
 }

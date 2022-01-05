@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Media {
 
@@ -19,7 +15,7 @@ namespace Tesseract.Core.Media {
 		/// </summary>
 		Frame
 	}
-	
+
 	/// <summary>
 	/// A media position determines what the current read/write position is
 	/// in a piece of media.

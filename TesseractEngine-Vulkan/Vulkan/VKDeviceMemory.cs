@@ -15,7 +15,7 @@ namespace Tesseract.Vulkan {
 
 		public VKDevice Device { get; }
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public ulong PrimitiveHandle => DeviceMemory;
 
@@ -33,11 +33,11 @@ namespace Tesseract.Vulkan {
 					Memory = DeviceMemory
 				};
 				if (Device.VK12Functions) return Device.VK12Functions.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
+				else return Device.KHRBufferDeviceAddress!.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
 			}
 		}
 
-		public VKDeviceMemory(VKDevice device, ulong deviceMemory, VulkanAllocationCallbacks allocator) {
+		public VKDeviceMemory(VKDevice device, ulong deviceMemory, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			DeviceMemory = deviceMemory;
 			Allocator = allocator;
@@ -58,25 +58,25 @@ namespace Tesseract.Vulkan {
 		public void UnmapMemory() => Device.VK10Functions.vkUnmapMemory(Device, DeviceMemory);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKDeviceMemory memory) => memory != null ? memory.DeviceMemory : 0;
+		public static implicit operator ulong(VKDeviceMemory? memory) => memory != null ? memory.DeviceMemory : 0;
 
 
-		public override bool Equals(object obj) => obj is VKDeviceMemory mem && Equals(mem);
+		public override bool Equals(object? obj) => obj is VKDeviceMemory mem && Equals(mem);
 
 		public override int GetHashCode() => (int)DeviceMemory;
 
-		public bool Equals(VKDeviceMemory mem) {
+		public bool Equals(VKDeviceMemory? mem) {
 			if (mem == null) return false;
 			return DeviceMemory == mem.DeviceMemory;
 		}
 
-		public static bool operator==(VKDeviceMemory m1, VKDeviceMemory m2) {
+		public static bool operator==(VKDeviceMemory? m1, VKDeviceMemory? m2) {
 			if (m1 != null ^ m2 != null) return false;
 			if (m1 != null) return m1.Equals(m2);
 			return false;
 		}
 
-		public static bool operator !=(VKDeviceMemory m1, VKDeviceMemory m2) => !(m1 == m2);
+		public static bool operator !=(VKDeviceMemory? m1, VKDeviceMemory? m2) => !(m1 == m2);
 
 	}
 

@@ -19,7 +19,7 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; set; }
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_SensorGetDeviceName(DeviceIndex));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_SensorGetDeviceName(DeviceIndex))!;
 
 		public SDLSensorType Type => SDL2.Functions.SDL_SensorGetDeviceType(DeviceIndex);
 
@@ -39,7 +39,7 @@ namespace Tesseract.SDL {
 
 		public IPointer<SDL_Sensor> Sensor { get; private set; }
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_SensorGetName(Sensor.Ptr));
+		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_SensorGetName(Sensor.Ptr))!;
 
 		public SDLSensorType Type => SDL2.Functions.SDL_SensorGetType(Sensor.Ptr);
 
@@ -55,7 +55,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Sensor != null) {
 				SDL2.Functions.SDL_SensorClose(Sensor.Ptr);
-				Sensor = null;
+				Sensor = null!;
 			}
 		}
 
