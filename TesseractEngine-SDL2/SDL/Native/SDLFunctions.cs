@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.SDL.Native {
 
+#nullable disable
 	public class SDLFunctions {
 
 		// SDL_stdinc.h
@@ -2011,5 +2012,6 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_Vulkan_GetDrawableSize SDL_Vulkan_GetDrawableSize;
 		
 	}
+#nullable restore
 
 }

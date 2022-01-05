@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBES31CompatibilityFunctions {
 
 		public delegate void PFN_glMemoryBarrierByRegion(uint barriers);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glMemoryBarrierByRegion glMemoryBarrierByRegion;
 
 	}
+#nullable restore
 
 	public class ARBES31Compatibility : IGLObject {
 

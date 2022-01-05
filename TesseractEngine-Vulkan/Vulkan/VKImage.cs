@@ -17,7 +17,7 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Image;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VKMemoryRequirements MemoryRequirements {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,7 +41,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKImage(VKDevice device, ulong image, VulkanAllocationCallbacks allocator) {
+		public VKImage(VKDevice device, ulong image, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Image = image;
 			Allocator = allocator;
@@ -63,7 +63,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKImage image) => image != null ? image.Image : 0;
+		public static implicit operator ulong(VKImage? image) => image != null ? image.Image : 0;
 
 	}
 

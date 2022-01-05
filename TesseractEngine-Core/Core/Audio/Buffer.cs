@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Native;
 
 namespace Tesseract.Core.Audio {
@@ -48,7 +44,7 @@ namespace Tesseract.Core.Audio {
 		/// <param name="data">Pointer to sample data</param>
 		/// <param name="length">Number of samples to update</param>
 		public void Update<T>(IConstPointer<T> data, int length) where T : unmanaged;
-	
+
 	}
 
 	/// <summary>
@@ -59,7 +55,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format the buffer will use.
 		/// </summary>
-		public AudioFormat Format { get; init; }
+		public AudioFormat Format { get; init; } = null!;
 
 		/// <summary>
 		/// The number of samples the buffer will store.

@@ -18,7 +18,7 @@ namespace Tesseract.GLFW {
 			Window = window;
 		}
 
-		public GLFWWindow(Vector2i size, string title, GLFWMonitor monitor = default, GLFWWindow share = null) {
+		public GLFWWindow(Vector2i size, string title, GLFWMonitor monitor = default, GLFWWindow? share = null) {
 			Window = GLFW3.Functions.glfwCreateWindow(size.X, size.Y, title, monitor.Monitor, share != null ? share.Window : IntPtr.Zero);
 		}
 
@@ -183,7 +183,7 @@ namespace Tesseract.GLFW {
 			set => GLFW3.Functions.glfwSetCursorPos(Window, value.X, value.Y);
 		}
 
-		public GLFWCursor Cursor {
+		public GLFWCursor? Cursor {
 			set => GLFW3.Functions.glfwSetCursor(Window, value != null ? value.Cursor : IntPtr.Zero);
 		}
 

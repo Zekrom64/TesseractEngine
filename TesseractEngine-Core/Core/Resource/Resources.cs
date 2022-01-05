@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Resource {
@@ -25,14 +22,14 @@ namespace Tesseract.Core.Resource {
 	/// </summary>
 	public abstract class ResourceDomain {
 
-		private static readonly ThreadLocal<ResourceDomain> contextualDomain = new(() => Default);
-		private static readonly Dictionary<string,ResourceDomain> allDomains = new();
+		private static readonly ThreadLocal<ResourceDomain> contextualDomain = new(() => NullResourceDomain.Instance);
+		private static readonly Dictionary<string, ResourceDomain> allDomains = new();
 
 		/// <summary>
 		/// The current contextual resource domain.
 		/// </summary>
 		public static ResourceDomain Current {
-			get => contextualDomain.Value;
+			get => contextualDomain.Value!;
 			set {
 				if (value != null) contextualDomain.Value = value;
 			}
@@ -41,14 +38,14 @@ namespace Tesseract.Core.Resource {
 		/// <summary>
 		/// The default resource domain.
 		/// </summary>
-		public static ResourceDomain Default { get; private set; }
+		public static ResourceDomain? Default { get; private set; }
 
 		/// <summary>
 		/// The global set of all registered resource domains.
 		/// </summary>
 		public static IReadOnlyDictionary<string, ResourceDomain> All {
 			get {
-				lock(allDomains) {
+				lock (allDomains) {
 					// Return copy, domains *could* change at runtime
 					return new Dictionary<string, ResourceDomain>(allDomains);
 				}
@@ -72,7 +69,7 @@ namespace Tesseract.Core.Resource {
 		/// <param name="domain">Domain to add</param>
 		/// <exception cref="ArgumentException">If a resource domain with the same name already exists</exception>
 		public static void AddDomain(ResourceDomain domain) {
-			lock(allDomains) {
+			lock (allDomains) {
 				string name = domain.Name;
 				if (allDomains.ContainsKey(name)) throw new ArgumentException($"Resource domain \"{name}\" already exists", nameof(domain));
 				allDomains[name] = domain;
@@ -84,30 +81,34 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">Name of the domain to remove</param>
 		public static void RemoveDomain(string name) {
-			lock(allDomains) {
-				if (allDomains.Remove(name, out ResourceDomain domain)) domain.OnRemoved?.Invoke();
+			lock (allDomains) {
+				if (allDomains.Remove(name, out ResourceDomain? domain)) domain!.OnRemoved?.Invoke();
 			}
 		}
 
 		/// <summary>
 		/// Event called when the domain is removed from the global set of domains.
 		/// </summary>
-		public event Action OnRemoved;
+		public event Action? OnRemoved;
 
 		/// <summary>
 		/// Sets the current contextual domain given the name of a domain.
 		/// </summary>
 		/// <param name="name">The name of the domain to set</param>
 		public static void SetCurrentDomain(string name) {
-			lock(allDomains) {
-				Current = allDomains.GetValueOrDefault(name, Default);
+			lock (allDomains) {
+				Current = allDomains!.GetValueOrDefault(name, Default)!;
 			}
 		}
 
 		/// <summary>
 		/// The name of the resource domain.
 		/// </summary>
-		public string Name { get; protected init; }
+		public string Name { get; }
+
+		protected ResourceDomain(string name) {
+			Name = name;
+		}
 
 		/// <summary>
 		/// Opens a resource location from this domain as a stream.
@@ -134,6 +135,20 @@ namespace Tesseract.Core.Resource {
 		public abstract ResourceMetadata GetMetadata(ResourceLocation file);
 
 		public override string ToString() => Name;
+
+	}
+
+	public class NullResourceDomain : ResourceDomain {
+
+		public static readonly NullResourceDomain Instance = new();
+
+		private NullResourceDomain() : base("null") { }
+
+		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collections<ResourceLocation>.EmptyList;
+
+		public override ResourceMetadata GetMetadata(ResourceLocation file) => new() { Size = -1, Local = true };
+
+		public override Stream OpenStream(ResourceLocation file) => throw new IOException("Cannot open stream from null resource domain");
 
 	}
 
@@ -165,7 +180,7 @@ namespace Tesseract.Core.Resource {
 			get {
 				int seppos = Path.LastIndexOf('/');
 				if (seppos == -1) return new ResourceLocation(Domain, "");
-				else return new ResourceLocation(Domain, Path.Substring(0, seppos));
+				else return new ResourceLocation(Domain, Path[..seppos]);
 			}
 		}
 
@@ -244,7 +259,7 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="forEach">Action to invoke for every resource</param>
 		public void RecurseDirectory(Action<ResourceLocation> forEach) {
-			foreach(ResourceLocation subfile in EnumerateDirectory()) {
+			foreach (ResourceLocation subfile in EnumerateDirectory()) {
 				forEach(subfile);
 				subfile.RecurseDirectory(forEach);
 			}
@@ -254,7 +269,7 @@ namespace Tesseract.Core.Resource {
 
 		public override string ToString() => Domain.ToString() + ":" + Path;
 
-		public override bool Equals(object obj) => obj is ResourceLocation location && Equals(location);
+		public override bool Equals(object? obj) => obj is ResourceLocation location && Equals(location);
 
 		public override int GetHashCode() => Domain.GetHashCode() ^ Path.GetHashCode();
 

@@ -45,7 +45,7 @@ namespace Tesseract.SDL {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public readonly struct SDLRect : IEquatable<SDLRect>, IReadOnlyRect<int> {
+	public readonly record struct SDLRect : IReadOnlyRect<int> {
 
 		private readonly int x;
 		public int X { get => x; init => x = value; }
@@ -75,16 +75,6 @@ namespace Tesseract.SDL {
 			SDL2.Functions.SDL_UnionRect(this, b, out SDLRect result);
 			return result;
 		}
-
-		public bool Equals(SDLRect b) => X == b.X && Y == b.Y && W == b.W && H == b.H;
-
-		public override bool Equals(object obj) => obj is SDLRect rect && Equals(rect);
-
-		public static bool operator ==(in SDLRect left, in SDLRect right) => left.Equals(right);
-
-		public static bool operator !=(in SDLRect left, in SDLRect right) => !(left == right);
-
-		public override int GetHashCode() => X ^ (Y << 8) ^ (W << 8) ^ (H << 8);
 
 	}
 

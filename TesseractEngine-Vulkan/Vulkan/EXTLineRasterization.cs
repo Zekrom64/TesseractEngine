@@ -64,6 +64,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class EXTLineRasterizationDeviceFunctions {
 
 		public delegate void PFN_vkCmdSetLineStippleEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint lineStippleFactor, ushort lineStipplePattern);
@@ -73,6 +74,7 @@ namespace Tesseract.Vulkan {
 		public static implicit operator bool(EXTLineRasterizationDeviceFunctions fn) => fn != null;
 
 	}
+#nullable restore
 
 	public static class EXTLineRasterization {
 

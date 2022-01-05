@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBGetProgramBinaryFunctions {
 
 		public delegate void PFN_glGetProgramBinary(uint program, int bufSize, out int length, out uint binaryFormat, IntPtr binary);
@@ -21,6 +22,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glProgramParameteri glProgramParameteri;
 
 	}
+#nullable restore
 
 	public class ARBGetProgramBinary : IGLObject {
 
@@ -45,7 +47,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte[] GetProgramBinary(uint program, out uint binaryFormat) {
-			int length = GL.GL20.GetProgram(program, GLGetProgram.ProgramBinaryLength);
+			int length = GL.GL20!.GetProgram(program, GLGetProgram.ProgramBinaryLength);
 			byte[] binary = new byte[length];
 			unsafe {
 				fixed(byte* pBinary = binary) {

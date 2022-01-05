@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Tesseract.Core.Resource {
 
@@ -16,7 +12,7 @@ namespace Tesseract.Core.Resource {
 		/// The MIME type of the resource, or null if the MIME type could not be determined. This
 		/// may be guessed from other properties such as file names via <see cref="MIME.TryGuessFromExtension(string, out string)"/>.
 		/// </summary>
-		public string MIMEType { get; init; }
+		public string? MIMEType { get; init; }
 
 		/// <summary>
 		/// The size of the resource, or -1 if the size cannot be determined.
@@ -30,7 +26,7 @@ namespace Tesseract.Core.Resource {
 		public bool Local { get; init; }
 
 	}
-	
+
 	/// <summary>
 	/// MIME types are strings that describe how the contents of a file are actually formatted. MIME
 	/// types can be guessed from the extension at the end of a file name, but in some cases such
@@ -85,7 +81,7 @@ namespace Tesseract.Core.Resource {
 		/// PNG image.
 		/// </summary>
 		public const string PNG = "image/png";
-		
+
 		/// <summary>
 		/// HTTP plaintext.
 		/// </summary>
@@ -179,7 +175,13 @@ namespace Tesseract.Core.Resource {
 		/// <param name="extension">The extension part of the resource's name</param>
 		/// <param name="mime">The MIME type if found</param>
 		/// <returns>If a MIME type was found for the extension</returns>
-		public static bool TryGuessFromExtension(string extension, out string mime) => mimeExtensions.TryGetValue(extension, out mime);
+		public static bool TryGuessFromExtension(string? extension, out string? mime) {
+			if (extension == null) {
+				mime = null;
+				return false;
+			}
+			return mimeExtensions.TryGetValue(extension, out mime);
+		}
 
 	}
 

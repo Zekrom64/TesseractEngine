@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
 
@@ -12,17 +8,17 @@ namespace Tesseract.Core.Util {
 
 	}
 
-	public interface IIndexer<K,V> : IReadOnlyIndexer<K,V> {
+	public interface IIndexer<K, V> : IReadOnlyIndexer<K, V> {
 
 		public new V this[K key] { get; set; }
 
 	}
 
-	public class FuncReadOnlyIndexer<K,V> : IReadOnlyIndexer<K,V> {
+	public class FuncReadOnlyIndexer<K, V> : IReadOnlyIndexer<K, V> {
 
 		public readonly Func<K, V> Getter;
 
-		public FuncReadOnlyIndexer(Func<K,V> getter) {
+		public FuncReadOnlyIndexer(Func<K, V> getter) {
 			Getter = getter;
 		}
 
@@ -30,12 +26,12 @@ namespace Tesseract.Core.Util {
 
 	}
 
-	public class FuncReadOnlyIndexer<K,V,T1> : IReadOnlyIndexer<K,V> {
+	public class FuncReadOnlyIndexer<K, V, T1> : IReadOnlyIndexer<K, V> {
 
 		public readonly Func<T1, K, V> Getter;
 		public readonly T1 First;
 
-		public FuncReadOnlyIndexer(T1 first, Func<T1,K,V> getter) {
+		public FuncReadOnlyIndexer(T1 first, Func<T1, K, V> getter) {
 			First = first;
 			Getter = getter;
 		}
@@ -44,12 +40,12 @@ namespace Tesseract.Core.Util {
 
 	}
 
-	public class FuncIndexer<K,V> : IIndexer<K,V> {
+	public class FuncIndexer<K, V> : IIndexer<K, V> {
 
 		public readonly Func<K, V> Getter;
 		public readonly Action<K, V> Setter;
 
-		public FuncIndexer(Func<K,V> getter, Action<K,V> setter) {
+		public FuncIndexer(Func<K, V> getter, Action<K, V> setter) {
 			Getter = getter;
 			Setter = setter;
 		}
@@ -63,7 +59,7 @@ namespace Tesseract.Core.Util {
 
 	}
 
-	public  class FuncIndexer<K,V,T1> : IIndexer<K,V> {
+	public class FuncIndexer<K, V, T1> : IIndexer<K, V> {
 
 		public readonly Func<T1, K, V> Getter;
 		public readonly Action<T1, K, V> Setter;

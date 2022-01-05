@@ -29,6 +29,7 @@ namespace Tesseract.OpenGL.Native {
 	using GLintptr = IntPtr;
 	using GLsizeiptr = IntPtr;
 
+#nullable disable
 	public class GL11Functions {
 
 		public delegate void PFN_glAccum(GLenum op, GLfloat value);
@@ -694,5 +695,7 @@ namespace Tesseract.OpenGL.Native {
 	public delegate void PFN_glMultiDrawArraysIndirectCount(GLenum mode, IntPtr indirect, GLintptr drawcount, GLsizei maxdrawcount, GLsizei stride);
 	public delegate void PFN_glMultiDrawElementsIndirectCount(GLenum mode, GLenum type, IntPtr indirect, GLintptr drawcount, GLsizei maxdrawcount, GLsizei stride);
 	public delegate void PFN_glSpecializeShader(GLuint shader, [MarshalAs(UnmanagedType.LPStr)] string entryPoint, GLuint numSpecializationConstants, [NativeType("const GLuint*")] IntPtr pConstantIndex, [NativeType("const GLuint*")] IntPtr pConstantValue);
+
+#nullable restore
 
 }

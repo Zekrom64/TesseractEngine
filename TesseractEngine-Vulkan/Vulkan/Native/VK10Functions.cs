@@ -37,6 +37,7 @@ namespace Tesseract.Vulkan.Native {
 	using VkFramebuffer = UInt64;
 	using VkCommandPool = UInt64;
 
+#nullable disable
 	public class VK10Functions {
 
 		public delegate VKResult PFN_vkEnumerateInstanceExtensionProperties([MarshalAs(UnmanagedType.LPStr)] string layerName, ref uint propertyCount, [NativeType("VkExtensionProperties*")] IntPtr pProperties);
@@ -48,7 +49,9 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkCreateInstance vkCreateInstance;
 
 	}
+#nullable restore
 
+#nullable disable
 	public class VK10InstanceFunctions {
 
 		public delegate void PFN_vkDestroyInstance(VkInstance instance, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
@@ -78,7 +81,9 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkGetPhysicalDeviceSparseImageFormatProperties vkGetPhysicalDeviceSparseImageFormatProperties;
 
 	}
+#nullable restore
 
+#nullable disable
 	public class VK10DeviceFunctions {
 
 		public delegate void PFN_vkDestroyDevice(VkDevice device, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
@@ -326,5 +331,6 @@ namespace Tesseract.Vulkan.Native {
 		public static implicit operator bool(VK10DeviceFunctions fn) => fn != null;
 
 	}
+#nullable restore
 
 }

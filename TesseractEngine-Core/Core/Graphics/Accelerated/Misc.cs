@@ -1,41 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// A viewport specifies the region of 3D space that will be captured during rasterization. This is done
 	/// using a rectangle describing the 2D area in the X and Y axes, and a pair of depth bounds values
 	/// describing the area in the Z axis.
 	/// </summary>
-	public struct Viewport : IEquatable<Viewport> {
+	public record struct Viewport {
 
 		// Note for OpenGL: glViewport takes ints in pixel coordinates, this can be computed knowing the current FB size and converting area based on NDC
 
 		/// <summary>
 		/// A rectangle describing the 2D area that will be captured by the framebuffer.
 		/// </summary>
-		public Rectf Area;
+		public Rectf Area { get; set; }
 
 		/// <summary>
 		/// The minimum and maximum depth bounds values.
 		/// </summary>
-		public (float, float) DepthBounds;
-
-		
-		public bool Equals(Viewport other) => Area.Equals(other.Area) && DepthBounds.Equals(other.DepthBounds);
-
-		public override bool Equals(object obj) => obj is Viewport v && Equals(v);
-
-		public override int GetHashCode() => Area.GetHashCode() ^ DepthBounds.GetHashCode();
-
-		public static bool operator ==(Viewport v1, Viewport v2) => v1.Equals(v2);
-
-		public static bool operator !=(Viewport v1, Viewport v2) => !v1.Equals(v2);
+		public (float, float) DepthBounds { get; set; }
 
 	}
 
@@ -324,7 +309,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Where D and S are the destination and source color values and 'd' and 's' are the destination and source
 	/// blend factors.
 	/// </summary>
-	public struct BlendEquation : IEquatable<BlendEquation> {
+	public record struct BlendEquation {
 
 		/// <summary>
 		/// Implements a passthrough blend equation, i.e. <c>D = S</c>
@@ -387,7 +372,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The blending factor for the destination RGB channels.
 		/// </summary>
 		public BlendFactor DstRGB;
-		
+
 		/// <summary>
 		/// The blend operation to apply to the RGB channels.
 		/// </summary>
@@ -407,29 +392,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The blend operation to apply to the alpha channel.
 		/// </summary>
 		public BlendOp AlphaOp;
-
-
-		public bool Equals(BlendEquation other) =>
-			SrcRGB == other.SrcRGB &&
-			DstRGB == other.DstRGB &&
-			RGBOp == other.RGBOp &&
-			SrcAlpha == other.SrcAlpha &&
-			DstAlpha == other.DstAlpha &&
-			AlphaOp == other.AlphaOp;
-
-		public override bool Equals(object obj) => obj is BlendEquation eq && Equals(eq);
-
-		public override int GetHashCode() =>
-			SrcRGB.GetHashCode() ^
-			(DstRGB.GetHashCode() << 3) ^
-			(RGBOp.GetHashCode() << 6) ^
-			(SrcAlpha.GetHashCode() << 8) ^
-			(DstAlpha.GetHashCode() << 11) ^
-			(AlphaOp.GetHashCode() << 14);
-
-		public static bool operator ==(BlendEquation e1, BlendEquation e2) => e1.Equals(e2);
-
-		public static bool operator !=(BlendEquation e1, BlendEquation e2) => !e1.Equals(e2);
 
 	}
 

@@ -8,7 +8,8 @@ using Tesseract.Core.Native;
 using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBSampleShadingFunctions {
 
 		public delegate void PFN_glMinSampleShading(float value);
@@ -16,6 +17,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glMinSampleShading glMinSampleShading;
 
 	}
+#nullable restore
 
 	public class ARBSampleShading : IGLObject {
 

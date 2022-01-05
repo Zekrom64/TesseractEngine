@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTextureMultisampleFunctions {
 
 		public delegate void PFN_glTexImage2DMultisample(uint target, int samples, uint internalFormat, int width, int height, byte fixedSampleLocations);
@@ -24,6 +25,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glSampleMaski glSampleMaski;
 
 	}
+#nullable restore
 
 	public class ARBTextureMultisample : IGLObject {
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class EXTTextureIntegerFunctions {
 
 		public delegate void PFN_glClearColorIi(int r, int g, int b, int a);
@@ -30,6 +31,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetTexParameterIuiv glGetTexParameterIuiv;
 
 	}
+#nullable restore
 
 	public class EXTTextureInteger : IGLObject {
 

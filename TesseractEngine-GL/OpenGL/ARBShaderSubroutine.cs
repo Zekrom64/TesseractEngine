@@ -10,6 +10,7 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBShaderSubroutineFunctions {
 
 		public delegate int PFN_glGetSubroutineUniformLocation(uint program, uint shadertype, [MarshalAs(UnmanagedType.LPStr)] string name);
@@ -30,6 +31,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetProgramStageiv glGetProgramStageiv;
 
 	}
+#nullable restore
 
 	public class ARBShaderSubroutine : IGLObject {
 

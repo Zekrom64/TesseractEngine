@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class EXTGPUShader4Functions {
 
 		public delegate void PFN_glVertexAttribIPointer(uint index, int size, uint type, int stride, IntPtr pointer);
@@ -28,6 +29,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetFragDataLocation glGetFragDataLocation;
 
 	}
+#nullable restore
 
 	public class EXTGPUShader4 : IGLObject {
 

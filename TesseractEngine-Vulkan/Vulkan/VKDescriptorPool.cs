@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => DescriptorPool;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKDescriptorPool(VKDevice device, ulong descriptorPool, VulkanAllocationCallbacks allocator) {
+		public VKDescriptorPool(VKDevice device, ulong descriptorPool, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			DescriptorPool = descriptorPool;
 			Allocator = allocator;
@@ -61,7 +61,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKDescriptorPool pool) => pool != null ? pool.DescriptorPool : 0;
+		public static implicit operator ulong(VKDescriptorPool? pool) => pool != null ? pool.DescriptorPool : 0;
 
 	}
 

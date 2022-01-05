@@ -144,7 +144,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				foreach(CommandPool pool in commandPools) pool.Trim();
 			}
 
-			public void Submit(in VKSubmitInfo info, VKFence fence) {
+			public void Submit(in VKSubmitInfo info, VKFence? fence) {
 				QueueInfo.QueueSemaphore?.Wait();
 				try {
 					QueueInfo.Queue.Submit(info, fence);
@@ -269,7 +269,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			bool compute = (createInfo.Usage & CommandBufferUsage.Compute) != 0;
 
 			// Need to decide the command bank to use
-			CommandBank cmdbank = null;
+			CommandBank? cmdbank = null;
 			// If graphics commands required
 			if (graphics) {
 				// Use graphics command bank
@@ -478,7 +478,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			CommandBuffer.BindPipeline(vkpipelineset.BindPoint, vkpipelineset.Pipelines[state]);
 			if (vkpipelineset.BindPoint == VKPipelineBindPoint.Graphics) {
 				// Set any dynamic state on the bound pipeline
-				foreach (PipelineDynamicState dyn in vkpipelineset.BaseInfo.GraphicsInfo.DynamicState) {
+				foreach (PipelineDynamicState dyn in vkpipelineset.BaseInfo.GraphicsInfo!.DynamicState) {
 					switch (dyn) {
 						case PipelineDynamicState.Viewport:
 							SetViewports(0, state.Viewports.ToArray());
@@ -496,7 +496,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 							SetBlendConstants(state.BlendConstant);
 							break;
 						case PipelineDynamicState.DepthBounds:
-							SetDepthBounds(state.MinDepthBounds, state.MaxDepthBounds);
+							SetDepthBounds(state.DepthBounds.Item1, state.DepthBounds.Item2);
 							break;
 						case PipelineDynamicState.StencilCompareMask:
 							SetStencilCompareMask(CullFace.Front, state.FrontStencilState.CompareMask);
@@ -585,6 +585,36 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets) =>
 			CommandBuffer.BindDescriptorSets(VulkanConverter.Convert(bindPoint), ((VulkanPipelineLayout)layout).Layout, sets.ConvertAll(set => ((VulkanBindSet)set).Set));
+
+		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) {
+			VulkanFramebuffer vkdst = (VulkanFramebuffer)dst, vksrc = (VulkanFramebuffer)src;
+			VulkanTextureView vkdstview = vkdst.Attachments[dstAttachment], vksrcview = vksrc.Attachments[srcAttachment];
+			VulkanTexture vkdstimg = vkdstview.Texture, vksrcimg = vksrcview.Texture;
+			VKImageAspectFlagBits vkaspect = VulkanConverter.Convert(aspect);
+			VKImageBlit blit = new() {
+				SrcOffsets = new() {
+					X = new(srcArea.X0, srcArea.Y0, 0),
+					Y = new(srcArea.X1, srcArea.Y1, 1)
+				},
+				SrcSubresource = new() {
+					AspectMask = vkaspect,
+					BaseArrayLayer = vksrcview.SubresourceRange.BaseArrayLayer,
+					LayerCount = vksrcview.SubresourceRange.ArrayLayerCount,
+					MipLevel = vksrcview.SubresourceRange.BaseMipLevel
+				},
+				DstOffsets = new() {
+					X = new(dstArea.X0, dstArea.Y0, 0),
+					Y = new(dstArea.X1, dstArea.X1, 1)
+				},
+				DstSubresource = new() {
+					AspectMask = vkaspect,
+					BaseArrayLayer = vkdstview.SubresourceRange.BaseArrayLayer,
+					LayerCount = vkdstview.SubresourceRange.ArrayLayerCount,
+					MipLevel = vksrcview.SubresourceRange.BaseMipLevel
+				}
+			};
+			CommandBuffer.BlitImage(vksrcimg.Image, VulkanConverter.Convert(srcLayout), vkdstimg.Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(filter), blit);
+		}
 
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<ICommandSink.BlitTextureRegion> regions) {
 			VulkanTexture vkdst = (VulkanTexture)dst, vksrc = (VulkanTexture)src;

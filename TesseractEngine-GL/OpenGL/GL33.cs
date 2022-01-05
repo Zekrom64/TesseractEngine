@@ -11,6 +11,7 @@ namespace Tesseract.OpenGL {
 
 		public GL33(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_shader_bit_encoding
 
 		// ARB_blend_func_extended
@@ -126,6 +127,7 @@ namespace Tesseract.OpenGL {
 		public void VertexAttribDivisor(uint index, uint divisor) => GL.ARBInstancedArrays.VertexAttribDivisor(index, divisor);
 
 		// ARB_vertex_type_2_10_10_10_rev
+#nullable restore
 
 	}
 

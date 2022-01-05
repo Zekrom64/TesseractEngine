@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -44,21 +40,37 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Transparent black, with a normalized value of (0.0, 0.0, 0.0, 0.0).
 		/// </summary>
-		TransparentBlack,
+		TransparentBlackNorm,
 		/// <summary>
 		/// Opaque black, with a normalized value of (0.0, 0.0, 0.0, 1.0).
 		/// </summary>
-		OpaqueBlack,
+		OpaqueBlackNorm,
 		/// <summary>
 		/// Opaque white, with a normalized value of (1.0, 1.0, 1.0, 1.0).
 		/// </summary>
-		OpaqueWhite,
+		OpaqueWhiteNorm,
 		/// <summary>
-		/// A custom border color defined during sampler creation.
+		/// A custom border color with a normalized value defined during sampler creation.
 		/// </summary>
-		Custom
+		CustomNorm,
+		/// <summary>
+		/// Transparent black, with a normalized value of (0.0, 0.0, 0.0, 0.0) mapped to the integer type used.
+		/// </summary>
+		TransparentBlackInt,
+		/// <summary>
+		/// Opaque black, with a normalized value of (0.0, 0.0, 0.0, 1.0) mapped to the integer type used.
+		/// </summary>
+		OpaqueBlackInt,
+		/// <summary>
+		/// Opaque white, with a normalized value of (1.0, 1.0, 1.0, 1.0) mapped to the integer type used.
+		/// </summary>
+		OpaqueWhiteInt,
+		/// <summary>
+		/// A custom border color with an integer value defined during sampler creation.
+		/// </summary>
+		CustomInt
 	}
-	
+
 	/// <summary>
 	/// <para>A sampler controls how texels are actually fetched from a texture.</para>
 	/// <para>
@@ -85,12 +97,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// Sampler creation information.
 	/// </summary>
 	public record SamplerCreateInfo {
-
-		/// <summary>
-		/// The pixel format of the textures the sampler will be used with. If <see cref="IGraphicsFeatures.SamplerNoFormat"/>
-		/// is set this value may be null.
-		/// </summary>
-		public PixelFormat Format { get; init; } = null;
 
 		/// <summary>
 		/// The magnification filter to use during sampling.
@@ -145,15 +151,20 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The border color to use for sampling operations.
 		/// </summary>
-		public SamplerBorderColor BorderColor { get; init; } = SamplerBorderColor.TransparentBlack;
+		public SamplerBorderColor BorderColor { get; init; } = SamplerBorderColor.TransparentBlackNorm;
+
+		/// <summary>
+		/// The pixel format used by the custom border color.
+		/// </summary>
+		public PixelFormat? CustomBorderColorFormat { get; init; } = null;
 
 		/// <summary>
 		/// The custom border color of the sampler if <see cref="BorderColor"/> is set to
-		/// <see cref="SamplerBorderColor.Custom"/>. The format of the color (signed/unsigned
+		/// <see cref="SamplerBorderColor.CustomNorm"/>. The format of the color (signed/unsigned
 		/// integer, float) is interpreted from the type provided. The value must be an
 		/// instance of <see cref="Vector4"/> or <see cref="ITuple4{T}"/>.
 		/// </summary>
-		public object CustomBorderColor { get; init; } = null;
+		public object? CustomBorderColor { get; init; } = null;
 
 	}
 

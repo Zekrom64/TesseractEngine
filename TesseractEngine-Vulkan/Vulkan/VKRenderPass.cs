@@ -17,7 +17,7 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => RenderPass;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VKExtent2D RenderAreaGranularity {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -27,7 +27,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKRenderPass(VKDevice device, ulong renderPass, VulkanAllocationCallbacks allocator) {
+		public VKRenderPass(VKDevice device, ulong renderPass, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			RenderPass = renderPass;
 			Allocator = allocator;
@@ -39,7 +39,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKRenderPass renderPass) => renderPass != null ? renderPass.RenderPass : 0;
+		public static implicit operator ulong(VKRenderPass? renderPass) => renderPass != null ? renderPass.RenderPass : 0;
 
 	}
 

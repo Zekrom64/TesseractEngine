@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBClearBufferObjectFunctions {
 
 		public delegate void PFN_glClearBufferData(uint target, uint internalFormat, uint format, uint type, IntPtr data);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glClearBufferSubData glClearBufferSubData;
 
 	}
+#nullable restore
 
 	public class ARBClearBufferObject : IGLObject {
 

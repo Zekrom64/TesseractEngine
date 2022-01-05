@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
 
@@ -33,7 +29,7 @@ namespace Tesseract.Core.Util {
 	/// </summary>
 	[AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = false)]
 	public sealed class ThreadSafetyAttribute : Attribute {
-		
+
 		/// <summary>
 		/// The level of thread safety required.
 		/// </summary>
@@ -42,7 +38,7 @@ namespace Tesseract.Core.Util {
 		public ThreadSafetyAttribute(ThreadSafetyLevel safetyLevel) {
 			SafetyLevel = safetyLevel;
 		}
-	
+
 	}
 
 }

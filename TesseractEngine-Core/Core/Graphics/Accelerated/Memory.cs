@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Native;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// Bitmask of flags to apply during memory mapping.
 	/// </summary>
@@ -240,7 +236,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The memory binding information for the buffer (may be null).
 		/// </summary>
-		public IMemoryBinding MemoryBinding { get; }
+		public IMemoryBinding? MemoryBinding { get; }
 
 		/// <summary>
 		/// Bitmask of supported memory mapping flags.
@@ -296,7 +292,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Explicit memory binding information for the buffer, or <c>null</c> to let the backend
 		/// decide how memory should be bound for the buffer.
 		/// </summary>
-		public IMemoryBinding MemoryBinding { get; init; }
+		public IMemoryBinding? MemoryBinding { get; init; }
 
 		/// <summary>
 		/// The required memory mapping flags to support.
@@ -313,7 +309,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The buffer to bind.
 		/// </summary>
-		public IBuffer Buffer { get; init; }
+		public IBuffer Buffer { get; init; } = null!;
 
 		/// <summary>
 		/// The memory range within the buffer to bind.

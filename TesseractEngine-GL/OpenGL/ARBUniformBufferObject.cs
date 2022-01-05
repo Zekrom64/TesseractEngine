@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBUniformBufferObjectFunctions {
 
 		public delegate void PFN_glGetUniformIndices(uint program, int uniformCount, [NativeType("const char* const*")] IntPtr uniformNames, [NativeType("GLuint*")] IntPtr uniformIndices);
@@ -43,6 +44,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glUniformBlockBinding glUniformBlockBinding;
 
 	}
+#nullable restore
 
 	public class ARBUniformBufferObject : IGLObject {
 
@@ -50,7 +52,7 @@ namespace Tesseract.OpenGL {
 		public ARBUniformBufferObjectFunctions Functions { get; } = new();
 
 		public ARBUniformBufferObject(GL gl, IGLContext context) {
-			gl = GL;
+			GL = gl;
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
 
@@ -90,7 +92,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		public string GetActiveUniformName(uint program, uint uniformIndex) {
-			int len = GL.GL20.GetProgram(program, GLGetProgram.ActiveUniformMaxLength);
+			int len = GL.GL20!.GetProgram(program, GLGetProgram.ActiveUniformMaxLength);
 			Span<byte> name = stackalloc byte[len];
 			unsafe {
 				fixed(byte* pName = name) {
@@ -123,7 +125,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		public string GetActiveUniformBlockName(uint program, uint uniformBlockIndex) {
-			int len = GL.GL20.GetProgram(program, GLGetProgram.ActiveUniformBlockMaxNameLength);
+			int len = GL.GL20!.GetProgram(program, GLGetProgram.ActiveUniformBlockMaxNameLength);
 			Span<byte> name = stackalloc byte[len];
 			unsafe {
 				fixed(byte* pName = name) {

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTessellationShaderFunctions {
 
 		public delegate void PFN_glPatchParameteri(uint pname, int value);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glPatchParameterfv glPatchParameterfv;
 
 	}
+#nullable restore
 
 	public class ARBTessellationShader : IGLObject {
 

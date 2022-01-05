@@ -10,6 +10,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBFramebufferObjectFunctions {
 
 		public delegate byte PFN_glIsRenderbuffer(uint renderbuffer);
@@ -74,6 +75,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGenerateMipmap glGenerateMipmap;
 
 	}
+#nullable restore
 
 	public class ARBFramebufferObject : IGLObject {
 

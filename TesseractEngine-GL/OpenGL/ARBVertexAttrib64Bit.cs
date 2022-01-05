@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBVertexAttrib64BitFunctions {
 
 		public delegate void PFN_glVertexAttribLPointer(uint index, int size, uint type, int stride, IntPtr pointer);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glVertexAttribLPointer glVertexAttribLPointer;
 
 	}
+#nullable restore
 
 	public class ARBVertexAttrib64Bit : IGLObject {
 

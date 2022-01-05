@@ -11,14 +11,14 @@ namespace Tesseract.Vulkan {
 
 		public VKDevice Device { get; }
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		[NativeType("VkSamplerYcbcrConversion")]
 		public ulong SamplerYcbcrConversion { get; }
 
 		public ulong PrimitiveHandle => SamplerYcbcrConversion;
 
-		public VKSamplerYcbcrConversion(VKDevice device, ulong ycbcrConversion, VulkanAllocationCallbacks allocator = null) {
+		public VKSamplerYcbcrConversion(VKDevice device, ulong ycbcrConversion, VulkanAllocationCallbacks? allocator = null) {
 			Device = device;
 			SamplerYcbcrConversion = ycbcrConversion;
 			Allocator = allocator;
@@ -26,9 +26,11 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			if (Device.VK11Functions) Device.VK11Functions.vkDestroySamplerYcbcrConversion(Device, SamplerYcbcrConversion, Allocator);
-			else Device.KHRSamplerYcbcrConversion.vkDestroySamplerYcbcrConversionKHR(Device, SamplerYcbcrConversion, Allocator);
+			if (Device.VK11Functions) Device.VK11Functions!.vkDestroySamplerYcbcrConversion(Device, SamplerYcbcrConversion, Allocator);
+			else Device.KHRSamplerYcbcrConversion!.vkDestroySamplerYcbcrConversionKHR(Device, SamplerYcbcrConversion, Allocator);
 		}
+
+		public static implicit operator ulong(VKSamplerYcbcrConversion? conversion) => conversion != null ? conversion.PrimitiveHandle : 0;
 
 	}
 

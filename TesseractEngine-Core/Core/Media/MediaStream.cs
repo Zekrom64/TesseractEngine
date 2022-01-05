@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tesseract.Core.Audio;
+﻿using Tesseract.Core.Audio;
 
 namespace Tesseract.Core.Media {
-	
+
 	/// <summary>
 	/// A media stream handles decoding/encoding of different multimedia formats, handling
 	/// audio and video primarily.

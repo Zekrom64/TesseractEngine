@@ -151,7 +151,7 @@ namespace Tesseract.Utilities.Graphics {
 
 		public static IImageSharpImage Create(IImage img) {
 			if (img is IImageSharpImage isi) return isi;
-			if (!ImageSharpService.pixelFormatToType.TryGetValue(img.Format, out Type pt))
+			if (!ImageSharpService.pixelFormatToType.TryGetValue(img.Format, out Type? pt))
 				throw new ArgumentException($"Image pixel format {img.Format} is not supported by ImageSharp", nameof(img));
 			else return Create(imageConverters[pt](img));
 		}
@@ -165,7 +165,7 @@ namespace Tesseract.Utilities.Graphics {
 		public Image AbstractImage => Image;
 
 		public ImageSharpImage(Image<TPixel> img) {
-			if (!ImageSharpService.pixelTypeToFormat.TryGetValue(typeof(TPixel), out PixelFormat format))
+			if (!ImageSharpService.pixelTypeToFormat.TryGetValue(typeof(TPixel), out PixelFormat? format))
 				throw new ArgumentException($"Unsupported ImageSharp pixel type '{typeof(TPixel).Name}'", nameof(img));
 			Format = format;
 			Image = img;

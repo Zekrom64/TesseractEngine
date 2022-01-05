@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBProvokingVertexFunctions {
 
 		public delegate void PFN_glProvokingVertex(uint mode);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glProvokingVertex glProvokingVertex;
 
 	}
+#nullable restore
 
 	public class ARBProvokingVertex : IGLObject {
 

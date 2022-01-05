@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBProgramInterfaceQueryFunctions {
 
 		public delegate void PFN_glGetProgramInterfaceiv(uint program, uint programInterface, uint pname, [NativeType("GLint*")] IntPtr values);
@@ -31,6 +32,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetProgramResourceLocationIndex glGetProgramResourceLocationIndex;
 
 	}
+#nullable restore
 
 	public class ARBProgramInterfaceQuery : IGLObject {
 

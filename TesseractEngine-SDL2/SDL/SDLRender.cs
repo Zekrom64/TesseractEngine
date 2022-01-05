@@ -138,7 +138,7 @@ namespace Tesseract.SDL {
 
 		public bool RenderTargetSupported => SDL2.Functions.SDL_RenderTargetSupported(Renderer.Ptr);
 
-		public SDLTexture RenderTarget {
+		public SDLTexture? RenderTarget {
 			set => SDL2.CheckError(SDL2.Functions.SDL_SetRenderTarget(Renderer.Ptr, value != null ? value.Texture.Ptr : IntPtr.Zero));
 			get {
 				IntPtr pTex = SDL2.Functions.SDL_GetRenderTarget(Renderer.Ptr);
@@ -221,7 +221,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Renderer != null) {
 				SDL2.Functions.SDL_DestroyRenderer(Renderer.Ptr);
-				Renderer = null;
+				Renderer = null!;
 			}
 		}
 
@@ -512,7 +512,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Texture != null) {
 				SDL2.Functions.SDL_DestroyTexture(Texture.Ptr);
-				Texture = null;
+				Texture = null!;
 			}
 		}
 

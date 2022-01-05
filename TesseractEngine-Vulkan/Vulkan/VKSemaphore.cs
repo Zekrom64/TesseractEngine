@@ -15,22 +15,23 @@ namespace Tesseract.Vulkan {
 		[NativeType("VkSemaphore")]
 		public ulong Semaphore { get; }
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public ulong PrimitiveHandle => Semaphore;
 
 		public ulong CounterValue {
 			get {
 				var vkGetSemaphoreCounterValue = Device.VK12Functions?.vkGetSemaphoreCounterValue;
-				if (vkGetSemaphoreCounterValue == null) vkGetSemaphoreCounterValue = new(Device.KHRTimelineSemaphore.vkGetSemaphoreCounterValueKHR);
+				if (vkGetSemaphoreCounterValue == null) vkGetSemaphoreCounterValue = new(Device.KHRTimelineSemaphore!.vkGetSemaphoreCounterValueKHR);
 				VK.CheckError(vkGetSemaphoreCounterValue(Device, Semaphore, out ulong value));
 				return value;
 			}
 		}
 
-		public VKSemaphore(VKDevice device, ulong semaphore) {
+		public VKSemaphore(VKDevice device, ulong semaphore, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Semaphore = semaphore;
+			Allocator = allocator;
 		}
 
 		public void Dispose() {
@@ -45,8 +46,8 @@ namespace Tesseract.Vulkan {
 				Value = value
 			};
 			VKResult err;
-			if (Device.VK12Functions) err = Device.VK12Functions.vkSignalSemaphore(Device, signalInfo);
-			else err = Device.KHRTimelineSemaphore.vkSignalSemaphoreKHR(Device, signalInfo);
+			if (Device.VK12Functions) err = Device.VK12Functions!.vkSignalSemaphore(Device, signalInfo);
+			else err = Device.KHRTimelineSemaphore!.vkSignalSemaphoreKHR(Device, signalInfo);
 			VK.CheckError(err);
 		}
 
@@ -60,8 +61,8 @@ namespace Tesseract.Vulkan {
 					Values = (IntPtr)(&value)
 				};
 				VKResult err;
-				if (Device.VK12Functions) err = Device.VK12Functions.vkWaitSemaphores(Device, waitInfo, timeout);
-				else err = Device.KHRTimelineSemaphore.vkWaitSemaphoresKHR(Device, waitInfo, timeout);
+				if (Device.VK12Functions) err = Device.VK12Functions!.vkWaitSemaphores(Device, waitInfo, timeout);
+				else err = Device.KHRTimelineSemaphore!.vkWaitSemaphoresKHR(Device, waitInfo, timeout);
 				switch(err) {
 					case VKResult.Success:
 					case VKResult.Timeout:
@@ -75,7 +76,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKSemaphore semaphore) => semaphore != null ? semaphore.Semaphore : 0;
+		public static implicit operator ulong(VKSemaphore? semaphore) => semaphore != null ? semaphore.Semaphore : 0;
 
 	}
 

@@ -12,6 +12,7 @@ namespace Tesseract.OpenGL {
 
 		public GL45(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_clip_control
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -470,6 +471,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void TextureBarrier() => GL.ARBTextureBarrier.TextureBarrier();
+#nullable restore
 
 	}
 

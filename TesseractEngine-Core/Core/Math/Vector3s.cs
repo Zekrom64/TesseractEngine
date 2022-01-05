@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -82,9 +78,9 @@ namespace Tesseract.Core.Math {
 			Z = tuple.Z;
 		}
 
-		public bool Equals(IReadOnlyTuple3<short> other) => X == other.X && Y == other.Y && Z == other.Z;
+		public bool Equals(IReadOnlyTuple3<short>? other) => other != null && X == other.X && Y == other.Y && Z == other.Z;
 
-		public override bool Equals(object obj) => obj is IReadOnlyTuple3<short> other && Equals(other);
+		public override bool Equals(object? obj) => obj is IReadOnlyTuple3<short> other && Equals(other);
 
 		public override int GetHashCode() => X ^ (Y << 10) ^ (Z << 20);
 

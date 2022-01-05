@@ -29,12 +29,15 @@ namespace Tesseract.Core.Services {
 
 		private GlobalServices() { }
 
-		public T GetService<T>(IService<T> service) {
-			if (services.TryGetValue(service, out object val)) return (T)val;
+		public T? GetService<T>(IService<T> service) {
+			if (services.TryGetValue(service, out object? val)) return (T)val;
 			else return default;
 		}
 
-		public static void AddGlobalService<T>(IService<T> service, T value) => services[service] = value;
+		public static void AddGlobalService<T>(IService<T> service, T value) {
+			if (value == null) throw new ArgumentNullException(nameof(value), "Cannot register a global service");
+			services[service] = value;
+		}
 
 	}
 

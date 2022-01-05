@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBDrawBuffersBlendFunctions {
 
 		public delegate void PFN_glBlendEquationi(uint buffer, uint mode);
@@ -24,6 +25,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glBlendFuncSeparatei glBlendFuncSeparatei;
 
 	}
+#nullable restore
 
 	public class ARBDrawBuffersBlend : IGLObject {
 

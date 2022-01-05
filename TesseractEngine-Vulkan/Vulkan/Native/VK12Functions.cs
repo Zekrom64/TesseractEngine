@@ -42,6 +42,7 @@ namespace Tesseract.Vulkan.Native {
 
 	using VkDeviceAddress = UInt64;
 
+#nullable disable
 	public class VK12DeviceFunctions {
 
 		public delegate void PFN_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
@@ -75,4 +76,5 @@ namespace Tesseract.Vulkan.Native {
 		public static implicit operator bool(VK12DeviceFunctions fn) => fn != null;
 
 	}
+#nullable restore
 }

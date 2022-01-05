@@ -29,6 +29,7 @@ namespace Tesseract.OpenGL.Native {
 	using GLintptr = IntPtr;
 	using GLsizeiptr = IntPtr;
 
+#nullable disable
 	public class AMDDebugOutputFunctions {
 
 		public PFN_glDebugMessageCallbackAMD glDebugMessageCallbackAMD;
@@ -56,5 +57,6 @@ namespace Tesseract.OpenGL.Native {
 	public delegate void PFN_glBlendEquationsSeparateIndexedAMD(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
 	public delegate void PFN_glBlendFuncIndexedAMD(GLuint buf, GLenum src, GLenum dst);
 	public delegate void PFN_glBlendFuncSeparateIndexedAMD(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+#nullable restore
 
 }

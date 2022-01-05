@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBInstancedArraysFunctions {
 
 		public delegate void PFN_glVertexAttribDivisor(uint index, uint divisor);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glVertexAttribDivisor glVertexAttribDivisor;
 
 	}
+#nullable restore
 
 	public class ARBInstancedArrays : IGLObject {
 

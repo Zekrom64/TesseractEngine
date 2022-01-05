@@ -359,7 +359,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Surface != null && !Surface.IsNull) {
 				SDL2.Functions.SDL_FreeSurface(Surface.Ptr);
-				Surface = null;
+				Surface = null!;
 			}
 		}
 

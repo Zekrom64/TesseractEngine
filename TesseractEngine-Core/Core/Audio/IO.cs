@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Audio {
-	
+
 	/// <summary>
 	/// An audio IO provides a way of recording or playing raw audio from an audio system.
 	/// </summary>
@@ -46,7 +42,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format this output will use.
 		/// </summary>
-		public AudioFormat Format { get; init; }
+		public AudioFormat Format { get; init; } = null!;
 
 	}
 
@@ -58,7 +54,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format this input will use.
 		/// </summary>
-		public AudioFormat Format { get; init; }
+		public AudioFormat Format { get; init; } = null!;
 
 	}
 

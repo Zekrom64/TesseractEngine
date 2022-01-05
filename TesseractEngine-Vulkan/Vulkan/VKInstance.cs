@@ -20,19 +20,19 @@ namespace Tesseract.Vulkan {
 
 		public IntPtr PrimitiveHandle => Instance;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VK10InstanceFunctions VK10Functions { get; } = new();
-		public VK11InstanceFunctions VK11Functions { get; }
+		public VK11InstanceFunctions? VK11Functions { get; }
 
-		public KHRSurfaceInstanceFunctions KHRSurfaceFunctions { get; }
-		public KHRDeviceGroupCreationInstanceFunctions KHRDeviceGroupCreationFunctions { get; }
-		public KHRGetPhysicalDeviceProperties2InstanceFunctions KHRGetPhysicalDeviceProperties2Functions { get; }
-		public KHRExternalFenceCapabilitiesInstanceFunctions KHRExternalFenceCapabilitiesFunctions { get; }
-		public KHRExternalMemoryCapabilitiesInstanceFunctions KHRExternalMemoryCapabilitiesFunctions { get; }
-		public KHRExternalSemaphoreCapabilitiesInstanceFunctions KHRExternalSemaphoreCapabilitiesFunctions { get; }
+		public KHRSurfaceInstanceFunctions? KHRSurfaceFunctions { get; }
+		public KHRDeviceGroupCreationInstanceFunctions? KHRDeviceGroupCreationFunctions { get; }
+		public KHRGetPhysicalDeviceProperties2InstanceFunctions? KHRGetPhysicalDeviceProperties2Functions { get; }
+		public KHRExternalFenceCapabilitiesInstanceFunctions? KHRExternalFenceCapabilitiesFunctions { get; }
+		public KHRExternalMemoryCapabilitiesInstanceFunctions? KHRExternalMemoryCapabilitiesFunctions { get; }
+		public KHRExternalSemaphoreCapabilitiesInstanceFunctions? KHRExternalSemaphoreCapabilitiesFunctions { get; }
 
-		public EXTDebugReportFunctions EXTDebugReportFunctions { get; }
+		public EXTDebugReportFunctions? EXTDebugReportFunctions { get; }
 
 		public VKGetInstanceProcAddr InstanceGetProcAddr {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,7 +42,7 @@ namespace Tesseract.Vulkan {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public IntPtr GetProcAddr(string name) => InstanceGetProcAddr(Instance, name);
 
-		public VKInstance(VK vk, IntPtr pInstance, in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks allocator) {
+		public VKInstance(VK vk, IntPtr pInstance, in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks? allocator) {
 			VK = vk;
 			// Ugly, but a workaround for pointer-based struct field
 			APIVersion = new ManagedPointer<VKApplicationInfo>(createInfo.ApplicationInfo).Value.APIVersion;
@@ -57,7 +57,7 @@ namespace Tesseract.Vulkan {
 			// A bit ugly to convert back from strings provided in create info but simplifies parameter passing
 			UnmanagedPointer<IntPtr> pExts = new(createInfo.EnabledExtensionNames);
 			HashSet<string> exts = new();
-			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetASCII(pExts[i]));
+			for (int i = 0; i < createInfo.EnabledExtensionCount; i++) exts.Add(MemoryUtil.GetASCII(pExts[i])!);
 
 			// Load instance extensions
 			// Vulkan 1.1
@@ -93,7 +93,7 @@ namespace Tesseract.Vulkan {
 		public VKPhysicalDeviceGroupProperties[] PhysicalDeviceGroups {
 			get {
 				var vkEnumeratePhysicalDeviceGroups = VK11Functions?.vkEnumeratePhysicalDeviceGroups;
-				if (vkEnumeratePhysicalDeviceGroups == null) vkEnumeratePhysicalDeviceGroups = new(KHRDeviceGroupCreationFunctions.vkEnumeratePhysicalDeviceGroupsKHR);
+				if (vkEnumeratePhysicalDeviceGroups == null) vkEnumeratePhysicalDeviceGroups = new(KHRDeviceGroupCreationFunctions!.vkEnumeratePhysicalDeviceGroupsKHR);
 				uint count = 0;
 				VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, IntPtr.Zero));
 				using ManagedPointer<VKPhysicalDeviceGroupProperties> pProperties = new((int)count);
@@ -106,7 +106,7 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			VK10Functions.vkDestroyInstance(Instance, Allocator != null ? Allocator.Pointer.Ptr : IntPtr.Zero);
+			VK10Functions.vkDestroyInstance(Instance, Allocator != null ? Allocator.Pointer!.Ptr : IntPtr.Zero);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,13 +114,13 @@ namespace Tesseract.Vulkan {
 
 		// EXT_debug_report
 
-		public VKDebugReportCallbackEXT CreateDebugReportCallbackEXT(in VKDebugReportCallbackCreateInfoEXT createInfo, VulkanAllocationCallbacks allocator = null) {
-			VK.CheckError(EXTDebugReportFunctions.vkCreateDebugReportCallbackEXT(Instance, createInfo, allocator, out ulong callback));
+		public VKDebugReportCallbackEXT CreateDebugReportCallbackEXT(in VKDebugReportCallbackCreateInfoEXT createInfo, VulkanAllocationCallbacks? allocator = null) {
+			VK.CheckError(EXTDebugReportFunctions!.vkCreateDebugReportCallbackEXT(Instance, createInfo, allocator, out ulong callback));
 			return new VKDebugReportCallbackEXT(this, callback, allocator);
 		}
 
 		public void DebugReportMessageEXT(VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, string layerPrefix, string message) =>
-			EXTDebugReportFunctions.vkDebugReportMessageEXT(Instance, flags, objectType, obj, location, messageCode, layerPrefix, message);
+			EXTDebugReportFunctions!.vkDebugReportMessageEXT(Instance, flags, objectType, obj, location, messageCode, layerPrefix, message);
 
 	}
 

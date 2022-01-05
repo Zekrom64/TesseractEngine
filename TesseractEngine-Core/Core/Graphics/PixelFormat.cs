@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics {
 
@@ -124,7 +122,7 @@ namespace Tesseract.Core.Graphics {
 
 		public bool Equals(PixelChannel other) => Type == other.Type && Offset == other.Offset && Size == other.Size && NumberFormat == other.NumberFormat;
 
-		public override bool Equals(object obj) => obj is PixelChannel channel && Equals(channel);
+		public override bool Equals(object? obj) => obj is PixelChannel channel && Equals(channel);
 
 		public static bool operator ==(PixelChannel left, PixelChannel right) => left.Equals(right);
 
@@ -170,7 +168,7 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// The channels defined in the format.
 		/// </summary>
-		public IReadOnlyList<PixelChannel> Channels { get; init; }
+		public IReadOnlyList<PixelChannel> Channels { get; init; } = Collections<PixelChannel>.EmptyList;
 
 		/// <summary>
 		/// The size of the pixel format in bytes.
@@ -209,16 +207,16 @@ namespace Tesseract.Core.Graphics {
 			return false;
 		}
 
-		public bool Equals(PixelFormat other) {
+		public bool Equals(PixelFormat? other) {
 			if (other is null) return false;
 			if (ReferenceEquals(this, other)) return true;
 			if (HashCode != other.HashCode) return false;
-			
+
 			if (Packed != other.Packed) return false;
 
-			foreach(PixelChannel channel in Channels) {
+			foreach (PixelChannel channel in Channels) {
 				bool hasChannel = false;
-				foreach(PixelChannel otherChannel in other.Channels) {
+				foreach (PixelChannel otherChannel in other.Channels) {
 					if (otherChannel == channel) {
 						hasChannel = true;
 						break;
@@ -242,9 +240,9 @@ namespace Tesseract.Core.Graphics {
 		public bool IsCompatible(PixelFormat other) {
 			if (Packed ^ other.Packed) return false; // Could *technically* test but bit-ordering makes things complicated.
 			if (SizeOf != other.SizeOf) return false;
-			foreach(PixelChannel channel in other.Channels) {
+			foreach (PixelChannel channel in other.Channels) {
 				bool hasChannel = false;
-				foreach(PixelChannel ch2 in Channels) {
+				foreach (PixelChannel ch2 in Channels) {
 					if (ch2.Offset == channel.Offset && ch2.Size == channel.Size) {
 						hasChannel = true;
 						break;

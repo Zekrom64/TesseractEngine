@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
-	
+
 	/// <summary>
 	/// Enumeration of operations to perform on an attachment at the start of a subpass.
 	/// </summary>
@@ -46,28 +43,46 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A render pass attachment describes layout and load/store for an image that will be attached to a framebuffer.
 	/// </summary>
-	public readonly struct RenderPassAttachment {
+	public record struct RenderPassAttachment {
 
 		/// <summary>
 		/// The format of the texture view that will be used by this attachment.
 		/// </summary>
-		public PixelFormat Format { get; init; }
+		public PixelFormat Format { get; init; } = null!;
 
 		/// <summary>
 		/// The number of samples that will be used with this attachment
 		/// </summary>
-		public uint Samples { get; init; }
+		public uint Samples { get; init; } = 1;
 
-		public AttachmentLoadOp LoadOp { get; init; }
+		/// <summary>
+		/// The load operation that will be performed on the color/depth attachment at the start of the render pass.
+		/// </summary>
+		public AttachmentLoadOp LoadOp { get; init; } = AttachmentLoadOp.DontCare;
 
-		public AttachmentStoreOp StoreOp { get; init; }
+		/// <summary>
+		/// The store operation that will be performed on the color/depth attachment at the end of the render pass.
+		/// </summary>
+		public AttachmentStoreOp StoreOp { get; init; } = AttachmentStoreOp.DontCare;
 
-		public AttachmentLoadOp StencilLoadOp { get; init; }
+		/// <summary>
+		/// The load operation that will be performed on the stencil attachment at the start of the render pass.
+		/// </summary>
+		public AttachmentLoadOp StencilLoadOp { get; init; } = AttachmentLoadOp.DontCare;
 
-		public AttachmentStoreOp StencilStoreOp { get; init; }
+		/// <summary>
+		/// The store operation that will be performed on the stencil attachment at the end of the render pass.
+		/// </summary>
+		public AttachmentStoreOp StencilStoreOp { get; init; } = AttachmentStoreOp.DontCare;
 
+		/// <summary>
+		/// The inital layout of the attachment's underlying texture at the start of the render pass.
+		/// </summary>
 		public TextureLayout InitialLayout { get; init; }
 
+		/// <summary>
+		/// The final layout of the attachment's underlying texture at the end of the render pass.
+		/// </summary>
 		public TextureLayout FinalLayout { get; init; }
 
 	}
@@ -75,58 +90,140 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// An attachment reference specifies the details of how an attachment is used in a subpass.
 	/// </summary>
-	public readonly struct RenderPassAttachmentReference {
+	public record struct RenderPassAttachmentReference {
 
-		public uint Attachment { get; init; }
+		/// <summary>
+		/// Attachment index for an unused attachment.
+		/// </summary>
+		public const uint Unused = 0xFFFFFFFFu;
 
+		/// <summary>
+		/// Index of the referenced attachment in the render pass.
+		/// </summary>
+		public uint Attachment { get; init; } = Unused;
+
+		/// <summary>
+		/// The layout of the attachment while it is in use by the current subpass.
+		/// </summary>
 		public TextureLayout Layout { get; init; }
+
+		/// <summary>
+		/// If the referenced attachment is unused.
+		/// </summary>
+		public bool IsUnused => Attachment == Unused;
 
 	}
 
-	public readonly struct RenderPassSubpass {
+	/// <summary>
+	/// A subpass describes a collection of attachments to use when rendering.
+	/// </summary>
+	public record struct RenderPassSubpass {
 
 		/// <summary>
 		/// The type of pipeline that will be bound.
 		/// </summary>
-		public PipelineType PipelineBindType { get; init; }
+		public PipelineType PipelineBindType { get; init; } = PipelineType.Graphics;
 
 		/// <summary>
-		/// The list of
+		/// The list of input attachments for this subpass.
 		/// </summary>
-		public RenderPassAttachmentReference[] InputAttachments { get; init; }
+		public RenderPassAttachmentReference[]? InputAttachments { get; init; } = null;
 
-		public RenderPassAttachmentReference[] ColorAttachments { get; init; }
+		/// <summary>
+		/// The list of color attachments for this subpass.
+		/// </summary>
+		public RenderPassAttachmentReference[]? ColorAttachments { get; init; } = null;
 
-		public RenderPassAttachmentReference[] ResolveAttachments { get; init; }
+		/// <summary>
+		/// The list of resolve attachments for this subpass.
+		/// </summary>
+		public RenderPassAttachmentReference[]? ResolveAttachments { get; init; } = null;
 
-		public RenderPassAttachmentReference? DepthStencilAttachment { get; init; }
+		/// <summary>
+		/// The depth/stencil attachment for this subpass.
+		/// </summary>
+		public RenderPassAttachmentReference? DepthStencilAttachment { get; init; } = null;
 
-		public RenderPassAttachmentReference[] PreserveAttachments { get; init; }
+		/// <summary>
+		/// The list of preserve attachments for this subpass.
+		/// </summary>
+		public RenderPassAttachmentReference[]? PreserveAttachments { get; init; } = null;
+
+		/// <summary>
+		/// Creates a deep clone of this object.
+		/// </summary>
+		/// <returns>Deep cloned object</returns>
+		public RenderPassSubpass DeepClone() => new() {
+			PipelineBindType = PipelineBindType,
+			InputAttachments = InputAttachments?.ShallowClone(),
+			ColorAttachments = ColorAttachments?.ShallowClone(),
+			ResolveAttachments = ResolveAttachments?.ShallowClone(),
+			DepthStencilAttachment = DepthStencilAttachment,
+			PreserveAttachments = PreserveAttachments?.ShallowClone()
+		};
 
 	}
 
-	public readonly struct RenderPassDependency {
+	/// <summary>
+	/// A dependency describes a barrier to apply between subpasses that have inter-dependent attachment usages.
+	/// </summary>
+	public record struct RenderPassDependency {
 
-		public uint SrcSubpass { get; init; }
+		/// <summary>
+		/// Index for specifying that a dependency is external to the current render pass.
+		/// </summary>
+		public const uint External = 0xFFFFFFFFu;
 
-		public uint DstSubpass { get; init; }
+		/// <summary>
+		/// The first subpass in the dependency.
+		/// </summary>
+		public uint SrcSubpass { get; init; } = External;
 
+		/// <summary>
+		/// The second subpass in the dependency.
+		/// </summary>
+		public uint DstSubpass { get; init; } = External;
+
+		/// <summary>
+		/// The pipeline stages initiating the dependency.
+		/// </summary>
 		public PipelineStage SrcStages { get; init; }
 
+		/// <summary>
+		/// The pipeline stages awaiting on the dependency.
+		/// </summary>
 		public PipelineStage DstStages { get; init; }
 
+		/// <summary>
+		/// The memory accesses initiating the dependency.
+		/// </summary>
 		public MemoryAccess SrcAccess { get; init; }
 
+		/// <summary>
+		/// The memory accesses awaiting the dependency.
+		/// </summary>
 		public MemoryAccess DstAccess { get; init; }
 
 	}
 
+	/// <summary>
+	/// Render pass creation information.
+	/// </summary>
 	public readonly ref struct RenderPassCreateInfo {
 
+		/// <summary>
+		/// The list of attachments used by this render pass.
+		/// </summary>
 		public ReadOnlySpan<RenderPassAttachment> Attachments { get; init; }
 
+		/// <summary>
+		/// The list of subpasses contained in this render pass.
+		/// </summary>
 		public ReadOnlySpan<RenderPassSubpass> Subpasses { get; init; }
 
+		/// <summary>
+		/// The list of dependencies in this render pass.
+		/// </summary>
 		public ReadOnlySpan<RenderPassDependency> Dependencies { get; init; }
 
 	}

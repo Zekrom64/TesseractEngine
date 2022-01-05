@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Math;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -17,9 +13,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 	public record FramebufferCreateInfo {
 
-		public IRenderPass RenderPass { get; init; }
+		public IRenderPass RenderPass { get; init; } = null!;
 
-		public ITextureView[] Attachments { get; init; }
+		public ITextureView[] Attachments { get; init; } = Array.Empty<ITextureView>();
 
 		public Vector2i Size { get; init; }
 

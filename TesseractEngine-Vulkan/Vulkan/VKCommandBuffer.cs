@@ -690,7 +690,7 @@ namespace Tesseract.Vulkan {
 			else Device.KHRDrawIndirectCount.vkCmdDrawIndirectCountKHR(CommandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 		}
 
-		public static implicit operator IntPtr(VKCommandBuffer commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;
+		public static implicit operator IntPtr(VKCommandBuffer? commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;
 
 	}
 

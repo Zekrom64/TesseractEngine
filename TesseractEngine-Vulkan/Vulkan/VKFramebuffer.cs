@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Framebuffer;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKFramebuffer(VKDevice device, ulong framebuffer, VulkanAllocationCallbacks allocator) {
+		public VKFramebuffer(VKDevice device, ulong framebuffer, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Framebuffer = framebuffer;
 			Allocator = allocator;
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKFramebuffer framebuffer) => framebuffer != null ? framebuffer.Framebuffer : 0;
+		public static implicit operator ulong(VKFramebuffer? framebuffer) => framebuffer != null ? framebuffer.Framebuffer : 0;
 
 	}
 

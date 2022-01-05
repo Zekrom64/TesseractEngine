@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
 
@@ -37,7 +35,7 @@ namespace Tesseract.Core.Util {
 	/// </summary>
 	/// <typeparam name="K"></typeparam>
 	/// <typeparam name="L"></typeparam>
-	public class KeyedTree<K,L> {
+	public class KeyedTree<K,L> where K : notnull {
 
 		/// <summary>
 		/// A branch is an entry in a tree with an associated leaf and collection of sub-branches.
@@ -52,7 +50,7 @@ namespace Tesseract.Core.Util {
 			/// <summary>
 			/// The leaf associated with this branch.
 			/// </summary>
-			public L Leaf { get; set; }
+			public L? Leaf { get; set; }
 
 			/// <summary>
 			/// The collection of sub-branches attached to this branch.
@@ -84,7 +82,7 @@ namespace Tesseract.Core.Util {
 			/// <param name="key">Branch key</param>
 			/// <param name="branch">Sub-branch or null</param>
 			/// <returns>If the sub-branch exists</returns>
-			public bool TryGetBranch(K key, out Branch branch) => branches.TryGetValue(key, out branch);
+			public bool TryGetBranch(K key, out Branch? branch) => branches.TryGetValue(key, out branch);
 
 			/// <summary>
 			/// Gets the sub-branch with the given key or creates it if it doesn't exist.
@@ -92,7 +90,7 @@ namespace Tesseract.Core.Util {
 			/// <param name="key">Branch key</param>
 			/// <returns>Sub-branch</returns>
 			public Branch GetOrCreateBranch(K key) {
-				if (!branches.TryGetValue(key, out Branch branch)) {
+				if (!branches.TryGetValue(key, out Branch? branch)) {
 					branch = new(key);
 					branches[key] = branch;
 				}
@@ -112,7 +110,7 @@ namespace Tesseract.Core.Util {
 			public bool HasPath(IEnumerable<K> keys) {
 				if (!keys.Any()) return true;
 				K key = keys.First();
-				if (branches.TryGetValue(key, out Branch branch)) return branch.HasPath(keys.Skip(1));
+				if (branches.TryGetValue(key, out Branch? branch)) return branch.HasPath(keys.Skip(1));
 				return false;
 			}
 
@@ -132,13 +130,13 @@ namespace Tesseract.Core.Util {
 			/// <param name="keys"></param>
 			/// <param name="branch"></param>
 			/// <returns></returns>
-			public bool TryGetPath(IEnumerable<K> keys, out Branch branch) {
+			public bool TryGetPath(IEnumerable<K> keys, out Branch? branch) {
 				branch = null;
 				if (!keys.Any()) {
 					branch = this;
 					return true;
 				}
-				if (branches.TryGetValue(keys.First(), out Branch subbranch)) return subbranch.TryGetPath(keys.Skip(1), out branch);
+				if (branches.TryGetValue(keys.First(), out Branch? subbranch)) return subbranch.TryGetPath(keys.Skip(1), out branch);
 				return false;
 			}
 
@@ -150,7 +148,7 @@ namespace Tesseract.Core.Util {
 			public Branch GetOrCreatePath(IEnumerable<K> keys) {
 				if (!keys.Any()) return this;
 				K key = keys.First();
-				if (!branches.TryGetValue(key, out Branch branch)) {
+				if (!branches.TryGetValue(key, out Branch? branch)) {
 					branch = new(key);
 					branches[key] = branch;
 				}
@@ -201,7 +199,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="key">Branch key</param>
 		/// <param name="branch">The branch with the given key, or null</param>
 		/// <returns>If the branch exists</returns>
-		public bool TryGetBranch(K key, out Branch branch) => branches.TryGetValue(key, out branch);
+		public bool TryGetBranch(K key, out Branch? branch) => branches.TryGetValue(key, out branch);
 
 		/// <summary>
 		/// Gets or creates the given branch.
@@ -209,7 +207,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="key">Branch key</param>
 		/// <returns>Branch with the given key</returns>
 		public Branch GetOrCreateBranch(K key) {
-			if (!branches.TryGetValue(key, out Branch branch)) {
+			if (!branches.TryGetValue(key, out Branch? branch)) {
 				branch = new(key);
 				branches[key] = branch;
 			}
@@ -226,7 +224,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="keys">Keys composing the path</param>
 		/// <returns>If a branch exists at the path</returns>
 		public bool HasPath(IEnumerable<K> keys) {
-			if (branches.TryGetValue(keys.First(), out Branch branch)) return branch.HasPath(keys.Skip(1));
+			if (branches.TryGetValue(keys.First(), out Branch? branch)) return branch.HasPath(keys.Skip(1));
 			return false;
 		}
 
@@ -243,9 +241,9 @@ namespace Tesseract.Core.Util {
 		/// <param name="keys">Keys composing the path</param>
 		/// <param name="branch">The branch at the given path, or null</param>
 		/// <returns>If the branch exists at the path</returns>
-		public bool TryGetPath(IEnumerable<K> keys, out Branch branch) {
+		public bool TryGetPath(IEnumerable<K> keys, out Branch? branch) {
 			branch = null;
-			if (branches.TryGetValue(keys.First(), out Branch subbranch)) return subbranch.TryGetPath(keys.Skip(1), out branch);
+			if (branches.TryGetValue(keys.First(), out Branch? subbranch)) return subbranch.TryGetPath(keys.Skip(1), out branch);
 			return false;
 		}
 
@@ -256,7 +254,7 @@ namespace Tesseract.Core.Util {
 		/// <returns>The branch at the given path</returns>
 		public Branch GetOrCreatePath(IEnumerable<K> keys) {
 			K key = keys.First();
-			if (!branches.TryGetValue(key, out Branch branch)) {
+			if (!branches.TryGetValue(key, out Branch? branch)) {
 				branch = new(key);
 				branches[key] = branch;
 			}
@@ -286,7 +284,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="e">Enumerable collection</param>
 		/// <param name="convert">Converter function</param>
 		/// <returns>List of converted elements</returns>
-		public static List<T2> ConvertAll<T1,T2>(IEnumerable<T1> e, Func<T1, T2> convert) {
+		public static List<T2> ConvertAll<T1, T2>(IEnumerable<T1> e, Func<T1, T2> convert) {
 			List<T2> list = new();
 			foreach (T1 t in e) list.Add(convert(t));
 			return list;

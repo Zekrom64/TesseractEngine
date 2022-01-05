@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTextureViewFunctions {
 
 		public delegate void PFN_glTextureView(uint texture, uint target, uint origTexture, uint internalFormat, uint minLevel, uint numLevels, uint minLayer, uint numLayers);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glTextureView glTextureView;
 
 	}
+#nullable restore
 
 	public class ARBTextureView : IGLObject {
 

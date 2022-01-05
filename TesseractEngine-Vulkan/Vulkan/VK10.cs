@@ -45,7 +45,7 @@ namespace Tesseract.Vulkan {
 			get => EnumerateInstanceExtensionProperties(null);
 		}
 
-		public VKExtensionProperties[] EnumerateInstanceExtensionProperties(string layerName) {
+		public VKExtensionProperties[] EnumerateInstanceExtensionProperties(string? layerName) {
 			uint propCount = 0;
 			VK.CheckError(Functions.vkEnumerateInstanceExtensionProperties(layerName, ref propCount, IntPtr.Zero), "Failed to enumerate instance extension properties");
 			using ManagedPointer<VKExtensionProperties> pProps = new((int)propCount);
@@ -68,7 +68,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKInstance CreateInstance(in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) {
+		public VKInstance CreateInstance(in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks? allocator = null) {
 			VK.CheckError(Functions.vkCreateInstance(createInfo, allocator, out IntPtr pInstance));
 			return new VKInstance(VK, pInstance, createInfo, allocator);
 		}

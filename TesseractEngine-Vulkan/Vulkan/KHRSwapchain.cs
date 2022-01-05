@@ -164,6 +164,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class KHRSwapchainDeviceFunctions {
 
 		public delegate VKResult PFN_vkCreateSwapchainKHR([NativeType("VkDevice")] IntPtr device, in VKSwapchainCreateInfoKHR createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator, out ulong swapchain);
@@ -192,6 +193,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR;
 
 	}
+#nullable restore
 
 	public static class KHRSwapchain {
 
@@ -208,9 +210,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => SwapchainKHR;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKSwapchainKHR(VKDevice device, ulong swapchain, VulkanAllocationCallbacks allocator) {
+		public VKSwapchainKHR(VKDevice device, ulong swapchain, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			SwapchainKHR = swapchain;
 			Allocator = allocator;
@@ -218,13 +220,13 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.KHRSwapchain.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
+			Device.KHRSwapchain!.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
 		}
 
 		public VKImage[] Images {
 			get {
 				uint count = 0;
-				VK.CheckError(Device.KHRSwapchain.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, IntPtr.Zero), "Failed to get swapchain images");
+				VK.CheckError(Device.KHRSwapchain!.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, IntPtr.Zero), "Failed to get swapchain images");
 				Span<ulong> images = stackalloc ulong[(int)count];
 				unsafe {
 					fixed(ulong* pImages = images) {
@@ -239,11 +241,11 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage(ulong timeout, VKSemaphore semaphore, VKFence fence, out uint imageIndex) =>
-			Device.KHRSwapchain.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
+			Device.KHRSwapchain!.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) =>
-			Device.KHRSwapchain.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
+			Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
 
 		public static implicit operator ulong(VKSwapchainKHR swapchain) => swapchain != null ? swapchain.SwapchainKHR : 0;
 

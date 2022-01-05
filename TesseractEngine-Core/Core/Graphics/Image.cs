@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
-using Tesseract.Core.Services;
 
 namespace Tesseract.Core.Graphics {
-	
+
 	public interface IImage : IDisposable, Services.IServiceProvider {
 
 		public IReadOnlyTuple2<int> Size { get; }

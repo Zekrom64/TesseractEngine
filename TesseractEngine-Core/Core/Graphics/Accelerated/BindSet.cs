@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
@@ -42,12 +39,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The sampler used with this texture binding.
 		/// </summary>
-		public ISampler Sampler { get; init; }
+		public ISampler Sampler { get; init; } = null!;
 
 		/// <summary>
 		/// The texture view used with this texture binding.
 		/// </summary>
-		public ITextureView TextureView { get; init; }
+		public ITextureView TextureView { get; init; } = null!;
 
 		/// <summary>
 		/// The expected layout of the texture that will be bound.
@@ -93,15 +90,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The list of bindings in this bind set layout.
 		/// </summary>
 		[DisallowNull]
-		public BindSetLayoutBinding[] Bindings { get; init; }
+		public BindSetLayoutBinding[] Bindings { get; init; } = Array.Empty<BindSetLayoutBinding>();
 
 	}
 
 	/// <summary>
 	/// A bind set layout describes the list of bindings used by a bind set.
 	/// </summary>
-	public interface IBindSetLayout : IDisposable { 
-	
+	public interface IBindSetLayout : IDisposable {
+
 		/// <summary>
 		/// The list of bindings used in this bind set.
 		/// </summary>
@@ -119,7 +116,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// a binding type is not described in this list it cannot be allocated
 		/// from this pool.
 		/// </summary>
-		public (BindType, float)[] BindTypeWeights { get; init; }
+		public (BindType, float)[] BindTypeWeights { get; init; } = Array.Empty<(BindType, float)>();
 
 		/// <summary>
 		/// The target size of the number of entries in the bind pool.
@@ -150,7 +147,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of layouts the allocated bind set will use.
 		/// </summary>
-		public IBindSetLayout[] Layouts { get; init; }
+		public IBindSetLayout[] Layouts { get; init; } = Array.Empty<IBindSetLayout>();
 
 	}
 
@@ -201,7 +198,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="writes">Writes to apply to the bindings in this bind set</param>
 		public void Update(in ReadOnlySpan<BindSetWrite> writes);
-	
+
 	}
 
 }

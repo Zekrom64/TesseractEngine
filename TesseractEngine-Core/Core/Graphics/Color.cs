@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
@@ -43,7 +38,7 @@ namespace Tesseract.Core.Graphics {
 				_ => default
 			};
 			set {
-				switch(key) {
+				switch (key) {
 					case 0: R = value; break;
 					case 1: G = value; break;
 					case 2: B = value; break;
@@ -170,7 +165,7 @@ namespace Tesseract.Core.Graphics {
 				_ => default
 			};
 			set {
-				switch(key) {
+				switch (key) {
 					case 0: R = value; break;
 					case 1: G = value; break;
 					case 2: B = value; break;
@@ -184,6 +179,60 @@ namespace Tesseract.Core.Graphics {
 		public Vector4 Normalized { get => Vector; set => Vector = value; }
 
 		Vector4 IReadOnlyColor.Normalized => Vector;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct Color3f : ITuple3<float>, IColor {
+
+		public Vector3 Vector;
+
+		public Color3f(ITuple4<float> tuple) {
+			Vector = new(tuple.X, tuple.Y, tuple.Z);
+		}
+
+		public Color3f(Vector3 vector) {
+			Vector = vector;
+		}
+
+		public Color3f(float r, float g, float b) {
+			Vector = new Vector3(r, g, b);
+		}
+
+		public float R { get => Vector.X; set => Vector.X = value; }
+		public float G { get => Vector.Y; set => Vector.Y = value; }
+		public float B { get => Vector.Z; set => Vector.Z = value; }
+
+		public float Z { get => R; set => R = value; }
+		public float X { get => G; set => G = value; }
+		public float Y { get => B; set => B = value; }
+
+		float IReadOnlyTuple<float, float>.X => R;
+		float IReadOnlyTuple<float, float>.Y => G;
+		float IReadOnlyTuple<float, float, float>.Z => B;
+
+		public float this[int key] {
+			get => key switch {
+				0 => R,
+				1 => G,
+				2 => B,
+				_ => default
+			};
+			set {
+				switch (key) {
+					case 0: R = value; break;
+					case 1: G = value; break;
+					case 2: B = value; break;
+				}
+			}
+		}
+
+		float IReadOnlyIndexer<int, float>.this[int key] => this[key];
+
+		public Vector4 Normalized { get => new(Vector, 1.0f); set => Vector = new Vector3() { X = value.X, Y = value.Y, Z = value.Z }; }
+
+		Vector4 IReadOnlyColor.Normalized => new(Vector, 1.0f);
+
 	}
 
 	public static class Colors {

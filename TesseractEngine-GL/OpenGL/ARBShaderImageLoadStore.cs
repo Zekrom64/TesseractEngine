@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBShaderImageLoadStoreFunctions {
 
 		public delegate void PFN_glBindImageTexture(uint unit, uint texture, int level, byte layered, int layer, uint access, uint format);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glMemoryBarrier glMemoryBarrier;
 
 	}
+#nullable restore
 
 	public class ARBShaderImageLoadStore {
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBMapBufferRangeFunctions {
 
 		public delegate IntPtr PFN_glMapBufferRange(uint target, nint offset, nint length, uint access);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glFlushMappedBufferRange glFlushMappedBufferRange;
 
 	}
+#nullable restore
 
 	public class ARBMapBufferRange : IGLObject {
 

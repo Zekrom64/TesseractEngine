@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class NVPrimitiveRestartFunctions {
 
 		public delegate void PFN_glPrimitiveRestart();
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glPrimitiveRestartIndex glPrimitiveRestartIndex;
 
 	}
+#nullable restore
 
 	public class NVPrimitiveRestart : IGLObject {
 

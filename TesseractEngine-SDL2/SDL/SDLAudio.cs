@@ -282,7 +282,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (AudioStream != null) {
 				SDL2.Functions.SDL_FreeAudioStream(AudioStream.Ptr);
-				AudioStream = null;
+				AudioStream = null!;
 			}
 		}
 

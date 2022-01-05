@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBComputeShaderFunctions {
 
 		public delegate void PFN_glDispatchCompute(uint numGroupsX, uint numGroupsY, uint numGroupsZ);
@@ -19,6 +20,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glDispatchComputeIndirect glDispatchComputeIndirect;
 
 	}
+#nullable restore
 
 	public class ARBComputeShader : IGLObject {
 

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tesseract.Core.Input;
 using Tesseract.Core.Math;
-using Tesseract.Core.Services;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics {
@@ -22,7 +18,7 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="val">Value to check</param>
 		/// <returns>Checked value</returns>
 		public object CheckValue(object val);
-	
+
 	}
 
 	/// <summary>
@@ -38,7 +34,7 @@ namespace Tesseract.Core.Graphics {
 	public class OpaqueWindowAttribute<T> : IWindowAttribute<T> {
 
 		public object CheckValue(object val) => (T)val;
-	
+
 	}
 
 	/// <summary>
@@ -101,7 +97,7 @@ namespace Tesseract.Core.Graphics {
 	/// <summary>
 	/// A window attribute list stores a list of attributes and their values.
 	/// </summary>
-	public class WindowAttributeList : IEnumerable<KeyValuePair<IWindowAttribute,object>> {
+	public class WindowAttributeList : IEnumerable<KeyValuePair<IWindowAttribute, object>> {
 
 		private readonly Dictionary<IWindowAttribute, object> attributes = new();
 
@@ -109,8 +105,8 @@ namespace Tesseract.Core.Graphics {
 		/// Creates a new window attribute list.
 		/// </summary>
 		/// <param name="attribs">List of initial attributes and their values</param>
-		public WindowAttributeList(params KeyValuePair<IWindowAttribute,object>[] attribs) {
-			foreach(var attrib in attribs) {
+		public WindowAttributeList(params KeyValuePair<IWindowAttribute, object>[] attribs) {
+			foreach (var attrib in attribs) {
 				attributes[attrib.Key] = attrib.Value;
 			}
 		}
@@ -137,8 +133,8 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="attrib">Attribute to get</param>
 		/// <param name="val">Attribute value</param>
 		/// <returns>If the attribute list contained the value</returns>
-		public bool TryGet<T>(IWindowAttribute<T> attrib, out T val) {
-			if (attributes.TryGetValue(attrib, out object value)) {
+		public bool TryGet<T>(IWindowAttribute<T> attrib, out T? val) {
+			if (attributes.TryGetValue(attrib, out object? value)) {
 				val = (T)value;
 				return true;
 			} else {
@@ -153,7 +149,9 @@ namespace Tesseract.Core.Graphics {
 		/// <typeparam name="T">Type of attribute value</typeparam>
 		/// <param name="attrib">Attribute to set</param>
 		/// <param name="value">Attribute value</param>
-		public void Set<T>(IWindowAttribute<T> attrib, T value) => attributes[attrib] = value;
+		public void Set<T>(IWindowAttribute<T> attrib, T value) {
+			if (value != null) attributes[attrib] = value;
+		}
 
 		public IEnumerator<KeyValuePair<IWindowAttribute, object>> GetEnumerator() => attributes.GetEnumerator();
 
@@ -202,7 +200,7 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="h">The height of the window</param>
 		/// <param name="attributes">The initial attributes of the window</param>
 		/// <returns>The created window</returns>
-		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null);
+		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList? attributes = null);
 
 		/// <summary>
 		/// Gets the displays which make up the desktop.
@@ -354,7 +352,7 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// The display this window is fullscreen on, or null.
 		/// </summary>
-		public IDisplay FullscreenDisplay { get; }
+		public IDisplay? FullscreenDisplay { get; }
 
 		/// <summary>
 		/// Event fired when the window is resized.
@@ -395,7 +393,7 @@ namespace Tesseract.Core.Graphics {
 		/// Event fired when the window is signaled to close.
 		/// </summary>
 		public event Action OnClosing;
-		
+
 		/// <summary>
 		/// Restores this window to its regular windowed state, exiting any minimization, maximization, or fullscreen mode.
 		/// </summary>
@@ -406,14 +404,14 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="display">Display to make fullscreen on</param>
 		/// <param name="mode">Display mode to use in fullscreen mode</param>
-		public void SetFullscreen(IDisplay display, IDisplayMode mode);
+		public void SetFullscreen(IDisplay? display, IDisplayMode? mode);
 
 		/// <summary>
 		/// Sets the cursor displayed while inside the window's client area. If null
 		/// is passed the cursor is reset to its default image.
 		/// </summary>
 		/// <param name="cursor">Cursor to set</param>
-		public void SetCursor(ICursor cursor);
+		public void SetCursor(ICursor? cursor);
 
 		/// <summary>
 		/// If the window captures the mouse when focused. When the mouse is captured the cursor is hidden
@@ -425,7 +423,7 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// The window surface, if present.
 		/// </summary>
-		public IWindowSurface Surface { get; }
+		public IWindowSurface? Surface { get; }
 
 	}
 

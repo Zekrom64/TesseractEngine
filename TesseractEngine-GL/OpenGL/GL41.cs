@@ -12,6 +12,7 @@ namespace Tesseract.OpenGL {
 
 		public GL41(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_ES2_compatibility
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -143,6 +144,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<double> GetDouble(uint pname, uint index, Span<double> v) => GL.ARBViewportArray.GetDouble(pname, index, v);
+#nullable restore
 
 	}
 

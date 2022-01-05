@@ -11,6 +11,7 @@ namespace Tesseract.OpenGL {
 
 		public GL46(GL gl, IGLContext context) : base(gl, context) { }
 
+#nullable disable
 		// ARB_indirect_parameters
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,6 +45,7 @@ namespace Tesseract.OpenGL {
 		// ARB_texture_filter_anisotropic
 
 		// ARB_transform_feedback_overflow_query
+#nullable restore
 
 	}
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBMultiDrawIndirectFunctions {
 
 		public delegate void PFN_glMultiDrawArraysIndirect(uint mode, IntPtr indirect, int primcount, int stride);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glMultiDrawElementsIndirect glMultiDrawElementsIndirect;
 
 	}
+#nullable restore
 
 	public class ARBMultiDrawIndirect : IGLObject {
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTransformFeedbackFunctions {
 
 		public delegate void PFN_glBindBufferRange(uint target, uint index, uint buffer, nint offset, nint size);
@@ -33,6 +34,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetTransformFeedbackVarying glGetTransformFeedbackVarying;
 
 	}
+#nullable restore
 
 	public class ARBTransformFeedback : IGLObject {
 
@@ -66,11 +68,11 @@ namespace Tesseract.OpenGL {
 
 		public void GetTransformFeedbackVarying(uint program, uint index, out int size, out GLShaderAttribType type, out string name) {
 			using MemoryStack sp = MemoryStack.Push();
-			int maxLen = GL.GL20.GetProgram(program, GLGetProgram.TransformFeedbackVaryingMaxLength);
+			int maxLen = GL.GL20!.GetProgram(program, GLGetProgram.TransformFeedbackVaryingMaxLength);
 			IntPtr pName = sp.Alloc<byte>(maxLen);
 			Functions.glGetTransformFeedbackVarying(program, index, maxLen, out int length, out size, out uint utype, pName);
 			type = (GLShaderAttribType)utype;
-			name = MemoryUtil.GetASCII(pName, length);
+			name = MemoryUtil.GetASCII(pName, length)!;
 		}
 
 	}

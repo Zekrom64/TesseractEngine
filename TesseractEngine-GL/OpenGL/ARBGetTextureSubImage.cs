@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBGetTextureSubImageFunctions {
 
 		public delegate void PFN_glGetTextureSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, int bufSize, IntPtr pixels);
@@ -19,6 +20,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetCompressedTextureSubImage glGetCompressedTextureSubImage;
 
 	}
+#nullable restore
 
 	public class ARBGetTextureSubImage : IGLObject {
 

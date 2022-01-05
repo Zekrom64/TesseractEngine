@@ -162,6 +162,7 @@ namespace Tesseract.LMDB {
 
 	public delegate MDBResult MDBMsgFunc([MarshalAs(UnmanagedType.LPStr)] string msg, IntPtr ctx);
 
+#nullable disable
 	public class MDBFunctions {
 
 		[return: NativeType("char*")]
@@ -303,6 +304,7 @@ namespace Tesseract.LMDB {
 		public PFN_mdb_reader_check mdb_reader_check;
 
 	}
+#nullable restore
 
 	public class MDB {
 
@@ -317,9 +319,9 @@ namespace Tesseract.LMDB {
 
 		public static int VerInt(int a, int b, int c) => (a << 24) | (b << 16) | c;
 
-		public static string GetVersion(out int major, out int minor, out int patch) => MemoryUtil.GetASCII(Functions.mdb_version(out major, out minor, out patch));
+		public static string GetVersion(out int major, out int minor, out int patch) => MemoryUtil.GetASCII(Functions.mdb_version(out major, out minor, out patch))!;
 
-		public static string StrError(MDBResult err) => MemoryUtil.GetASCII(Functions.mdb_strerror(err));
+		public static string StrError(MDBResult err) => MemoryUtil.GetASCII(Functions.mdb_strerror(err))!;
 
 	}
 

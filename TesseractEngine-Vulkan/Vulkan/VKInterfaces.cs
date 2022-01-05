@@ -28,7 +28,7 @@ namespace Tesseract.Vulkan {
 		/// <summary>
 		/// The allocator used to create this object.
 		/// </summary>
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 	}
 
@@ -73,7 +73,7 @@ namespace Tesseract.Vulkan {
 		/// <param name="instance">The Vulkan instance</param>
 		/// <param name="allocator">The allocator to use. This may be ignored by some implementations</param>
 		/// <returns>A new surface targeting this object</returns>
-		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks allocator = null);
+		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null);
 
 	}
 

@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBCopyBufferFunctions {
 
 		public delegate void PFN_glCopyBufferSubData(uint readTarget, uint writeTarget, nint readOffset, nint writeOffset, nint size);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glCopyBufferSubData glCopyBufferSubData;
 
 	}
+#nullable restore
 
 	public class ARBCopyBuffer : IGLObject {
 

@@ -420,6 +420,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class VMAFunctions {
 
 		public delegate VKResult PFN_vmaCreateAllocator(in VMAAllocatorCreateInfo createInfo, [NativeType("VmaAllocator*")] out IntPtr allocator);
@@ -545,6 +546,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vmaDestroyImage vmaDestroyImage;
 
 	}
+#nullable restore
 
 	public static class VMA {
 
@@ -573,11 +575,11 @@ namespace Tesseract.Vulkan {
 
 		public VKDevice Device { get; }
 
-		public VulkanAllocationCallbacks AllocationCallbacks { get; }
+		public VulkanAllocationCallbacks? AllocationCallbacks { get; }
 
-		VulkanAllocationCallbacks IVKAllocatedObject.Allocator => AllocationCallbacks;
+		VulkanAllocationCallbacks? IVKAllocatedObject.Allocator => AllocationCallbacks;
 
-		public VMAAllocator(IntPtr allocator, VKDevice device, VulkanAllocationCallbacks allocationCallbacks) {
+		public VMAAllocator(IntPtr allocator, VKDevice device, VulkanAllocationCallbacks? allocationCallbacks) {
 			Allocator = allocator;
 			Device = device;
 			AllocationCallbacks = allocationCallbacks;
@@ -634,7 +636,7 @@ namespace Tesseract.Vulkan {
 
 		public string BuildStatsString(bool detailedMap) {
 			VMA.Functions.vmaBuildStatsString(Allocator, out IntPtr pString, detailedMap);
-			string str = MemoryUtil.GetASCII(pString);
+			string str = MemoryUtil.GetASCII(pString)!;
 			VMA.Functions.vmaFreeStatsString(Allocator, pString);
 			return str;
 		}
@@ -741,7 +743,7 @@ namespace Tesseract.Vulkan {
 
 		public void CheckCorruption(uint memoryTypeBits) => VK.CheckError(VMA.Functions.vmaCheckCorruption(Allocator, memoryTypeBits), "Failure while checking memory corruption");
 
-		public VMADefragmentationContext BeginDefragmentation(in VMADefragmentationInfo2 info, IPointer<VMADefragmentationStats> stats = null) {
+		public VMADefragmentationContext BeginDefragmentation(in VMADefragmentationInfo2 info, IPointer<VMADefragmentationStats>? stats = null) {
 			VK.CheckError(VMA.Functions.vmaDefragmentationBegin(Allocator, info, stats != null ? stats.Ptr : IntPtr.Zero, out IntPtr context), "Failed to begin defragmentation");
 			return new VMADefragmentationContext(this, context);
 		}
@@ -812,12 +814,13 @@ namespace Tesseract.Vulkan {
 
 		public void CheckPoolCorruption() => VK.CheckError(VMA.Functions.vmaCheckPoolCorruption(Allocator, Pool), "Failure during pool corruption check");
 
-		public string Name {
+		public string? Name {
 			get {
 				VMA.Functions.vmaGetPoolName(Allocator, Pool, out IntPtr name);
 				return MemoryUtil.GetUTF8(name);
 			}
 			set {
+				if (value == null) throw new ArgumentNullException(nameof(value));
 				using var pName = MemoryUtil.AllocUTF8(value);
 				VMA.Functions.vmaSetPoolName(Allocator, Pool, pName);
 			}
@@ -902,7 +905,7 @@ namespace Tesseract.Vulkan {
 
 		public void End() => VK.CheckError(VMA.Functions.vmaDefragmentationEnd(Allocator, Context), "Failure while ending defragmentation");
 
-		public void BeginPass(IPointer<VMADefragmentationPassInfo> info = null) => VK.CheckError(VMA.Functions.vmaBeginDefragmentationPass(Allocator, Context, info != null ? info.Ptr : IntPtr.Zero), "Failed to begin defragmentation pass");
+		public void BeginPass(IPointer<VMADefragmentationPassInfo>? info = null) => VK.CheckError(VMA.Functions.vmaBeginDefragmentationPass(Allocator, Context, info != null ? info.Ptr : IntPtr.Zero), "Failed to begin defragmentation pass");
 
 		public void EndPass() => VK.CheckError(VMA.Functions.vmaEndDefragmentationPass(Allocator, Context), "Failure while ending defragmentation pass");
 

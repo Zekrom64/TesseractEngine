@@ -30,7 +30,7 @@ namespace Tesseract.SDL {
 
 		public SDLSysWMType Subsystem { get; init; }
 
-		public object Msg { get; init; }
+		public object? Msg { get; init; }
 
 	}
 
@@ -54,7 +54,7 @@ namespace Tesseract.SDL {
 
 		public SDLSysWMType Subsystem { get; init; }
 
-		public object Info { get; init; }
+		public object? Info { get; init; }
 
 	}
 

@@ -9,6 +9,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBCopyImageFunctions {
 
 		public delegate void PFN_glCopyImageSubData(uint srcName, uint srcTarget, int srcLevel, int srcX, int srcY, int srcZ, uint dstName, uint dstTarget, int dstLevel, int dstX, int dstY, int dstZ, int srcWidth, int srcHeight, int srcDepth);
@@ -16,6 +17,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glCopyImageSubData glCopyImageSubData;
 
 	}
+#nullable restore
 
 	public class ARBCopyImage : IGLObject {
 

@@ -10,6 +10,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBViewportArrayFunctions {
 
 		public delegate void PFN_glViewportArrayv(uint first, int count, [NativeType("const GLfloat*")] IntPtr v);
@@ -44,6 +45,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetDoublei_v glGetDoublei_v;
 
 	}
+#nullable restore
 
 	public class ARBViewportArray : IGLObject {
 

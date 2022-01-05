@@ -33,7 +33,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKDescriptorSet descriptorSet) => descriptorSet != null ? descriptorSet.DescriptorSet : 0;
+		public static implicit operator ulong(VKDescriptorSet? descriptorSet) => descriptorSet != null ? descriptorSet.DescriptorSet : 0;
 
 	}
 

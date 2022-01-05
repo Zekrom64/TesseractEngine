@@ -40,6 +40,7 @@ namespace Tesseract.Vulkan.Native {
 	using VkSamplerYcbcrConversion = UInt64;
 	using VkDescriptorUpdateTemplate = UInt64;
 
+#nullable disable
 	public class VK11Functions {
 
 		public delegate VKResult PFN_vkEnumerateInstanceVersion(out uint apiVersion);
@@ -47,7 +48,9 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
 
 	}
+#nullable restore
 
+#nullable disable
 	public class VK11InstanceFunctions {
 
 		public delegate VKResult PFN_vkEnumeratePhysicalDeviceGroups(VkInstance instance, ref uint physicalDeviceGroupCount, [NativeType("VkPhysicalDeviceGroupProperties*")] IntPtr pPhysicalDeviceGroupProperties);
@@ -75,7 +78,9 @@ namespace Tesseract.Vulkan.Native {
 		public PFN_vkGetPhysicalDeviceExternalSemaphoreProperties vkGetPhysicalDeviceExternalSemaphoreProperties;
 
 	}
+#nullable restore
 
+#nullable disable
 	public class VK11DeviceFunctions {
 
 		public delegate VKResult PFN_vkBindBufferMemory2(VkDevice device, uint bindInfoCount, [NativeType("const VkBindBufferMemoryInfo*")] IntPtr pBindInfos);
@@ -115,5 +120,6 @@ namespace Tesseract.Vulkan.Native {
 		public static implicit operator bool(VK11DeviceFunctions fn) => fn != null;
 
 	}
+#nullable restore
 
 }

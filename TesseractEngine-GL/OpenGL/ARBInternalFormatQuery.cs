@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBInternalFormatQueryFunctions {
 
 		public delegate void PFN_glGetInternalformativ(uint target, uint internalFormat, uint pname, int bufSize, [NativeType("GLint*")] IntPtr _params);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetInternalformativ glGetInternalformativ;
 
 	}
+#nullable restore
 
 	public class ARBInternalFormatQuery : IGLObject {
 

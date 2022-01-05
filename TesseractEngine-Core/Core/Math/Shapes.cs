@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Math {
-	
+
 	public interface IReadOnlyRect<T> where T : unmanaged {
 
 		public IReadOnlyTuple2<T> Position { get; }
@@ -58,11 +54,11 @@ namespace Tesseract.Core.Math {
 		ITuple2<int> IRect<int>.Size { get => Size; set => Size = new Vector2i(value); }
 
 
-		public bool Equals(IReadOnlyRect<int> r) => Position.Equals(r.Position) && Size.Equals(r.Size);
+		public bool Equals(IReadOnlyRect<int>? r) => r != null && Position.Equals(r.Position) && Size.Equals(r.Size);
 
 		public bool Equals(Recti r) => Position == r.Position && Size == r.Size;
 
-		public override bool Equals(object obj) => obj is IReadOnlyRect<int> r && Equals(r);
+		public override bool Equals(object? obj) => obj is IReadOnlyRect<int> r && Equals(r);
 
 		public override int GetHashCode() => Position.GetHashCode() ^ Size.GetHashCode();
 
@@ -97,11 +93,11 @@ namespace Tesseract.Core.Math {
 		ITuple2<float> IRect<float>.Size { get => new Tuple2<float>(Size.X, Size.Y); set => Size = new Vector2(value.X, value.Y); }
 
 
-		public bool Equals(IReadOnlyRect<float> r) => Position.Equals(r.Position) && Size.Equals(r.Size);
+		public bool Equals(IReadOnlyRect<float>? r) => r != null && Position.Equals(r.Position) && Size.Equals(r.Size);
 
 		public bool Equals(Rectf r) => Position == r.Position && Size == r.Size;
 
-		public override bool Equals(object obj) => obj is IReadOnlyRect<float> r && Equals(r);
+		public override bool Equals(object? obj) => obj is IReadOnlyRect<float> r && Equals(r);
 
 		public override int GetHashCode() => Position.GetHashCode() ^ Size.GetHashCode();
 

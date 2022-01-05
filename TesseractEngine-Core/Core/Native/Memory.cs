@@ -2,11 +2,10 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 
 namespace Tesseract.Core.Native {
 
@@ -19,7 +18,7 @@ namespace Tesseract.Core.Native {
 	public interface IPrimitiveHandle {
 
 		public void WritePrimitiveHandle(IntPtr ptr) { }
-	
+
 	}
 
 	/// <summary>
@@ -63,7 +62,7 @@ namespace Tesseract.Core.Native {
 		/// <typeparam name="T2">Second pointer type</typeparam>
 		/// <param name="ptr">Pointer to case</param>
 		/// <returns>Recast version of pointer</returns>
-		public static IConstPointer<T2> RecastAs<T1,T2>(IConstPointer<T1> ptr) where T1 : unmanaged where T2 : unmanaged {
+		public static IConstPointer<T2> RecastAs<T1, T2>(IConstPointer<T1> ptr) where T1 : unmanaged where T2 : unmanaged {
 			int count = ptr.ArraySize;
 			if (count > 0) {
 				unsafe {
@@ -233,7 +232,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="length">Length in bytes to copy</param>
 		public static void Copy<T>(IPointer<T> dst, ReadOnlySpan<T> src, long length) where T : unmanaged {
 			unsafe {
-				fixed(T* pSrc = src) {
+				fixed (T* pSrc = src) {
 					Buffer.MemoryCopy(pSrc, (void*)dst.Ptr, length, length);
 				}
 			}
@@ -248,7 +247,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="length">Length in bytes to copy</param>
 		public static void Copy<T>(Span<T> dst, IConstPointer<T> src, long length) where T : unmanaged {
 			unsafe {
-				fixed(T* pDst = dst) {
+				fixed (T* pDst = dst) {
 					Buffer.MemoryCopy((void*)src.Ptr, pDst, length, length);
 				}
 			}
@@ -319,7 +318,7 @@ namespace Tesseract.Core.Native {
 					while (!tptr[i].Equals(value)) i++;
 					return i;
 				} else {
-					for(int i = 0; i < maxLength; i++) if (tptr[i].Equals(value)) return i;
+					for (int i = 0; i < maxLength; i++) if (tptr[i].Equals(value)) return i;
 					return -1;
 				}
 			}
@@ -335,7 +334,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>The ASCII string at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetASCII(IntPtr ptr, int length = -1, bool nullTerminated = true) {
+		public static string? GetASCII(IntPtr ptr, int length = -1, bool nullTerminated = true) {
 			if (ptr == IntPtr.Zero) return null;
 			if (length < 0) length = FindFirst<byte>(ptr, 0);
 			else if (nullTerminated) length = FindFirst<byte>(ptr, 0, length);
@@ -352,7 +351,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>String at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetASCII(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetASCII(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
+		public static string? GetASCII(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetASCII(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
 
 		/// <summary>
 		/// Gets an ASCII encoded string from a span of bytes.
@@ -414,7 +413,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>The UTF-16 string at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF16(IntPtr ptr, int length = -1, bool nullTerminated = true) {
+		public static string? GetUTF16(IntPtr ptr, int length = -1, bool nullTerminated = true) {
 			if (ptr == IntPtr.Zero) return null;
 			if (length < 0) length = FindFirst<byte>(ptr, 0);
 			else if (nullTerminated) length = FindFirst<ushort>(ptr, 0, length);
@@ -431,7 +430,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>String at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF16(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
+		public static string? GetUTF16(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
 
 		/// <summary>
 		/// Gets a UTF-16 encoded string from a span of bytes.
@@ -444,7 +443,7 @@ namespace Tesseract.Core.Native {
 			int length = span.Length;
 			if (nullTerminated) {
 				unsafe {
-					fixed(byte* pSpan = span) {
+					fixed (byte* pSpan = span) {
 						length = FindFirst<ushort>((IntPtr)pSpan, 0) * sizeof(ushort);
 					}
 				}
@@ -499,7 +498,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>The UTF-8 string at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF8(IntPtr ptr, int length = -1, bool nullTerminated = true) {
+		public static string? GetUTF8(IntPtr ptr, int length = -1, bool nullTerminated = true) {
 			if (ptr == IntPtr.Zero) return null;
 			if (length < 0) length = FindFirst<byte>(ptr, 0);
 			else if (nullTerminated) length = FindFirst<byte>(ptr, 0, length);
@@ -516,7 +515,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>String at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF8(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF8(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
+		public static string? GetUTF8(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF8(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
 
 		/// <summary>
 		/// Gets an UTF-8 encoded string from a span of bytes.
@@ -595,7 +594,7 @@ namespace Tesseract.Core.Native {
 		/// <summary>
 		/// The thread-local ("current") memory stack.
 		/// </summary>
-		public static MemoryStack Current => localStack.Value;
+		public static MemoryStack Current => localStack.Value!;
 
 		/// <summary>
 		/// Gets the current memory stack and pushes a new stack frame.
@@ -784,7 +783,7 @@ namespace Tesseract.Core.Native {
 		public UnmanagedPointer<T> Values<T>(IReadOnlyCollection<IPrimitiveHandle<T>> handles) where T : unmanaged {
 			UnmanagedPointer<T> ptr = Alloc<T>(handles.Count);
 			int i = 0;
-			foreach(IPrimitiveHandle<T> handle in handles) ptr[i++] = handle.PrimitiveHandle;
+			foreach (IPrimitiveHandle<T> handle in handles) ptr[i++] = handle.PrimitiveHandle;
 			return ptr;
 		}
 
@@ -885,7 +884,7 @@ namespace Tesseract.Core.Native {
 		public UnmanagedPointer<IntPtr> UTF8Array(IReadOnlyCollection<string> text) {
 			UnmanagedPointer<IntPtr> array = Alloc<IntPtr>(text.Count);
 			int i = 0;
-			foreach(string txt in text) array[i++] = UTF8(txt);
+			foreach (string txt in text) array[i++] = UTF8(txt);
 			return array;
 		}
 

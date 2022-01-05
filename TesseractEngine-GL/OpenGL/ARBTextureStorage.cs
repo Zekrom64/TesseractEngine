@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBTextureStorageFunctions {
 
 		public delegate void PFN_glTexStorage1D(uint target, int levels, uint internalFormat, int width);
@@ -21,6 +22,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glTexStorage3D glTexStorage3D;
 
 	}
+#nullable restore
 
 	public class ARBTextureStorage {
 

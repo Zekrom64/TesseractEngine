@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
-	
+
 	/// <summary>
 	/// An equatable list is a value type that can check for equaltity between lists. List
 	/// equality means that the lists are the same length and every element at corresponding
@@ -25,24 +22,21 @@ namespace Tesseract.Core.Util {
 
 		public EquatableList(IEnumerable<T> e) { List = new List<T>(e); }
 
-		public T this[int index] => List[index];
+		public T this[int index] => List != null ? List[index] : default!;
 
-		public int Count => List.Count;
+		public int Count => List != null ? List.Count : 0;
 
 		public bool Equals(EquatableList<T> other) {
-			if (List == null && other.List == null) return true;
-			else if (List == null ^ other.List == null) return false;
-
 			if (List.Count != other.List.Count) return false;
 			for (int i = 0; i < List.Count; i++) if (!Equals(List[i], other.List[i])) return false;
 			return true;
 		}
 
-		public override bool Equals(object obj) => obj is EquatableList<T> list && Equals(list);
+		public override bool Equals(object? obj) => obj is EquatableList<T> list && Equals(list);
 
-		public override int GetHashCode() => List != null ? List.GetHashCode() : 0;
+		public override int GetHashCode() => List.GetHashCode();
 
-		public override string ToString() => List != null ? List.ToString() : "null";
+		public override string? ToString() => List.ToString();
 
 
 		public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
@@ -77,19 +71,16 @@ namespace Tesseract.Core.Util {
 		public int Count => Set.Count;
 
 		public bool Equals(EquatableSet<T> other) {
-			if (Set == null && other.Set == null) return true;
-			else if (Set == null ^ other.Set == null) return false;
-
 			if (Set.Count != other.Set.Count) return false;
 			foreach (T t in Set) if (!other.Set.Contains(t)) return false;
 			return true;
 		}
 
-		public override bool Equals(object obj) => obj is EquatableSet<T> list && Equals(list);
+		public override bool Equals(object? obj) => obj is EquatableSet<T> list && Equals(list);
 
-		public override int GetHashCode() => Set != null ? Set.GetHashCode() : 0;
+		public override int GetHashCode() => Set.GetHashCode();
 
-		public override string ToString() => Set != null ? Set.ToString() : "null";
+		public override string? ToString() => Set.ToString();
 
 
 		public bool Contains(T item) => Set.Contains(item);
@@ -139,17 +130,17 @@ namespace Tesseract.Core.Util {
 		/// </summary>
 		/// <param name="val">Type value</param>
 		/// <returns>Value hash code</returns>
-		public static int Hash(T val) {
+		public static int Hash(T? val) {
 			if (Equals(null, val)) return 0;
 			else return val.GetHashCode();
 		}
 
 		private bool flag;
-		private T value;
+		private T? value;
 		/// <summary>
 		/// The underlying value being hashed.
 		/// </summary>
-		public T Value {
+		public T? Value {
 			get => value;
 			set {
 				flag = true;
@@ -172,7 +163,7 @@ namespace Tesseract.Core.Util {
 		/// Creates a new hashed value.
 		/// </summary>
 		/// <param name="val">Initial value</param>
-		public HashedValue(T val) {
+		public HashedValue(T? val) {
 			value = val;
 			hash = Hash(val);
 			flag = false;
@@ -180,9 +171,9 @@ namespace Tesseract.Core.Util {
 
 		public bool Equals(HashedValue<T> other) => HashValue == other.HashValue && Equals(Value, other.Value);
 
-		public bool Equals(T val) => HashValue == Hash(val) && Equals(Value, val);
+		public bool Equals(T? val) => HashValue == Hash(val) && Equals(Value, val);
 
-		public override bool Equals(object obj) =>
+		public override bool Equals(object? obj) =>
 			(obj is HashedValue<T> hv && Equals(hv)) ||
 			(obj is T val && Equals(val));
 
@@ -194,7 +185,7 @@ namespace Tesseract.Core.Util {
 
 		public static implicit operator HashedValue<T>(T val) => new(val);
 
-		public static implicit operator T(HashedValue<T> hv) => hv.Value;
+		public static implicit operator T?(HashedValue<T> hv) => hv.Value;
 
 	}
 

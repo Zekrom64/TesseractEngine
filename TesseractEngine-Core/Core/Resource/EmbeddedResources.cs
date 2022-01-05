@@ -50,19 +50,18 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">Resource domain name</param>
 		/// <param name="assembly">Assembly to load resources from</param>
-		public AssemblyResourceDomain(string name, Assembly assembly) {
-			Name = name;
+		public AssemblyResourceDomain(string name, Assembly assembly) : base(name) {
 			Assembly = assembly;
 
 			// Gather manifest resources based on names
 			foreach(string resname in assembly.GetManifestResourceNames()) {
 				string path = ConvertResourcePath(resname);
 				
-				string ext = null;
+				string? ext = null;
 				int extpos = path.LastIndexOf('.');
 				if (extpos != -1) ext = path[(extpos + 1)..];
 
-				MIME.TryGuessFromExtension(ext, out string mime);
+				MIME.TryGuessFromExtension(ext, out string? mime);
 
 				ResourceMetadata meta = new() {
 					Local = true,
@@ -91,12 +90,15 @@ namespace Tesseract.Core.Resource {
 		}
 
 		public override Stream OpenStream(ResourceLocation file) {
-			if (resourceCache.TryGetValue(file.Path, out EmbeddedResource resource)) return Assembly.GetManifestResourceStream(resource.Name);
-			else return null;
+			if (resourceCache.TryGetValue(file.Path, out EmbeddedResource resource)) {
+				Stream? stream = Assembly.GetManifestResourceStream(resource.Name);
+				if (stream == null) throw new IOException($"Failed to open resource \"{file.Name}\" from assembly {Assembly.FullName}");
+				return stream;
+			} else throw new IOException($"No such resource \"{file.Name}\" in assembly {Assembly.FullName}'s manifest");
 		}
 
 		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) {
-			if (directoryCache.TryGetValue(dir.Path, out List<string> subpaths)) {
+			if (directoryCache.TryGetValue(dir.Path, out List<string>? subpaths)) {
 				foreach (string subpath in subpaths) yield return new ResourceLocation(this, subpath);
 			}
 		}

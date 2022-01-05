@@ -189,13 +189,16 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			_ => default,
 		};
 
-		public static VKBorderColor Convert(SamplerBorderColor color, PixelFormat format) {
-			bool flt = format.IsNumberFormatFloating || format.IsNumberFormatNormalized;
+		public static VKBorderColor Convert(SamplerBorderColor color) {
 			return color switch {
-				SamplerBorderColor.TransparentBlack => flt ? VKBorderColor.FloatTransparentBlack : VKBorderColor.IntTransparentBlack,
-				SamplerBorderColor.OpaqueBlack => flt ? VKBorderColor.FloatOpaqueBlack : VKBorderColor.IntOpaqueBlack,
-				SamplerBorderColor.OpaqueWhite => flt ? VKBorderColor.FloatOpaqueWhite : VKBorderColor.IntOpaqueWhite,
-				SamplerBorderColor.Custom => flt ? VKBorderColor.FloatCustomEXT : VKBorderColor.IntCustomEXT,
+				SamplerBorderColor.TransparentBlackNorm => VKBorderColor.FloatTransparentBlack,
+				SamplerBorderColor.OpaqueBlackNorm => VKBorderColor.FloatOpaqueBlack,
+				SamplerBorderColor.OpaqueWhiteNorm => VKBorderColor.FloatOpaqueWhite,
+				SamplerBorderColor.CustomNorm => VKBorderColor.FloatCustomEXT,
+				SamplerBorderColor.TransparentBlackInt => VKBorderColor.IntTransparentBlack,
+				SamplerBorderColor.OpaqueBlackInt => VKBorderColor.IntOpaqueBlack,
+				SamplerBorderColor.OpaqueWhiteInt => VKBorderColor.IntOpaqueWhite,
+				SamplerBorderColor.CustomInt => VKBorderColor.IntCustomEXT,
 				_ => default,
 			};
 		}
@@ -619,7 +622,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public static VKGraphicsPipelineCreateInfo ConvertGraphicsPipeline(MemoryStack sp, PipelineCreateInfo createInfo, List<IDisposable> disposables) {
 			var gfxInfo = createInfo.GraphicsInfo;
-			var dynInfo = gfxInfo.DynamicInfo;
+			var dynInfo = gfxInfo!.DynamicInfo;
 			
 			ManagedPointer<VKPipelineShaderStageCreateInfo> pStages = new(Collections.ConvertAll(gfxInfo.Shaders, Convert));
 			disposables.Add(pStages);
@@ -681,8 +684,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					StencilTestEnable = dynInfo.StencilTestEnable,
 					Front = Convert(dynInfo.FrontStencilState),
 					Back = Convert(dynInfo.BackStencilState),
-					MinDepthBounds = dynInfo.MinDepthBounds,
-					MaxDepthBounds = dynInfo.MaxDepthBounds
+					MinDepthBounds = dynInfo.DepthBounds.Item1,
+					MaxDepthBounds = dynInfo.DepthBounds.Item2
 				}),
 				ColorBlendState = sp.Values(new VKPipelineColorBlendStateCreateInfo() {
 					Type = VKStructureType.PipelineColorBlendStateCreateInfo,
@@ -895,7 +898,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		};
 
 		public static VKComputePipelineCreateInfo ConvertComputePipeline(PipelineCreateInfo createInfo) {
-			PipelineComputeCreateInfo computeInfo = createInfo.ComputeInfo;
+			PipelineComputeCreateInfo computeInfo = createInfo.ComputeInfo!;
 
 			VKPipelineCreateFlagBits flags = VKPipelineCreateFlagBits.AllowDerivatives;
 			if (createInfo.BasePipeline != null || createInfo.BasePipelineIndex.HasValue) flags |= VKPipelineCreateFlagBits.Derivative;
@@ -904,7 +907,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				Type = VKStructureType.ComputePipelineCreateInfo,
 				Flags = flags,
 				Stage = Convert(computeInfo.Shader),
-				BasePipelineHandle = ((VulkanPipeline)createInfo.BasePipeline)?.Pipeline,
+				BasePipelineHandle = ((VulkanPipeline?)createInfo.BasePipeline)?.Pipeline,
 				BasePipelineIndex = createInfo.BasePipelineIndex.GetValueOrDefault(-1),
 				Layout = ((VulkanPipelineLayout)createInfo.Layout).Layout
 			};

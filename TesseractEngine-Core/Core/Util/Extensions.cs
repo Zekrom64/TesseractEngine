@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Util {
 
@@ -21,7 +19,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="array">This array</param>
 		/// <param name="convert">Converter function</param>
 		/// <returns>Converted array</returns>
-		public static T2[] ConvertAll<T1,T2>(this T1[] array, Converter<T1,T2> convert) => Array.ConvertAll(array, convert);
+		public static T2[] ConvertAll<T1, T2>(this T1[] array, Converter<T1, T2> convert) => Array.ConvertAll(array, convert);
 
 		/// <summary>
 		/// Creates a shallow clone of this array.
@@ -51,7 +49,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="span">Span of elements to convert</param>
 		/// <param name="convert">Converter function</param>
 		/// <returns>Span of converted elements</returns>
-		public static Span<T2> ConvertAll<T1,T2>(this ReadOnlySpan<T1> span, Converter<T1,T2> convert) {
+		public static Span<T2> ConvertAll<T1, T2>(this ReadOnlySpan<T1> span, Converter<T1, T2> convert) {
 			Span<T2> dst = new T2[span.Length];
 			for (int i = 0; i < span.Length; i++) dst[i] = convert(span[i]);
 			return dst;
@@ -111,6 +109,8 @@ namespace Tesseract.Core.Util {
 	/// </summary>
 	public static class EnumerableExtensions {
 
+		// Note: Obsolete in .NET 6, extensions are now provided by IEnumerable
+		/*
 		/// <summary>
 		/// Gets the first element in the enumerable or returns a provided default value.
 		/// </summary>
@@ -128,6 +128,7 @@ namespace Tesseract.Core.Util {
 		/// <param name="value">Default value</param>
 		/// <returns>Last value or default</returns>
 		public static T LastOrDefault<T>(this IEnumerable<T> e, T value) => e.Any() ? e.Last() : value;
+		*/
 
 		/// <summary>
 		/// Attempts to get the first value in the enumerable, indicating if successful.
@@ -141,7 +142,7 @@ namespace Tesseract.Core.Util {
 				value = e.First();
 				return true;
 			} else {
-				value = default;
+				value = default!;
 				return false;
 			}
 		}
@@ -158,9 +159,45 @@ namespace Tesseract.Core.Util {
 				value = e.Last();
 				return true;
 			} else {
-				value = default;
+				value = default!;
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Adds all of the items in the given enumerable to this collection.
+		/// </summary>
+		/// <typeparam name="T">Element type</typeparam>
+		/// <param name="c">Collection to add to</param>
+		/// <param name="e">Enumerable to add from</param>
+		/// <returns>This collection</returns>
+		public static ICollection<T> AddAll<T>(this ICollection<T> c, IEnumerable<T> e) {
+			foreach(T t in e) c.Add(t);
+			return c;
+		}
+
+		/// <summary>
+		/// Removes all of the items in the given enumerable from this collection.
+		/// </summary>
+		/// <typeparam name="T">Element type</typeparam>
+		/// <param name="c">Collection to remove to</param>
+		/// <param name="e">Enumerable of items to remove</param>
+		/// <returns>This collection</returns>
+		public static ICollection<T> RemoveAll<T>(this ICollection<T> c, IEnumerable<T> e) {
+			foreach (T t in e) c.Remove(t);
+			return c;
+		}
+
+		/// <summary>
+		/// Checks if all of the items in the given enumerable are in this collection.
+		/// </summary>
+		/// <typeparam name="T">Element type</typeparam>
+		/// <param name="c">Collection to add to</param>
+		/// <param name="e">Enumerable to add from</param>
+		/// <returns>If this collection contains all the elements in the enumerable</returns>
+		public static bool ContainsAll<T>(this IReadOnlyCollection<T> c, IEnumerable<T> e) {
+			foreach (T t in e) if (!c.Contains(t)) return false;
+			return true;
 		}
 
 	}

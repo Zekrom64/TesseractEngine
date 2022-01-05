@@ -17,7 +17,13 @@ namespace Tesseract.OpenGL {
 		Texture3D = GLEnums.GL_TEXTURE_3D,
 		CubeMap = GLEnums.GL_TEXTURE_CUBE_MAP,
 		CubeMapArray = GLEnums.GL_TEXTURE_CUBE_MAP_ARRAY,
-		Rectangle = GLEnums.GL_TEXTURE_RECTANGLE
+		Rectangle = GLEnums.GL_TEXTURE_RECTANGLE,
+		CubeMapPositiveX = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		CubeMapNegativeX = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		CubeMapPositiveY = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		CubeMapNegativeY = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		CubeMapPositiveZ = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		CubeMapNegativeZ = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 	}
 
 	public enum GLDrawMode : uint {
@@ -116,6 +122,7 @@ namespace Tesseract.OpenGL {
 		RGB10A2UI = GLEnums.GL_RGB10_A2UI,
 		RGBA12 = GLEnums.GL_RGBA12,
 		RGBA16 = GLEnums.GL_RGBA16,
+		RGBA16SNorm = GLEnums.GL_RGBA16_SNORM,
 		SRGB8 = GLEnums.GL_SRGB8,
 		SRGB8A8 = GLEnums.GL_SRGB8_ALPHA8,
 		R16F = GLEnums.GL_R16F,
@@ -362,7 +369,8 @@ namespace Tesseract.OpenGL {
 		ScissorTest = GLEnums.GL_SCISSOR_TEST,
 		StencilTest = GLEnums.GL_STENCIL_TEST,
 		TextureCubeMapSeamless = GLEnums.GL_TEXTURE_CUBE_MAP_SEAMLESS,
-		ProgramPointSize = GLEnums.GL_PROGRAM_POINT_SIZE
+		ProgramPointSize = GLEnums.GL_PROGRAM_POINT_SIZE,
+		DepthBoundsTestEXT = GLEnums.GL_DEPTH_BOUNDS_TEST_EXT
 	}
 
 	public enum GLIndexedCapability : uint {
@@ -460,7 +468,8 @@ namespace Tesseract.OpenGL {
 		TessellationControl = GLEnums.GL_TESS_CONTROL_SHADER,
 		TessellationEvaluation = GLEnums.GL_TESS_EVALUATION_SHADER,
 		Geometry = GLEnums.GL_GEOMETRY_SHADER,
-		Fragment = GLEnums.GL_FRAGMENT_SHADER
+		Fragment = GLEnums.GL_FRAGMENT_SHADER,
+		Compute = GLEnums.GL_COMPUTE_SHADER
 	}
 
 	public enum GLShaderAttribType : uint {
@@ -644,7 +653,8 @@ namespace Tesseract.OpenGL {
 	public enum GLClearBuffer : uint {
 		Color = GLEnums.GL_COLOR,
 		Depth = GLEnums.GL_DEPTH,
-		Stencil = GLEnums.GL_STENCIL
+		Stencil = GLEnums.GL_STENCIL,
+		DepthStencil = GLEnums.GL_DEPTH_STENCIL
 	}
 
 	public enum GLGetVertexAttrib : uint {
@@ -749,7 +759,8 @@ namespace Tesseract.OpenGL {
 		Color14 = GLEnums.GL_COLOR_ATTACHMENT14,
 		Color15 = GLEnums.GL_COLOR_ATTACHMENT15,
 		Depth = GLEnums.GL_DEPTH_ATTACHMENT,
-		Stencil = GLEnums.GL_STENCIL_ATTACHMENT
+		Stencil = GLEnums.GL_STENCIL_ATTACHMENT,
+		DepthStencil = GLEnums.GL_DEPTH_STENCIL_ATTACHMENT
 	}
 
 	public enum GLGetFramebufferAttachment : uint {
@@ -1191,6 +1202,30 @@ namespace Tesseract.OpenGL {
 		AttribArrayDivisor = GLEnums.GL_VERTEX_ATTRIB_ARRAY_DIVISOR,
 		AttribRelativeOffset = GLEnums.GL_VERTEX_ATTRIB_RELATIVE_OFFSET,
 		BindingOffset = GLEnums.GL_VERTEX_BINDING_OFFSET
+	}
+
+	public enum GLTextureWrap : uint {
+		Repeat = GLEnums.GL_REPEAT,
+		MirroredRepeat = GLEnums.GL_MIRRORED_REPEAT,
+		ClampToEdge = GLEnums.GL_CLAMP_TO_EDGE,
+		ClampToBorder = GLEnums.GL_CLAMP_TO_BORDER,
+		MirrorClampToEdge = GLEnums.GL_MIRROR_CLAMP_TO_EDGE
+	}
+
+	public enum GLTextureSwizzle : uint {
+		Red = GLEnums.GL_RED,
+		Green = GLEnums.GL_GREEN,
+		Blue = GLEnums.GL_BLUE,
+		Alpha = GLEnums.GL_ALPHA,
+		One = GLEnums.GL_ONE,
+		Zero = GLEnums.GL_ZERO
+	}
+
+	public enum GLWaitResult : uint {
+		AlreadySignaled = GLEnums.GL_ALREADY_SIGNALED,
+		TimeoutExpired = GLEnums.GL_TIMEOUT_EXPIRED,
+		ConditionSatisfied = GLEnums.GL_CONDITION_SATISFIED,
+		WaitFailed = GLEnums.GL_WAIT_FAILED
 	}
 
 }

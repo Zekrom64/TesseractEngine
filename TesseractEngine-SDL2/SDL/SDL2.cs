@@ -56,7 +56,7 @@ namespace Tesseract.SDL {
 
 		public static readonly LibrarySpec LibrarySpec = new() { Name = "SDL2" };
 
-		private static Library library = null;
+		private static Library? library = null;
 		public static Library Library {
 			get {
 				if (library == null) library = LibraryManager.Load(LibrarySpec);
@@ -64,7 +64,7 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		private static SDLFunctions functions = null;
+		private static SDLFunctions? functions = null;
 		public static SDLFunctions Functions {
 			get {
 				if (functions == null) {
@@ -80,7 +80,7 @@ namespace Tesseract.SDL {
 		}
 
 		internal static string GetError() {
-			string error = MemoryUtil.GetASCII(Functions.SDL_GetError());
+			string error = MemoryUtil.GetASCII(Functions.SDL_GetError())!;
 			Functions.SDL_ClearError();
 			return error;
 		}
@@ -331,7 +331,7 @@ namespace Tesseract.SDL {
 		public static string[] VideoDrivers {
 			get {
 				string[] drivers = new string[Functions.SDL_GetNumVideoDrivers()];
-				for (int i = 0; i < drivers.Length; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetVideoDriver(i));
+				for (int i = 0; i < drivers.Length; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetVideoDriver(i))!;
 				return drivers;
 			}
 		}
@@ -350,14 +350,14 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The current video driver.
 		/// </summary>
-		public static string CurrentVideoDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentVideoDriver());
+		public static string CurrentVideoDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentVideoDriver())!;
 
 		/// <summary>
 		/// Gets a window from a stored ID, or null if it doesn't exist.
 		/// </summary>
 		/// <param name="id">Window ID</param>
 		/// <returns>Window with ID, or null</returns>
-		public static SDLWindow GetWindowFromID(uint id) {
+		public static SDLWindow? GetWindowFromID(uint id) {
 			IntPtr ptr = Functions.SDL_GetWindowFromID(id);
 			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
@@ -366,14 +366,14 @@ namespace Tesseract.SDL {
 		/// Gets the window that currently has grabbed input.
 		/// </summary>
 		/// <returns>Window with grabbed input or null</returns>
-		public static SDLWindow GetGrabbedWindow() {
+		public static SDLWindow? GetGrabbedWindow() {
 			IntPtr ptr = Functions.SDL_GetGrabbedWindow();
 			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
 
 		// SDL_keyboard.h
 
-		public static SDLWindow GetKeyboardFocus() {
+		public static SDLWindow? GetKeyboardFocus() {
 			IntPtr ptr = Functions.SDL_GetKeyboardFocus();
 			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
@@ -394,11 +394,11 @@ namespace Tesseract.SDL {
 
 		public static SDLScancode GetScancodeFromKey(SDLKeycode key) => Functions.SDL_GetScancodeFromKey(key);
 
-		public static string GetScancodeName(SDLScancode scancode) => MemoryUtil.GetASCII(Functions.SDL_GetScancodeName(scancode));
+		public static string? GetScancodeName(SDLScancode scancode) => MemoryUtil.GetASCII(Functions.SDL_GetScancodeName(scancode));
 
 		public static SDLScancode GetScancodeFromName(string name) => Functions.SDL_GetScancodeFromName(name);
 
-		public static string GetKeyName(SDLKeycode key) => MemoryUtil.GetASCII(Functions.SDL_GetKeyName(key));
+		public static string? GetKeyName(SDLKeycode key) => MemoryUtil.GetASCII(Functions.SDL_GetKeyName(key));
 
 		public static SDLKeycode GetKeyFromName(string name) => Functions.SDL_GetKeyFromName(name);
 
@@ -422,7 +422,7 @@ namespace Tesseract.SDL {
 
 		public static SDLMouseButtonState MakeMouseButton(int index) => (SDLMouseButtonState)(1 << (index - 1));
 
-		public static SDLWindow GetMouseFocus() {
+		public static SDLWindow? GetMouseFocus() {
 			IntPtr ptr = Functions.SDL_GetMouseFocus();
 			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
 		}
@@ -516,9 +516,9 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public static string GameControllerMappingForGUID(Guid guid) {
+		public static string? GameControllerMappingForGUID(Guid guid) {
 			IntPtr pMapping = Functions.SDL_GameControllerMappingForGUID(guid);
-			string mapping = MemoryUtil.GetASCII(pMapping);
+			string? mapping = MemoryUtil.GetASCII(pMapping);
 			Functions.SDL_free(pMapping);
 			return mapping;
 		}
@@ -527,11 +527,11 @@ namespace Tesseract.SDL {
 
 		public static SDLGameControllerAxis GameControllerGetAxisFromString(string str) => Functions.SDL_GameControllerGetAxisFromString(str);
 
-		public static string GameControllerGetStringForAxis(SDLGameControllerAxis axis) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForAxis(axis));
+		public static string? GameControllerGetStringForAxis(SDLGameControllerAxis axis) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForAxis(axis));
 
 		public static SDLGameControllerButton GameControllerGetButtonFromString(string str) => Functions.SDL_GameControllerGetButtonFromString(str);
 
-		public static string GameControllerGetStringForButton(SDLGameControllerButton button) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForButton(button));
+		public static string? GameControllerGetStringForButton(SDLGameControllerButton button) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForButton(button));
 
 		// SDL_touch.h
 
@@ -588,7 +588,7 @@ namespace Tesseract.SDL {
 
 		public static void SetEventFilter(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_SetEventFilter(filter, userdata);
 
-		public static bool GetEventFilter(out SDLEventFilter filter, out IntPtr userdata) {
+		public static bool GetEventFilter(out SDLEventFilter? filter, out IntPtr userdata) {
 			if (!Functions.SDL_GetEventFilter(out IntPtr pFilter, out userdata)) {
 				filter = null;
 				return false;
@@ -643,7 +643,7 @@ namespace Tesseract.SDL {
 			get {
 				int numDrivers = Functions.SDL_GetNumAudioDrivers();
 				string[] drivers = new string[numDrivers];
-				for (int i = 0; i < numDrivers; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDriver(i));
+				for (int i = 0; i < numDrivers; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDriver(i))!;
 				return drivers;
 			}
 		}
@@ -652,7 +652,7 @@ namespace Tesseract.SDL {
 
 		public static void AudioQuit() => Functions.SDL_AudioQuit();
 
-		public static string CurrentAudioDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentAudioDriver());
+		public static string? CurrentAudioDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentAudioDriver());
 
 		public static void OpenAudio(in SDLAudioSpec desired, out SDLAudioSpec obtained) => CheckError(Functions.SDL_OpenAudio(desired, out obtained));
 
@@ -660,7 +660,7 @@ namespace Tesseract.SDL {
 			get {
 				int numDevices = Functions.SDL_GetNumAudioDevices(0);
 				string[] devices = new string[numDevices];
-				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 0));
+				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 0))!;
 				return devices;
 			}
 		}
@@ -669,7 +669,7 @@ namespace Tesseract.SDL {
 			get {
 				int numDevices = Functions.SDL_GetNumAudioDevices(1);
 				string[] devices = new string[numDevices];
-				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 1));
+				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 1))!;
 				return devices;
 			}
 		}
@@ -722,7 +722,7 @@ namespace Tesseract.SDL {
 
 		// SDL_clipboard.h
 
-		public static string ClipboardText {
+		public static string? ClipboardText {
 			get {
 				if (!Functions.SDL_HasClipboardText()) return null;
 				return MemoryUtil.GetASCII(Functions.SDL_GetClipboardText());
@@ -732,9 +732,9 @@ namespace Tesseract.SDL {
 
 		// SDL_filesystem.h
 
-		public static string BasePath => MemoryUtil.GetASCII(Functions.SDL_GetBasePath());
+		public static string BasePath => MemoryUtil.GetASCII(Functions.SDL_GetBasePath())!;
 
-		public static string GetPrefPath(string org, string app) => MemoryUtil.GetASCII(Functions.SDL_GetPrefPath(org, app));
+		public static string? GetPrefPath(string org, string app) => MemoryUtil.GetASCII(Functions.SDL_GetPrefPath(org, app));
 
 		// SDL_gesture.h
 
@@ -873,7 +873,7 @@ namespace Tesseract.SDL {
 
 		public static void SetHint(string hint, string value) => Functions.SDL_SetHint(hint, value);
 
-		public static string GetHint(string hint) => MemoryUtil.GetASCII(Functions.SDL_GetHint(hint));
+		public static string? GetHint(string hint) => MemoryUtil.GetASCII(Functions.SDL_GetHint(hint));
 
 		public static bool GetHintBoolean(string hint, bool defaultValue = false) => Functions.SDL_GetHintBoolean(hint, defaultValue);
 
@@ -956,10 +956,10 @@ namespace Tesseract.SDL {
 			Marshal.FreeHGlobal(pMsg);
 		}
 
-		public static (SDLLogOutputFunction, IntPtr) LogOutputFunction {
+		public static (SDLLogOutputFunction?, IntPtr) LogOutputFunction {
 			get {
 				Functions.SDL_LogGetOutputFunction(out IntPtr pCallback, out IntPtr userdata);
-				SDLLogOutputFunction callback = null;
+				SDLLogOutputFunction? callback = null;
 				if (pCallback != IntPtr.Zero) callback = Marshal.GetDelegateForFunctionPointer<SDLLogOutputFunction>(pCallback);
 				return (callback, userdata);
 			}
@@ -975,7 +975,7 @@ namespace Tesseract.SDL {
 			if (data.ColorScheme != null) colorScheme = new ManagedPointer<SDLMessageBoxColorScheme>(data.ColorScheme.Value);
 			SDL_MessageBoxData mbdata = new() {
 				Flags = data.Flags,
-				Window = data != null ? data.Window.Window.Ptr : IntPtr.Zero,
+				Window = data.Window != null ? data.Window.Window.Ptr : IntPtr.Zero,
 				Title = data.Title,
 				Message = data.Message,
 				NumButtons = buttons.ArraySize,
@@ -989,7 +989,7 @@ namespace Tesseract.SDL {
 			return buttonID;
 		}
 
-		public static void ShowSimpleMessageBox(SDLMessageBoxFlags flags, string title, string message, SDLWindow window = null) =>
+		public static void ShowSimpleMessageBox(SDLMessageBoxFlags flags, string title, string message, SDLWindow? window = null) =>
 			CheckError(Functions.SDL_ShowSimpleMessageBox(flags, title, message, window != null ? window.Window.Ptr : IntPtr.Zero));
 
 		// SDL_metal.h
@@ -1004,7 +1004,7 @@ namespace Tesseract.SDL {
 
 		// SDL_platform.h
 
-		public static string Platform => MemoryUtil.GetASCII(Functions.SDL_GetPlatform());
+		public static string Platform => MemoryUtil.GetASCII(Functions.SDL_GetPlatform())!;
 
 		// SDL_power.h
 
@@ -1070,7 +1070,7 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public static string Revision => MemoryUtil.GetASCII(Functions.SDL_GetRevision());
+		public static string Revision => MemoryUtil.GetASCII(Functions.SDL_GetRevision())!;
 
 		public static int RevisionNumber => Functions.SDL_GetRevisionNumber();
 
@@ -1091,7 +1091,7 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public static SDLSensor SensorFromInstanceID(int instanceID) {
+		public static SDLSensor? SensorFromInstanceID(int instanceID) {
 			IntPtr pSensor = Functions.SDL_SensorFromInstanceID(instanceID);
 			if (pSensor == IntPtr.Zero) return null;
 			return new SDLSensor(pSensor);

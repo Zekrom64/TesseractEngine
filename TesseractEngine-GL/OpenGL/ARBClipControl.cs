@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBClipControlFunctions {
 
 		public delegate void PFN_glClipControl(uint origin, uint depth);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glClipControl glClipControl;
 
 	}
+#nullable restore
 
 	public class ARBClipControl : IGLObject {
 

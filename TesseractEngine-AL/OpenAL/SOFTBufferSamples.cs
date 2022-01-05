@@ -54,6 +54,7 @@ namespace Tesseract.OpenAL {
 		_7Point1_32f = 0x1212,
 	}
 
+#nullable disable
 	public class SOFTBufferSamplesFunctions {
 
 		public delegate void PFN_alBufferSamplesSOFT(uint buffer, uint sampleRate, ALStorageFormatSOFT internalFormat, int samples, ALChannelConfigurationSOFT channels, ALSampleTypeSOFT type, IntPtr data);
@@ -67,6 +68,7 @@ namespace Tesseract.OpenAL {
 		public PFN_alIsBufferFormatSupportedSOFT alIsBufferFormatSupportedSOFT;
 
 	}
+#nullable restore
 
 	public class SOFTBufferSamples {
 

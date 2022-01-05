@@ -10,7 +10,7 @@ namespace Tesseract.Vulkan {
 
 	public class VKFence : IDisposable, IVKDeviceObject, IVKAllocatedObject, IPrimitiveHandle<ulong> {
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VKDevice Device { get; }
 
@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKFence(VKDevice device, ulong fence, VulkanAllocationCallbacks allocator) {
+		public VKFence(VKDevice device, ulong fence, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Fence = fence;
 			Allocator = allocator;
@@ -64,7 +64,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKFence fence) => fence != null ? fence.Fence : 0;
+		public static implicit operator ulong(VKFence? fence) => fence != null ? fence.Fence : 0;
 
 	}
 

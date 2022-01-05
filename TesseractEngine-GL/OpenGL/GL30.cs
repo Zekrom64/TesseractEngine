@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -10,6 +11,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class GL30Functions {
 
 		public delegate void PFN_glClearBufferfi(uint buffer, int drawBuffer, float depth, int stencil);
@@ -24,13 +26,17 @@ namespace Tesseract.OpenGL {
 		public PFN_glGetStringi glGetStringi;
 
 	}
+#nullable restore
 
 	public class GL30 : GL20 {
 
 		public GL30Functions FunctionsGL30 { get; }
 
-		public GL30(GL gl, IGLContext context) : base(gl, context) { }
+		public GL30(GL gl, IGLContext context) : base(gl, context) {
+			Library.LoadFunctions(context.GetGLProcAddress, FunctionsGL30 = new());
+		}
 
+#nullable disable
 		// EXT_gpu_shader4
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -167,16 +173,16 @@ namespace Tesseract.OpenGL {
 		public void ClearColor(uint r, uint g, uint b, uint a) => GL.EXTTextureInteger.ClearColor(r, g, b, a);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Span<int> GetTexParameter(GLTextureTarget target, GLTexParamter pname, Span<int> param) => GL.EXTTextureInteger.GetTexParameter(target, pname, param);
+		public Span<int> GetTexParameterI(GLTextureTarget target, GLTexParamter pname, Span<int> param) => GL.EXTTextureInteger.GetTexParameter(target, pname, param);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Span<uint> GetTexParameter(GLTextureTarget target, GLTexParamter pname, Span<uint> param) => GL.EXTTextureInteger.GetTexParameter(target, pname, param);
+		public Span<uint> GetTexParameterI(GLTextureTarget target, GLTexParamter pname, Span<uint> param) => GL.EXTTextureInteger.GetTexParameter(target, pname, param);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexParameter(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<int> param) => GL.EXTTextureInteger.TexParameter(target, pname, param);
+		public void TexParameterI(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<int> param) => GL.EXTTextureInteger.TexParameter(target, pname, param);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexParameter(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<uint> param) => GL.EXTTextureInteger.TexParameter(target, pname, param);
+		public void TexParameterI(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<uint> param) => GL.EXTTextureInteger.TexParameter(target, pname, param);
 
 		// EXT_draw_buffers2
 
@@ -233,6 +239,13 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearBuffer(GLClearBuffer buffer, int drawbuffer, Vector4i value) {
+			unsafe {
+				FunctionsGL30.glClearBufferiv((uint)buffer, drawbuffer, (IntPtr)(&value));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearBuffer(GLClearBuffer buffer, int drawbuffer, in Span<float> value) {
 			unsafe {
 				fixed (float* pValue = value) {
@@ -242,11 +255,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearBuffer(GLClearBuffer buffer, int drawbuffer, Vector4 value) {
+			unsafe {
+				FunctionsGL30.glClearBufferfv((uint)buffer, drawbuffer, (IntPtr)(&value));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearBuffer(GLClearBuffer buffer, int drawbuffer, in Span<uint> value) {
 			unsafe {
 				fixed (uint* pValue = value) {
 					FunctionsGL30.glClearBufferuiv((uint)buffer, drawbuffer, (IntPtr)pValue);
 				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearBuffer(GLClearBuffer buffer, int drawbuffer, Vector4ui value) {
+			unsafe {
+				FunctionsGL30.glClearBufferuiv((uint)buffer, drawbuffer, (IntPtr)(&value));
 			}
 		}
 
@@ -278,6 +305,7 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsVertexArray(uint array) => GL.ARBVertexArrayObject.IsVertexArray(array);
+#nullable restore
 
 	}
 

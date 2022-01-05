@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBTextureBufferRangeFunctions {
 
 		public delegate void PFN_glTexBufferRange(uint target, uint internalFormat, uint buffer, nint offset, nint size);
@@ -15,6 +16,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glTexBufferRange glTexBufferRange;
 
 	}
+#nullable restore
 
 	public class ARBTextureBufferRange : IGLObject {
 

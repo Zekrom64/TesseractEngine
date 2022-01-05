@@ -11,14 +11,14 @@ namespace Tesseract.Vulkan {
 
 		public VKDevice Device { get; }
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		[NativeType("VkDescriptorUpdateTemplate")]
 		public ulong DescriptorUpdateTemplate { get; }
 
 		public ulong PrimitiveHandle => DescriptorUpdateTemplate;
 
-		public VKDescriptorUpdateTemplate(VKDevice device, ulong descriptorUpdateTemplate, VulkanAllocationCallbacks allocator = null) {
+		public VKDescriptorUpdateTemplate(VKDevice device, ulong descriptorUpdateTemplate, VulkanAllocationCallbacks? allocator = null) {
 			Device = device;
 			DescriptorUpdateTemplate = descriptorUpdateTemplate;
 			Allocator = allocator;
@@ -50,6 +50,8 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
+		public static implicit operator ulong(VKDescriptorUpdateTemplate? template) => template != null ? template.PrimitiveHandle : 0;
 
 	}
 }

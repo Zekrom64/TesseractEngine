@@ -15,7 +15,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public TextureType Type { get; init; }
 
-		public PixelFormat Format { get; init; }
+		public PixelFormat Format { get; init; } = null!;
 
 		public Vector3i Size { get; init; }
 
@@ -27,7 +27,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public TextureUsage Usage { get; init; }
 
-		public IMemoryBinding MemoryBinding { get; init; }
+		public IMemoryBinding MemoryBinding { get; init; } = null!;
 
 		private readonly bool disposable;
 
@@ -55,12 +55,16 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public TextureSubresourceRange SubresourceRange { get; }
 
+		internal readonly VulkanTexture Texture;
+
 		public VulkanTextureView(VKImageView imageView, TextureViewCreateInfo createInfo) {
 			ImageView = imageView;
 			Type = createInfo.Type;
 			Format = createInfo.Format;
 			Mapping = createInfo.Mapping;
 			SubresourceRange = createInfo.SubresourceRange;
+
+			Texture = (VulkanTexture)createInfo.Texture;
 		}
 
 		public void Dispose() {

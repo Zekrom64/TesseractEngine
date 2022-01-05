@@ -135,27 +135,18 @@ namespace Tesseract.SDL {
 		public uint Timestamp;
 		public uint WindowID;
 		// char text[32]
-		private uint text0;
-		private readonly uint text1;
-		private readonly uint text2;
-		private readonly uint text3;
-		private readonly uint text4;
-		private readonly uint text5;
-		private readonly uint text6;
-		private readonly uint text7;
+		private unsafe fixed byte text[32];
 		public string Text {
 			get {
 				unsafe {
-					ref uint u = ref text0;
-					fixed (uint* p = &u) {
-						return MemoryUtil.GetUTF8((IntPtr)p, 32);
+					fixed (byte* p = text) {
+						return MemoryUtil.GetUTF8((IntPtr)p, 32)!;
 					}
 				}
 			}
 			set {
 				unsafe {
-					ref uint u = ref text0;
-					fixed (uint* p = &u) {
+					fixed (byte* p = text) {
 						MemoryUtil.PutUTF8(value, (IntPtr)p, 32);
 					}
 				}
@@ -170,28 +161,18 @@ namespace Tesseract.SDL {
 		public SDLEventType Type;
 		public uint Timestamp;
 		public uint WindowID;
-		// char text[32]
-		private uint text0;
-		private readonly uint text1;
-		private readonly uint text2;
-		private readonly uint text3;
-		private readonly uint text4;
-		private readonly uint text5;
-		private readonly uint text6;
-		private readonly uint text7;
+		private unsafe fixed byte text[32];
 		public string Text {
 			get {
 				unsafe {
-					ref uint u = ref text0;
-					fixed (uint* p = &u) {
-						return MemoryUtil.GetUTF8((IntPtr)p, 32);
+					fixed (byte* p = text) {
+						return MemoryUtil.GetUTF8((IntPtr)p, 32)!;
 					}
 				}
 			}
 			set {
 				unsafe {
-					ref uint u = ref text0;
-					fixed (uint* p = &u) {
+					fixed (byte* p = text) {
 						MemoryUtil.PutUTF8(value, (IntPtr)p, 32);
 					}
 				}
@@ -401,7 +382,7 @@ namespace Tesseract.SDL {
 		public uint Timestamp;
 		[NativeType("char*")]
 		public IntPtr File;
-		public string FileStr => MemoryUtil.GetASCII(File);
+		public string FileStr => MemoryUtil.GetASCII(File)!;
 		public uint WindowID;
 	}
 

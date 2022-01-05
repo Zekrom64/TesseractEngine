@@ -67,7 +67,7 @@ namespace Tesseract.GLFW.Services {
 
 		public IReadOnlyTuple2<int> Position => Monitor.Pos;
 
-		public string Name => Monitor.Name;
+		public string Name => Monitor.Name!;
 
 		public IDisplayMode CurrentMode => new GLFWServiceDisplayMode(Monitor.VideoMode);
 
@@ -78,7 +78,7 @@ namespace Tesseract.GLFW.Services {
 			return modes;
 		}
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -86,7 +86,7 @@ namespace Tesseract.GLFW.Services {
 
 		public readonly GLFWWindow Window;
 
-		public GLFWServiceWindow(string title, int w, int h, WindowAttributeList attribs) {
+		public GLFWServiceWindow(string title, int w, int h, WindowAttributeList? attribs) {
 			this.title = title;
 			if (attribs != null) {
 				if (attribs.TryGet(WindowAttributes.Focused, out bool focused)) GLFW3.WindowHint(GLFWWindowAttrib.Focused, focused ? 1 : 0);
@@ -133,29 +133,29 @@ namespace Tesseract.GLFW.Services {
 			}
 			Window.UserPointer = new ObjectPointer<GLFWServiceWindow>(this).Ptr;
 			Window.SizeCallback = (IntPtr pWindow, int w, int h) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (!window.Minimized) window.OnResize?.Invoke(new Vector2i(w, h));
 			};
 			Window.PosCallback = (IntPtr pWindow, int x, int y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (!window.Minimized) window.OnMove?.Invoke(new Vector2i(x, y));
 			};
 			Window.IconifyCallback = (IntPtr pWindow, bool iconified) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (iconified) window.OnMinimized?.Invoke();
 				else window.OnRestored?.Invoke();
 			};
 			Window.MaximizeCallback = (IntPtr pWindow, bool maximized) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (maximized) window.OnMaximized?.Invoke();
 			};
 			Window.FocusCallback = (IntPtr pWindow, bool focused) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (focused) window.OnFocused?.Invoke();
 				else window.OnUnfocused?.Invoke();
 			};
 			Window.CloseCallback = (IntPtr pWindow) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				window.OnClosing?.Invoke();
 			};
 			Window.KeyCallback = (IntPtr pWindow, GLFWKey key, int scancode, GLFWButtonState state, GLFWKeyMod mods) => {
@@ -166,12 +166,12 @@ namespace Tesseract.GLFW.Services {
 						Repeat = state == GLFWButtonState.Repeat,
 						Mod = GLFWServiceKeyboard.GLFWToStdKeyMod(mods)
 					};
-					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 					window.OnKey?.Invoke(evt);
 				}
 			};
 			Window.CharCallback = (IntPtr pWindow, uint codepoint) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (!window.textInput) return;
 				string text = char.ConvertFromUtf32((int)codepoint);
 				TextInputEvent evt = new() {
@@ -180,7 +180,7 @@ namespace Tesseract.GLFW.Services {
 				window.OnTextInput?.Invoke(evt);
 			};
 			Window.CursorEnterCallback = (IntPtr pWindow, bool entered) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				if (entered) {
 					Vector2d pos = window.Window.CursorPos;
 					window.lastCursorPos.X = (int)pos.X;
@@ -188,7 +188,7 @@ namespace Tesseract.GLFW.Services {
 				}
 			};
 			Window.CursorPosCallback = (IntPtr pWindow, double x, double y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				Vector2i pos = new((int)x, (int)y);
 				MouseMoveEvent evt = new() { 
 					Position = pos,
@@ -198,7 +198,7 @@ namespace Tesseract.GLFW.Services {
 				window.OnMouseMove?.Invoke(evt);
 			};
 			Window.MouseButtonCallback = (IntPtr pWindow, GLFWMouseButton button, GLFWButtonState state, GLFWKeyMod mods) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				Vector2d pos = window.Window.CursorPos;
 				MouseButtonEvent evt = new() {
 					Position = new Vector2i((int)pos.X, (int)pos.Y),
@@ -209,7 +209,7 @@ namespace Tesseract.GLFW.Services {
 				window.OnMouseButton?.Invoke(evt);
 			};
 			Window.ScrollCallback = (IntPtr pWindow, double x, double y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value;
+				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
 				Vector2d pos = window.Window.CursorPos;
 				MouseWheelEvent evt = new() {
 					Position = new Vector2i((int)pos.X, (int)pos.Y),
@@ -268,7 +268,7 @@ namespace Tesseract.GLFW.Services {
 
 		public bool Fullscreen => Window.Monitor;
 
-		public IDisplay FullscreenDisplay {
+		public IDisplay? FullscreenDisplay {
 			get {
 				GLFWMonitor monitor = Window.Monitor;
 				if (!monitor) return null;
@@ -281,7 +281,7 @@ namespace Tesseract.GLFW.Services {
 			set => Window.SetInputMode(GLFWInputMode.Cursor, value ? GLFWCursorMode.Disabled : GLFWCursorMode.Normal);
 		}
 
-		public IWindowSurface Surface => null;
+		public IWindowSurface? Surface => null;
 
 		public Vector2i MousePosition {
 			get {
@@ -290,21 +290,21 @@ namespace Tesseract.GLFW.Services {
 			}
 		}
 
-		public event Action<Vector2i> OnResize;
-		public event Action<Vector2i> OnMove;
-		public event Action OnMinimized;
-		public event Action OnMaximized;
-		public event Action OnRestored;
-		public event Action OnFocused;
-		public event Action OnUnfocused;
-		public event Action OnClosing;
-		public event Action<KeyEvent> OnKey;
-		public event Action<TextInputEvent> OnTextInput;
-		public event Action<TextEditEvent> OnTextEdit;
+		public event Action<Vector2i>? OnResize;
+		public event Action<Vector2i>? OnMove;
+		public event Action? OnMinimized;
+		public event Action? OnMaximized;
+		public event Action? OnRestored;
+		public event Action? OnFocused;
+		public event Action? OnUnfocused;
+		public event Action? OnClosing;
+		public event Action<KeyEvent>? OnKey;
+		public event Action<TextInputEvent>? OnTextInput;
+		public event Action<TextEditEvent>? OnTextEdit;
 		private Vector2i lastCursorPos;
-		public event Action<MouseMoveEvent> OnMouseMove;
-		public event Action<MouseButtonEvent> OnMouseButton;
-		public event Action<MouseWheelEvent> OnMouseWheel;
+		public event Action<MouseMoveEvent>? OnMouseMove;
+		public event Action<MouseButtonEvent>? OnMouseButton;
+		public event Action<MouseWheelEvent>? OnMouseWheel;
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
@@ -320,7 +320,7 @@ namespace Tesseract.GLFW.Services {
 
 		public bool GetMouseButtonState(int button) => Window.GetMouseButton(GLFWServiceMouse.StdToGLFWButton(button)) != GLFWButtonState.Release;
 
-		public T GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) {
 			if (service == GLServices.GLContextProvider || service == VKServices.SurfaceProvider) return (T)(object)this;
 			return default;
 		}
@@ -330,13 +330,13 @@ namespace Tesseract.GLFW.Services {
 			else Window.Restore();
 		}
 
-		public void SetCursor(ICursor cursor) => Window.Cursor = cursor is GLFWServiceCursor gc ? gc.Cursor : null;
+		public void SetCursor(ICursor? cursor) => Window.Cursor = cursor is GLFWServiceCursor gc ? gc.Cursor : null;
 
 		private Vector2i? windowedSize = null;
 		private Vector2i? windowPosition = null;
-		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
-			GLFWServiceDisplay glfwdisplay = (GLFWServiceDisplay)display;
-			GLFWServiceDisplayMode glfwmode = (GLFWServiceDisplayMode)mode;
+		public void SetFullscreen(IDisplay? display, IDisplayMode? mode) {
+			GLFWServiceDisplay? glfwdisplay = display as GLFWServiceDisplay;
+			GLFWServiceDisplayMode? glfwmode = mode as GLFWServiceDisplayMode;
 			Vector2i size = Window.Size;
 			Vector2i pos = Window.Pos;
 			GLFWMonitor curmon = Window.Monitor;
@@ -350,6 +350,7 @@ namespace Tesseract.GLFW.Services {
 				if (windowedSize != null) size = windowedSize.Value;
 			// Else if transitioning from windowed to fullscreen mode
 			} else if (glfwdisplay != null && !curmon) {
+				if (glfwmode == null) throw new ArgumentNullException(nameof(mode));
 				// Save current window size and position
 				windowPosition = Position;
 				windowedSize = Size;
@@ -358,13 +359,16 @@ namespace Tesseract.GLFW.Services {
 			}
 			// If new mode is fullscreen use the given refresh rate, else don't care
 			int refreshRate = GLFW3.DontCare;
-			if (glfwdisplay != null) refreshRate = glfwmode.VidMode.RefreshRate;
+			if (glfwdisplay != null) {
+				if (glfwmode == null) throw new ArgumentNullException(nameof(mode));
+				refreshRate = glfwmode.VidMode.RefreshRate;
+			}
 			Window.SetMonitor(glfwdisplay != null ? glfwdisplay.Monitor : default, pos, size, refreshRate);
 		}
 
 		public void StartTextInput() => textInput = true;
 
-		private GLFWGLContext glcontext = null;
+		private GLFWGLContext? glcontext = null;
 		public IGLContext CreateContext() {
 			if (glcontext == null) glcontext = new GLFWGLContext(Window);
 			return glcontext;
@@ -375,12 +379,12 @@ namespace Tesseract.GLFW.Services {
 				IntPtr names = GLFW3.Functions.glfwGetRequiredInstanceExtensions(out uint count);
 				UnmanagedPointer<IntPtr> pNames = new(names);
 				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i]);
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
 				return exts;
 			}
 		}
 
-		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks allocator = null) {
+		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
 			VK.CheckError((VKResult)GLFW3.Functions.glfwCreateWindowSurface(instance, Window.Window, allocator, out ulong surface), "Failed to create window surface");
 			return new VKSurfaceKHR(instance, surface, allocator);
 		}
@@ -415,7 +419,7 @@ namespace Tesseract.GLFW.Services {
 			return new GLFWServiceCursor(new GLFWCursor(shape));
 		}
 
-		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null) {
+		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList? attributes = null) {
 			GLFW3.DefaultWindowHints();
 			return new GLFWServiceWindow(title, w, h, attributes);
 		}
@@ -427,7 +431,7 @@ namespace Tesseract.GLFW.Services {
 			return displays;
 		}
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 	}
 }

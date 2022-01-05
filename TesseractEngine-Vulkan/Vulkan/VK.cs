@@ -23,7 +23,7 @@ namespace Tesseract.Vulkan {
 		public IVKLoader Loader { get; }
 
 		public VK10 VK10 { get; }
-		public VK11 VK11 { get; }
+		public VK11? VK11 { get; }
 
 		public VKGetInstanceProcAddr InstanceGetProcAddr { get; }
 
@@ -62,12 +62,12 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKInstance CreateInstance(in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks allocator = null) => VK10.CreateInstance(createInfo, allocator);
+		public VKInstance CreateInstance(in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks? allocator = null) => VK10.CreateInstance(createInfo, allocator);
 
 		// Vulkan 1.1
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint EnumerateInstanceVersion() => VK11.EnumerateInstanceVersion();
+		public uint EnumerateInstanceVersion() => VK11!.EnumerateInstanceVersion();
 
 	}
 

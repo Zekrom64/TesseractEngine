@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class ARBGeometryShader4Functions {
 
 		public delegate void PFN_glProgramParameteri(uint program, uint pname, int value);
@@ -24,6 +25,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glFramebufferTextureFace glFramebufferTextureFace;
 
 	}
+#nullable restore
 
 	public class ARBGeometryShader4 : IGLObject {
 

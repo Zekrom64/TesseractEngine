@@ -17,7 +17,7 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => Event;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public bool Status {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,7 +36,7 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public VKEvent(VKDevice device, ulong _event, VulkanAllocationCallbacks allocator) {
+		public VKEvent(VKDevice device, ulong _event, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			Event = _event;
 			Allocator = allocator;
@@ -48,7 +48,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKEvent evt) => evt != null ? evt.Event : 0;
+		public static implicit operator ulong(VKEvent? evt) => evt != null ? evt.Event : 0;
 
 	}
 

@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
-	
+
+#nullable disable
 	public class ARBDrawElementsBaseVertexFunctions {
 
 		public delegate void PFN_glDrawElementsBaseVertex(uint mode, int count, uint type, IntPtr indices, int basevertex);
@@ -24,7 +25,8 @@ namespace Tesseract.OpenGL {
 		public PFN_glMultiDrawElementsBaseVertex glMultiDrawElementsBaseVertex;
 
 	}
-	
+#nullable restore
+
 	public class ARBDrawElementsBaseVertex : IGLObject {
 
 		public GL GL { get; }

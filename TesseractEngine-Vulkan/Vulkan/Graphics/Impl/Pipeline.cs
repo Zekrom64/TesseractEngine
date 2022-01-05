@@ -216,7 +216,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		private readonly List<DynamicField> fields = new();
 
 		private (PipelineDynamicCreateInfo, VKPipeline) CreateDerivedPipeline(PipelineDynamicCreateInfo key) {
-			PipelineDynamicCreateInfo newDynInfo = BaseInfo.GraphicsInfo.DynamicInfo;
+			PipelineDynamicCreateInfo newDynInfo = BaseInfo.GraphicsInfo!.DynamicInfo;
 			foreach (var field in fields) newDynInfo = field.Merger(newDynInfo, key);
 			PipelineCreateInfo createInfo = BaseInfo with {
 				GraphicsInfo = BaseInfo.GraphicsInfo with {
@@ -234,7 +234,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 			public MatchedPipelineSet(VulkanPipelineSet set) {
 				pipelineSet = set;
-				pipelines.Add((set.BaseInfo.GraphicsInfo.DynamicInfo, set.BasePipeline.Pipeline));
+				pipelines.Add((set.BaseInfo.GraphicsInfo!.DynamicInfo, set.BasePipeline.Pipeline));
 			}
 
 			private bool MatchPipelines(PipelineDynamicCreateInfo c1, PipelineDynamicCreateInfo c2) {
@@ -269,14 +269,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 			public HashedPipelineSet(VulkanPipelineSet set) {
 				pipelineSet = set;
-				pipelines[set.BaseInfo.GraphicsInfo.DynamicInfo] = set.BasePipeline.Pipeline;
+				pipelines[set.BaseInfo.GraphicsInfo!.DynamicInfo] = set.BasePipeline.Pipeline;
 			}
 
 			public VKPipeline this[PipelineDynamicCreateInfo key] {
 				get {
 					lock(pipelines) {
 						// Try to find an existing matching pipeline
-						if (pipelines.TryGetValue(key, out VKPipeline pipeline)) return pipeline;
+						if (pipelines.TryGetValue(key, out VKPipeline? pipeline)) return pipeline;
 						// Else create a new derived pipeline
 						var vkpipeline = pipelineSet.CreateDerivedPipeline(key);
 						pipelines[vkpipeline.Item1] = vkpipeline.Item2;
@@ -305,8 +305,10 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public VulkanPipelineSet(VulkanGraphics graphics, PipelineSetCreateInfo createInfo) {
 			Graphics = graphics;
 			BasePipeline = (VulkanPipeline)graphics.CreatePipeline(createInfo.CreateInfo);
+			BaseInfo = createInfo.CreateInfo;
+			BindPoint = BaseInfo.GraphicsInfo != null ? VKPipelineBindPoint.Graphics : VKPipelineBindPoint.Compute;
 
-			var dynStates = createInfo.CreateInfo.GraphicsInfo.DynamicState;
+			var dynStates = createInfo.CreateInfo.GraphicsInfo!.DynamicState;
 			HashSet<PipelineDynamicState> varStates = new(createInfo.VariableStates);
 			varStates.RemoveWhere(state => dynStates.Contains(state));
 			foreach (var state in varStates) fields.Add(MakeField(state));

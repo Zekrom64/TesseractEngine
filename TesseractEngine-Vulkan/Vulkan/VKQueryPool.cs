@@ -17,9 +17,9 @@ namespace Tesseract.Vulkan {
 
 		public ulong PrimitiveHandle => QueryPool;
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKQueryPool(VKDevice device, ulong queryPool, VulkanAllocationCallbacks allocator) {
+		public VKQueryPool(VKDevice device, ulong queryPool, VulkanAllocationCallbacks? allocator) {
 			Device = device;
 			QueryPool = queryPool;
 			Allocator = allocator;
@@ -43,12 +43,12 @@ namespace Tesseract.Vulkan {
 		// Vulkan 1.2
 		// VK_EXT_host_query_reset
 		public void Reset(uint firstQuery, uint queryCount) {
-			if (Device.VK12Functions) Device.VK12Functions.vkResetQueryPool(Device, QueryPool, firstQuery, queryCount);
-			else Device.EXTHostQueryReset.vkResetQueryPoolEXT(Device, QueryPool, firstQuery, queryCount);
+			if (Device.VK12Functions) Device.VK12Functions!.vkResetQueryPool(Device, QueryPool, firstQuery, queryCount);
+			else Device.EXTHostQueryReset!.vkResetQueryPoolEXT(Device, QueryPool, firstQuery, queryCount);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator ulong(VKQueryPool queryPool) => queryPool != null ? queryPool.QueryPool : 0;
+		public static implicit operator ulong(VKQueryPool? queryPool) => queryPool != null ? queryPool.QueryPool : 0;
 
 	}
 }

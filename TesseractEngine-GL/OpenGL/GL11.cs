@@ -313,7 +313,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public string GetString(uint pname) => MemoryUtil.GetUTF8(FunctionsGL11.glGetString(pname));
+		public string? GetString(uint pname) => MemoryUtil.GetUTF8(FunctionsGL11.glGetString(pname));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<T> GetTexImage<T>(GLTextureTarget target, int level, GLFormat format, GLTextureType type, Span<T> pixels) where T : unmanaged {
@@ -402,10 +402,10 @@ namespace Tesseract.OpenGL {
 		public void StencilOp(GLStencilOp sfail, GLStencilOp dpfail, GLStencilOp dppass) => FunctionsGL11.glStencilOp((uint)sfail, (uint)dpfail, (uint)dppass);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage1D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLType type, IntPtr pixels) => FunctionsGL11.glTexImage1D((uint)target, level, (int)internalFormat, width, border, (uint)format, (uint)type, pixels);
+		public void TexImage1D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLTextureType type, IntPtr pixels) => FunctionsGL11.glTexImage1D((uint)target, level, (int)internalFormat, width, border, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage1D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
+		public void TexImage1D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
 			unsafe {
 				fixed(T* pPixels = pixels) {
 					TexImage1D(target, level, internalFormat, width, border, format, type, (IntPtr)pPixels);
@@ -414,7 +414,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage1D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLType type, params T[] pixels) where T : unmanaged {
+		public void TexImage1D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int border, GLFormat format, GLTextureType type, params T[] pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexImage1D(target, level, internalFormat, width, border, format, type, (IntPtr)pPixels);
@@ -423,10 +423,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage2D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLType type, IntPtr pixels) => FunctionsGL11.glTexImage2D((uint)target, level, (int)internalFormat, width, height, border, (uint)format, (uint)type, pixels);
+		public void TexImage2D(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLTextureType type, IntPtr pixels) => FunctionsGL11.glTexImage2D((uint)target, level, (int)internalFormat, width, height, border, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage2D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
+		public void TexImage2D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexImage2D(target, level, internalFormat, width, height, border, format, type, (IntPtr)pPixels);
@@ -435,7 +435,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage2D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLType type, params T[] pixels) where T : unmanaged {
+		public void TexImage2D<T>(GLTextureTarget target, int level, GLInternalFormat internalFormat, int width, int height, int border, GLFormat format, GLTextureType type, params T[] pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexImage2D(target, level, internalFormat, width, height, border, format, type, (IntPtr)pPixels);
@@ -468,10 +468,10 @@ namespace Tesseract.OpenGL {
 		public void TexParameter(GLTextureTarget target, GLTexParamter pname, int param) => FunctionsGL11.glTexParameteri((uint)target, (uint)pname, param);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage1D(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLType type, IntPtr pixels) => FunctionsGL11.glTexSubImage1D((uint)target, level, xoffset, width, (uint)format, (uint)type, pixels);
+		public void TexSubImage1D(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLTextureType type, IntPtr pixels) => FunctionsGL11.glTexSubImage1D((uint)target, level, xoffset, width, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage1D<T>(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
+		public void TexSubImage1D<T>(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexSubImage1D(target, level, xoffset, width, format, type, (IntPtr)pPixels);
@@ -480,7 +480,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage1D<T>(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLType type, params T[] pixels) where T : unmanaged {
+		public void TexSubImage1D<T>(GLTextureTarget target, int level, int xoffset, int width, GLFormat format, GLTextureType type, params T[] pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexSubImage1D(target, level, xoffset, width, format, type, (IntPtr)pPixels);
@@ -489,10 +489,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage2D(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLType type, IntPtr pixels) => FunctionsGL11.glTexSubImage2D((uint)target, level, xoffset, yoffset, width, height, (uint)format, (uint)type, pixels);
+		public void TexSubImage2D(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLTextureType type, IntPtr pixels) => FunctionsGL11.glTexSubImage2D((uint)target, level, xoffset, yoffset, width, height, (uint)format, (uint)type, pixels);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage2D<T>(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
+		public void TexSubImage2D<T>(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLTextureType type, in ReadOnlySpan<T> pixels) where T : unmanaged {
 			unsafe {
 				fixed(T* pPixels = pixels) {
 					TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, (IntPtr)pPixels);
@@ -501,7 +501,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexSubImage2D<T>(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLType type, params T[] pixels) where T : unmanaged {
+		public void TexSubImage2D<T>(GLTextureTarget target, int level, int xoffset, int yoffset, int width, int height, GLFormat format, GLTextureType type, params T[] pixels) where T : unmanaged {
 			unsafe {
 				fixed (T* pPixels = pixels) {
 					TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, (IntPtr)pPixels);

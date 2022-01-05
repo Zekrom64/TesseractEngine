@@ -8,6 +8,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+#nullable disable
 	public class NVConditionalRenderFunctions {
 
 		public delegate void PFN_glBeginConditionalRender(uint id, uint mode);
@@ -18,6 +19,7 @@ namespace Tesseract.OpenGL {
 		public PFN_glEndConditionalRender glEndConditionalRender;
 
 	}
+#nullable restore
 
 	public class NVConditionalRender : IGLObject {
 
