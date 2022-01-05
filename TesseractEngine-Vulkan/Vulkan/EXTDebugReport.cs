@@ -78,6 +78,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+#nullable disable
 	public class EXTDebugReportFunctions {
 
 		public delegate VKResult PFN_vkCreateDebugReportCallbackEXT([NativeType("VkInstance")] IntPtr instance, in VKDebugReportCallbackCreateInfoEXT createInfo, [NativeType("VkAllocationCallbacks*")] IntPtr allocator, [NativeType("VkDebugReportCallbackEXT*")] out ulong callback);
@@ -89,6 +90,7 @@ namespace Tesseract.Vulkan {
 		public PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT;
 
 	}
+#nullable restore
 
 	public static class EXTDebugReport {
 
@@ -103,11 +105,11 @@ namespace Tesseract.Vulkan {
 
 		public VKInstance Instance { get; }
 
-		public VulkanAllocationCallbacks Allocator { get; }
+		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public ulong PrimitiveHandle => DebugReportCallback;
 
-		public VKDebugReportCallbackEXT(VKInstance instance, ulong callback, VulkanAllocationCallbacks allocator) {
+		public VKDebugReportCallbackEXT(VKInstance instance, ulong callback, VulkanAllocationCallbacks? allocator) {
 			Instance = instance;
 			DebugReportCallback = callback;
 			Allocator = allocator;
@@ -115,7 +117,7 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.EXTDebugReportFunctions.vkDestroyDebugReportCallbackEXT(Instance, DebugReportCallback, Allocator);
+			Instance.EXTDebugReportFunctions!.vkDestroyDebugReportCallbackEXT(Instance, DebugReportCallback, Allocator);
 		}
 
 	}
