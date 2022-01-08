@@ -10,8 +10,7 @@ namespace Tesseract.Core.Resource {
 	/// <para>A resource domain specifies how resources are accessed from some particular source.</para>
 	/// <para>
 	/// The default resource domain is a globally set domain that will be used if no specific
-	/// domain is specified as part of a resource location. It must only be set once, preferrably
-	/// when the program is first started.
+	/// domain is specified as part of a resource location.
 	/// </para>
 	/// <para>
 	/// Each thread also has its own 'contextual' domain which is initialized to the default domain
@@ -38,7 +37,7 @@ namespace Tesseract.Core.Resource {
 		/// <summary>
 		/// The default resource domain.
 		/// </summary>
-		public static ResourceDomain? Default { get; private set; }
+		public static ResourceDomain Default { get; set; } = NullResourceDomain.Instance;
 
 		/// <summary>
 		/// The global set of all registered resource domains.
@@ -50,17 +49,6 @@ namespace Tesseract.Core.Resource {
 					return new Dictionary<string, ResourceDomain>(allDomains);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Sets the default resource domain.
-		/// </summary>
-		/// <param name="domain">The default resource domain</param>
-		/// <exception cref="InvalidOperationException">If the default resource domain is already set</exception>
-		[ThreadSafety(ThreadSafetyLevel.SingleThread)]
-		public static void SetDefaultDomain(ResourceDomain domain) {
-			if (Default == null) Default = domain;
-			else throw new InvalidOperationException("Cannot change default resource domain once set");
 		}
 
 		/// <summary>
@@ -138,8 +126,14 @@ namespace Tesseract.Core.Resource {
 
 	}
 
+	/// <summary>
+	/// The null resource domain will always be empty.
+	/// </summary>
 	public class NullResourceDomain : ResourceDomain {
 
+		/// <summary>
+		/// The instance of the null resource domain.
+		/// </summary>
 		public static readonly NullResourceDomain Instance = new();
 
 		private NullResourceDomain() : base("null") { }
@@ -161,7 +155,7 @@ namespace Tesseract.Core.Resource {
 	/// or as only the path and the domain will be inferred from <see cref="ResourceDomain.Current"/>.
 	/// </para>
 	/// </summary>
-	public struct ResourceLocation : IEquatable<ResourceLocation> {
+	public record struct ResourceLocation {
 
 		/// <summary>
 		/// The domain component of this resource location.
@@ -265,17 +259,7 @@ namespace Tesseract.Core.Resource {
 			}
 		}
 
-		public bool Equals(ResourceLocation location) => Domain == location.Domain && Path == location.Path;
-
 		public override string ToString() => Domain.ToString() + ":" + Path;
-
-		public override bool Equals(object? obj) => obj is ResourceLocation location && Equals(location);
-
-		public override int GetHashCode() => Domain.GetHashCode() ^ Path.GetHashCode();
-
-		public static bool operator ==(ResourceLocation left, ResourceLocation right) => left.Equals(right);
-
-		public static bool operator !=(ResourceLocation left, ResourceLocation right) => !(left == right);
 
 	}
 }
