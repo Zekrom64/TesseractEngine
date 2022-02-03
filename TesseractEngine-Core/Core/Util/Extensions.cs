@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Numerics;
 
 namespace Tesseract.Core.Util {
@@ -268,6 +269,37 @@ namespace Tesseract.Core.Util {
 				v.W = span[offset];
 			}
 			return v;
+		}
+
+	}
+
+	/// <summary>
+	/// Task extension methods.
+	/// </summary>
+	public static class TaskExtensions {
+
+		/// <summary>
+		/// Returns a task that will complete either when this task is done or a
+		/// timeout period is passed. The result value indicates if the task timed out.
+		/// </summary>
+		/// <param name="task">This task</param>
+		/// <param name="millseconds">Timeout period in milliseconds</param>
+		/// <returns>Timeout task</returns>
+		public static async Task<bool> Timeout(this Task task, int millseconds) {
+			Task completion = await Task.WhenAny(task, Task.Delay(millseconds));
+			return completion != task;
+		}
+
+		/// <summary>
+		/// Returns a task that will complete either when this task is done or a
+		/// timeout period is passed. The result value indicates if the task timed out.
+		/// </summary>
+		/// <param name="task">This task</param>
+		/// <param name="time">Timeout period</param>
+		/// <returns>Timeout task</returns>
+		public static async Task<bool> Timeout(this Task task, TimeSpan time) {
+			Task completion = await Task.WhenAny(task, Task.Delay(time));
+			return completion != task;
 		}
 
 	}
