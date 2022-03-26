@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31105.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Core", "TesseractEngine-Core\TesseractEngine-Core.csproj", "{BE8692B9-BF35-4166-8A9F-26B558D5674E}"
 EndProject
@@ -30,7 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Utilities",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-LMDB", "TesseractEngine-LMDB\TesseractEngine-LMDB.csproj", "{FF9D16C2-344B-46CA-A66C-73F921094F55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-AL", "TesseractEngine-AL\TesseractEngine-AL.csproj", "{5A243E15-C1A0-4210-89D8-A296ECF0CD02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-AL", "TesseractEngine-AL\TesseractEngine-AL.csproj", "{5A243E15-C1A0-4210-89D8-A296ECF0CD02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-ImGui", "TesseractEngine-ImGui\TesseractEngine-ImGui.csproj", "{1CBD56D7-57BD-4D92-872B-9D1B44054154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,10 @@ Global
 		{5A243E15-C1A0-4210-89D8-A296ECF0CD02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A243E15-C1A0-4210-89D8-A296ECF0CD02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A243E15-C1A0-4210-89D8-A296ECF0CD02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
