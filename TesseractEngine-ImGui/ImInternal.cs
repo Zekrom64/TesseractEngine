@@ -5,21 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Tesseract.ImGui {
-	
-	public class ImFontAtlas {
 
-	}
+	public class ImGuiContext { }
 
-	public class ImGuiIO {
-
-	}
-
-	public class ImGuiStyle {
-
-	}
-
-	public class ImDrawData {
-
-	}
 
 }
