@@ -266,6 +266,54 @@ namespace Tesseract.Core.Math {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float Dot(this Vector4 v1, Vector4 v2) => (v1 * v2).Sum();
 
+		/// <summary>
+		/// Computes the floor of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Floor vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Floor(this Vector2 v) => new(MathF.Floor(v.X), MathF.Floor(v.Y));
+
+		/// <summary>
+		/// Computes the floor of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Floor vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Floor(this Vector3 v) => new(MathF.Floor(v.X), MathF.Floor(v.Y), MathF.Floor(v.Z));
+
+		/// <summary>
+		/// Computes the floor of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Floor vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Floor(this Vector4 v) => new(MathF.Floor(v.X), MathF.Floor(v.Y), MathF.Floor(v.Z), MathF.Floor(v.W));
+
+		/// <summary>
+		/// Computes the ceiling of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Ceiling vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Ceiling(this Vector2 v) => new(MathF.Ceiling(v.X), MathF.Ceiling(v.Y));
+
+		/// <summary>
+		/// Computes the ceiling of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Ceiling vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Ceiling(this Vector3 v) => new(MathF.Ceiling(v.X), MathF.Ceiling(v.Y), MathF.Ceiling(v.Z));
+
+		/// <summary>
+		/// Computes the ceiling of every component of this vector.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <returns>Ceiling vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Ceiling(this Vector4 v) => new(MathF.Ceiling(v.X), MathF.Ceiling(v.Y), MathF.Ceiling(v.Z), MathF.Ceiling(v.W));
+
 	}
 
 }
