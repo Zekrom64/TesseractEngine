@@ -81,6 +81,10 @@ namespace Tesseract.Core.Resource {
 		/// PNG image.
 		/// </summary>
 		public const string PNG = "image/png";
+		/// <summary>
+		/// QOI image.
+		/// </summary>
+		public const string QOI = "image/qoi";
 
 		/// <summary>
 		/// HTTP plaintext.

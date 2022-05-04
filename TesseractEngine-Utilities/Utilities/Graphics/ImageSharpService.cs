@@ -275,7 +275,7 @@ namespace Tesseract.Utilities.Graphics {
 			return IImageSharpImage.Create(Image.Load(location.OpenStream()));
 		}
 
-		public IImage Load(ReadOnlySpan<byte> binary, string mimeType) => IImageSharpImage.Create(Image.Load(binary));
+		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(binary));
 
 		public Span<byte> Save(IImage image, string mimeType) {
 			Image img;

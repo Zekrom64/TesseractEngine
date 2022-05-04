@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
@@ -18,7 +20,7 @@ namespace Tesseract.Core.Graphics {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Color3b : ITuple3<byte>, IColor {
+	public struct Color3b : ITuple3<byte>, IColor, IEquatable<IReadOnlyTuple3<byte>> {
 
 		public byte R;
 		public byte G;
@@ -66,10 +68,24 @@ namespace Tesseract.Core.Graphics {
 		}
 
 		Vector4 IReadOnlyColor.Normalized => Normalized;
+
+
+		public bool Equals(Color3b c) => R == c.R && G == c.G && B == c.B;
+
+		public bool Equals(IReadOnlyTuple3<byte>? c) => c != null && R == c.X && G == c.Y && B == c.Z;
+
+		public override bool Equals([NotNullWhen(true)] object? obj) => obj is IReadOnlyTuple3<byte> t && Equals(t);
+
+		public override int GetHashCode() => R + (G << 6) + (B << 12);
+
+		public static bool operator ==(Color3b left, Color3b right) => left.Equals(right);
+
+		public static bool operator !=(Color3b left, Color3b right) => !left.Equals(right);
+
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Color4b : ITuple4<byte>, IColor {
+	public struct Color4b : ITuple4<byte>, IColor, IEquatable<IReadOnlyTuple4<byte>> {
 
 		public byte R;
 		public byte G;
@@ -117,6 +133,26 @@ namespace Tesseract.Core.Graphics {
 		}
 
 		Vector4 IReadOnlyColor.Normalized => Normalized;
+
+		public Color4b(byte r, byte g, byte b, byte a) {
+			R = r;
+			G = g;
+			B = b;
+			A = a;
+		}
+
+
+		public bool Equals(Color4b c) => R == c.R && G == c.G && B == c.B && A == c.A;
+
+		public bool Equals(IReadOnlyTuple4<byte>? c) => c != null && R == c.X && G == c.Y && B == c.Z && A == c.W;
+
+		public override bool Equals([NotNullWhen(true)] object? obj) => obj is IReadOnlyTuple4<byte> t && Equals(t);
+
+		public override int GetHashCode() => R + (G << 6) + (B << 12) + (A << 18);
+
+		public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
+
+		public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
 
 	}
 

@@ -68,7 +68,7 @@ namespace Tesseract.Core.Graphics {
 
 		public IImage Load(ResourceLocation location);
 
-		public IImage Load(ReadOnlySpan<byte> binary, string mimeType);
+		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType);
 
 		public Span<byte> Save(IImage image, string mimeType);
 

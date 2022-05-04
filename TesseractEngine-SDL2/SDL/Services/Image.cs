@@ -65,7 +65,7 @@ namespace Tesseract.SDL.Services {
 			Surface.Dispose();
 		}
 
-		public T GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) {
 			if (service == GraphicsServices.ProcessableImage) return (T)(object)this;
 			return default;
 		}
@@ -80,7 +80,7 @@ namespace Tesseract.SDL.Services {
 		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
 			SDLServiceImage sdlsrc;
 			bool dispose = false;
-			if (src is SDLServiceImage) sdlsrc = src as SDLServiceImage;
+			if (src is SDLServiceImage sdlimg) sdlsrc = sdlimg;
 			else {
 				sdlsrc = new SDLServiceImage(src);
 				dispose = true;
@@ -114,8 +114,8 @@ namespace Tesseract.SDL.Services {
 	public class SDLImageIOService : IImageIO {
 
 		public IImage Load(ResourceLocation location) {
-			string mime = location.Metadata.MIMEType;
-			if (mime != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(location));
+			string? mime = location.Metadata.MIMEType;
+			if (mime != null && mime != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(location));
 			using MemoryStream ms = new();
 			using Stream stream = location.OpenStream();
 			stream.CopyTo(ms);
@@ -123,8 +123,8 @@ namespace Tesseract.SDL.Services {
 
 		}
 
-		public IImage Load(ReadOnlySpan<byte> binary, string mimeType) {
-			if (mimeType != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(mimeType));
+		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType) {
+			if (mimeType != null && mimeType != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(mimeType));
 			using SDLSpanRWOps rwops = new(binary);
 			return new SDLServiceImage(SDL2.LoadBMP(rwops));
 		}
@@ -134,7 +134,7 @@ namespace Tesseract.SDL.Services {
 
 			bool dispose = false;
 			SDLServiceImage sdlimage;
-			if (image is SDLServiceImage) sdlimage = image as SDLServiceImage;
+			if (image is SDLServiceImage sdlimg) sdlimage = sdlimg;
 			else {
 				sdlimage = new SDLServiceImage(image);
 				dispose = true;

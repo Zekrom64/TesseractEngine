@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Numerics;
@@ -300,6 +301,21 @@ namespace Tesseract.Core.Util {
 		public static async Task<bool> Timeout(this Task task, TimeSpan time) {
 			Task completion = await Task.WhenAny(task, Task.Delay(time));
 			return completion != task;
+		}
+
+	}
+
+	public static class StreamExtensions {
+
+		/// <summary>
+		/// Reads all of the bytes possible from this stream to a byte array.
+		/// </summary>
+		/// <param name="stream">Stream to read</param>
+		/// <returns>All bytes read from this stream</returns>
+		public static byte[] ReadFully(this Stream stream) {
+			using MemoryStream ms = new();
+			stream.CopyTo(ms);
+			return ms.ToArray();
 		}
 
 	}
