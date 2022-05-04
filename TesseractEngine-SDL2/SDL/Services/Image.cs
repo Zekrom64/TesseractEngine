@@ -123,13 +123,13 @@ namespace Tesseract.SDL.Services {
 
 		}
 
-		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType) {
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) {
 			if (mimeType != null && mimeType != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(mimeType));
 			using SDLSpanRWOps rwops = new(binary);
 			return new SDLServiceImage(SDL2.LoadBMP(rwops));
 		}
 
-		public Span<byte> Save(IImage image, string mimeType) {
+		public void Save(IImage image, string mimeType, Stream stream) {
 			if (mimeType != MIME.BMP) throw new ArgumentException("MIME type not supported by image IO", nameof(mimeType));
 
 			bool dispose = false;
@@ -141,10 +141,8 @@ namespace Tesseract.SDL.Services {
 			}
 
 			try {
-				using MemoryStream mstream = new();
-				using SDLStreamRWOps rwstream = new(mstream);
+				using SDLStreamRWOps rwstream = new(stream);
 				SDL2.SaveBMP(sdlimage.Surface, rwstream);
-				return mstream.ToArray();
 			} finally {
 				if (dispose) sdlimage.Dispose();
 			}

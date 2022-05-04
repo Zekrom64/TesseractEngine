@@ -275,9 +275,9 @@ namespace Tesseract.Utilities.Graphics {
 			return IImageSharpImage.Create(Image.Load(location.OpenStream()));
 		}
 
-		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(binary));
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(binary));
 
-		public Span<byte> Save(IImage image, string mimeType) {
+		public void Save(IImage image, string mimeType, Stream stream) {
 			Image img;
 			bool dispose = false;
 			if (image is IImageSharpImage isi) img = isi.AbstractImage;
@@ -286,7 +286,6 @@ namespace Tesseract.Utilities.Graphics {
 				dispose = true;
 			}
 			try {
-				using var stream = new MemoryStream();
 				switch (mimeType) {
 					case MIME.BMP:
 						img.SaveAsBmp(stream);
@@ -303,7 +302,6 @@ namespace Tesseract.Utilities.Graphics {
 					default:
 						throw new ArgumentException("Unsupported image MIME type", mimeType);
 				}
-				return stream.ToArray();
 			} finally {
 				if (dispose) img.Dispose();
 			}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.IO;
 using Tesseract.Core.Math;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
@@ -68,9 +69,15 @@ namespace Tesseract.Core.Graphics {
 
 		public IImage Load(ResourceLocation location);
 
-		public IImage Load(ReadOnlySpan<byte> binary, string? mimeType);
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType);
 
-		public Span<byte> Save(IImage image, string mimeType);
+		public void Save(IImage image, string mimeType, Stream stream);
+
+		public byte[] Save(IImage image, string mimeType) {
+			using MemoryStream ms = new MemoryStream();
+			Save(image, mimeType, ms);
+			return ms.ToArray();
+		}
 
 	}
 
