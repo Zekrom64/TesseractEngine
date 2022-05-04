@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.ImGui {
+namespace Tesseract.ImGui.Internal {
 	
 	[Flags]
 	internal enum ImGuiItemFlags {
@@ -146,6 +146,43 @@ namespace Tesseract.ImGui {
 		ID
 	}
 
+	[Flags]
+	internal enum ImGuiNextWindowDataFlags {
+		None = 0,
+		HasPos = 1 << 0,
+		HasSize = 1 << 1,
+		HasContentSize = 1 << 2,
+		HasCollapsed = 1 << 3,
+		HasSizeConstraint = 1 << 4,
+		HasFocus = 1 << 5,
+		HasBgAlpha = 1 << 6,
+		HasScroll = 1 << 7
+	}
 
+	[Flags]
+	internal enum ImGuiNextItemDataFlags {
+		None = 0,
+		HasWidth = 1 << 0,
+		HasOpen = 1 << 1
+	}
+
+	internal enum ImGuiInputEventType {
+		None,
+		MousePos,
+		MouseWheel,
+		MouseButton,
+		Key,
+		Text,
+		Focus
+	}
+
+	internal enum ImGuiInputSource {
+		None,
+		Mouse,
+		Keyboard,
+		Gamepad,
+		Clipboard,
+		Nav
+	}
 
 }

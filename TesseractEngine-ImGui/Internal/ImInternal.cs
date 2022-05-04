@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using Tesseract.Core.Math;
 
-namespace Tesseract.ImGui {
+namespace Tesseract.ImGui.Internal {
 
 	//==============================//
 	// Publicly-facing opaque types //
@@ -40,36 +39,6 @@ namespace Tesseract.ImGui {
 		public Vector4 ClipRect;
 		public nuint TextureId;
 		public uint VtxOffset;
-
-	}
-
-	internal class ImBitVector {
-
-		public readonly List<uint> Storage = new();
-
-		public void Create(int sz) {
-			sz = (sz + 31) >> 5;
-			Storage.EnsureCapacity(sz);
-			Storage.AddRange(new uint[Storage.Count - sz]);
-		}
-
-		public void Clear() => Storage.Clear();
-
-		public bool TestBit(int n) => (Storage[n >> 5] & (1 << (n & 0x1F))) != 0;
-
-		public void SetBit(int n) {
-			int i = n >> 5;
-			uint u = Storage[i];
-			u |= 1u << (n & 0x1F);
-			Storage[i] = u;
-		}
-
-		public void ClearBit(int n) {
-			int i = n >> 5;
-			uint u = Storage[i];
-			u &= ~(1u << (n & 0x1F));
-			Storage[i] = u;
-		}
 
 	}
 
@@ -228,97 +197,149 @@ namespace Tesseract.ImGui {
 
 	}
 
-	internal struct ImGuiInputTextState {
+	internal struct ImGuiPopupData {
 
-		public int ID;
-		public StringBuilder Text;
-		public float ScrollX;
-		public 
+		public int PopupId = default;
+
+		public ImGuiWindow? Window = default;
+
+		public ImGuiWindow? SourceWindow = default;
+
+		public int OpenFrameCount = -1;
+
+		public int OpenParentId = default;
+
+		public Vector2 OpenPopupPos = default;
+
+		public Vector2 OpenMousePos = default;
+
+		public ImGuiPopupData() { }
 
 	}
 
-	//==========================//
-	// Internal ImGui functions //
-	//==========================//
+	internal struct ImGuiNextWindowData {
 
-	public static partial class ImGui {
+		public ImGuiNextWindowDataFlags Flags;
 
-		internal static int HashData(byte[] data, uint seed = 0) {
+		public ImGuiCond PosCond;
+
+		public ImGuiCond SizeCond;
+
+		public ImGuiCond CollapsedCond;
+
+		public Vector2 PosVal;
+
+		public Vector2 PosPivotVal;
+
+		public Vector2 SizeVal;
+
+		public Vector2 ContentSizeVal;
+
+		public Vector2 ScrollVal;
+
+		public bool CollapsedVal;
+
+		public Rectf SizeConstraintRect;
+
+		public ImGuiSizeCallback SizeCallback;
+
+		public float BgAlphaVal;
+
+		public Vector2 MenuBarOffsetMinVal;
+
+		public void ClearFlags() {
+			Flags = ImGuiNextWindowDataFlags.None;
+		}
+
+	}
+
+	internal struct ImGuiNextItemData {
+
+		public ImGuiNextItemDataFlags Flags;
+
+		public float Width;
+
+		public int FocusScopeID;
+
+		public ImGuiCond OpenCond;
+
+		public bool OpenVal;
+
+		public void ClearFlags() {
+			Flags = ImGuiNextItemDataFlags.None;
+		}
+
+	}
+
+	internal struct ImGuiLastItemData {
+
+		public int ID;
+
+		public ImGuiItemFlags InFlags;
+
+		public ImGuiItemStatusFlags StatusFlags;
+
+		public Rectf Rect;
+
+		public Rectf NavRect;
+
+		public Rectf DisplayRect;
+
+	}
+
+	internal struct ImGuiStackSizes {
+
+		public short SizeOfIDStack;
+
+		public short SizeOfColorStack;
+
+		public short SizeOfStyleVarStack;
+
+		public short SizeOfFontStack;
+
+		public short SizeOfFocusScopeStack;
+
+		public short SizeOfGroupStack;
+
+		public short SizeOfItemFlagsStack;
+
+		public short SizeOfBeginPopupStack;
+
+		public short SizeOfDisabledStack;
+
+		public void SetToCurrentState() {
 
 		}
 
-		internal static int HashStr(string data, uint seed = 0) {
+		public void CompareWithTopState() {
 
 		}
 
-		internal static void Qsort<T>(IList<T> elements, Comparison<T> compareFunc) {
+	}
 
-		}
+	internal struct ImGuiWindowStackData {
 
-		internal static void Qsort<T>(IList<T> elements) where T : IComparable<T> {
+		public ImGuiWindow? Window;
 
-		}
+		public ImGuiLastItemData ParentLastItemDataBackup;
 
-		internal static bool IsPowerOfTwo(int v) => BitOperations.IsPow2(v);
+		public ImGuiStackSizes StackSizesOnBegin;
 
-		internal static bool IsPowerOfTwo(ulong v) => BitOperations.IsPow2(v);
+	}
 
-		internal static int UpperPowerOfTwo(int v) => (int)BitOperations.RoundUpToPowerOf2((uint)v);
+	internal struct ImGuiShrinkWidthItem {
 
-		internal static string FormatString(string fmt, params object[] args) {
+		public int Index;
 
-		}
+		public float Width;
 
-		internal static int ParseFormatFindStart(string fmt) {
+	}
 
-		}
+	public struct ImGuiPtrOrIndex {
 
-		internal static int ParseFormatFindEnd(string fmt) {
+		public object Ptr;
 
-		}
-
-		internal static string ParseFormatTrimDecorations(string fmt) {
-
-		}
-
-		internal static int ParseFormatPrecision(string format, int defaultValue) {
-
-		}
-
-		internal static bool IsCharBlank(char c) => c == ' ' || c == '\t' || c == 0x3000;
-
-
-		internal static Vector2 BezierCubicCalc(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float t) {
-
-		}
-
-		internal static Vector2 BezierCubicClosestPoint(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, int numSegments) {
-
-		}
-
-		internal static Vector2 BezierCubicClosestPointCastlejau(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, float tessTol) {
-
-		}
-
-		internal static Vector2 BezierQuadraticCalc(Vector2 p1, Vector2 p2, Vector2 p3, float t) {
-
-		}
-
-		internal static Vector2 LineClosestPoint(Vector2 a, Vector2 b, Vector2 p) {
-
-		}
-
-		internal static int RoundUpEven(int i) => ((i + 1) << 1) >> 1;
-
-		internal const int DrawListCircleAutoSegmentMin = 4;
-		internal const int DrawListCircleAutoSegmentMax = 512;
-
-		internal static int DrawListCircleAutoSegmentCalc(float rad, int max) {
-			int nseg = (int)Math.Ceiling(Math.PI / Math.Acos(1 - Math.Min(float.Epsilon, rad) / rad));
-			return Math.Clamp(RoundUpEven(nseg), DrawListCircleAutoSegmentMin, DrawListCircleAutoSegmentMax);
-		}
-
-		internal const int DrawListArcFastTableSize = 48;
+		public int Index;
 
 	}
 
