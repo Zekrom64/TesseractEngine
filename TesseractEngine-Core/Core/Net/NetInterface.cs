@@ -108,6 +108,12 @@ namespace Tesseract.Core.Net {
 		public ulong RxBytes { get; }
 
 		/// <summary>
+		/// A user-defined value assocateed with this connection. This can be used as a shortcut to
+		/// access associated data instead of using another lookup method such as a dictionary.
+		/// </summary>
+		public object? UserData { get; set; }
+
+		/// <summary>
 		/// Sends a packet to the remote host, potentially in response to a received packet.
 		/// </summary>
 		/// <param name="packet">Packet to send</param>

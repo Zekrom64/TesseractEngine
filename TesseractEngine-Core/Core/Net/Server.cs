@@ -111,6 +111,22 @@ namespace Tesseract.Core.Net {
 			serverSocket.Dispose();
 		}
 
+		/// <summary>
+		/// Sends a packet to every connection, with an optional predicate filtering which
+		/// connections it will be sent on.
+		/// </summary>
+		/// <param name="packet"></param>
+		/// <param name="predicate"></param>
+		public void SendToAll(Packet packet, Predicate<INetConnection>? predicate = null) {
+			lock (clients) {
+				foreach(RemoteClient client in clients) {
+					if (predicate == null || predicate(client)) {
+						client.Send(packet);
+					}
+				}
+			}
+		}
+
 	}
 
 	/// <summary>

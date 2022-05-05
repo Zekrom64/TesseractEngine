@@ -32,6 +32,8 @@ namespace Tesseract.Core.Net {
 		private ulong rxBytes = 0;
 		public ulong RxBytes => Interlocked.Read(ref rxBytes);
 
+		public object? UserData { get; set; } 
+
 		private readonly INetSocket socket;
 
 		private readonly Thread connectionThread;
