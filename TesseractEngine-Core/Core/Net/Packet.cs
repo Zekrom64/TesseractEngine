@@ -172,10 +172,18 @@ namespace Tesseract.Core.Net {
 
 	}
 	
+	/// <summary>
+	/// A packet manager handles the mapping of packet IDs to packet class types.
+	/// </summary>
 	public abstract class PacketManager {
 
 		private readonly Dictionary<PacketID, Func<Packet>> ctors = new();
 
+		/// <summary>
+		/// Registers a new packet with the packet manager.
+		/// </summary>
+		/// <typeparam name="T">The type of the packet</typeparam>
+		/// <param name="id">The ID to map the packet to</param>
 		protected void RegisterPacket<T>(PacketID id) where T : Packet, new() => ctors[id] = () => new T();
 
 		protected PacketManager() {
@@ -189,11 +197,21 @@ namespace Tesseract.Core.Net {
 
 		// Note: Functions are made virtual here to provide additional flexibility for implementers.
 
+		/// <summary>
+		/// Attempts to find a constructor for the given packet ID.
+		/// </summary>
+		/// <param name="id">Packet ID</param>
+		/// <returns>The constructor for the corresponding packet type</returns>
 		public virtual Func<Packet>? FindConstructor(PacketID id) {
 			if (ctors.TryGetValue(id, out var func)) return func;
 			return null;
 		}
 
+		/// <summary>
+		/// Constructs a packet of the type corresponding to the given ID.
+		/// </summary>
+		/// <param name="id">Packet ID</param>
+		/// <returns>Constructed packet</returns>
 		public virtual Packet Construct(PacketID id) => ctors[id]();
 
 	}

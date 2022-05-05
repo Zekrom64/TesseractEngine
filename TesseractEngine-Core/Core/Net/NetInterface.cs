@@ -74,9 +74,17 @@ namespace Tesseract.Core.Net {
 		public uint ConnectionID { get; }
 
 		/// <summary>
-		/// The remote address used by the connection.
+		/// An object describing the connection in detail. For simple IP connections this will be the <see cref="EndPoint"/> of the connection,
+		/// but connections with custom sockets may return different types of objects. Any connection information objects should
+		/// override the <see cref="object.ToString"/> method to provide a user-readable string describing the connection.
 		/// </summary>
-		public IPAddress RemoteAddress { get; }
+		public object ConnectionInfo { get; }
+
+		/// <summary>
+		/// The remote address used by the connection. If the remote address is unavailable
+		/// or obfuscated, this will be null.
+		/// </summary>
+		public IPAddress? RemoteAddress { get; }
 
 		/// <summary>
 		/// If the connection is alive.
@@ -170,12 +178,12 @@ namespace Tesseract.Core.Net {
 		/// For servers, an explicit host name to use or null if it should use the default. For clients,
 		/// the host name to connect to.
 		/// </summary>
-		public string? HostName => null;
+		public virtual string? HostName => null;
 
 		/// <summary>
 		/// The timeout value to use. If no packets are transferred within this time period, the connection should be terminated.
 		/// </summary>
-		public TimeSpan Timeout => TimeSpan.FromSeconds(10);
+		public virtual TimeSpan Timeout => TimeSpan.FromSeconds(10);
 
 		/// <summary>
 		/// The packet manager for this application.
@@ -186,21 +194,21 @@ namespace Tesseract.Core.Net {
 		/// Event fired when a connection is established.
 		/// </summary>
 		/// <param name="connection">The connection that was opened</param>
-		public void OnConnect(INetConnection connection);
+		public virtual void OnConnect(INetConnection connection) { }
 
 		/// <summary>
 		/// Event fired when a connection is closed, optionally with an exception that caused the close.
 		/// </summary>
 		/// <param name="connection">The connection that closed</param>
 		/// <param name="error">The error that caused the disconnect, or null</param>
-		public void OnDisconnect(INetConnection connection, Exception? error);
+		public virtual void OnDisconnect(INetConnection connection, Exception? error) { }
 
 		/// <summary>
 		/// Event fired when a packet is received.
 		/// </summary>
 		/// <param name="packet">The packet that was received</param>
 		/// <param name="connection">The connection that received the packet</param>
-		public void OnPacketReceived(Packet packet, INetConnection connection);
+		public virtual void OnPacketReceived(Packet packet, INetConnection connection) { }
 
 		/// <summary>
 		/// Event fired when an invalid packet is received (either the ID is invalid or
@@ -208,7 +216,7 @@ namespace Tesseract.Core.Net {
 		/// </summary>
 		/// <param name="packetData">The data of the bad packet</param>
 		/// <param name="connection">The connection that received the packet</param>
-		public void OnBadPacket(PacketData packetData, INetConnection connection);
+		public virtual void OnBadPacket(PacketData packetData, INetConnection connection) { }
 
 		/// <summary>
 		/// Event fired when a packet is received for a completion which does not exist.
@@ -216,7 +224,7 @@ namespace Tesseract.Core.Net {
 		/// </summary>
 		/// <param name="packet">The completion packet that was received</param>
 		/// <param name="connection">The connection that received the packet</param>
-		public void OnOrphanedCompletion(Packet packet, INetConnection connection);
+		public virtual void OnOrphanedCompletion(Packet packet, INetConnection connection) { }
 
 	}
 

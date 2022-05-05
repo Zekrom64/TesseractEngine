@@ -17,7 +17,9 @@ namespace Tesseract.Core.Net {
 
 		public uint ConnectionID { get; protected set; } = 0;
 
-		public IPAddress RemoteAddress { get; }
+		public object ConnectionInfo => socket.ConnectionInfo;
+
+		public IPAddress? RemoteAddress { get; }
 
 		private volatile bool isAlive = true;
 		public bool IsAlive { get => isAlive; protected set => isAlive = value; }
@@ -30,46 +32,45 @@ namespace Tesseract.Core.Net {
 		private ulong rxBytes = 0;
 		public ulong RxBytes => Interlocked.Read(ref rxBytes);
 
-		private readonly Socket socket;
+		private readonly INetSocket socket;
 
 		private readonly Thread connectionThread;
 
-		private Client(INetInterface iface) {
+		/// <summary>
+		/// Creates a new client with the given interface, and an optional existing socket.
+		/// </summary>
+		/// <param name="iface">The network interface</param>
+		/// <param name="socket">The already opened socket, or null</param>
+		protected Client(INetInterface iface, INetSocket? customSocket) {
 			Interface = iface;
-			// Initialize the socket based on the network interface
-			socket = new(
-				iface.UseIPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork,
-				SocketType.Stream,
-				ProtocolType.Tcp
-			);
-			socket.Blocking = false;
 
-			// Get the host name from the interface, for clients this must not be null
-			string? hostname = iface.HostName;
-			if (hostname == null) throw new ArgumentNullException(nameof(iface), "Host name must be non-null");
-			// Get the list of IP addresses associated with this host name (or the address itself if the host name is an address
-			IPAddress[] addresses = Dns.GetHostAddresses(hostname);
-			if (addresses.Length == 0) throw new ArgumentException($"Host name \"{hostname}\" could not be resolved to an IP address");
+			if (customSocket == null) {
+				// Initialize the socket based on the network interface
+				Socket sock = new(
+					iface.UseIPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork,
+					SocketType.Stream,
+					ProtocolType.Tcp
+				);
+				sock.Blocking = false;
 
-			// Use the first address in the list as the remote address and connect the socket to it
-			RemoteAddress = addresses[0];
-			socket.Connect(new IPEndPoint(RemoteAddress, iface.Port));
+				// Get the host name from the interface, for clients this must not be null
+				string? hostname = iface.HostName;
+				if (hostname == null) throw new ArgumentNullException(nameof(iface), "Host name must be non-null");
+				// Get the list of IP addresses associated with this host name (or the address itself if the host name is an address
+				IPAddress[] addresses = Dns.GetHostAddresses(hostname);
+				if (addresses.Length == 0) throw new ArgumentException($"Host name \"{hostname}\" could not be resolved to an IP address");
 
-			// Start the connection's networking thread
-			connectionThread = new Thread(RunNetworking);
-			connectionThread.Start();
-		}
+				// Use the first address in the list as the remote address and connect the socket to it
+				RemoteAddress = addresses[0];
+				sock.Connect(new IPEndPoint(RemoteAddress, iface.Port));
 
-		protected Client(INetInterface iface, Socket socket) {
-			Interface = iface;
-			this.socket = socket;
-			// Set socket into non-blocking mode
-			socket.Blocking = false;
-
-			// Get the remote address from the socket's endpoint			
-			RemoteAddress = ((IPEndPoint)socket.RemoteEndPoint!).Address;
-
-			// Start the connection's networking thread
+				// Start the connection's networking thread
+				socket = new NetSocket(sock);
+			} else {
+				socket = customSocket;
+				if (socket.ConnectionInfo is IPEndPoint ep) RemoteAddress = ep.Address;
+			}
+			
 			connectionThread = new Thread(RunNetworking);
 			connectionThread.Start();
 		}
@@ -349,7 +350,7 @@ namespace Tesseract.Core.Net {
 					// Read bytes from socket and transfer to FIFO
 					int numrx;
 					do {
-						numrx = rxstream.Read(rxbuffer);
+						numrx = socket.Receive(rxbuffer);
 						rxstream.Write(rxbuffer, 0, numrx);
 						Interlocked.Add(ref rxBytes, (ulong)numrx);
 					} while (numrx > 0);
@@ -399,7 +400,7 @@ namespace Tesseract.Core.Net {
 					if (closeFlag) {
 						void SendSync(byte[] buffer, int offset, int length) {
 							do {
-								int n = socket.Send(buffer, offset, length, SocketFlags.None); ;
+								int n = socket.Send(buffer.AsSpan().Slice(offset, length));
 								offset += n;
 								length -= n;
 								Interlocked.Add(ref txBytes, (ulong)n);
@@ -413,7 +414,7 @@ namespace Tesseract.Core.Net {
 							SendSync(txbuffer, 0, txlength);
 						}
 						// Close the socket voluntarily
-						socket.Disconnect(false);
+						socket.Disconnect();
 						// The connection is no longer alive since we are closing it
 						CloseInfo = closeInfo;
 						IsAlive = false;
@@ -428,7 +429,7 @@ namespace Tesseract.Core.Net {
 							}
 							do {
 								// Attempt to send data
-								n = socket.Send(txbuffer, txoffset, txlength, SocketFlags.None);
+								n = socket.Send(txbuffer.AsSpan().Slice(txoffset, txlength));
 								txoffset += n;
 								txlength -= n;
 								Interlocked.Add(ref txBytes, (ulong)n);
@@ -452,7 +453,7 @@ namespace Tesseract.Core.Net {
 				}
 			} while (IsAlive);
 			// Really make sure the socket is disconnected
-			if (socket.Connected) socket.Disconnect(false);
+			if (socket.Connected) socket.Disconnect();
 			// Fire events
 			Interface.OnDisconnect(this, closeException);
 			OnClosed();
@@ -549,8 +550,16 @@ namespace Tesseract.Core.Net {
 			return MeasureDelayAsync(timeout);
 		}
 
-		public static Task<Client> Create(INetInterface iface, CancellationToken ct) {
-			Client client = new(iface);
+		/// <summary>
+		/// Begins the task of creaating a new client, connecting using the given network interface
+		/// with cancellation provided by a <see cref="CancellationToken"/> for a timeout value.
+		/// </summary>
+		/// <param name="iface">The network interface</param>
+		/// <param name="ct">The cancellation token for the task</param>
+		/// <param name="socket">A custom socket to use, or null to use a standard IP socket based on the interface</param>
+		/// <returns>Task for creating a new client</returns>
+		public static Task<Client> Create(INetInterface iface, CancellationToken ct, INetSocket? socket = null) {
+			Client client = new(iface, socket);
 			return client.CompleteConnection(ct).ContinueWith((Task t) => {
 				iface.OnConnect(client);
 				return client;
