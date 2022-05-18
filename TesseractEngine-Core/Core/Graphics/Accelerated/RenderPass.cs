@@ -78,12 +78,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The inital layout of the attachment's underlying texture at the start of the render pass.
 		/// </summary>
-		public TextureLayout InitialLayout { get; init; }
+		public TextureLayout InitialLayout { get; init; } = default;
 
 		/// <summary>
 		/// The final layout of the attachment's underlying texture at the end of the render pass.
 		/// </summary>
-		public TextureLayout FinalLayout { get; init; }
+		public TextureLayout FinalLayout { get; init; } = default;
+
+		public RenderPassAttachment() { }
 
 	}
 
@@ -105,12 +107,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The layout of the attachment while it is in use by the current subpass.
 		/// </summary>
-		public TextureLayout Layout { get; init; }
+		public TextureLayout Layout { get; init; } = default;
 
 		/// <summary>
 		/// If the referenced attachment is unused.
 		/// </summary>
 		public bool IsUnused => Attachment == Unused;
+
+		public RenderPassAttachmentReference() { }
 
 	}
 
@@ -162,6 +166,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			PreserveAttachments = PreserveAttachments?.ShallowClone()
 		};
 
+		public RenderPassSubpass() { }
+
 	}
 
 	/// <summary>
@@ -187,22 +193,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pipeline stages initiating the dependency.
 		/// </summary>
-		public PipelineStage SrcStages { get; init; }
+		public PipelineStage SrcStages { get; init; } = default;
 
 		/// <summary>
 		/// The pipeline stages awaiting on the dependency.
 		/// </summary>
-		public PipelineStage DstStages { get; init; }
+		public PipelineStage DstStages { get; init; } = default;
 
 		/// <summary>
 		/// The memory accesses initiating the dependency.
 		/// </summary>
-		public MemoryAccess SrcAccess { get; init; }
+		public MemoryAccess SrcAccess { get; init; } = default;
 
 		/// <summary>
 		/// The memory accesses awaiting the dependency.
 		/// </summary>
-		public MemoryAccess DstAccess { get; init; }
+		public MemoryAccess DstAccess { get; init; } = default;
+
+		public RenderPassDependency() { }
 
 	}
 

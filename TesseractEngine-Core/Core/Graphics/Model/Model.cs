@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Util;
@@ -71,9 +72,25 @@ namespace Tesseract.Core.Graphics.Model {
 
 	}
 
+	public class ModelArrayBuffer<T> : IModelBuffer where T : unmanaged {
+
+		public readonly Memory<T> Array;
+
+		public Span<byte> Bytes => MemoryMarshal.AsBytes(Array.Span);
+
+		public ModelArrayBuffer(Memory<T> array) {
+			Array = array;
+		}
+
+		public ModelArrayBuffer(T[] array) {
+			Array = new Memory<T>(array);
+		}
+
+	}
+
 	public interface IModel {
 		
-		public IReadOnlyCollection<IModelBuffer> Buffers { get; }
+		public IReadOnlyList<IModelBuffer> Buffers { get; }
 
 		public ModelNode RootNode { get; }
 		

@@ -6,6 +6,7 @@ namespace Tesseract.Core.Audio {
 	/// <summary>
 	/// Bitmask of audio emitter flags.
 	/// </summary>
+	[Flags]
 	public enum AudioEmitterFlags {
 		/// <summary>
 		/// If the emitter's positional attributes (position, velocity, direction) are relative to the listener.

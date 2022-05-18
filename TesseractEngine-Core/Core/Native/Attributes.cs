@@ -8,6 +8,9 @@ namespace Tesseract.Core.Native {
 	[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue | AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
 	public sealed class NativeTypeAttribute : Attribute {
 
+		/// <summary>
+		/// The native type name as it would be in C/C++.
+		/// </summary>
 		public string Name { get; }
 
 		public NativeTypeAttribute(string name) {

@@ -1,24 +1,30 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using Tesseract.Core.Graphics;
+using Tesseract.Core.Native;
 using Tesseract.Core.Math;
 using Tesseract.Core.Resource;
-using Tesseract.Core.Native;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Pbm;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Tga;
+using SixLabors.ImageSharp.Formats.Tiff;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using IImage = Tesseract.Core.Graphics.IImage;
+using Tesseract.Core.Graphics.QOI;
 
-namespace Tesseract.Utilities.Graphics {
+namespace Tesseract.Core.Graphics {
 
-	public interface IImageSharpImage : IImage, IProcessableImage {
+	/// <summary>
+	/// Interface for 
+	/// </summary>
+	public interface IImageSharpImage : IProcessableImage {
 
 		public Image AbstractImage { get; }
 
@@ -45,108 +51,159 @@ namespace Tesseract.Utilities.Graphics {
 		public static IImageSharpImage Create(Image img) => imageBuilders[img.GetType().GetGenericArguments()[0]](img);
 
 		private static readonly Dictionary<Type, Func<IImage, Image>> imageConverters = new() {
-			{ typeof(A8), img => {
-				var ptr = MemoryUtil.RecastAs<byte,A8>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<A8>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Argb32), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Argb32>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Argb32>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Bgr24), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Bgr24>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Bgr24>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Bgr565), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Bgr565>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Bgr565>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Bgra32), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Bgra32>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Bgra32>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Bgra4444), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Bgra4444>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Bgra4444>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Bgra5551), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Bgra5551>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Bgra5551>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(L16), img => {
-				var ptr = MemoryUtil.RecastAs<byte, L16>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<L16>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(L8), img => {
-				var ptr = MemoryUtil.RecastAs<byte, L8>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<L8>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(La16), img => {
-				var ptr = MemoryUtil.RecastAs<byte, La16>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<La16>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(La32), img => {
-				var ptr = MemoryUtil.RecastAs<byte, La32>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<La32>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rg32), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rg32>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rg32>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rgb24), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rgb24>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rgb24>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rgb48), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rgb48>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rgb48>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rgba1010102), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rgba1010102>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rgba1010102>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rgba32), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rgba32>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rgba32>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} },
-			{ typeof(Rgba64), img => {
-				var ptr = MemoryUtil.RecastAs<byte, Rgba64>(img.MapPixels(MapMode.ReadOnly));
-				var img2 = Image.LoadPixelData<Rgba64>(ptr.Span, img.Size.X, img.Size.Y);
-				img.UnmapPixels();
-				return img2;
-			} }
+			{
+				typeof(A8),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, A8>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<A8>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Argb32),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Argb32>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Argb32>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Bgr24),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Bgr24>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Bgr24>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Bgr565),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Bgr565>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Bgr565>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Bgra32),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Bgra32>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Bgra32>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Bgra4444),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Bgra4444>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Bgra4444>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Bgra5551),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Bgra5551>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Bgra5551>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(L16),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, L16>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<L16>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(L8),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, L8>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<L8>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(La16),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, La16>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<La16>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(La32),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, La32>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<La32>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rg32),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rg32>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rg32>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rgb24),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rgb24>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rgb24>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rgb48),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rgb48>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rgb48>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rgba1010102),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rgba1010102>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rgba1010102>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rgba32),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rgba32>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rgba32>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			},
+			{
+				typeof(Rgba64),
+				img => {
+					var ptr = MemoryUtil.RecastAs<byte, Rgba64>(img.MapPixels(MapMode.ReadOnly));
+					var img2 = Image.LoadPixelData<Rgba64>(ptr.Span, img.Size.X, img.Size.Y);
+					img.UnmapPixels();
+					return img2;
+				}
+			}
 		};
 
 		public static IImageSharpImage Create(IImage img) {
@@ -190,11 +247,9 @@ namespace Tesseract.Utilities.Graphics {
 			if (mappedMemoryPtr) return mappedMemoryPtr;
 			mapMode = mode;
 			mappedPixelMemory = new Memory<byte>(new byte[Image.Width * Image.Height * Format.SizeOf]);
+			if (mode != MapMode.WriteOnly)
+				Image.CopyPixelDataTo(mappedPixelMemory.Span);
 			mappedMemoryPtr = new ManagedPointer<byte>(mappedPixelMemory);
-			if (mode != MapMode.WriteOnly) {
-				Span<TPixel> pixels = Image.GetPixelRowSpan(0);
-				MemoryUtil.Copy(new UnmanagedPointer<TPixel>(mappedMemoryPtr.Ptr), pixels, mappedPixelMemory.Length);
-			}
 			return mappedMemoryPtr;
 		}
 
@@ -270,7 +325,33 @@ namespace Tesseract.Utilities.Graphics {
 
 		internal static readonly Dictionary<PixelFormat, Type> pixelFormatToType = pixelTypeToFormat.ToDictionary(item => item.Value, item => item.Key);
 
-		public IImage Load(Core.Resource.ResourceLocation location) {
+		internal static readonly ImageFormatManager formatManager = new();
+
+		public static void AddFormat(IImageFormat format, IImageEncoder? encode, IImageDecoder? decode, IImageFormatDetector? detector) {
+			formatManager.AddImageFormat(format);
+			if (encode != null) formatManager.SetEncoder(format, encode);
+			if (decode != null) formatManager.SetDecoder(format, decode);
+			if (detector != null) formatManager.AddImageFormatDetector(detector);
+		}
+
+		static ImageSharpService() {
+			AddFormat(BmpFormat.Instance, new BmpEncoder(), new BmpDecoder(), new BmpImageFormatDetector());
+			AddFormat(GifFormat.Instance, new GifEncoder(), new GifDecoder(), new GifImageFormatDetector());
+			AddFormat(JpegFormat.Instance, new JpegEncoder(), new JpegDecoder(), new JpegImageFormatDetector());
+			AddFormat(PbmFormat.Instance, new PbmEncoder(), new PbmDecoder(), new PbmImageFormatDetector());
+			AddFormat(PngFormat.Instance, new PngEncoder(), new PngDecoder(), new PngImageFormatDetector());
+			AddFormat(TiffFormat.Instance, new TiffEncoder(), new TiffDecoder(), new TiffImageFormatDetector());
+			AddFormat(TgaFormat.Instance, new TgaEncoder(), new TgaDecoder(), new TgaImageFormatDetector());
+			AddFormat(WebpFormat.Instance, new WebpEncoder(), new WebpDecoder(), new WebpImageFormatDetector());
+
+			AddFormat(QOIImageFormat.Instance, new QOIEncoder(), new QOIDecoder(), new QOIImageFormatDetector());
+		}
+
+		public bool CanLoad(string mimeType) => formatManager.FindFormatByMimeType(mimeType) != null;
+
+		public bool CanSave(string mimeType) => formatManager.FindFormatByMimeType(mimeType) != null;
+
+		public IImage Load(ResourceLocation location) {
 			using var stream = location.OpenStream();
 			return IImageSharpImage.Create(Image.Load(location.OpenStream()));
 		}
@@ -286,22 +367,9 @@ namespace Tesseract.Utilities.Graphics {
 				dispose = true;
 			}
 			try {
-				switch (mimeType) {
-					case MIME.BMP:
-						img.SaveAsBmp(stream);
-						break;
-					case MIME.GIF:
-						img.SaveAsGif(stream);
-						break;
-					case MIME.JPEG:
-						img.SaveAsJpeg(stream);
-						break;
-					case MIME.PNG:
-						img.SaveAsPng(stream);
-						break;
-					default:
-						throw new ArgumentException("Unsupported image MIME type", mimeType);
-				}
+				IImageFormat? format = formatManager.FindFormatByMimeType(mimeType);
+				if (format == null) throw new ArgumentException($"Cannot encode image in unsupported mime type {mimeType}");
+				img.Save(stream, format);
 			} finally {
 				if (dispose) img.Dispose();
 			}

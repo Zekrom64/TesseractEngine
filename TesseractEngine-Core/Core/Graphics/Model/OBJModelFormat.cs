@@ -10,8 +10,6 @@ namespace Tesseract.Core.Graphics.Model {
 
 	public class OBJModelFormat : IModelFormat {
 
-		public bool CanLoad => true;
-
 		public bool CanSave => false;
 
 		private class OBJModelParser {
@@ -28,7 +26,7 @@ namespace Tesseract.Core.Graphics.Model {
 			// If the face indices are "paired" (all indices for each vertex are equal)
 			private bool isPairedIndices = true;
 
-			private Dictionary<string, List<ModelNode>> objects = new();
+			private readonly Dictionary<string, List<ModelNode>> objects = new();
 
 			// Object tracking state
 			private string currentObjectName = "";
@@ -65,12 +63,10 @@ namespace Tesseract.Core.Graphics.Model {
 					if (indices.Count > ParallelThreshold) Parallel.For(0, indices.Count, i => mindices[i] = indices[i].Item1);
 					else for (int i = 0; i < indices.Count; i++) mindices[i] = indices[i].Item1;
 
-					return new OBJModel() {
-						IndexPlane = mindices,
-						VertexPlane = vertices.ToArray(),
-						TexCoordPlane = texCoords.Count > 0 ? texCoords.ToArray() : Array.Empty<Vector2>(),
-						NormalPlane = normals.Count > 0 ? normals.ToArray() : Array.Empty<Vector3>()
-					};
+					return new OBJModel(mindices, vertices.ToArray(),
+						texCoords.Count > 0 ? texCoords.ToArray() : null,
+						normals.Count > 0 ? normals.ToArray() : null
+					);
 				} else {
 					int[] mindices = new int[indices.Count];
 					Vector3[] mvertices = new Vector3[indices.Count];
@@ -93,12 +89,7 @@ namespace Tesseract.Core.Graphics.Model {
 							if (mnormals != null) mnormals[i] = normals[index.Item3];
 						}
 					}
-					return new OBJModel() {
-						IndexPlane = mindices,
-						VertexPlane = mvertices,
-						TexCoordPlane = mtexCoords,
-						NormalPlane = mnormals
-					};
+					return new OBJModel(mindices, mvertices, mtexCoords, mnormals);
 				}
 			}
 
@@ -166,7 +157,7 @@ namespace Tesseract.Core.Graphics.Model {
 
 		}
 
-		public IModel Load(Stream stream) {
+		public IModel Load(Stream stream, IModelLoadContext? context) {
 			StreamReader sr = new(stream);
 			OBJModelParser parser = new();
 			string? line;
@@ -174,20 +165,22 @@ namespace Tesseract.Core.Graphics.Model {
 			return parser.ToModel();
 		}
 
-		public void Save(IModel model, Stream stream) => throw new NotImplementedException();
+		public void Save(IModel model, Stream stream, IModelSaveContext? context) => throw new NotImplementedException();
 
 		public class OBJModel : IModel {
 
-			public int[]? IndexPlane { get; init; }
-
-			public Vector3[]? VertexPlane { get; init; }
-
-			public Vector2[]? TexCoordPlane { get; init; }
-
-			public Vector3[]? NormalPlane { get; init; }
-
 			public ModelNode RootNode { get; init; }
 
+			public IReadOnlyList<IModelBuffer> Buffers { get; }
+
+			internal OBJModel(int[] indexPlane, Vector3[] vertexPlane, Vector2[]? texCoordPlane, Vector3[]? normalPlane) {
+				List<IModelBuffer> buffers = new();
+				buffers.Add(new ModelArrayBuffer<int>(indexPlane));
+				buffers.Add(new ModelArrayBuffer<Vector3>(vertexPlane));
+				if (texCoordPlane != null) buffers.Add(new ModelArrayBuffer<Vector2>(texCoordPlane));
+				if (normalPlane != null) buffers.Add(new ModelArrayBuffer<Vector3>(normalPlane));
+				Buffers = buffers;
+			}
 		}
 
 	}

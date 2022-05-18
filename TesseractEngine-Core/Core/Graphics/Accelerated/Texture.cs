@@ -53,8 +53,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	[Flags]
 	public enum TextureAspect {
+		/// <summary>
+		/// The color texture aspect.
+		/// </summary>
 		Color = 0x01,
+		/// <summary>
+		/// The depth texture aspect.
+		/// </summary>
 		Depth = 0x02,
+		/// <summary>
+		/// The stencil texture aspect.
+		/// </summary>
 		Stencil = 0x04
 	}
 

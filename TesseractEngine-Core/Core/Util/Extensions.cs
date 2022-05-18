@@ -318,5 +318,21 @@ namespace Tesseract.Core.Util {
 			return ms.ToArray();
 		}
 
+		/// <summary>
+		/// Reads from this stream into the destination span until the span has been fully filled.
+		/// </summary>
+		/// <param name="stream">Stream to read</param>
+		/// <param name="dst">Span to write bytes to</param>
+		/// <returns>The destination span</returns>
+		/// <exception cref="IOException">If the stream ends before the span is filled</exception>
+		public static Span<byte> ReadFully(this Stream stream, Span<byte> dst) {
+			int offset = 0;
+			do {
+				int readn = stream.Read(dst[offset..]);
+				if (readn == 0) throw new IOException("Unexpected end of stream");
+			} while (offset < dst.Length);
+			return dst;
+		}
+
 	}
 }

@@ -74,14 +74,41 @@ namespace Tesseract.Core.Input {
 	/// </summary>
 	[Flags]
 	public enum KeyMod {
+		/// <summary>
+		/// Left Control key.
+		/// </summary>
 		LCtrl = 0x0001,
+		/// <summary>
+		/// Right Control key.
+		/// </summary>
 		RCtrl = 0x0002,
+		/// <summary>
+		/// Any Control key.
+		/// </summary>
 		Ctrl = LCtrl | RCtrl,
+		/// <summary>
+		/// Left Shift key.
+		/// </summary>
 		LShift = 0x0004,
+		/// <summary>
+		/// Right Shift key.
+		/// </summary>
 		RShift = 0x0008,
+		/// <summary>
+		/// Any Shift key.
+		/// </summary>
 		Shift = LShift | RShift,
+		/// <summary>
+		/// Left Alt key.
+		/// </summary>
 		LAlt = 0x0010,
+		/// <summary>
+		/// Right Alt key.
+		/// </summary>
 		RAlt = 0x0020,
+		/// <summary>
+		/// Any Alt key.
+		/// </summary>
 		Alt = LAlt | RAlt
 	}
 
