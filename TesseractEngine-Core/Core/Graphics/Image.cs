@@ -112,18 +112,56 @@ namespace Tesseract.Core.Graphics {
 		}
 	}
 
+	/// <summary>
+	/// An Image IO object provides methods for loading and saving images.
+	/// </summary>
 	public interface IImageIO {
 
+		/// <summary>
+		/// Tests if this IO instance can load images of the given MIME type.
+		/// </summary>
+		/// <param name="mimeType">MIME type to test</param>
+		/// <returns>If images of this type can be loaded</returns>
 		public bool CanLoad(string mimeType);
 
+		/// <summary>
+		/// Tests if this IO instance can save images of the given MIME type.
+		/// </summary>
+		/// <param name="mimeType">MIME type to test</param>
+		/// <returns>If images of this type can be saved</returns>
 		public bool CanSave(string mimeType);
 
+		/// <summary>
+		/// Loads an image from the given resource location.
+		/// </summary>
+		/// <param name="location">Resource location to load from</param>
+		/// <returns>Loaded image</returns>
 		public IImage Load(ResourceLocation location);
 
-		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType);
+		/// <summary>
+		/// Loads an image from memory, optionally specifying a MIME type to describe
+		/// the format of the image. If the supplied MIME type is null, the IO will
+		/// attempt to determine the image format from the supplied binary.
+		/// </summary>
+		/// <param name="binary">The raw binary image data</param>
+		/// <param name="mimeType">The image MIME type, or null</param>
+		/// <returns>Loaded image</returns>
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType = null);
 
+		/// <summary>
+		/// Saves an image to aa stream in the given format.
+		/// </summary>
+		/// <param name="image">Image to save</param>
+		/// <param name="mimeType">Image format MIME type</param>
+		/// <param name="stream">Stream to save the image to</param>
 		public void Save(IImage image, string mimeType, Stream stream);
 
+		/// <summary>
+		/// Saves an image to memory in the given format.
+		/// </summary>
+		/// <param name="image">Image to save</param>
+		/// <param name="mimeType">Image format MIME type</param>
+		/// <returns>Saved image</returns>
 		public byte[] Save(IImage image, string mimeType) {
 			using MemoryStream ms = new();
 			Save(image, mimeType, ms);
