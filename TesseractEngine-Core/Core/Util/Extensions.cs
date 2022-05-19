@@ -107,7 +107,7 @@ namespace Tesseract.Core.Util {
 	}
 
 	/// <summary>
-	/// IEnumerable extensions.
+	/// <see cref="IEnumerable{T}"/> extensions.
 	/// </summary>
 	public static class EnumerableExtensions {
 
@@ -204,19 +204,40 @@ namespace Tesseract.Core.Util {
 
 	}
 
+	/// <summary>
+	/// Vector extension methods.
+	/// </summary>
 	public static class VectorExtensions {
 
+		/// <summary>
+		/// Copies this vector to a span at a specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to copy to</param>
+		/// <param name="offset">Offset to copy to</param>
 		public static void CopyTo(this Vector2 v, Span<float> span, int offset = 0) {
 			span[offset++] = v.X;
 			span[offset] = v.Y;
 		}
 
+		/// <summary>
+		/// Copies this vector to a span at a specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to copy to</param>
+		/// <param name="offset">Offset to copy to</param>
 		public static void CopyTo(this Vector3 v, Span<float> span, int offset = 1) {
 			span[offset++] = v.X;
 			span[offset++] = v.Y;
 			span[offset] = v.Z;
 		}
 
+		/// <summary>
+		/// Copies this vector to a span at a specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to copy to</param>
+		/// <param name="offset">Offset to copy to</param>
 		public static void CopyTo(this Vector4 v, Span<float> span, int offset = 1) {
 			span[offset++] = v.X;
 			span[offset++] = v.Y;
@@ -224,6 +245,13 @@ namespace Tesseract.Core.Util {
 			span[offset] = v.W;
 		}
 
+		/// <summary>
+		/// Reads into this vector from a span at the specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to read from</param>
+		/// <param name="offset">Offset to read at</param>
+		/// <returns>The loaded vector</returns>
 		public static Vector2 ReadFrom(this Vector2 v, in ReadOnlySpan<float> span, int offset = 0) {
 			int n = span.Length;
 			if (n > 0) {
@@ -236,6 +264,13 @@ namespace Tesseract.Core.Util {
 			return v;
 		}
 
+		/// <summary>
+		/// Reads into this vector from a span at the specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to read from</param>
+		/// <param name="offset">Offset to read at</param>
+		/// <returns>The loaded vector</returns>
 		public static Vector3 ReadFrom(this Vector3 v, in ReadOnlySpan<float> span, int offset = 0) {
 			int n = span.Length;
 			if (n > 0) {
@@ -252,6 +287,13 @@ namespace Tesseract.Core.Util {
 			return v;
 		}
 
+		/// <summary>
+		/// Reads into this vector from a span at the specified offset.
+		/// </summary>
+		/// <param name="v">This vector</param>
+		/// <param name="span">Span to read from</param>
+		/// <param name="offset">Offset to read at</param>
+		/// <returns>The loaded vector</returns>
 		public static Vector4 ReadFrom(this Vector4 v, in ReadOnlySpan<float> span, int offset = 0) {
 			int n = span.Length;
 			if (n > 0) {
@@ -305,6 +347,9 @@ namespace Tesseract.Core.Util {
 
 	}
 
+	/// <summary>
+	/// Stream extension methods.
+	/// </summary>
 	public static class StreamExtensions {
 
 		/// <summary>
