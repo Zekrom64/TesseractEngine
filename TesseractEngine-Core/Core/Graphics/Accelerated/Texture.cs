@@ -53,8 +53,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	[Flags]
 	public enum TextureAspect {
+		/// <summary>
+		/// The color aspect of a texture, including red, green, blue, and alpha channels.
+		/// </summary>
 		Color = 0x01,
+		/// <summary>
+		/// The depth aspect of a texture.
+		/// </summary>
 		Depth = 0x02,
+		/// <summary>
+		/// The stencil aspect of a texture.
+		/// </summary>
 		Stencil = 0x04
 	}
 
@@ -203,7 +212,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The size of this texture.
 		/// </summary>
-		public Vector3i Size { get; }
+		public Vector3ui Size { get; }
 
 		/// <summary>
 		/// The number of mipmap levels in this texture.
@@ -250,7 +259,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The size of the texture.
 		/// </summary>
-		public Vector3i Size { get; init; }
+		public Vector3ui Size { get; init; }
 
 		/// <summary>
 		/// The number of mipmap levels in the texture.

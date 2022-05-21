@@ -11,25 +11,51 @@ namespace Tesseract.OpenGL {
 #nullable disable
 	public class GL32Functions {
 
+		public delegate void PFN_glFramebufferTexture(uint target, uint attachment, uint texture, int level);
 		public delegate void PFN_glGetBufferParameteri64v(uint target, uint value, out long data);
+		public delegate void PFN_glGetInteger64i_v(uint pname, uint index, [NativeType("GLint64*")] IntPtr data);
 
+		public PFN_glFramebufferTexture glFramebufferTexture;
 		public PFN_glGetBufferParameteri64v glGetBufferParameteri64v;
+		public PFN_glGetInteger64i_v glGetInteger64i_v;
 
 	}
 #nullable restore
 
 	public class GL32 : GL31 {
 
-		public GL32Functions Functions { get; } = new();
+		public GL32Functions FunctionsGL32 { get; } = new();
 
 		public GL32(GL gl, IGLContext context) : base(gl, context) {
-			Library.LoadFunctions(context.GetGLProcAddress, Functions);
+			Library.LoadFunctions(context.GetGLProcAddress, FunctionsGL32);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void FramebufferTexture(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level) =>
+			FunctionsGL32.glFramebufferTexture((uint)target, (uint)attachment, texture, level);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public long GetBufferParameteri64(GLBufferTarget target, GLGetBufferParameter pname) {
-			Functions.glGetBufferParameteri64v((uint)target, (uint)pname, out long value);
+			FunctionsGL32.glGetBufferParameteri64v((uint)target, (uint)pname, out long value);
 			return value;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public long GetInteger64(uint pname, uint index = 0) {
+			unsafe {
+				long value = 0;
+				FunctionsGL32.glGetInteger64i_v(pname, index, (IntPtr)(&value));
+				return value;
+			}
+		}
+
+		public Span<long> GetInteger(uint pname, in Span<long> values, uint index = 0) {
+			unsafe {
+				fixed (long* pValues = values) {
+					FunctionsGL32.glGetInteger64i_v(pname, index, (IntPtr)pValues);
+				}
+				return values;
+			}
 		}
 
 #nullable disable
@@ -92,9 +118,6 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void WaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => GL.ARBSync.WaitSync(sync, flags, timeout);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ulong GetInteger64(uint pname, uint index) => GL.ARBSync.GetInteger64(pname, index);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetSync(nuint sync, GLGetSync pname) => GL.ARBSync.GetSync(sync, pname);

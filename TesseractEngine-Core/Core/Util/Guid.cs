@@ -10,7 +10,9 @@ namespace Tesseract.Core.Util {
 	/// <para>
 	/// The digesting algorithm starts with an initial 16-byte state representing the GUID data. For every
 	/// digested byte this state is rotated forward by one byte, and the digested byte is exlusive-or'd with
-	/// the first byte in the state. For larger data types this is repeated for every byte in the value.
+	/// the first byte in the state. For larger data types this is repeated for every byte in the value. Note
+	/// that this algorithm is not cryptographically secure, and could leak the source information for small
+	/// digests.
 	/// </para>
 	/// </summary>
 	/// <remarks>
@@ -24,7 +26,7 @@ namespace Tesseract.Core.Util {
 	///	different purposes or by different implementations.
 	/// </para>
 	/// <para>
-	///	Numeric types larger than one byte are digested in big-endian order. Strings must be converted using a particular
+	///	Numeric types larger than one byte are digested in little-endian order. Strings must be converted using a particular
 	///	encoding to convert them to a known sequence of bytes. UTF-8 encoding should be preferred.
 	/// </para>
 	/// </remarks>
@@ -98,6 +100,50 @@ namespace Tesseract.Core.Util {
 		public GuidDigester DigestUTF8(string str) => Digest(Encoding.UTF8.GetBytes(str));
 
 		public GuidDigester DigestASCII(string str) => Digest(Encoding.ASCII.GetBytes(str));
+
+		public GuidDigester Digest(Guid guid) => Digest(guid.ToByteArray());
+
+	}
+
+	/// <summary>
+	/// An unmanaged type that stores the raw bytes backing a <see cref="Guid"/>. Because the internal
+	/// representation of a normal Guid is opaque it cannot be assumed that the memory layout backing
+	/// it will be the same. This type guarentees the layout of the bytes composing the Guid and therefore
+	/// is safe to store in binary form.
+	/// </summary>
+	public struct GuidValue {
+
+		private unsafe fixed byte guid[16];
+
+		/// <summary>
+		/// The Guid value being stored.
+		/// </summary>
+		public Guid Guid {
+			get {
+				unsafe {
+					fixed (byte* pGuid = guid) {
+						return new Guid(new ReadOnlySpan<byte>(pGuid, 16));
+					}
+				}
+			}
+			set {
+				byte[] bytes = value.ToByteArray();
+				unsafe {
+					for (int i = 0; i < 16; i++) guid[i] = bytes[i];
+				}
+			}
+		}
+
+		public GuidValue(Guid guid) {
+			byte[] bytes = guid.ToByteArray();
+			unsafe {
+				for (int i = 0; i < 16; i++) this.guid[i] = bytes[i];
+			}
+		}
+
+		public static implicit operator GuidValue(Guid value) => new(value);
+
+		public static implicit operator Guid(GuidValue value) => value.Guid;
 
 	}
 

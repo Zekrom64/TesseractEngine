@@ -57,14 +57,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 
 		/// <summary>
-		/// The total amount of available video memory. Note that some of this will be in use by other software so not all of it will actually be available.
+		/// The total amount of available video memory. Note that some of this may be in use by other software so not all of it will actually be available.
 		/// This statistic also includes host-side system memory usable by the GPU, but some of this will also be in use by other software. If this statistic
 		/// is not available this value is set to 0. The precision of this value varies between implementation.
 		/// </summary>
 		public ulong TotalVideoMemory { get; }
 
 		/// <summary>
-		/// The total amount of available device memory. Note that some of this will be in use by other software so not all of it will actually be available.
+		/// The total amount of available device memory. Note that some of this may be in use by other software so not all of it will actually be available.
 		/// This statistic only includes memory known to be local to the device (for GPUs this is their dedicated memory, while for APUs this is the total
 		/// amount of accessible memory. Other types of devices may report different values). If this statistic is not available this value is set to 0.
 		/// The precision of this value varies between implementation.
@@ -76,6 +76,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The precision of this value varies between implementation.
 		/// </summary>
 		public ulong TotalCommittedMemory { get; }
+
+		/// <summary>
+		/// The coordinate system used by the graphics during rasterization for normalized device coordinates.
+		/// </summary>
+		public CoordinateSystem CoordinateSystem { get; }
 
 	}
 
@@ -391,6 +396,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public bool DrawIndirect { get; init; }
 
+		/// <summary>
+		/// If dynamic rendering (ie. <see cref="ICommandSink.BeginRendering(in ICommandSink.RenderingInfo)"/>) is supported.
+		/// </summary>
+		public bool DynamicRendering { get; init; }
+
 
 		/// <summary>
 		/// Masks this hardware feature set with another set. The returned
@@ -521,6 +531,16 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// If texture blits are functionally limited to 1D and 2D textures.
 		/// </summary>
 		public bool LimitedTextureBlit { get; }
+		
+		/// <summary>
+		/// If texture copies are functionally limited to 1D and 2D textures.
+		/// </summary>
+		public bool LimitedTextureCopy { get; }
+
+		/// <summary>
+		/// If texture to buffer copies are limited to the entire image.
+		/// </summary>
+		public bool LimitedTextureCopyToBuffer { get; }
 
 	}
 
@@ -731,12 +751,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint MaxGeometryShaderInvocations { get; }
 
+		/// <summary>
+		/// The maximum number of components that can be input to a geometry shader.
+		/// </summary>
 		public uint MaxGeometryInputComponents { get; }
 
+		/// <summary>
+		/// The maximum number of components that can be output from a geometry shader.
+		/// </summary>
 		public uint MaxGeometryOutputComponents { get; }
 
+		/// <summary>
+		/// The maximum number of vertices which a geometry shader can emit.
+		/// </summary>
 		public uint MaxGeometryOutputVertices { get; }
 
+		/// <summary>
+		/// The maximum number of components that can be output from a geometry shader across all emitted vertices.
+		/// </summary>
 		public uint MaxGeometryTotalOutputComponents { get; }
 
 		/// <summary>

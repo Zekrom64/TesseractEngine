@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core;
 using Tesseract.Core.Native;
 using Tesseract.OpenGL.Native;
 
@@ -376,6 +377,14 @@ namespace Tesseract.OpenGL {
 
 		// AMD Extensions
 		public bool AMDGPUShaderInt16 { get; }
+
+		// NVidia Extensions
+		public bool NVXGPUMemoryInfo { get; }
+
+		// WGL & Extensions
+		public WGL? WGL { get; }
+		// WGL_AMD_gpu_association - Note: Really only used to estimate GPU memory
+		public WGLAMDGPUAssociation? WGLAMDGPUAssociation { get; }
 
 		public GL(IGLContext context) {
 			Context = context;
@@ -887,6 +896,13 @@ namespace Tesseract.OpenGL {
 			if (Extensions.Contains("GL_ARB_gpu_shader_int64")) ARBGPUShaderInt64 = new(this, context);
 
 			AMDGPUShaderInt16 = Extensions.Contains("GL_AMD_gpu_shader_int16");
+
+			NVXGPUMemoryInfo = Extensions.Contains("GL_NVX_gpu_memory_info");
+
+			if (Platform.CurrentPlatformType == PlatformType.Windows) {
+				WGL = new WGL(this, context);
+				if (Extensions.Contains("WGL_AMD_gpu_association")) WGLAMDGPUAssociation = new(this, context);
+			}
 		}
 
 	}

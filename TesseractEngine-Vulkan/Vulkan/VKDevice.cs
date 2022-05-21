@@ -538,6 +538,12 @@ namespace Tesseract.Vulkan {
 			return err;
 		}
 
+		// VK_EXT_debug_utils
+
+		public void SetDebugUtilsObjectNameEXT(in VKDebugUtilsObjectNameInfoEXT nameInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions.vkSetDebugUtilsObjectNameEXT(Device, nameInfo));
+
+		public void SetDebugUtilsObjectTagEXT(in VKDebugUtilsObjectTagInfoEXT tagInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions.vkSetDebugUtilsObjectTagEXT(Device, tagInfo));
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator IntPtr(VKDevice device) => device != null ? device.Device : IntPtr.Zero;
 

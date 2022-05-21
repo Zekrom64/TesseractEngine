@@ -198,9 +198,29 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// graphics will be requested in "headless" mode; nothing will be
 		/// presented to the user.
 		/// </summary>
-		public IWindow? Window { get; init; }
+		public IWindow? Window { get; init; } = null;
+
+		/// <summary>
+		/// If debug extensions should be enabled for providers and their created graphics.
+		/// </summary>
+		public bool EnableDebugExtensions { get; init; } = false;
+
+		/// <summary>
+		/// The simple logger to send debug messages to.
+		/// </summary>
+		public ISimpleLogger? DebugLogger { get; init; } = null;
+
+		/// <summary>
+		/// Extended graphics enumeration info, or null if none is given.
+		/// </summary>
+		public IReadOnlyCollection<IExtendedGraphicsEnumeratorInfo>? ExtendedInfo { get; init; } = null;
 
 	}
+
+	/// <summary>
+	/// Interface for classes that provide extended information to a graphics enumerator.
+	/// </summary>
+	public interface IExtendedGraphicsEnumeratorInfo { }
 
 	/// <summary>
 	/// Static class for managing creation of <see cref="IGraphicsEnumerator"/> instances. This will find classes

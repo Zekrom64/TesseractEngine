@@ -378,6 +378,25 @@ namespace Tesseract.OpenGL {
 		ScissorTest = GLEnums.GL_SCISSOR_TEST
 	}
 
+	public enum GLLogicOp : uint {
+		Clear = GLEnums.GL_CLEAR,
+		Set = GLEnums.GL_SET,
+		Copy = GLEnums.GL_COPY,
+		CopyInverted = GLEnums.GL_COPY_INVERTED,
+		NoOp = GLEnums.GL_NOOP,
+		Invert = GLEnums.GL_INVERT,
+		And = GLEnums.GL_AND,
+		NAnd = GLEnums.GL_NAND,
+		Or = GLEnums.GL_OR,
+		NOr = GLEnums.GL_NOR,
+		XOr = GLEnums.GL_XOR,
+		Equiv = GLEnums.GL_EQUIV,
+		AndReverse = GLEnums.GL_AND_REVERSE,
+		AndInverted = GLEnums.GL_AND_INVERTED,
+		OrReverse = GLEnums.GL_OR_REVERSE,
+		OrInverted = GLEnums.GL_OR_INVERTED
+	}
+
 	public enum GLDrawBuffer : uint {
 		None = GLEnums.GL_NONE,
 		FrontLeft = GLEnums.GL_FRONT_LEFT,
@@ -1226,6 +1245,46 @@ namespace Tesseract.OpenGL {
 		TimeoutExpired = GLEnums.GL_TIMEOUT_EXPIRED,
 		ConditionSatisfied = GLEnums.GL_CONDITION_SATISFIED,
 		WaitFailed = GLEnums.GL_WAIT_FAILED
+	}
+
+	public enum GLCopyImageTarget : uint {
+		Renderbuffer = GLEnums.GL_RENDERBUFFER,
+
+		Texture1D = GLEnums.GL_TEXTURE_1D,
+		Texture1DArray = GLEnums.GL_TEXTURE_1D_ARRAY,
+		Texture2D = GLEnums.GL_TEXTURE_2D,
+		Texture2DArray = GLEnums.GL_TEXTURE_2D_ARRAY,
+		Texture2DMultisample = GLEnums.GL_TEXTURE_2D_MULTISAMPLE,
+		Texture2DMultisampleArray = GLEnums.GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+		Texture3D = GLEnums.GL_TEXTURE_3D,
+		CubeMap = GLEnums.GL_TEXTURE_CUBE_MAP,
+		CubeMapArray = GLEnums.GL_TEXTURE_CUBE_MAP_ARRAY,
+		Rectangle = GLEnums.GL_TEXTURE_RECTANGLE,
+		CubeMapPositiveX = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		CubeMapNegativeX = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		CubeMapPositiveY = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		CubeMapNegativeY = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		CubeMapPositiveZ = GLEnums.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		CubeMapNegativeZ = GLEnums.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	}
+
+	public enum GLPixelStoreParam : uint {
+		PackSwapBytes = GLEnums.GL_PACK_SWAP_BYTES,
+		PackLSBFirst = GLEnums.GL_PACK_LSB_FIRST,
+		PackRowLength = GLEnums.GL_PACK_ROW_LENGTH,
+		PackImageHeight = GLEnums.GL_PACK_IMAGE_HEIGHT,
+		PackSkipPixels = GLEnums.GL_PACK_SKIP_PIXELS,
+		PackSkipRows = GLEnums.GL_PACK_SKIP_ROWS,
+		PackSkipImages = GLEnums.GL_PACK_SKIP_IMAGES,
+		PackAlignment = GLEnums.GL_PACK_ALIGNMENT,
+		UnpackSwapBytes = GLEnums.GL_UNPACK_SWAP_BYTES,
+		UnpackLSBFirst = GLEnums.GL_UNPACK_LSB_FIRST,
+		UnpackRowLength = GLEnums.GL_UNPACK_ROW_LENGTH,
+		UnpackImageHeight = GLEnums.GL_UNPACK_IMAGE_HEIGHT,
+		UnpackSkipPixels = GLEnums.GL_UNPACK_SKIP_PIXELS,
+		UnpackSkipRows = GLEnums.GL_UNPACK_SKIP_ROWS,
+		UnpackSkipImages = GLEnums.GL_UNPACK_SKIP_IMAGES,
+		UnpackAlignment = GLEnums.GL_UNPACK_ALIGNMENT
 	}
 
 }

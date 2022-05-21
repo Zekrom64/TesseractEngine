@@ -38,7 +38,7 @@ namespace Tesseract.OpenGL {
 		// ARB_copy_image
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyImageSubData(uint srcName, GLTextureTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLTextureTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) =>
+		public void CopyImageSubData(uint srcName, GLCopyImageTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLCopyImageTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) =>
 			GL.ARBCopyImage.CopyImageSubData(srcName, srcTarget, srcLevel, src, dstName, dstTarget, dstLevel, dst, size);
 
 		// ARB_explicit_uniform_location

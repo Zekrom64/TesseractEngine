@@ -8,28 +8,68 @@ using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Vulkan memory binding interface.
+	/// </summary>
 	public interface IVKMemoryBinding : IMemoryBinding, IDisposable {
 
+		/// <summary>
+		/// The underlying device memory for the binding.
+		/// </summary>
 		public VKDeviceMemory DeviceMemory { get; }
 
+		/// <summary>
+		/// The size of the memory binding.
+		/// </summary>
 		public ulong Size { get; }
 
+		/// <summary>
+		/// The supported memory mapping flags.
+		/// </summary>
 		public MemoryMapFlags SupportedMapFlags { get; }
 
+		/// <summary>
+		/// Binds this memory to a buffer.
+		/// </summary>
+		/// <param name="buffer">Buffer to bind to</param>
 		public void Bind(VKBuffer buffer);
 
+		/// <summary>
+		/// Binds this memory to an image.
+		/// </summary>
+		/// <param name="image">Iamge to bind to</param>
 		public void Bind(VKImage image);
 
+		/// <summary>
+		/// Maps the memory from this binding.
+		/// </summary>
+		/// <returns>Mapped memory pointer</returns>
 		public IntPtr Map();
 
+		/// <summary>
+		/// Unmaps memory from this binding.
+		/// </summary>
 		public void Unmap();
 
+		/// <summary>
+		/// Flushes the memory for this binding.
+		/// </summary>
+		/// <param name="offset">Offset to flush at</param>
+		/// <param name="length">Number of bytes to flush</param>
 		public void Flush(ulong offset, ulong length);
 
+		/// <summary>
+		/// Invalidates the memory for this binding.
+		/// </summary>
+		/// <param name="offset">Offset to invalidate at</param>
+		/// <param name="length">Number of bytes to invalidate</param>
 		public void Invalidate(ulong offset, ulong length);
 
 	}
 
+	/// <summary>
+	/// Internally used Vulkan memory binding.
+	/// </summary>
 	public class VulkanMemoryBinding : IVKMemoryBinding {
 
 		public VulkanMemory MemoryManager { get; init; } = null!;
@@ -58,44 +98,28 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public void Flush(ulong offset, ulong length) => Allocation.Flush(offset, length);
 
 		public void Invalidate(ulong offset, ulong length) => Allocation.Invalidate(offset, length);
+
 	}
 
-	public class VulkanMemory : IDisposable {
+	/// <summary>
+	/// Internal Vulkan memory manager.
+	/// </summary>
+	public class VulkanMemory : IDisposable, IVulkanMemory {
 
-		public ulong TotalLocalBytes { get; }
+		public ulong TotalDeviceMemory { get; }
 
-		public ulong TotalVisibleBytes { get; }
+		public ulong TotalVideoMemory { get; }
 
-		public ulong TotalUsedBytes => allocator.Budget.AllocationBytes;
+		public ulong TotalCommittedMemory => allocator.Budget.AllocationBytes;
 
 		public VulkanDevice Device { get; }
 
 		private readonly VMAAllocator allocator;
 
-		public VulkanMemory(VulkanDevice device) {
+		public VulkanMemory(VulkanDevice device, IVulkanMemory deviceMemory) {
 			Device = device;
-
-			// Enumerate memory heaps and count available memory
-			ulong totalLocal = 0;
-			ulong totalVisible = 0;
-			var memProps = device.PhysicalDevice.MemoryProperties;
-			var heaps = memProps.MemoryHeaps;
-			for (int i = 0; i < memProps.MemoryHeapCount; i++) {
-				var heap = heaps[i];
-				totalVisible += heap.Size;
-				if ((heap.Flags & VKMemoryHeapFlagBits.DeviceLocal) != 0) totalLocal += heap.Size;
-			}
-
-			// Adjust values based on device types before finalizing values
-			switch (device.PhysicalDevice.Properties.DeviceType) {
-				case VKPhysicalDeviceType.CPU:
-				case VKPhysicalDeviceType.IntegratedGPU:
-					totalLocal = totalVisible;
-					break;
-			}
-
-			TotalLocalBytes = totalLocal;
-			TotalVisibleBytes = totalVisible;
+			TotalDeviceMemory = deviceMemory.TotalDeviceMemory;
+			TotalVideoMemory = deviceMemory.TotalVideoMemory;
 
 			// Create allocator
 			allocator = VMA.CreateAllocator(new VMAAllocatorCreateInfo() {

@@ -14,7 +14,6 @@ namespace Tesseract.Vulkan.Graphics {
 
 	public class VulkanGraphics : IGraphics {
 
-		public VulkanGraphicsContext Context { get; }
 		public VulkanDevice Device { get; }
 		public VulkanMemory Memory { get; }
 		public VulkanCommands Commands { get; }
@@ -348,6 +347,7 @@ namespace Tesseract.Vulkan.Graphics {
 
 	}
 
+	/*
 	public class VulkanGraphicsContext {
 
 		/// <summary>
@@ -396,7 +396,7 @@ namespace Tesseract.Vulkan.Graphics {
 		/// The threshold of orphaned command buffers above which they will attempted to be garbage collected.
 		/// </summary>
 		public int OrphanedCommandGCThreshold { get; init; } = 256;
-
 	}
+	*/
 
 }

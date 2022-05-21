@@ -172,7 +172,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void StencilFuncSeparate(GLStencilFunc frontFunc, GLStencilFunc backFunc, int reference, uint mask) => FunctionsGL20.glStencilFuncSeparate((uint)frontFunc, (uint)backFunc, reference, mask);
+		public void StencilFuncSeparate(GLFace face, GLStencilFunc func, int reference, uint mask) => FunctionsGL20.glStencilFuncSeparate((uint)face, (uint)func, reference, mask);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void StencilMaskSeparate(GLFace face, uint mask) => FunctionsGL20.glStencilMaskSeparate((uint)face, mask);

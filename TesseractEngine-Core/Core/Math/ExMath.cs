@@ -1297,6 +1297,26 @@ namespace Tesseract.Core.Math {
 			}
 		}
 
+		/// <summary>
+		/// Tests if a and b are about equal, within the range of the given epsilon value.
+		/// </summary>
+		/// <param name="a">First value</param>
+		/// <param name="b">Second value</param>
+		/// <param name="epsilon">Epsilon value</param>
+		/// <returns>If the values are about equal</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool EqualsAbout(float a, float b, float epsilon) => MathF.Abs(a - b) <= epsilon;
+
+		/// <summary>
+		/// Tests if a and b are about equal, within the range of the given epsilon value.
+		/// </summary>
+		/// <param name="a">First value</param>
+		/// <param name="b">Second value</param>
+		/// <param name="epsilon">Epsilon value</param>
+		/// <returns>If the values are about equal</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool EqualsAbout(double a, double b, double epsilon) => System.Math.Abs(a - b) <= epsilon;
+
 	}
 
 }

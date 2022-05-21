@@ -1355,6 +1355,11 @@ namespace Tesseract.Vulkan {
 	}
 
 	public enum VKVendorID : int {
+		// PCI-base vendor IDs (non-exhaustive)
+		Intel = 0x8086,
+		AMD = 0x1002, // AMD/ATI vendor id
+		NVidia = 0x10DE,
+		// Non-PCI vendor IDs
 		VIV = 0x10001,
 		VSI = 0x10002,
 		Kazan = 0x10003,

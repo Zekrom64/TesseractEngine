@@ -14,9 +14,20 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GL GL => Graphics.GL;
 
+
+		/// <summary>
+		/// Operations to perform on an attachment at the beginning of a render pass.
+		/// </summary>
 		public struct AttachmentBegin {
 
+			/// <summary>
+			/// The load operation to perform for the color/depth component.
+			/// </summary>
 			public AttachmentLoadOp LoadOp { get; init; }
+
+			/// <summary>
+			/// The load operation to perform for the stencil component.
+			/// </summary>
 			public AttachmentLoadOp StencilLoadOp { get; init; }
 
 		}
@@ -26,17 +37,28 @@ namespace Tesseract.OpenGL.Graphics {
 		/// </summary>
 		public struct AttachmentEnd {
 
+			/// <summary>
+			/// The store operation to perform for the color/depth component.
+			/// </summary>
 			public AttachmentStoreOp StoreOp { get; init; }
+
+			/// <summary>
+			/// The store operation to perform for the stencil component.
+			/// </summary>
 			public AttachmentStoreOp StencilStoreOp { get; init; }
 
 		}
 
+		/// <summary>
+		/// Metadata for a single subpass.
+		/// </summary>
 		public struct SubpassMetadata {
 
 			/// <summary>
 			/// The list of attachments to be invalidated at some point in this subpass.
 			/// </summary>
 			public uint[] AttachmentInvalidates { get; init; }
+
 			/// <summary>
 			/// <para>The list of resolve operations to perform between attachments</para>
 			/// <para>
@@ -44,6 +66,11 @@ namespace Tesseract.OpenGL.Graphics {
 			/// </para>
 			/// </summary>
 			public (uint, uint) AttachmentResolves { get; init; }
+
+			/// <summary>
+			/// If the subpass requires a glTextureBarrier call at the beginning (ie. it 
+			/// </summary>
+			public bool RequiresTextureBarrier { get; init; }
 
 		}
 

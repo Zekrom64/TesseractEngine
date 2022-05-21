@@ -48,15 +48,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	[Flags]
 	public enum CullFace {
 		/// <summary>
-		/// Front-facing geometry is kept, back-facing geometry is discarded.
+		/// All geometry is kept.
+		/// </summary>
+		None = 0,
+		/// <summary>
+		/// Front-facing geometry is discarded, back-facing geometry is kept.
 		/// </summary>
 		Front = 0x01,
 		/// <summary>
-		/// Back-facing geometry is kept, front-facing geometry is discarded.
+		/// Back-facing geometry is discarded, front-facing geometry is kept.
 		/// </summary>
 		Back = 0x02,
 		/// <summary>
-		/// Front and back-facing geometry is kept, the same as if culling was not enabled.
+		/// Front and back-facing geometry is discarded, the same as if rasterizer discard was enabled.
 		/// </summary>
 		FrontAndBack = Front | Back
 	}
@@ -441,7 +445,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Alpha color component.
 		/// </summary>
-		Alpha = 0x08
+		Alpha = 0x08,
+
+		/// <summary>
+		/// Convenience field specifying all components.
+		/// </summary>
+		All = Red | Green | Blue | Alpha
 	}
 
 	/// <summary>
@@ -512,6 +521,20 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			(Blue == ComponentSwizzle.Identity || Blue == ComponentSwizzle.Blue) &&
 			(Alpha == ComponentSwizzle.Identity || Alpha == ComponentSwizzle.Alpha);
 
+	}
+
+	/// <summary>
+	/// Enumeration of coordinate systems used for graphics.
+	/// </summary>
+	public enum CoordinateSystem {
+		/// <summary>
+		/// "Left-handed", ie. positive Y is towards the top.
+		/// </summary>
+		LeftHanded,
+		/// <summary>
+		/// "Right-handed, ie. positive Y is towards the bottom.
+		/// </summary>
+		RightHanded
 	}
 
 }

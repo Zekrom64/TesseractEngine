@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Native;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
@@ -13,7 +14,9 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	public class VulkanPhysicalDeviceInfo {
 
+		/*
 		public const float UnsupportedDeviceScore = float.NegativeInfinity;
+		*/
 
 		public VKPhysicalDevice PhysicalDevice { get; }
 
@@ -49,12 +52,13 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public VKPhysicalDeviceExtendedDynamicStateFeaturesEXT? ExtendedDynamicStateFeaturesEXT { get; } = null;
 
-
+		/*
 		public float Score { get; } = UnsupportedDeviceScore;
 
 		public bool IsSupported => Score != UnsupportedDeviceScore;
+		*/
 
-		public VulkanPhysicalDeviceInfo(VulkanGraphicsContext context, VKPhysicalDevice physicalDevice) {
+		public VulkanPhysicalDeviceInfo(VKPhysicalDevice physicalDevice) {
 			PhysicalDevice = physicalDevice;
 
 			HashSet<string> extensions = new(), layers = new();
@@ -157,9 +161,10 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					MemoryProperties = properties2.MemoryProperties;
 				}
 			}
-			Score = CalculateScore(context);
+			//Score = CalculateScore(context);
 		}
 
+		/*
 		private static float GetDeviceTypeWeight(VKPhysicalDeviceType type) => type switch {
 			VKPhysicalDeviceType.IntegratedGPU => 100.0f,
 			VKPhysicalDeviceType.DiscreteGPU => 200.0f,
@@ -201,6 +206,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 			return score;
 		}
+		*/
 
 		public int FindQueue(VKQueueFlagBits bits, params int[] notPreferred) {
 			int targetCount = BitOperations.PopCount((uint)bits);
@@ -282,6 +288,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public VKDevice Device { get; }
 
+		/*
 		private static VulkanPhysicalDeviceInfo SelectPhysicalDevice(VulkanGraphicsContext context) {
 			// If a preferred device is given use that
 			if (context.PreferredPhysicalDevice != null) {
@@ -309,18 +316,16 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				return devinfo;
 			}
 		}
+		*/
 
-		public VulkanDevice(VulkanGraphicsContext context) {
+		public VulkanDevice(VulkanGraphicsProvider provider, VulkanPhysicalDeviceInfo physicalDevice, GraphicsCreateInfo createInfo) {
 			using MemoryStack sp = MemoryStack.Push();
-			PhysicalDevice = SelectPhysicalDevice(context);
+			PhysicalDevice = physicalDevice;
+			var hwfeatures = createInfo.EnabledFeatures;
 
 			// Enable extensions
 			HashSet<string> enabledExts = new();
-			if (context.RequiredDeviceExtensions != null) enabledExts.AddAll(context.RequiredDeviceExtensions);
-			if (context.PreferredDeviceExtensions != null) {
-				foreach (string ext in context.PreferredDeviceExtensions)
-					if (PhysicalDevice.Extensions.Contains(ext)) enabledExts.Add(ext);
-			}
+
 			EnabledExtensions = enabledExts;
 
 			EnabledLayers = new HashSet<string>();

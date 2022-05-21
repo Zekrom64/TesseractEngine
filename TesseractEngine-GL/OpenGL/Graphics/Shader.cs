@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Native;
+using Tesseract.Core.Util;
 
 namespace Tesseract.OpenGL.Graphics {
 	
@@ -16,8 +17,13 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public uint ID { get; }
 
+		public GLShaderType Type { get; }
+
+		public ulong SourceHash { get; }
+
 		public GLShader(GLGraphics graphics, ShaderCreateInfo createInfo) {
 			Graphics = graphics;
+			Type = GLEnums.Convert(createInfo.Type);
 
 			var glspv = GL.ARBGLSPIRV;
 			var es2c = GL.ARBES2Compatbility;
@@ -31,16 +37,26 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 
 			var gl33 = GL.GL33!;
-			ID = gl33.CreateShader(GLEnums.Convert(createInfo.Type));
+			ID = gl33.CreateShader(Type);
 
 			bool compileFlag = false;
 			try {
 				switch(createInfo.SourceType) {
-					case ShaderSourceType.GLSL: {
-						if (createInfo.Source is IConstPointer<byte> ptr) gl33.ShaderSource(ID, ptr);
-						else gl33.ShaderSource(ID, createInfo.Source.ToString()!);
-					} break;
-					case ShaderSourceType.SPIRV: {
+					case ShaderSourceType.GLSL:
+						if (createInfo.Source is IConstPointer<byte> ptr) {
+							int strlen = MemoryUtil.FindFirst(ptr.Ptr, 0);
+							unsafe {
+								SourceHash = XXHash64.Compute(new ReadOnlySpan<byte>((void*)ptr.Ptr, strlen));
+							}
+							gl33.ShaderSource(ID, ptr);
+						} else {
+							string source = createInfo.Source.ToString()!;
+							byte[] sourceBytes = Encoding.UTF8.GetBytes(source);
+							SourceHash = XXHash64.Compute(sourceBytes);
+							gl33.ShaderSource(ID, source);
+						}
+						break;
+					case ShaderSourceType.SPIRV:
 						if (es2c == null) throw new GLException("Cannot load SPIR-V shader source without GL_ARB_ES2_compatibility");
 						ReadOnlySpan<int> asspan = default;
 						IConstPointer<int>? asptr = default;
@@ -52,15 +68,23 @@ namespace Tesseract.OpenGL.Graphics {
 
 						if (!asspan.IsEmpty) {
 							unsafe {
-								fixed(int* pBinary = asspan) {
-									es2c.ShaderBinary(stackalloc uint[] { ID }, Native.GLEnums.GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, new Span<byte>(pBinary, asspan.Length * 4));
+								fixed (int* pBinary = asspan) {
+									ReadOnlySpan<byte> binary = new(pBinary, asspan.Length * 4);
+									SourceHash = XXHash64.Compute(binary);
+									es2c.ShaderBinary(stackalloc uint[] { ID }, Native.GLEnums.GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, binary);
 								}
 							}
-						} else es2c.ShaderBinary(stackalloc uint[] { ID }, Native.GLEnums.GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, MemoryUtil.RecastAs<int, byte>(asptr!).ReadOnlySpan);
+						} else {
+							ReadOnlySpan<byte> binary = MemoryUtil.RecastAs<int, byte>(asptr!).ReadOnlySpan;
+							SourceHash = XXHash64.Compute(binary);
+							es2c.ShaderBinary(stackalloc uint[] { ID }, Native.GLEnums.GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, binary);
+						}
 
 						// Since its a binary we don't need to compile it
 						compileFlag = true;
-					} break;
+						break;
+					default:
+						throw new ArgumentException($"Unsupported shader source type {createInfo.SourceType}", nameof(createInfo));
 				}
 
 				if (!compileFlag) {

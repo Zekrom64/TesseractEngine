@@ -8,6 +8,9 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL.Graphics {
 
+	/// <summary>
+	/// OpenGL buffer implementation.
+	/// </summary>
 	public class GLBuffer : IBuffer, IGLObject {
 
 		public GLGraphics Graphics { get; }
@@ -24,6 +27,11 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public MemoryMapFlags SupportedMappings { get; }
 
+		/// <summary>
+		/// If <see cref="GLBufferStorageFlags.DynamicStorage"/> is supported on this buffer.
+		/// </summary>
+		public bool DynamicStorage { get; }
+
 		public GLBuffer(GLGraphics gl, BufferCreateInfo createInfo) {
 			Graphics = gl;
 			Size = createInfo.Size;
@@ -34,26 +42,11 @@ namespace Tesseract.OpenGL.Graphics {
 			if ((createInfo.MapFlags & MemoryMapFlags.Write) != 0) storageFlags |= GLBufferStorageFlags.MapWrite;
 			if ((createInfo.MapFlags & MemoryMapFlags.Persistent) != 0) storageFlags |= GLBufferStorageFlags.MapPersistent;
 			if ((createInfo.MapFlags & MemoryMapFlags.Coherent) != 0) storageFlags |= GLBufferStorageFlags.MapCoherent;
+			if (DynamicStorage = (createInfo.Usage & BufferUsage.UpdateByCommand) != 0) storageFlags |= GLBufferStorageFlags.DynamicStorage;
 
-			var dsa = GL.ARBDirectStateAccess;
-			if (dsa != null) {
-				ID = dsa.CreateBuffers();
-				dsa.NamedBufferStorage(ID, (nint)Size, storageFlags);
-				SupportedMappings = createInfo.MapFlags;
-			} else {
-				var gl33 = GL.GL33!;
-				ID = gl33.GenBuffers();
-				Graphics.State.BindBuffer(GLBufferTarget.Array, ID);
-
-				var bs = GL.ARBBufferStorage;
-				if (bs != null) {
-					bs.BufferStorage(GLBufferTarget.Array, (nint)Size, storageFlags);
-					SupportedMappings = createInfo.MapFlags;
-				} else {
-					gl33.BufferData(GLBufferTarget.Array, (nint)Size, IntPtr.Zero, GLBufferUsage.DynamicDraw);
-					SupportedMappings = MemoryMapFlags.ReadWrite;
-				}
-			}
+			var iface = Graphics.Interface;
+			iface.BufferStorage(ID = iface.CreateBuffer(), (nint)Size, storageFlags);
+			SupportedMappings = GL.ARBBufferStorage != null ? createInfo.MapFlags : MemoryMapFlags.ReadWrite;
 		}
 
 		public void Dispose() {
@@ -62,35 +55,16 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		public void FlushGPUToHost(in MemoryRange range = default) {
-			var gl33 = GL.GL33!;
-			var sils = GL.ARBShaderImageLoadStore;
-			if (sils != null) {
-				sils.MemoryBarrier(GLMemoryBarrier.ClientMappedBuffer);
-				// Not sure if a temporary fence for current commands is better than glFinish() (probably)
-				nuint fence = gl33.FenceSync(GLSyncCondition.GPUCommandsComplete);
-				gl33.ClientWaitSync(fence, GLSyncFlags.FlushCommands, ulong.MaxValue);
-				gl33.DeleteSync(fence);
-			}
+			MemoryRange range2 = range.Constrain(Size);
+			Graphics.Interface.FlushBufferGPUToHost(ID, (nint)range2.Offset, (nint)range2.Length);
 		}
 
 		public void FlushHostToGPU(in MemoryRange range = default) {
-			nint offset = (nint)range.Offset;
-			nint length = (nint)range.Length;
-			if (length == 0) length = (nint)Size - offset;
-
-			var dsa = GL.ARBDirectStateAccess;
-			if (dsa != null) dsa.FlushMappedNamedBufferRange(ID, offset, length);
-			else {
-				GLBufferTarget target = Graphics.State.BindBufferAny(ID);
-				GL.GL33!.FlushMappedBufferRange(target, offset, length);
-			}
+			MemoryRange range2 = range.Constrain(Size);
+			Graphics.Interface.FlushBufferHostToGPU(ID, (nint)range2.Offset, (nint)range2.Length);
 		}
 
 		public IPointer<T> Map<T>(MemoryMapFlags flags, in MemoryRange range = default) where T : unmanaged {
-			nint offset = (nint)range.Offset;
-			nint length = (nint)range.Length;
-			if (length == 0) length = (nint)Size - offset;
-
 			GLMapAccessFlags access = GLMapAccessFlags.Unsynchronized;
 			if ((flags & MemoryMapFlags.Persistent) != 0) access |= GLMapAccessFlags.Persistent;
 			if ((flags & MemoryMapFlags.Coherent) != 0) access |= GLMapAccessFlags.Coherent;
@@ -100,25 +74,10 @@ namespace Tesseract.OpenGL.Graphics {
 			if (write) access |= GLMapAccessFlags.Write;
 			if (write && !read) access |= GLMapAccessFlags.InvalidateRange;
 
-			var gl33 = GL.GL33!;
-			var dsa = GL.ARBDirectStateAccess;
-			IntPtr pData;
-			if (dsa != null) pData = dsa.MapNamedBufferRange(ID, offset, length, access);
-			else {
-				GLBufferTarget target = Graphics.State.BindBufferAny(ID);
-				pData = gl33.MapBufferRange(target, offset, length, access);
-			}
-			return new UnmanagedPointer<T>(pData);
+			return new UnmanagedPointer<T>(Graphics.Interface.MapBuffer(ID, access, range.Constrain(Size)));
 		}
 
-		public void Unmap() {
-			var dsa = GL.ARBDirectStateAccess;
-			if (dsa != null) dsa.UnmapNamedBuffer(ID);
-			else {
-				GLBufferTarget target = Graphics.State.BindBufferAny(ID);
-				GL.GL33!.UnmapBuffer(target);
-			}
-		}
+		public void Unmap() => Graphics.Interface.UnmapBuffer(ID);
 
 	}
 

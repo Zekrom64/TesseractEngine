@@ -40,6 +40,10 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public bool LimitedTextureBlit => true;
 
+		public bool LimitedTextureCopy { get; }
+
+		public bool LimitedTextureCopyToBuffer { get; }
+
 		private static bool CheckExtendedStorageFormats(GL gl) {
 			var ifq = gl.ARBInternalFormatQuery;
 			if (ifq == null) return false;
@@ -165,6 +169,9 @@ namespace Tesseract.OpenGL.Graphics {
 			SupportedShaderSourceTypes = new FuncReadOnlyIndexer<ShaderSourceType, bool>(type => sourceTypes.Contains(type));
 
 			if (gl.ARBGLSPIRV != null) sourceTypes.Add(ShaderSourceType.SPIRV);
+
+			LimitedTextureCopy = gl.ARBCopyImage == null;
+			LimitedTextureCopyToBuffer = gl.ARBGetTextureSubImage == null;
 		}
 
 	}

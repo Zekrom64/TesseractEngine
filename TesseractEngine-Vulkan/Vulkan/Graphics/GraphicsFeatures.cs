@@ -101,6 +101,10 @@ namespace Tesseract.Vulkan.Graphics {
 
 		public bool LimitedTextureBlit => false; // We don't have limitations on texture blitting in Vulkan
 
+		public bool LimitedTextureCopy => false; // We don't have limitations on texture copying in Vulkan
+
+		public bool LimitedTextureCopyToBuffer => false; // We don't have limitations on texture-to-buffer copying in Vulkan
+
 		public VulkanGraphicsFeatures(VulkanDevice device) {
 			HardwareFeatures = FromVK(device.PhysicalDevice);
 			SupportedDynamicStates = new FuncReadOnlyIndexer<PipelineDynamicState, bool, HashSet<PipelineDynamicState>>(

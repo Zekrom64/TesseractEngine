@@ -93,6 +93,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	public struct DrawParams {
 
 		/// <summary>
+		/// The size of the <see cref="DrawParams"/> structure, as a constant.
+		/// </summary>
+		public const int SizeOf = 4 * sizeof(uint);
+
+		/// <summary>
 		/// The number of vertices to draw.
 		/// </summary>
 		public uint VertexCount;
@@ -117,6 +122,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct DrawIndexedParams {
+
+		/// <summary>
+		/// The size of the <see cref="DrawIndexedParams"/> structure, as a constant.
+		/// </summary>
+		public const int SizeOf = 5 * sizeof(uint);
 
 		/// <summary>
 		/// The number of indices to draw.

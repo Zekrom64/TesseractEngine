@@ -19,10 +19,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLSampler(GLGraphics graphics, SamplerCreateInfo createInfo) {
 			Graphics = graphics;
+			ID = Graphics.Interface.CreateSampler();
 			var gl33 = GL.GL33!;
-			var dsa = GL.ARBDirectStateAccess;
-			if (dsa != null) ID = dsa.CreateSamplers();
-			else ID = gl33.GenSamplers();
 
 			gl33.SamplerParameter(ID, GLSamplerParameter.MagFilter, (int)GLEnums.Convert(createInfo.MagnifyFilter));
 			uint minfilter = createInfo.MinifyFilter switch {

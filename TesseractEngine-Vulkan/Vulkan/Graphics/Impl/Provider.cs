@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 using Tesseract.Core.Native;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
+using Tesseract.Core.Util;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
 	public class VulkanGraphicsProvider : IGraphicsProvider {
+
+		public static readonly Guid BaseID = new("3d7e57ba-ce53-44d1-aad1-cc2e1c30aa89");
 
 		public IGraphicsProperites Properties { get; }
 
@@ -24,7 +27,13 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public bool MultiGraphics => true;
 
 		public VulkanGraphicsProvider(VulkanGraphicsEnumerator enumerator, VKPhysicalDevice physicalDevice) {
-			Properties = new VulkanGraphicsProperties()
+			Properties = new VulkanGraphicsProperties();
+
+			var properties = physicalDevice.Properties;
+			Name = $"Vulkan [GPU: {properties.DeviceName}]";
+			UniqueID = new GuidDigester(BaseID)
+				.Digest(properties.PipelineCacheUUID)
+				.CurrentGuid;
 		}
 
 		public IGraphics CreateGraphics(GraphicsCreateInfo createInfo) {
@@ -54,6 +63,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public VulkanGraphicsEnumerator(IVKLoader loader) {
 			using MemoryStack sp = MemoryStack.Push();
 			VK = new(loader);
+
+			VK.InstanceExtensionProperties
 
 			ManagedPointer<VKApplicationInfo> appInfo = new(new VKApplicationInfo() {
 				Type = VKStructureType.ApplicationInfo,

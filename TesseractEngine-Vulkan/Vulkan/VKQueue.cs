@@ -65,6 +65,14 @@ namespace Tesseract.Vulkan {
 		public VKResult PresentKHR(in VKPresentInfoKHR presentInfo) =>
 			Device.KHRSwapchain!.vkQueuePresentKHR(Queue, presentInfo);
 
+		// VK_EXT_debug_utils
+
+		public void BeginDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkQueueBeginDebugUtilsLabelEXT(Queue, labelInfo);
+
+		public void EndDebugUtilsLabelEXT() => Device.Instance.EXTDebugUtilsFunctions!.vkQueueEndDebugUtilsLabelEXT(Queue);
+
+		public void InsertDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkQueueInsertDebugUtilsLabelEXT(Queue, labelInfo);
+
 	}
 
 }

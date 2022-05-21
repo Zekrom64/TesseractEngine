@@ -79,7 +79,7 @@ namespace Tesseract.Vulkan {
 	}
 
 #nullable disable
-	public class EXTDebugReportFunctions {
+	public class EXTDebugReportInstanceFunctions {
 
 		public delegate VKResult PFN_vkCreateDebugReportCallbackEXT([NativeType("VkInstance")] IntPtr instance, in VKDebugReportCallbackCreateInfoEXT createInfo, [NativeType("VkAllocationCallbacks*")] IntPtr allocator, [NativeType("VkDebugReportCallbackEXT*")] out ulong callback);
 		public delegate void PFN_vkDebugReportMessageEXT([NativeType("VkInstance")] IntPtr instance, VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, [MarshalAs(UnmanagedType.LPUTF8Str)] string layerPrefix, [MarshalAs(UnmanagedType.LPUTF8Str)] string message);

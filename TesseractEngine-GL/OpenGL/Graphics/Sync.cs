@@ -7,9 +7,11 @@ using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.OpenGL.Graphics {
 	
-	public class GLSync : ISync {
+	public class GLSync : ISync, IGLObject {
 
 		public GLGraphics Graphics { get; }
+
+		public GL GL => Graphics.GL;
 
 		public nuint SyncID { get; private set; }
 
@@ -28,23 +30,19 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		public void GenerateFence() {
-			var sync = Graphics.GL.ARBSync!;
-			if (SyncID != 0) sync.DeleteSync(SyncID);
-			SyncID = sync.FenceSync(GLSyncCondition.GPUCommandsComplete);
+			var gl33 = GL.GL33!;
+			if (SyncID != 0) gl33.DeleteSync(SyncID);
+			SyncID = gl33.FenceSync(GLSyncCondition.GPUCommandsComplete);
 		}
 
 		public bool HostWait(ulong timeout) {
 			if (SyncID != 0) {
-				GLWaitResult result = Graphics.GL.ARBSync!.ClientWaitSync(SyncID, GLSyncFlags.FlushCommands, timeout);
-				switch(result) {
-					case GLWaitResult.AlreadySignaled:
-					case GLWaitResult.ConditionSatisfied:
-						return false;
-					case GLWaitResult.TimeoutExpired:
-						return true;
-					default:
-						throw new GLException($"Error waiting for fence: {Graphics.GL.GL11.GetError()}");
-				}
+				GLWaitResult result = GL.GL33!.ClientWaitSync(SyncID, GLSyncFlags.FlushCommands, timeout);
+				return result switch {
+					GLWaitResult.AlreadySignaled or GLWaitResult.ConditionSatisfied => false,
+					GLWaitResult.TimeoutExpired => true,
+					_ => throw new GLException($"Error waiting for fence: {GL.GL11.GetError()}"),
+				};
 			} else return false;
 		}
 
@@ -52,27 +50,24 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void HostReset() {
 			if (SyncID != 0) {
-				Graphics.GL.ARBSync!.DeleteSync(SyncID);
+				GL.ARBSync!.DeleteSync(SyncID);
 				SyncID = 0;
 			}
 		}
 
 		public bool HostPoll() {
 			if (SyncID == 0) return false;
-			uint status = (uint)Graphics.GL.ARBSync!.GetSync(SyncID, GLGetSync.SyncStatus);
-			switch(status) {
-				case Native.GLEnums.GL_SIGNALED:
-					return true;
-				case Native.GLEnums.GL_UNSIGNALED:
-					return false;
-				default:
-					throw new GLException($"Bad return value from GetSync: {status}");
-			}
+			uint status = (uint)GL.ARBSync!.GetSync(SyncID, GLGetSync.SyncStatus);
+			return status switch {
+				Native.GLEnums.GL_SIGNALED => true,
+				Native.GLEnums.GL_UNSIGNALED => false,
+				_ => throw new GLException($"Bad return value from GetSync: {status}"),
+			};
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			var sync = Graphics.GL.ARBSync;
+			var sync = GL.ARBSync;
 			if (SyncID != 0) sync!.DeleteSync(SyncID);
 		}
 

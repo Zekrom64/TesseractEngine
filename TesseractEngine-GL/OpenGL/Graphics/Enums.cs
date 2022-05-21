@@ -16,6 +16,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLTextureType Type { get; init; }
 
+		public GLBufferMask Buffers { get; init; }
+
 		public int Count { get; init; }
 
 		public int SizeOf => GLEnums.SizeOf(Type) * Count;
@@ -184,6 +186,152 @@ namespace Tesseract.OpenGL.Graphics {
 			IndexType.UInt32 => GLIndexType.UnsignedInt,
 			_ => default
 		};
+
+		public static GLPolygonMode Convert(PolygonMode mode) => mode switch {
+			PolygonMode.Fill => GLPolygonMode.Fill,
+			PolygonMode.Line => GLPolygonMode.Line,
+			PolygonMode.Point => GLPolygonMode.Point,
+			_ => default
+		};
+
+		public static GLBlendFactor Convert(BlendFactor blendFactor) => blendFactor switch {
+			BlendFactor.Zero => GLBlendFactor.Zero,
+			BlendFactor.One => GLBlendFactor.One,
+			BlendFactor.SrcColor => GLBlendFactor.SrcColor,
+			BlendFactor.OneMinusSrcColor => GLBlendFactor.OneMinusSrcColor,
+			BlendFactor.DstColor => GLBlendFactor.DstColor,
+			BlendFactor.OneMinusDstColor => GLBlendFactor.OneMinusDstColor,
+			BlendFactor.SrcAlpha => GLBlendFactor.SrcAlpha,
+			BlendFactor.OneMinusSrcAlpha => GLBlendFactor.OneMinusSrcAlpha,
+			BlendFactor.DstAlpha => GLBlendFactor.DstAlpha,
+			BlendFactor.OneMinusDstAlpha => GLBlendFactor.OneMinusDstAlpha,
+			BlendFactor.ConstantColor => GLBlendFactor.ConstantColor,
+			BlendFactor.OneMinusConstantColor => GLBlendFactor.OneMinusConstantColor,
+			BlendFactor.ConstantAlpha => GLBlendFactor.ConstantAlpha,
+			BlendFactor.OneMinusConstantAlpha => GLBlendFactor.OneMinusConstantAlpha,
+			BlendFactor.Src1Color => GLBlendFactor.Src1Color,
+			BlendFactor.OneMinusSrc1Color => GLBlendFactor.OneMinusSrc1Color,
+			BlendFactor.Src1Alpha => GLBlendFactor.Src1Alpha,
+			BlendFactor.OneMinusSrc1Alpha => GLBlendFactor.OneMinusSrc1Alpha,
+			_ => default,
+		};
+
+		public static GLBlendFunction Convert(BlendOp blendEquation) => blendEquation switch {
+			BlendOp.Add => GLBlendFunction.Add,
+			BlendOp.Subtract => GLBlendFunction.Subtract,
+			BlendOp.ReverseSubtract => GLBlendFunction.ReverseSubtract,
+			BlendOp.Min => GLBlendFunction.Min,
+			BlendOp.Max => GLBlendFunction.Max,
+			_ => default,
+		};
+
+		public static GLDrawMode Convert(DrawMode mode) => mode switch {
+			DrawMode.PointList => GLDrawMode.Points,
+			DrawMode.LineList => GLDrawMode.Lines,
+			DrawMode.LineStrip => GLDrawMode.LineStrip,
+			DrawMode.TriangleList => GLDrawMode.Triangles,
+			DrawMode.TriangleStrip => GLDrawMode.TriangleStrip,
+			DrawMode.TriangleFan => GLDrawMode.TriangleFan,
+			DrawMode.LineListWithAdjacency => GLDrawMode.LinesAdjacency,
+			DrawMode.LineStripWithAdjacency => GLDrawMode.LineStripAdjacency,
+			DrawMode.TriangleListWithAdjacency => GLDrawMode.TrianglesAdjacency,
+			DrawMode.TriangleStripWithAdjacency => GLDrawMode.TriangleStripAdjacency,
+			DrawMode.PatchList => GLDrawMode.Patches,
+			_ => default,
+		};
+
+		public static GLFace Convert(CullFace face, out bool enable) {
+			enable = face != CullFace.None;
+			return face switch {
+				CullFace.FrontAndBack => GLFace.FrontAndBack,
+				CullFace.Back => GLFace.Back,
+				CullFace.Front => GLFace.Front,
+				_ => default
+			};
+		}
+
+		public static GLCullFace Convert(FrontFace face) => face switch {
+			FrontFace.Clockwise => GLCullFace.Clockwise,
+			FrontFace.CounterClockwise => GLCullFace.CounterClockwise,
+			_ => default
+		};
+
+		public static GLStencilOp Convert(StencilOp op) => op switch {
+			StencilOp.IncrementAndClamp => GLStencilOp.Increment,
+			StencilOp.IncrementAndWrap => GLStencilOp.IncrementAndWrap,
+			StencilOp.DecrementAndClamp => GLStencilOp.Decrement,
+			StencilOp.DecrementAndWrap => GLStencilOp.DecrementAndWrap,
+			StencilOp.Invert => GLStencilOp.Invert,
+			StencilOp.Keep => GLStencilOp.Keep,
+			StencilOp.Replace => GLStencilOp.Replace,
+			StencilOp.Zero => GLStencilOp.Zero,
+			_ => default
+		};
+
+		public static GLStencilFunc ConvertStencilFunc(CompareOp op) => op switch {
+			CompareOp.Always => GLStencilFunc.Always,
+			CompareOp.Equal => GLStencilFunc.Equal,
+			CompareOp.Greater => GLStencilFunc.Greater,
+			CompareOp.Less => GLStencilFunc.Less,
+			CompareOp.NotEqual => GLStencilFunc.NotEqual,
+			CompareOp.GreaterOrEqual => GLStencilFunc.GreaterOrEqual,
+			CompareOp.LessOrEqual => GLStencilFunc.LessOrEqual,
+			CompareOp.Never => GLStencilFunc.Never,
+			_ => default
+		};
+
+		public static GLLogicOp Convert(LogicOp op) => op switch {
+			LogicOp.And => GLLogicOp.And,
+			LogicOp.AndInverted => GLLogicOp.AndInverted,
+			LogicOp.AndReverse => GLLogicOp.AndReverse,
+			LogicOp.Clear => GLLogicOp.Clear,
+			LogicOp.Copy => GLLogicOp.Copy,
+			LogicOp.CopyInverted => GLLogicOp.CopyInverted,
+			LogicOp.Invert => GLLogicOp.Invert,
+			LogicOp.Nand => GLLogicOp.NAnd,
+			LogicOp.NoOp => GLLogicOp.NoOp,
+			LogicOp.Nor => GLLogicOp.NOr,
+			LogicOp.Or => GLLogicOp.Or,
+			LogicOp.OrInverted => GLLogicOp.OrInverted,
+			LogicOp.OrReverse => GLLogicOp.OrReverse,
+			LogicOp.Set => GLLogicOp.Set,
+			LogicOp.XNor => GLLogicOp.Equiv,
+			LogicOp.Xor => GLLogicOp.XOr,
+			_ => default
+		};
+
+		public static GLFace Convert(CullFace face) => face switch {
+			CullFace.Front => GLFace.Front,
+			CullFace.Back => GLFace.Back,
+			CullFace.FrontAndBack => GLFace.FrontAndBack,
+			_ => default
+		};
+
+		public static GLMemoryBarrier Convert(ICommandSink.BufferMemoryBarrier barrier) {
+			GLMemoryBarrier glbarrier = 0;
+			IBuffer buffer = barrier.Buffer;
+			if ((barrier.ProvokingAccess & MemoryAccess.VertexAttributeRead) != 0) glbarrier |= GLMemoryBarrier.VertexAttribArray;
+			if ((barrier.ProvokingAccess & MemoryAccess.IndexRead) != 0) glbarrier |= GLMemoryBarrier.ElementArray;
+			if ((barrier.ProvokingAccess & MemoryAccess.UniformRead) != 0) glbarrier |= GLMemoryBarrier.Uniform;
+			if ((barrier.ProvokingAccess & MemoryAccess.ShaderRead) != 0) {
+				if ((buffer.Usage & BufferUsage.StorageBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderStorage;
+				if ((buffer.Usage & BufferUsage.UniformTexelBuffer) != 0) glbarrier |= GLMemoryBarrier.TextureFetch;
+				if ((buffer.Usage & BufferUsage.StorageTexelBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderImageAccess;
+			}
+			if ((barrier.ProvokingAccess & MemoryAccess.ShaderWrite) != 0) {
+				if ((buffer.Usage & BufferUsage.StorageBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderStorage;
+				if ((buffer.Usage & BufferUsage.StorageTexelBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderImageAccess;
+			}
+			if ((barrier.ProvokingAccess & MemoryAccess.IndirectCommandRead) != 0) glbarrier |= GLMemoryBarrier.Command;
+			if ((barrier.ProvokingAccess & (MemoryAccess.TransferRead | MemoryAccess.TransferWrite)) != 0) glbarrier |= GLMemoryBarrier.BufferUpdate;
+			if ((barrier.ProvokingAccess & (MemoryAccess.HostRead | MemoryAccess.HostWrite)) != 0) glbarrier |= GLMemoryBarrier.ClientMappedBuffer;
+			return glbarrier;
+		}
+
+		public static GLMemoryBarrier Convert(ICommandSink.TextureMemoryBarrier barrier) {
+			GLMemoryBarrier glbarrier = 0;
+			ITexture texture = barrier.Texture;
+		}
 
 	}
 

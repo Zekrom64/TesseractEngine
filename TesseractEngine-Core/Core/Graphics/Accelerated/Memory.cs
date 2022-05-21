@@ -114,7 +114,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The buffer may be used to provide draw parameters for indirect draw calls.
 		/// </summary>
-		IndirectBuffer = 0x0100
+		IndirectBuffer = 0x0100,
+		/// <summary>
+		/// The buffer may be updated by the <see cref="ICommandSink.UpdateBuffer(IBuffer, nuint, nuint, IntPtr)"/>
+		/// command or its derivatives. Note that this also implies <see cref="TransferDst"/>.
+		/// </summary>
+		UpdateByCommand = 0x1000000 | TransferDst
 	}
 
 	/// <summary>

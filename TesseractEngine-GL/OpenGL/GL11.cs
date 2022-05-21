@@ -151,12 +151,12 @@ namespace Tesseract.OpenGL {
 			get => GetBoolean(GLEnums.GL_DEPTH_WRITEMASK);
 		}
 
-		public Vector2d DepthRange {
+		public (double, double) DepthRange {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => FunctionsGL11.glDepthRange(value.X, value.Y);
+			set => FunctionsGL11.glDepthRange(value.Item1, value.Item2);
 			get {
 				Span<double> values = GetDouble(GLEnums.GL_DEPTH_RANGE, stackalloc double[2]);
-				return new Vector2d(values[0], values[1]);
+				return (values[0], values[1]);
 			}
 		}
 
@@ -368,6 +368,19 @@ namespace Tesseract.OpenGL {
 			return values;
 		}
 
+		public float LineWidth {
+			set => FunctionsGL11.glLineWidth(value);
+			get => GetFloat(GLEnums.GL_LINE_WIDTH);
+		}
+
+		public GLLogicOp LogicOp {
+			set => FunctionsGL11.glLogicOp((uint)value);
+			get => (GLLogicOp)GetInteger(GLEnums.GL_LOGIC_OP_MODE);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void PixelStore(GLPixelStoreParam pname, int param) => FunctionsGL11.glPixelStorei((uint)pname, param);
+
 		public float PointSize {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => GetFloat(GLEnums.GL_POINT_SIZE);
@@ -377,6 +390,9 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PolygonMode(GLFace face, GLPolygonMode mode) => FunctionsGL11.glPolygonMode((uint)face, (uint)mode);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void PolygonOffset(float factor, float units) => FunctionsGL11.glPolygonOffset(factor, units);
 
 		public GLDrawBuffer ReadBuffer {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

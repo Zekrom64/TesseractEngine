@@ -9,22 +9,39 @@ using Tesseract.Core.Math;
 
 namespace Tesseract.OpenGL.Graphics {
 
+	public interface IGLTexture {
+
+		public GLTextureObjectType GLObjectType { get; }
+
+		public uint ID { get; }
+
+		public GLPixelFormat GLFormat { get; }
+
+		public GLTextureTarget GLTarget { get; }
+
+
+		public TextureType Type { get; }
+
+	}
+
 	public enum GLTextureObjectType {
 		Texture,
 		Renderbuffer
 	}
 
-	public class GLTexture : ITexture, IGLObject {
+	public class GLTexture : ITexture, IGLTexture, IGLObject {
 
 		public GLGraphics Graphics { get; }
 
 		public GL GL => Graphics.GL;
 
+		private GLInterface Interface => Graphics.Interface;
+
 		public TextureType Type { get; }
 
 		public PixelFormat Format { get; }
 
-		public Vector3i Size { get; }
+		public Vector3ui Size { get; }
 
 		public uint MipLevels { get; }
 
@@ -45,7 +62,13 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLTextureTarget GLTarget { get; }
 
-
+		/// <summary>
+		/// Gets the texture target used for the given texture type and sampling.
+		/// </summary>
+		/// <param name="gl">OpenGL instance</param>
+		/// <param name="type">Type of texture</param>
+		/// <param name="samples">Number of samples in the texture</param>
+		/// <returns>OpenGL texture target</returns>
 		public static GLTextureTarget GetGLTarget(GL gl, TextureType type, uint samples) => type switch {
 			TextureType.Texture1D => GLTextureTarget.Texture1D,
 			TextureType.Texture1DArray => GLTextureTarget.Texture1DArray,
@@ -72,115 +95,37 @@ namespace Tesseract.OpenGL.Graphics {
 
 			// Check if we can get away with using a renderbuffer based on the texture usage
 			bool canUseRenderbuffer = true;
+			// Cannot use a renderbuffer for non-attachment images
 			if ((info.Usage & (TextureUsage.ColorAttachment | TextureUsage.DepthStencilAttachment)) != 0) canUseRenderbuffer = false;
+			// Cannot use renderbuffer for texture sub-views
 			if (canUseRenderbuffer && (info.Usage & TextureUsage.SubView) != 0) canUseRenderbuffer = false;
+			// Cannot use renderbuffer for non-2D textures
 			if (canUseRenderbuffer && info.Type != TextureType.Texture2D) canUseRenderbuffer = false;
+			// Cannot use renderbuffer for mipmapped textures
+			if (canUseRenderbuffer && MipLevels != 1) canUseRenderbuffer = false;
 
-			GL33 gl33 = GL.GL33!;
-			var dsa = GL.ARBDirectStateAccess;
 			if (canUseRenderbuffer) {
 				// Initialize the renderbuffer storage
-				if (dsa != null) {
-					ID = dsa.CreateRenderbuffers();
-					if (Samples > 1) dsa.NamedRenderbufferStorageMultisample(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y);
-					else dsa.NamedRenderbufferStorage(ID, GLFormat.InternalFormat, Size.X, Size.Y);
-				} else {
-					ID = gl33.GenRenderbuffers();
-					Graphics.State.BindRenderbuffer(GLRenderbufferTarget.Renderbuffer, ID);
-					if (Samples > 1) gl33.RenderbufferStorageMultisample(GLRenderbufferTarget.Renderbuffer, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y);
-					else gl33.RenderbufferStorage(GLRenderbufferTarget.Renderbuffer, GLFormat.InternalFormat, Size.X, Size.Y);
-				}
+				ID = Interface.CreateRenderbuffer();
+				Interface.RenderbufferStorage(ID, (int)Samples, GLFormat.InternalFormat, (int)Size.X, (int)Size.Y);
 			} else {
 				// Initialize the texture storage
 				GLTarget = GetGLTarget(GL, Type, Samples);
-				if (dsa != null) {
-					ID = dsa.CreateTextures(GLTarget);
-					switch (GLTarget) {
-						case GLTextureTarget.Texture1D:
-							dsa.TextureStorage1D(ID, (int)MipLevels, GLFormat.InternalFormat, Size.X);
-							break;
-						case GLTextureTarget.Texture1DArray:
-							dsa.TextureStorage2D(ID, (int)MipLevels, GLFormat.InternalFormat, Size.X, (int)ArrayLayers);
-							break;
-						case GLTextureTarget.Texture2D:
-						case GLTextureTarget.Texture2DMultisample:
-						case GLTextureTarget.CubeMap:
-							if (Samples > 1) dsa.TextureStorage2DMultisample(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, false);
-							else dsa.TextureStorage2D(ID, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y);
-							break;
-						case GLTextureTarget.Texture2DArray:
-						case GLTextureTarget.Texture2DMultisampleArray:
-						case GLTextureTarget.CubeMapArray:
-							if (Samples > 1) dsa.TextureStorage3DMultisample(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, (int)ArrayLayers, false);
-							else dsa.TextureStorage3D(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, (int)ArrayLayers);
-							break;
-						case GLTextureTarget.Texture3D:
-							if (Samples > 1) dsa.TextureStorage3DMultisample(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, Size.Z, false);
-							else dsa.TextureStorage3D(ID, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, Size.Z);
-							break;
-					}
-				} else {
-					var ts = GL.ARBTextureStorage;
-					var tsm = GL.ARBTextureStorageMultisample;
-					ID = gl33.GenTextures();
-					gl33.BindTexture(GLTarget, ID);
-					if (ts != null) {
-						switch (GLTarget) {
-							case GLTextureTarget.Texture1D:
-								ts.TexStorage1D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X);
-								break;
-							case GLTextureTarget.Texture1DArray:
-								ts.TexStorage2D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, (int)ArrayLayers);
-								break;
-							case GLTextureTarget.Texture2D:
-							case GLTextureTarget.Texture2DMultisample:
-							case GLTextureTarget.CubeMap:
-								if (tsm != null && Samples > 1) tsm.TexStorage2DMultisample(GLTarget, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, false);
-								else ts.TexStorage2D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y);
-								break;
-							case GLTextureTarget.Texture2DArray:
-							case GLTextureTarget.CubeMapArray:
-							case GLTextureTarget.Texture2DMultisampleArray:
-								if (tsm != null && Samples > 1) tsm.TexStorage3DMultisample(GLTarget, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, (int)ArrayLayers, false);
-								ts.TexStorage3D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, (int)ArrayLayers);
-								break;
-							case GLTextureTarget.Texture3D:
-								if (tsm != null && Samples > 1) tsm.TexStorage3DMultisample(GLTarget, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, Size.Z, false);
-								else ts.TexStorage3D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, Size.Z);
-								break;
-						}
-					} else {
-						Graphics.State.BindBuffer(GLBufferTarget.PixelUnpack, 0);
-						switch (GLTarget) {
-							case GLTextureTarget.Texture1D:
-								gl33.TexImage1D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-							case GLTextureTarget.Texture1DArray:
-								gl33.TexImage2D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, (int)ArrayLayers, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-							case GLTextureTarget.Texture2D:
-							case GLTextureTarget.Texture2DMultisample:
-								if (Samples > 1) gl33.TexImage2DMultisample(GLTarget, (int)Samples, GLFormat.InternalFormat, Size.X, Size.Y, false);
-								else gl33.TexImage2D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-							case GLTextureTarget.Texture2DArray:
-							case GLTextureTarget.CubeMapArray:
-								gl33.TexImage3D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, (int)ArrayLayers, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-							case GLTextureTarget.CubeMap:
-								gl33.TexImage2D(GLTextureTarget.CubeMapPositiveX, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								gl33.TexImage2D(GLTextureTarget.CubeMapNegativeX, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								gl33.TexImage2D(GLTextureTarget.CubeMapPositiveY, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								gl33.TexImage2D(GLTextureTarget.CubeMapNegativeY, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								gl33.TexImage2D(GLTextureTarget.CubeMapPositiveZ, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								gl33.TexImage2D(GLTextureTarget.CubeMapNegativeZ, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-							case GLTextureTarget.Texture3D:
-								gl33.TexImage3D(GLTarget, (int)MipLevels, GLFormat.InternalFormat, Size.X, Size.Y, Size.Z, 0, GLFormat.Format, GLFormat.Type, IntPtr.Zero);
-								break;
-						}
-					}
+				ID = Interface.CreateTexture(GLTarget);
+				Vector3i size = new() { X = (int)Size.X, Y = (int)Size.Y, Z = (int)Size.Z };
+				switch(GLTarget) {
+					case GLTextureTarget.Texture1DArray:
+						size.Y = (int)ArrayLayers;
+						break;
+					case GLTextureTarget.Texture2DArray:
+					case GLTextureTarget.Texture2DMultisampleArray:
+					case GLTextureTarget.CubeMapArray:
+						size.Z = (int)ArrayLayers;
+						break;
+					default:
+						break;
 				}
+				Interface.TextureStorage(GLTarget, ID, size, (int)MipLevels, (int)Samples, GLFormat);
 			}
 		}
 
@@ -188,10 +133,19 @@ namespace Tesseract.OpenGL.Graphics {
 			GC.SuppressFinalize(this);
 			var gl33 = GL.GL33!;
 			gl33.DeleteTextures(ID);
-			if (blitFramebuffer != 0) gl33.DeleteFramebuffers(blitFramebuffer);
+			foreach(BlitFramebufferState state in blitStates) {
+				uint fbo = state.blitFramebuffer;
+				if (fbo != 0) gl33.DeleteFramebuffers(fbo);
+			}
 		}
 
-
+		/// <summary>
+		/// Get the texture target for a specific array layer in this texture. This is necessary
+		/// for implementations that don't support GL_ARB_texture_cube_map_array and need to use
+		/// the old system of different cubemap face targets.
+		/// </summary>
+		/// <param name="arrayLayer">Texture array layer</param>
+		/// <returns>Corresponding texture target</returns>
 		public GLTextureTarget GetSubresourceTarget(int arrayLayer) {
 			if (GLTarget == GLTextureTarget.CubeMapArray) {
 				switch(arrayLayer) {
@@ -207,29 +161,61 @@ namespace Tesseract.OpenGL.Graphics {
 			return GLTarget;
 		}
 
-		private uint blitFramebuffer = 0;
-		private int currentBlitLevel = 0;
-		private int currentBlitLayer = 0;
-		private GLBufferMask currentBlitMask = default;
+		// State object for a blit framebuffer
+		private struct BlitFramebufferState {
 
-		public uint AcquireBlitFramebuffer(int mipLevel, int arrayLayer, GLBufferMask mask) {
-			var gl33 = GL.GL33!;
-			var dsa = GL.ARBDirectStateAccess;
+			// The framebuffer used for texture blits
+			public uint blitFramebuffer = 0;
+			// The current mip level bound to the blit framebuffer
+			public int currentBlitLevel = 0;
+			// The current array layer bound to the blit framebuffer
+			public int currentBlitLayer = 0;
+			// The current buffer type bound to the blit framebuffer
+			public GLBufferMask currentBlitMask = default;
+
+		}
+
+		/// <summary>
+		/// Enumeration of blittable framebuffers for a texture.
+		/// </summary>
+		public enum BlitFramebuffer {
+			/// <summary>
+			/// The "read" framebuffer.
+			/// </summary>
+			Read = 0,
+			/// <summary>
+			/// The "draw" framebuffer.
+			/// </summary>
+			Draw = 1
+		}
+
+		private readonly BlitFramebufferState[] blitStates = new BlitFramebufferState[2];
+
+		/// <summary>
+		/// Acquires a 2D layer of this texture as a blittable framebuffer.
+		/// </summary>
+		/// <param name="blit">Blit framebuffer to use</param>
+		/// <param name="mipLevel">Mipmap level to select</param>
+		/// <param name="arrayLayer">Array layer to select</param>
+		/// <param name="mask">Aspect that should be acquired</param>
+		/// <returns>Blittable framebuffer object</returns>
+		public uint AcquireBlitFramebuffer(BlitFramebuffer blit, int mipLevel, int arrayLayer, GLBufferMask mask) {
+			ref BlitFramebufferState state = ref blitStates[(int)blit];
 
 			int? curLevel = null;
 			int? curLayer = null;
 			GLBufferMask? curBufMask = null;
 
 			// Make sure blit framebuffer exists
-			if (blitFramebuffer == 0) {
-				if (dsa != null) blitFramebuffer = dsa.CreateFramebuffers();
-				else blitFramebuffer = gl33.GenFramebuffers();
+			if (state.blitFramebuffer == 0) {
+				state.blitFramebuffer = Interface.CreateFramebuffer();
 			} else {
-				curLevel = currentBlitLevel;
-				curLayer = currentBlitLayer;
-				curBufMask = currentBlitMask;
+				curLevel = state.currentBlitLevel;
+				curLayer = state.currentBlitLayer;
+				curBufMask = state.currentBlitMask;
 			}
 
+			// If there is a difference in blit framebuffer state
 			if (curLevel != mipLevel || curLayer != arrayLayer || curBufMask != mask) {
 				GLFramebufferAttachment attach = default;
 				if ((mask & GLBufferMask.Color) != 0) attach = GLFramebufferAttachment.Color0;
@@ -238,61 +224,23 @@ namespace Tesseract.OpenGL.Graphics {
 					if ((mask & GLBufferMask.Stencil) != 0) attach = GLFramebufferAttachment.Stencil;
 				}
 
-				if (dsa != null && GLTarget != GLTextureTarget.CubeMap) {
-					switch(GLTarget) {
-						case GLTextureTarget.Texture1D:
-						case GLTextureTarget.Texture2D:
-						case GLTextureTarget.Texture2DMultisample:
-							dsa.NamedFramebufferTexture(blitFramebuffer, attach, ID, mipLevel);
-							break;
-						case GLTextureTarget.Texture1DArray:
-						case GLTextureTarget.Texture2DArray:
-						case GLTextureTarget.Texture2DMultisampleArray:
-						case GLTextureTarget.CubeMapArray:
-							dsa.NamedFramebufferTextureLayer(blitFramebuffer, attach, ID, mipLevel, arrayLayer);
-							break;
-						default:
-							break;
-					}
-				} else {
-					Graphics.State.BindTexture(GLTarget, ID);
-					Graphics.State.BindFramebuffer(GLFramebufferTarget.Read, blitFramebuffer);
-					switch(GLTarget) {
-						case GLTextureTarget.Texture1D:
-							gl33.FramebufferTexture1D(GLFramebufferTarget.Read, attach, GLTarget, ID, mipLevel);
-							break;
-						case GLTextureTarget.Texture2D:
-						case GLTextureTarget.Texture2DMultisample:
-							gl33.FramebufferTexture2D(GLFramebufferTarget.Read, attach, GLTarget, ID, mipLevel);
-							break;
-						case GLTextureTarget.Texture3D:
-							gl33.FramebufferTexture3D(GLFramebufferTarget.Read, attach, GLTarget, ID, mipLevel, arrayLayer);
-							break;
-						case GLTextureTarget.Texture1DArray:
-						case GLTextureTarget.Texture2DArray:
-						case GLTextureTarget.Texture2DMultisampleArray:
-						case GLTextureTarget.CubeMapArray:
-							gl33.FramebufferTextureLayer(GLFramebufferTarget.Read, attach, ID, mipLevel, arrayLayer);
-							break;
-						case GLTextureTarget.CubeMap:
-							gl33.FramebufferTexture2D(GLFramebufferTarget.Read, attach, GetSubresourceTarget(arrayLayer), ID, mipLevel);
-							break;
-						default:
-							break;
-					}
-				}
+				// Update the blit texture
+				Interface.FramebufferTexture(state.blitFramebuffer, attach, this, mipLevel, arrayLayer);
 
-				currentBlitLevel = mipLevel;
-				currentBlitLayer = arrayLayer;
-				currentBlitMask = mask;
+				state.currentBlitLevel = mipLevel;
+				state.currentBlitLayer = arrayLayer;
+				state.currentBlitMask = mask;
 			}
 
-			return blitFramebuffer;
+			return state.blitFramebuffer;
 		}
 
 	}
 
-	public class GLTextureView : ITextureView, IGLObject {
+	/// <summary>
+	/// OpenGL texture view implementation.
+	/// </summary>
+	public class GLTextureView : ITextureView, IGLTexture, IGLObject {
 
 		public GLGraphics Graphics { get; }
 
@@ -314,6 +262,8 @@ namespace Tesseract.OpenGL.Graphics {
 		public uint ID { get; }
 
 		public GLTextureObjectType GLObjectType => Texture.GLObjectType;
+
+		public GLTextureTarget GLTarget => Texture.GLTarget;
 
 		public GLTextureView(GLGraphics graphics, TextureViewCreateInfo createInfo) {
 			Graphics = graphics;

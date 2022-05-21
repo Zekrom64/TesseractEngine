@@ -10,6 +10,8 @@ namespace Tesseract.Core.Math {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Vector3i : ITuple3<int>, IEquatable<IReadOnlyTuple3<int>> {
 
+		public static readonly Vector3i Zero = new(0, 0, 0);
+
 		/// <summary>
 		/// Vector X component.
 		/// </summary>

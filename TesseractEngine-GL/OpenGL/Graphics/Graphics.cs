@@ -28,31 +28,33 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLInterface Interface { get; }
 
+		private readonly GLCommandSink immediateCommandSink;
+
 		public GLGraphics(GLGraphicsProvider provider, GraphicsCreateInfo createInfo) {
 			Provider = provider;
-			State = new GLState(GL);
+			State = new GLState(this);
 			Interface = new GLInterface(this);
 
 			GraphicsHardwareFeatures? hwfeatures = createInfo.EnabledFeatures;
 			if (hwfeatures != null) hwfeatures = hwfeatures.Mask(Provider.Features.HardwareFeatures);
 			Features = new GLGraphicsFeatures(GL, hwfeatures);
+
+			immediateCommandSink = new GLCommandSink(this);
 		}
 
 		public IBuffer CreateBuffer(BufferCreateInfo createInfo) => new GLBuffer(this, createInfo);
 
 		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo) {
+			// TODO
 			throw new NotImplementedException();
 		}
 
-		public IPipeline CreatePipeline(PipelineCreateInfo createInfo) {
-			throw new NotImplementedException();
-		}
+		public IPipeline CreatePipeline(PipelineCreateInfo createInfo) => new GLPipeline(this, createInfo);
 
-		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo) {
-			throw new NotImplementedException();
-		}
+		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo) => new GLPipelineCache(this, createInfo);
 
 		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo) {
+			// TODO
 			throw new NotImplementedException();
 		}
 
@@ -64,31 +66,46 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IShader CreateShader(ShaderCreateInfo createInfo) => new GLShader(this, createInfo);
 
-		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) => throw new NotImplementedException();
+		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) {
+			// TODO
+			throw new NotImplementedException();
+		}
 
-		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) => throw new NotImplementedException();
+		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) {
+			// TODO
+			throw new NotImplementedException();
+		}
 
-		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo) => throw new NotImplementedException();
+		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo) => new GLFramebuffer(this, createInfo);
 
-		public ISync CreateSync(SyncCreateInfo createInfo) => throw new NotImplementedException();
+		public ISync CreateSync(SyncCreateInfo createInfo) {
+			// TODO
+			throw new NotImplementedException();
+		}
 
 		public IVertexArray CreateVertexArray(VertexArrayCreateInfo createInfo) => new GLVertexArray(this, createInfo);
 
-		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => throw new NotImplementedException();
+		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) {
+			// TODO
+			throw new NotImplementedException();
+		}
 
-		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) => throw new NotImplementedException();
-
-		public void RunCommands(Action<ICommandSink> cmdSink, in IGraphics.CommandBufferSubmitInfo submitInfo) {
+		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) {
+			// TODO
 			throw new NotImplementedException();
 		}
 
 		public void SubmitCommands(in IGraphics.CommandBufferSubmitInfo submitInfo) {
+			// TODO
 			throw new NotImplementedException();
 		}
 
 		public void TrimCommandBufferMemory() { } // No-op
 
-		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in IGraphics.CommandBufferSubmitInfo submitInfo) => throw new NotImplementedException();
+		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in IGraphics.CommandBufferSubmitInfo submitInfo) {
+			// TODO: Handle command syncing
+			cmdSink(immediateCommandSink);
+		}
 
 		public void WaitIdle() {
 			GL.GL11.Finish();

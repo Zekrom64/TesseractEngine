@@ -217,7 +217,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="dst">Pointer to copy to</param>
 		/// <param name="src">Pointer to copy from</param>
 		/// <param name="length">Length in bytes to copy</param>
-		public static void Copy<T>(IPointer<T> dst, IConstPointer<T> src, long length) {
+		public static void Copy<T>(IPointer<T> dst, IConstPointer<T> src, ulong length) {
 			unsafe {
 				Buffer.MemoryCopy((void*)src.Ptr, (void*)dst.Ptr, length, length);
 			}
@@ -230,7 +230,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="dst">Pointer to copy to</param>
 		/// <param name="src">Span to copy from</param>
 		/// <param name="length">Length in bytes to copy</param>
-		public static void Copy<T>(IPointer<T> dst, ReadOnlySpan<T> src, long length) where T : unmanaged {
+		public static void Copy<T>(IPointer<T> dst, ReadOnlySpan<T> src, ulong length) where T : unmanaged {
 			unsafe {
 				fixed (T* pSrc = src) {
 					Buffer.MemoryCopy(pSrc, (void*)dst.Ptr, length, length);
@@ -245,7 +245,7 @@ namespace Tesseract.Core.Native {
 		/// <param name="dst">Span to copy to</param>
 		/// <param name="src">Pointer to copy from</param>
 		/// <param name="length">Length in bytes to copy</param>
-		public static void Copy<T>(Span<T> dst, IConstPointer<T> src, long length) where T : unmanaged {
+		public static void Copy<T>(Span<T> dst, IConstPointer<T> src, ulong length) where T : unmanaged {
 			unsafe {
 				fixed (T* pDst = dst) {
 					Buffer.MemoryCopy((void*)src.Ptr, pDst, length, length);
@@ -567,6 +567,22 @@ namespace Tesseract.Core.Native {
 			Encoding.UTF8.GetBytes(str, memory);
 		}
 
+		/// <summary>
+		/// Fills the memory at the given address with binary zeroes ("zero'ing" it). The number of elements
+		/// to zero must either implicitly be supplied with the pointer or explicitly given.
+		/// </summary>
+		/// <typeparam name="T">The pointer element type</typeparam>
+		/// <param name="ptr">The pointer to elements to zero</param>
+		/// <param name="length">The number of elements to zero, or -1 to use the pointer array size</param>
+		public static void ZeroMemory<T>(IPointer<T> ptr, int length = -1) where T : unmanaged {
+			if (length == -1) length = ptr.ArraySize;
+			if (length == -1) throw new ArgumentException("Cannot zero pointer with no explicit or implicit length", nameof(ptr));
+			unsafe {
+				T* pElem = (T*)ptr.Ptr;
+				for(int i = 0; i < length; i++) pElem[i] = default;
+			}
+		}
+
 	}
 
 	/// <summary>
@@ -701,7 +717,7 @@ namespace Tesseract.Core.Native {
 		public UnmanagedPointer<T> Values<T>(params T[] values) where T : unmanaged {
 			unsafe {
 				UnmanagedPointer<T> ptr = Alloc<T>(values.Length);
-				MemoryUtil.Copy(ptr, values, values.Length * sizeof(T));
+				MemoryUtil.Copy(ptr, values, (ulong)(values.Length * sizeof(T)));
 				return ptr;
 			}
 		}
@@ -715,7 +731,7 @@ namespace Tesseract.Core.Native {
 		public UnmanagedPointer<T> Values<T>(in ReadOnlySpan<T> values) where T : unmanaged {
 			unsafe {
 				UnmanagedPointer<T> ptr = Alloc<T>(values.Length);
-				MemoryUtil.Copy(ptr, values, values.Length * sizeof(T));
+				MemoryUtil.Copy(ptr, values, (ulong)(values.Length * sizeof(T)));
 				return ptr;
 			}
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
@@ -130,21 +131,29 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	public record PipelineLayoutCreateInfo {
 
 		/// <summary>
-		/// The list of bind set layouts that are part of the entire pipeline layout.
+		/// The collection of bind set layouts that are part of the entire pipeline layout.
 		/// </summary>
-		public IBindSetLayout[] Layouts { get; init; } = Array.Empty<IBindSetLayout>();
+		public IReadOnlyCollection<IBindSetLayout> Layouts { get; init; } = Array.Empty<IBindSetLayout>();
 
 		/// <summary>
-		/// The list of push constant ranges used by the pipeline layout.
+		/// The collection of push constant ranges used by the pipeline layout.
 		/// </summary>
-		public PushConstantRange[] PushConstantRanges { get; init; } = Array.Empty<PushConstantRange>();
+		public IReadOnlyCollection<PushConstantRange> PushConstantRanges { get; init; } = Array.Empty<PushConstantRange>();
 
 	}
 
 	/// <summary>
+	/// <para>
 	/// A pipeline cache can be supplied during pipeline creation to provide some reuse of
 	/// resources used by pipelines. Doing so may be more efficient than creating each
 	/// pipeline separately.
+	/// </para>
+	/// <para>
+	/// Some caches support storing cache data persistently via <see cref="Data"/> which can
+	/// be passed during creation to preinitialize the cache. However, this data is
+	/// implementation-dependent and should only be provided if the graphics provider's
+	/// GUIDs are the same between the cached data and the current graphics.
+	/// </para>
 	/// </summary>
 	public interface IPipelineCache : IDisposable {
 
@@ -549,7 +558,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The set of shader stages to use.
 		/// </summary>
-		public EquatableList<PipelineShaderStageInfo> Shaders { get; init; }
+		public IReadOnlyCollection<PipelineShaderStageInfo> Shaders { get; init; } = Array.Empty<PipelineShaderStageInfo>();
 
 		// Viewport state
 
@@ -585,7 +594,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of color attachments bound to the pipeline.
 		/// </summary>
-		public EquatableList<PipelineColorAttachmentState> Attachments { get; init; }
+		public IReadOnlyCollection<PipelineColorAttachmentState> Attachments { get; init; } = Array.Empty<PipelineColorAttachmentState>();
 
 		// Dynamic state
 
@@ -597,7 +606,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of dynamic properties the pipeline has.
 		/// </summary>
-		public EquatableSet<PipelineDynamicState> DynamicState { get; init; }
+		public IReadOnlyCollection<PipelineDynamicState> DynamicState { get; init; } = Array.Empty<PipelineDynamicState>();
 
 		/// <summary>
 		/// The render pass this pipeline must be used with. The pipeline can be used
@@ -697,7 +706,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// sets marked as dynamic in the creation information will be ignored as
 		/// unique pipelines do not need to be created for them.
 		/// </summary>
-		public EquatableSet<PipelineDynamicState> VariableStates { get; init; }
+		public IReadOnlyCollection<PipelineDynamicState> VariableStates { get; init; } = Array.Empty<PipelineDynamicState>();
 
 	}
 

@@ -68,11 +68,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public BindType Type;
 
+		/* Field not used for now
 		/// <summary>
 		/// The number of array elements in the binding. A value of zero
 		/// is interpreted as there being no array (or an array of size 1).
 		/// </summary>
 		public uint ArraySize;
+		*/
 
 		/// <summary>
 		/// The shader stages this binding will be used by.
@@ -161,6 +163,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint Binding;
 
+		/* Fields may be reintroduced if necessary, but are not for current binding scheme
 		/// <summary>
 		/// The first array element to write at.
 		/// </summary>
@@ -170,6 +173,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The number of elements to write. If zero, only one element will be written.
 		/// </summary>
 		public uint Count;
+		*/
 
 		/// <summary>
 		/// The type of binding to write.

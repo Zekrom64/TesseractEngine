@@ -76,7 +76,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="firstViewport">The index of the first viewport in multi-view rendering</param>
 		/// <seealso cref="SetViewport(in Viewport, uint)"/>
 		/// <seealso cref="SetViewports(in ReadOnlySpan{Viewport}, uint)"/>
-		public void SetViewports(uint firstViewport, params Viewport[] viewports);
+		public void SetViewports(uint firstViewport, params Viewport[] viewports) => SetViewports(viewports, firstViewport);
 
 		/// <summary>
 		/// Sets the given scissor on the currently bound pipeline.
@@ -100,7 +100,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="scissors">Scissor areas to set</param>
 		/// <param name="firstScissor">The index of the first scissor in multi-view rendering</param>
-		public void SetScissors(uint firstScissor, params Recti[] scissors);
+		public void SetScissors(uint firstScissor, params Recti[] scissors) => SetScissors(scissors, firstScissor);
 
 		/// <summary>
 		/// Sets the line width of the currently bound pipeline.
@@ -213,7 +213,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="offset">Offset of the first block of draw parameters in the buffer</param>
 		/// <param name="drawCount">Number of draw calls to perform</param>
 		/// <param name="stride">Stride between blocks of draw parameters in the buffer</param>
-		public void DrawIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride);
+		public void DrawIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride = DrawParams.SizeOf);
 
 		/// <summary>
 		/// Indirectly draws indexed vertices based on the current binding state.
@@ -222,13 +222,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="offset">Offset of the first block of draw parameters in the buffer</param>
 		/// <param name="drawCount">Number of draw calls to perform</param>
 		/// <param name="stride">Stride between blocks of draw parameters in the buffer</param>
-		public void DrawIndexedIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride);
+		public void DrawIndexedIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride = DrawIndexedParams.SizeOf);
 
 		/// <summary>
 		/// Dispatches work for compute shaders.
 		/// </summary>
 		/// <param name="groupCounts">Number of work groups for each dimension</param>
-		public void Dispatch(Vector3i groupCounts);
+		public void Dispatch(Vector3ui groupCounts);
 
 		/// <summary>
 		/// Indirectly dispatches work for compute shaders.
@@ -277,7 +277,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination buffer</param>
 		/// <param name="src">Source buffer</param>
 		/// <param name="regions">Regions to copy</param>
-		public void CopyBuffer(IBuffer dst, IBuffer src, params CopyBufferRegion[] regions);
+		public void CopyBuffer(IBuffer dst, IBuffer src, params CopyBufferRegion[] regions) => CopyBuffer(dst, src, new ReadOnlySpan<CopyBufferRegion>(regions));
 
 		/// <summary>
 		/// Copies a region of the source buffer to the destination buffer.
@@ -285,22 +285,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination buffer</param>
 		/// <param name="src">Source buffer</param>
 		/// <param name="region">Region to copy</param>
-		public void CopyBuffer(IBuffer dst, IBuffer src, in CopyBufferRegion region);
+		public void CopyBuffer(IBuffer dst, IBuffer src, in CopyBufferRegion region) => CopyBuffer(dst, src, stackalloc CopyBufferRegion[] { region });
 
 		public readonly struct CopyTextureRegion {
 
-			public Vector3i SrcOffset { get; init; }
+			public Vector3ui SrcOffset { get; init; }
 
 			/// <summary>
 			/// The source subresource layers.
 			/// </summary>
 			public TextureSubresourceLayers SrcSubresource { get; init; }
 
-			public Vector3i DstOffset { get; init; }
+			public Vector3ui DstOffset { get; init; }
 
 			public TextureSubresourceLayers DstSubresource { get; init; }
 
-			public Vector3i Size { get; init; }
+			public Vector3ui Size { get; init; }
 
 			public TextureAspect Aspect { get; init; }
 
@@ -308,21 +308,23 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions);
+		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
+			CopyTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
 
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion copy);
+		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion copy) =>
+			CopyTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { copy });
 
 		public readonly struct BlitTextureRegion {
 
-			public Vector3i SrcOffset0 { get; init; }
+			public Vector3ui SrcOffset0 { get; init; }
 
-			public Vector3i SrcOffset1 { get; init; }
+			public Vector3ui SrcOffset1 { get; init; }
 
 			public uint SrcLevel { get; init; }
 
-			public Vector3i DstOffset0 { get; init; }
+			public Vector3ui DstOffset0 { get; init; }
 
-			public Vector3i DstOffset1 { get; init; }
+			public Vector3ui DstOffset1 { get; init; }
 
 			public uint DstLevel { get; init; }
 
@@ -332,9 +334,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<BlitTextureRegion> regions);
 
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, params BlitTextureRegion[] regions);
+		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, params BlitTextureRegion[] regions) =>
+			BlitTexture(dst, dstLayout, src, srcLayout, filter, new ReadOnlySpan<BlitTextureRegion>(regions));
 
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in BlitTextureRegion blit);
+		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in BlitTextureRegion blit) =>
+			BlitTexture(dst, dstLayout, src, srcLayout, filter, stackalloc BlitTextureRegion[] { blit });
 
 		public readonly struct CopyBufferTexture {
 
@@ -344,9 +348,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 			public uint BufferImageHeight { get; init; }
 
-			public Vector3i TextureOffset { get; init; }
+			public Vector3ui TextureOffset { get; init; }
 
-			public Vector3i TextureSize { get; init; }
+			public Vector3ui TextureSize { get; init; }
 
 			public TextureSubresourceLayers TextureSubresource { get; init; }
 
@@ -354,23 +358,39 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in ReadOnlySpan<CopyBufferTexture> copies);
 
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, params CopyBufferTexture[] copies);
+		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, params CopyBufferTexture[] copies) =>
+			CopyBufferToTexture(dst, dstLayout, src, new ReadOnlySpan<CopyBufferTexture>(copies));
 
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in CopyBufferTexture copy);
+		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in CopyBufferTexture copy) =>
+			CopyBufferToTexture(dst, dstLayout, src, stackalloc CopyBufferTexture[] { copy });
 
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyBufferTexture> copies);
 
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, params CopyBufferTexture[] copies);
+		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, params CopyBufferTexture[] copies) =>
+			CopyTextureToBuffer(dst, src, srcLayout, new ReadOnlySpan<CopyBufferTexture>(copies));
 
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in CopyBufferTexture copy);
+		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in CopyBufferTexture copy) =>
+			CopyTextureToBuffer(dst, src, srcLayout, stackalloc CopyBufferTexture[] { copy });
 
 		public void UpdateBuffer(IBuffer dst, nuint dstOffset, nuint dstSize, IntPtr pData);
 
 		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, nuint dstSize, IConstPointer<T> pData) => UpdateBuffer(dst, dstOffset, dstSize, pData.Ptr);
 
-		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, in ReadOnlySpan<T> data) where T : unmanaged;
+		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, in ReadOnlySpan<T> data) where T : unmanaged {
+			unsafe {
+				fixed (T* pData = data) {
+					UpdateBuffer(dst, dstOffset, (nuint)(data.Length * sizeof(T)), (IntPtr)pData);
+				}
+			}
+		}
 
-		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, params T[] data) where T : unmanaged;
+		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, params T[] data) where T : unmanaged {
+			unsafe {
+				fixed(T* pData = data) {
+					UpdateBuffer(dst, dstOffset, (nuint)(data.Length * sizeof(T)), (IntPtr)pData);
+				}
+			}
+		}
 
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data);
 
@@ -388,15 +408,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions);
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions);
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions) =>
+			ClearColorTexture(dst, dstLayout, color, new ReadOnlySpan<TextureSubresourceRange>(regions));
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region);
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region) =>
+			ClearColorTexture(dst, dstLayout, color, stackalloc TextureSubresourceRange[] { region });
 
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
 
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions);
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions) =>
+			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, new ReadOnlySpan<TextureSubresourceRange>(regions));
 
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region);
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) =>
+			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
 
 		public readonly struct ClearValue {
 
@@ -430,15 +454,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ReadOnlySpan<ClearRect> regions);
 
-		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, params ClearRect[] regions);
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, params ClearRect[] regions) =>
+			ClearAttachments(values, new ReadOnlySpan<ClearRect>(regions));
 
-		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region);
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region) =>
+			ClearAttachments(values, stackalloc ClearRect[] { region });
 
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions);
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
+			ResolveTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region);
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region) =>
+			ResolveTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { region });
 
 		/// <summary>
 		/// Generates mipmap levels for a texture using the first mip level. The filtering method for minifying the texture images may
@@ -528,7 +556,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void WaitSync(in PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs);
 
-		public void WaitSync(in PipelineBarriers barriers, params ISync[] syncs);
+		public void WaitSync(in PipelineBarriers barriers, params ISync[] syncs) => WaitSync(barriers, new ReadOnlySpan<ISync>(syncs));
 
 		public void WaitSync(in PipelineBarriers barriers, ISync sync);
 
@@ -542,9 +570,21 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IConstPointer<T> pValues) => PushConstants(layout, stages, offset, size, pValues.Ptr);
 
-		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged;
+		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged {
+			unsafe {
+				fixed(T* pValues = values) {
+					PushConstants(layout, stages, offset, (uint)(values.Length * sizeof(T)), (IntPtr)pValues);
+				}
+			}
+		}
 
-		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, params T[] values) where T : unmanaged;
+		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, params T[] values) where T : unmanaged {
+			unsafe {
+				fixed (T* pValues = values) {
+					PushConstants(layout, stages, offset, (uint)(values.Length * sizeof(T)), (IntPtr)pValues);
+				}
+			}
+		}
 
 		//===============//
 		// Render Passes //
@@ -568,13 +608,49 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 		public void EndRenderPass();
 
+		public readonly struct RenderingAttachmentInfo {
+
+			public uint Index { get; init; }
+
+			public TextureLayout Layout { get; init; }
+
+			public ITextureView? ResolveTextureView { get; init; } = null;
+
+			public TextureLayout ResolveTextureLayout { get; init; } = default;
+
+			public AttachmentLoadOp LoadOp { get; init; }
+
+			public AttachmentStoreOp StoreOp { get; init; }
+
+			public ClearValue ClearValue { get; init; } = default;
+
+		}
+
+		public readonly ref struct RenderingInfo {
+
+			public Recti RenderArea { get; init; }
+
+			public IFramebuffer Framebuffer { get; init; } = null!;
+
+			public RenderingAttachmentInfo[]? ColorAttachments { get; init; } = null;
+
+			public RenderingAttachmentInfo? DepthAttachment { get; init; } = null;
+
+			public RenderingAttachmentInfo? StencilAttachment { get; init; } = null;
+
+		}
+
+		public void BeginRendering(in RenderingInfo renderingInfo);
+
+		public void EndRendering();
+
 		//=============================//
 		// Secondary Command Execution //
 		//=============================//
 
 		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers);
 
-		public void ExecuteCommands(params ICommandBuffer[] buffers);
+		public void ExecuteCommands(params ICommandBuffer[] buffers) => ExecuteCommands(new ReadOnlySpan<ICommandBuffer>(buffers));
 
 		public void ExecuteCommands(ICommandBuffer buffer);
 

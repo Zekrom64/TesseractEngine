@@ -30,7 +30,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyImageSubData(uint srcName, GLTextureTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLTextureTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) =>
+		public void CopyImageSubData(uint srcName, GLCopyImageTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLCopyImageTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) =>
 			Functions.glCopyImageSubData(srcName, (uint)srcTarget, srcLevel, src.X, src.Y, src.Z, dstName, (uint)dstTarget, dstLevel, dst.X, dst.Y, dst.Z, size.X, size.Y, size.Z);
 
 	}
