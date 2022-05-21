@@ -42,10 +42,19 @@ namespace Tesseract.Core.Util {
 			set => guidData = value.ToByteArray();
 		}
 
+		/// <summary>
+		/// Creates a new digester with an initial state.
+		/// </summary>
+		/// <param name="initial">The initial GUID state</param>
 		public GuidDigester(Guid initial = default) {
 			CurrentGuid = initial;
 		}
 
+		/// <summary>
+		/// Digests a stream of arbitrary bytes.
+		/// </summary>
+		/// <param name="data">Bytes to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(in ReadOnlySpan<byte> data) {
 			foreach (byte b in data) {
 				byte val = (byte)(b ^ guidData[15]);
@@ -55,6 +64,11 @@ namespace Tesseract.Core.Util {
 			return this;
 		}
 
+		/// <summary>
+		/// Digests an individual byte.
+		/// </summary>
+		/// <param name="val">Byte to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(byte val) {
 			val ^= guidData[15];
 			for (int i = 14; i >= 0; i--) guidData[i + 1] = guidData[i];
@@ -62,15 +76,35 @@ namespace Tesseract.Core.Util {
 			return this;
 		}
 
+		/// <summary>
+		/// Digests an individual byte.
+		/// </summary>
+		/// <param name="val">Byte to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(sbyte val) => Digest((byte)val);
 
+		/// <summary>
+		/// Digests a 16-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(short val) {
 			Digest((byte)(val >> 8));
 			return Digest((byte)val);
 		}
 
+		/// <summary>
+		/// Digests a 16-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(ushort val) => Digest((short)val);
 
+		/// <summary>
+		/// Digests a 32-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(int val) {
 			Digest((byte)(val >> 24));
 			Digest((byte)(val >> 16));
@@ -78,8 +112,18 @@ namespace Tesseract.Core.Util {
 			return Digest((byte)val);
 		}
 
+		/// <summary>
+		/// Digests a 32-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(uint val) => Digest((int)val);
 
+		/// <summary>
+		/// Digests a 64-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(long val) {
 			Digest((byte)(val >> 56));
 			Digest((byte)(val >> 48));
@@ -91,14 +135,39 @@ namespace Tesseract.Core.Util {
 			return Digest((byte)val);
 		}
 
+		/// <summary>
+		/// Digests a 64-bit integer.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(ulong val) => Digest((long)val);
 
+		/// <summary>
+		/// Digests a single-precision floating point value.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(float val) => Digest(BitConverter.SingleToInt32Bits(val));
 
+		/// <summary>
+		/// Digests a double-precision floating point value.
+		/// </summary>
+		/// <param name="val">Value to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester Digest(double val) => Digest(BitConverter.DoubleToInt64Bits(val));
 
+		/// <summary>
+		/// Digests a string of UTF-8 encoded characters.
+		/// </summary>
+		/// <param name="str">String to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester DigestUTF8(string str) => Digest(Encoding.UTF8.GetBytes(str));
 
+		/// <summary>
+		/// Digests a string of ASCII encoded characters.
+		/// </summary>
+		/// <param name="str">String to digest</param>
+		/// <returns>This digester</returns>
 		public GuidDigester DigestASCII(string str) => Digest(Encoding.ASCII.GetBytes(str));
 
 		public GuidDigester Digest(Guid guid) => Digest(guid.ToByteArray());

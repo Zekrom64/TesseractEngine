@@ -70,7 +70,7 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		public const string BMP = "image/bmp";
 		/// <summary>
-		/// GIF image.
+		/// Graphics Interchange Format image.
 		/// </summary>
 		public const string GIF = "image/gif";
 		/// <summary>
@@ -78,9 +78,29 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		public const string JPEG = "image/jpeg";
 		/// <summary>
-		/// PNG image.
+		/// Portable Network Graphics image.
 		/// </summary>
 		public const string PNG = "image/png";
+		/// <summary>
+		/// Quite Ok Image format image.
+		/// </summary>
+		public const string QOI = "image/qoi";
+		/// <summary>
+		/// Portable Bitmap image.
+		/// </summary>
+		public const string PBM = "image/pbm";
+		/// <summary>
+		/// Tagged Image File Format image.
+		/// </summary>
+		public const string TIFF = "image/tiff";
+		/// <summary>
+		/// Truevision Graphics Adapter image.
+		/// </summary>
+		public const string TGA = "image/tga";
+		/// <summary>
+		/// WebP image.
+		/// </summary>
+		public const string WebP = "image/webp";
 
 		/// <summary>
 		/// HTTP plaintext.

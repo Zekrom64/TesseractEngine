@@ -172,11 +172,29 @@ namespace Tesseract.Core.Graphics {
 	/// Enumeration of standard cursors.
 	/// </summary>
 	public enum StandardCursor {
+		/// <summary>
+		/// A standard arrow cursor icon.
+		/// </summary>
 		Arrow,
+		/// <summary>
+		/// An I-beam cursor icon indicating text editing.
+		/// </summary>
 		IBeam,
+		/// <summary>
+		/// A hand cursor icon.
+		/// </summary>
 		Hand,
+		/// <summary>
+		/// A crosshair cursor icon.
+		/// </summary>
 		Crosshair,
+		/// <summary>
+		/// A cursor icon indicating horizontal resizing.
+		/// </summary>
 		HResize,
+		/// <summary>
+		/// A cursor icon indicating vertical resizing.
+		/// </summary>
 		VResize
 	}
 

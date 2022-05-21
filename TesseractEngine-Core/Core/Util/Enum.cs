@@ -38,6 +38,9 @@ namespace Tesseract.Core.Util {
 
 	public interface IValuedEnum<T> : IEquatable<IValuedEnum<T>> {
 
+		/// <summary>
+		/// The underlying unique enumeration value.
+		/// </summary>
 		public T Value { get; }
 
 	}

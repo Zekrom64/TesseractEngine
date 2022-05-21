@@ -6,32 +6,73 @@ namespace Tesseract.Core.Math {
 
 	// IReadOnlyTuple
 
+	/// <summary>
+	/// A read-only tuple of 2 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
 	public interface IReadOnlyTuple<T1, T2> {
 
+		/// <summary>
+		/// First tuple value.
+		/// </summary>
 		public T1 X { get; }
 
+		/// <summary>
+		/// Second tuple value.
+		/// </summary>
 		public T2 Y { get; }
 
 	}
 
+	/// <summary>
+	/// A read-only tuple of 3 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
 	public interface IReadOnlyTuple<T1, T2, T3> : IReadOnlyTuple<T1, T2> {
 
+		/// <summary>
+		/// Third tuple value.
+		/// </summary>
 		public T3 Z { get; }
 
 	}
 
+	/// <summary>
+	/// A read-only tuple of 4 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
+	/// <typeparam name="T4">Fourth value type</typeparam>
 	public interface IReadOnlyTuple<T1, T2, T3, T4> : IReadOnlyTuple<T1, T2, T3> {
 
+		/// <summary>
+		/// Fourth tuple value.
+		/// </summary>
 		public T4 W { get; }
 
 	}
 
 	// ITuple
 
+	/// <summary>
+	/// A mutable tuple of 2 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
 	public interface ITuple<T1, T2> : IReadOnlyTuple<T1, T2> {
 
+		/// <summary>
+		/// First tuple value.
+		/// </summary>
 		public new T1 X { get; set; }
 
+		/// <summary>
+		/// Second tuple value.
+		/// </summary>
 		public new T2 Y { get; set; }
 
 		T1 IReadOnlyTuple<T1, T2>.X => X;
@@ -40,16 +81,35 @@ namespace Tesseract.Core.Math {
 
 	}
 
+	/// <summary>
+	/// A mutable tuple of 3 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
 	public interface ITuple<T1, T2, T3> : ITuple<T1, T2>, IReadOnlyTuple<T1, T2, T3> {
 
+		/// <summary>
+		/// Third tuple value.
+		/// </summary>
 		public new T3 Z { get; set; }
 
 		T3 IReadOnlyTuple<T1, T2, T3>.Z => Z;
 
 	}
 
+	/// <summary>
+	/// A mutable tuple of 4 values.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
+	/// <typeparam name="T4">Fourth value type</typeparam>
 	public interface ITuple<T1, T2, T3, T4> : ITuple<T1, T2, T3>, IReadOnlyTuple<T1, T2, T3, T4> {
 
+		/// <summary>
+		/// Fourth tuple value.
+		/// </summary>
 		public new T4 W { get; set; }
 
 		T4 IReadOnlyTuple<T1, T2, T3, T4>.W => W;
@@ -58,6 +118,11 @@ namespace Tesseract.Core.Math {
 
 	// Tuple
 
+	/// <summary>
+	/// Implementation of a 2-value tuple.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
 	public struct Tuple<T1, T2> : ITuple<T1, T2> {
 
 		public T1 X { get; set; }
@@ -79,6 +144,12 @@ namespace Tesseract.Core.Math {
 
 	}
 
+	/// <summary>
+	/// Implementation of a 3-value tuple.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
 	public struct Tuple<T1, T2, T3> : ITuple<T1, T2, T3> {
 
 		public T1 X { get; set; }
@@ -103,6 +174,13 @@ namespace Tesseract.Core.Math {
 
 	}
 
+	/// <summary>
+	/// Implementation of a 4-value tuple.
+	/// </summary>
+	/// <typeparam name="T1">First value type</typeparam>
+	/// <typeparam name="T2">Second value type</typeparam>
+	/// <typeparam name="T3">Third value type</typeparam>
+	/// <typeparam name="T4">Fourth value type</typeparam>
 	public struct Tuple<T1, T2, T3, T4> : ITuple<T1, T2, T3, T4> {
 
 		public T1 X { get; set; }
@@ -132,10 +210,22 @@ namespace Tesseract.Core.Math {
 
 	// Tuple2
 
+	/// <summary>
+	/// A readonly 2-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface IReadOnlyTuple2<T> : IReadOnlyTuple<T, T>, IReadOnlyIndexer<int, T> { }
 
+	/// <summary>
+	/// A mutable 2-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface ITuple2<T> : IReadOnlyTuple2<T>, ITuple<T, T>, IIndexer<int, T> { }
 
+	/// <summary>
+	/// Implementation of a 2-element single-type tuple.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple2<T> : ITuple2<T> {
 
@@ -182,10 +272,22 @@ namespace Tesseract.Core.Math {
 
 	// Tuple3
 
+	/// <summary>
+	/// A readonly 3-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface IReadOnlyTuple3<T> : IReadOnlyTuple2<T>, IReadOnlyTuple<T, T, T> { }
 
+	/// <summary>
+	/// A mutable 3-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface ITuple3<T> : ITuple2<T>, ITuple<T, T, T>, IReadOnlyTuple3<T> { }
 
+	/// <summary>
+	/// Implementation of a 3-element single-type tuple.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple3<T> : ITuple3<T> {
 
@@ -237,10 +339,22 @@ namespace Tesseract.Core.Math {
 
 	// Tuple4
 
+	/// <summary>
+	/// A readonly 4-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface IReadOnlyTuple4<T> : IReadOnlyTuple3<T>, IReadOnlyTuple<T, T, T, T> { }
 
+	/// <summary>
+	/// A mutable 4-value tuple with the same type for all elements.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	public interface ITuple4<T> : ITuple3<T>, ITuple<T, T, T, T>, IReadOnlyTuple4<T> { }
 
+	/// <summary>
+	/// Implementation of a 4-element single-type tuple.
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Tuple4<T> : ITuple4<T> {
 

@@ -155,6 +155,13 @@ namespace Tesseract.Core.Graphics {
 
 	/// <summary>
 	/// A pixel format describes a mapping between binary data and numeric values stored by the format.
+	/// <para>
+	/// The pixel format class has many predefined formats with a common naming convention. First, the components are
+	/// listed with their size in bits, followed by a number format that the channels use. If the name ends with "Pack",
+	/// this means the pixel format is packed into bit fields in an integer of the bit size of the following number. The order of
+	/// the components in the name corresponds to their order in the pixel memory; for unpacked formats they are ordered ascending
+	/// in memory, and for unpacked formats they are ordered descending from the most significant bit of the packed integer.
+	/// </para>
 	/// </summary>
 	public sealed record PixelFormat : IEquatable<PixelFormat> {
 

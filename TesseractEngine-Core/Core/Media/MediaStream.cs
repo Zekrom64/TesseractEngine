@@ -21,7 +21,7 @@ namespace Tesseract.Core.Media {
 		/// <summary>
 		/// The audio component of this media stream, or null if there is no audio.
 		/// </summary>
-		public IAudioStream AudioStrema { get; }
+		public IAudioStream AudioStream { get; }
 
 		/// <summary>
 		/// If the media stream's position can be changed.

@@ -1,24 +1,41 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Math;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics {
 
+	/// <summary>
+	/// A read-only color is an object that can provide a normalized RGBA value.
+	/// </summary>
 	public interface IReadOnlyColor {
 
+		/// <summary>
+		/// The normalized RGBA color value.
+		/// </summary>
 		public Vector4 Normalized { get; }
 
 	}
 
+	/// <summary>
+	/// A color can store a normalized RGBA value.
+	/// </summary>
 	public interface IColor : IReadOnlyColor {
 
+		/// <summary>
+		/// The normalized RGBA color value.
+		/// </summary>
 		public new Vector4 Normalized { get; set; }
 
 	}
 
+	/// <summary>
+	/// An RGB color stored as a tuple of 3 bytes.
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Color3b : ITuple3<byte>, IColor {
+	public struct Color3b : ITuple3<byte>, IColor, IEquatable<IReadOnlyTuple3<byte>> {
 
 		public byte R;
 		public byte G;
@@ -66,10 +83,27 @@ namespace Tesseract.Core.Graphics {
 		}
 
 		Vector4 IReadOnlyColor.Normalized => Normalized;
+
+
+		public bool Equals(Color3b c) => R == c.R && G == c.G && B == c.B;
+
+		public bool Equals(IReadOnlyTuple3<byte>? c) => c != null && R == c.X && G == c.Y && B == c.Z;
+
+		public override bool Equals([NotNullWhen(true)] object? obj) => obj is IReadOnlyTuple3<byte> t && Equals(t);
+
+		public override int GetHashCode() => R + (G << 6) + (B << 12);
+
+		public static bool operator ==(Color3b left, Color3b right) => left.Equals(right);
+
+		public static bool operator !=(Color3b left, Color3b right) => !left.Equals(right);
+
 	}
 
+	/// <summary>
+	/// An RGBA color stored as a tuple of 4 bytes.
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Color4b : ITuple4<byte>, IColor {
+	public struct Color4b : ITuple4<byte>, IColor, IEquatable<IReadOnlyTuple4<byte>> {
 
 		public byte R;
 		public byte G;
@@ -118,8 +152,31 @@ namespace Tesseract.Core.Graphics {
 
 		Vector4 IReadOnlyColor.Normalized => Normalized;
 
+		public Color4b(byte r, byte g, byte b, byte a) {
+			R = r;
+			G = g;
+			B = b;
+			A = a;
+		}
+
+
+		public bool Equals(Color4b c) => R == c.R && G == c.G && B == c.B && A == c.A;
+
+		public bool Equals(IReadOnlyTuple4<byte>? c) => c != null && R == c.X && G == c.Y && B == c.Z && A == c.W;
+
+		public override bool Equals([NotNullWhen(true)] object? obj) => obj is IReadOnlyTuple4<byte> t && Equals(t);
+
+		public override int GetHashCode() => R + (G << 6) + (B << 12) + (A << 18);
+
+		public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
+
+		public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
+
 	}
 
+	/// <summary>
+	/// An RGBA color stored as a tuple of 4 floats.
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Color4f : ITuple4<float>, IColor {
 
@@ -182,6 +239,9 @@ namespace Tesseract.Core.Graphics {
 
 	}
 
+	/// <summary>
+	/// An RGB color stored as a tuple of 3 floats.
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Color3f : ITuple3<float>, IColor {
 
@@ -235,11 +295,27 @@ namespace Tesseract.Core.Graphics {
 
 	}
 
+	/// <summary>
+	/// Class with helpers for color operations.
+	/// </summary>
 	public static class Colors {
 
+		/// <summary>
+		/// Computes the average of two colors.
+		/// </summary>
+		/// <param name="c1">First color</param>
+		/// <param name="c2">Second color</param>
+		/// <returns>Average color</returns>
 		public static Color4f Average(this IReadOnlyColor c1, IReadOnlyColor c2) => new((c1.Normalized + c2.Normalized) * 0.5f);
 
-		public static Color4f Mix(this IReadOnlyColor c1, IReadOnlyColor c2, float ratio) => new((c1.Normalized * ratio) + (c2.Normalized * (1.0f - ratio)));
+		/// <summary>
+		/// Mixes two colors using a mixing factor where 0 is the pure first color and 1 is the pure second color.
+		/// </summary>
+		/// <param name="c1">First color</param>
+		/// <param name="c2">Second color</param>
+		/// <param name="a">Mixing factor</param>
+		/// <returns>Mixed color</returns>
+		public static Color4f Mix(this IReadOnlyColor c1, IReadOnlyColor c2, float a) => new((c2.Normalized * a) + (c1.Normalized * (1.0f - a)));
 
 	}
 

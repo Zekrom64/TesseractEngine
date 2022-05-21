@@ -3,32 +3,79 @@ using System.Numerics;
 
 namespace Tesseract.Core.Math {
 
+	/// <summary>
+	/// A read-only rectangle defined by a 2D position and size.
+	/// </summary>
+	/// <typeparam name="T">Coordinate numeric type</typeparam>
 	public interface IReadOnlyRect<T> where T : unmanaged {
 
+		/// <summary>
+		/// The position of the top-left corner of the rectangle.
+		/// </summary>
 		public IReadOnlyTuple2<T> Position { get; }
+		/// <summary>
+		/// The size of the rectangle.
+		/// </summary>
 		public IReadOnlyTuple2<T> Size { get; }
 
+		/// <summary>
+		/// If the rectangle is empty (ie. has a size of 0 in either axis).
+		/// </summary>
 		public bool Empty { get; }
 
+		/// <summary>
+		/// The total area of the rectangle (width * height).
+		/// </summary>
 		public T Area { get; }
 
 	}
 
+	/// <summary>
+	/// A modifiable version of an <see cref="IReadOnlyRect{T}"/>.
+	/// </summary>
+	/// <typeparam name="T">Coordinate numeric type</typeparam>
 	public interface IRect<T> : IReadOnlyRect<T> where T : unmanaged {
 
+		/// <summary>
+		/// The position of the top-left corner of the rectangle.
+		/// </summary>
 		public new ITuple2<T> Position { get; set; }
+		/// <summary>
+		/// The size of the rectangle.
+		/// </summary>
 		public new ITuple2<T> Size { get; set; }
 
 	}
 
+	/// <summary>
+	/// A rectangle implementation using <see cref="int"/> as the numeric type.
+	/// </summary>
 	public struct Recti : IRect<int>, IEquatable<IReadOnlyRect<int>>, IEquatable<Recti> {
 
+		/// <summary>
+		/// The position of the top-left corner of the rectangle.
+		/// </summary>
 		public Vector2i Position;
+		/// <summary>
+		/// The size of the rectangle.
+		/// </summary>
 		public Vector2i Size;
 
+		/// <summary>
+		/// The top-left X coordinate.
+		/// </summary>
 		public int X0 => Position.X;
+		/// <summary>
+		/// The top-left Y coordinate.
+		/// </summary>
 		public int Y0 => Position.Y;
+		/// <summary>
+		/// The bottom-right X coordinate.
+		/// </summary>
 		public int X1 => Position.X + Size.X;
+		/// <summary>
+		/// The bottom-right Y coordinate.
+		/// </summary>
 		public int Y1 => Position.Y + Size.Y;
 
 		public Recti(int width, int height) {
@@ -41,6 +88,11 @@ namespace Tesseract.Core.Math {
 			Size = new Vector2i(w, h);
 		}
 
+		/// <summary>
+		/// Creates a rectangle defined by a position and size.
+		/// </summary>
+		/// <param name="position">Position tuple</param>
+		/// <param name="size">Size tuple</param>
 		public Recti(IReadOnlyTuple2<int> position, IReadOnlyTuple2<int> size) {
 			Position = new Vector2i(position);
 			Size = new Vector2i(size);
@@ -75,11 +127,44 @@ namespace Tesseract.Core.Math {
 
 	}
 
+	/// <summary>
+	/// A rectangle implementation using <see cref="float"/> as the numeric type.
+	/// </summary>
 	public struct Rectf : IRect<float>, IEquatable<IReadOnlyRect<float>>, IEquatable<Rectf> {
 
+		/// <summary>
+		/// The position of the top-left corner of the rectangle.
+		/// </summary>
 		public Vector2 Position;
+		/// <summary>
+		/// The size of the rectangle.
+		/// </summary>
 		public Vector2 Size;
 
+		/// <summary>
+		/// The top-left X coordinate.
+		/// </summary>
+		public float X0 => Position.X;
+		/// <summary>
+		/// The top-left Y coordinate.
+		/// </summary>
+		public float Y0 => Position.Y;
+		/// <summary>
+		/// The bottom-right X coordinate.
+		/// </summary>
+		public float X1 => Position.X + Size.X;
+		/// <summary>
+		/// The bottom-right Y coordinate.
+		/// </summary>
+		public float Y1 => Position.Y + Size.Y;
+
+		/// <summary>
+		/// Creates a rectangle defined by an X and Y position and a width and height.
+		/// </summary>
+		/// <param name="x">X position</param>
+		/// <param name="y">Y position</param>
+		/// <param name="w">Width</param>
+		/// <param name="h">Height</param>
 		public Rectf(float x, float y, float w, float h) {
 			Position = new Vector2(x, y);
 			Size = new Vector2(w, h);
