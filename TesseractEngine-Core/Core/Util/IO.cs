@@ -28,9 +28,9 @@ namespace Tesseract.Core.Util {
 		 */
 
 		// The list of "dead" blocks to be reused
-		private LinkedList<byte[]> deadBlocks = new();
+		private readonly LinkedList<byte[]> deadBlocks = new();
 		// The list of "live" blocks in use
-		private LinkedList<byte[]> liveBlocks = new();
+		private readonly LinkedList<byte[]> liveBlocks = new();
 		// The number of actual bytes in the live buffer
 		private long liveLength = 0;
 		// The offset into the firstmost live buffer that data actually starts at
@@ -128,6 +128,101 @@ namespace Tesseract.Core.Util {
 			}
 			liveLength += count;
 		}
+	}
+
+	/// <summary>
+	/// A pushback stream is a read-only stream that allows for prepending existing data to the
+	/// front of the stream at any point, providing a way of "un-reading" bytes. This is useful
+	/// in circumstances where a stream does not support seeking but a header of bytes must be
+	/// examined before being passed to other methods for processing.
+	/// </summary>
+	public class PushbackStream : Stream {
+
+		private byte[] pushbackBuffer = Array.Empty<byte>();
+
+		private int pushbackOffset = 0;
+
+		private readonly Stream baseStream;
+
+		private int PushbackCount => pushbackBuffer.Length - pushbackOffset;
+
+		public override bool CanRead => true;
+
+		public override bool CanSeek => false;
+
+		public override bool CanWrite => false;
+
+		public override long Length {
+			get {
+				long len = baseStream.Length;
+				if (len < 0) return len;
+				else return len + PushbackCount;
+			}
+		}
+
+		public override long Position {
+			get => throw new NotSupportedException();
+			set => throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Creates a new pushback stream using the given stream as a base.
+		/// </summary>
+		/// <param name="baseStream">Base stream</param>
+		public PushbackStream(Stream baseStream) {
+			this.baseStream = baseStream;
+		}
+
+		public override void Flush() => baseStream.Flush();
+
+		/// <summary>
+		/// Prepends the given data to the front of the stream.
+		/// </summary>
+		/// <param name="buffer">Buffer to prepend from</param>
+		/// <param name="offset">Offset of data to prepend</param>
+		/// <param name="count">Number of bytes to prepend</param>
+		public void Unread(byte[] buffer, int offset, int count) => Unread(buffer.AsSpan()[offset..(offset + count)]);
+
+		/// <summary>
+		/// Prepends the given data to the font of the stream.
+		/// </summary>
+		/// <param name="buffer">Buffer to prepend</param>
+		public void Unread(in ReadOnlySpan<byte> buffer) {
+			if (buffer.Length > pushbackOffset) {
+				byte[] newbuf = new byte[PushbackCount + buffer.Length];
+				buffer.CopyTo(newbuf);
+				pushbackBuffer.CopyTo(newbuf.AsSpan()[buffer.Length..]);
+				pushbackBuffer = newbuf;
+				pushbackOffset = 0;
+			} else {
+				pushbackOffset -= buffer.Length;
+				buffer.CopyTo(pushbackBuffer.AsSpan()[pushbackOffset..]);
+			}
+		}
+
+		public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan()[offset..(offset + count)]);
+
+		public override int Read(Span<byte> buffer) {
+			int offset = 0;
+			int nPushback = PushbackCount;
+			if (nPushback > 0) {
+				pushbackBuffer.AsSpan()[pushbackOffset..].CopyTo(buffer);
+				if (buffer.Length <= nPushback) {
+					pushbackOffset += buffer.Length;
+					return buffer.Length;
+				}
+				pushbackOffset = pushbackBuffer.Length;
+				offset += nPushback;
+			}
+			return nPushback + baseStream.Read(buffer[offset..]);
+		}
+
+		public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+		public override void SetLength(long value) => throw new NotSupportedException();
+
+		public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
 	}
 
 }

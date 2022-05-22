@@ -379,5 +379,21 @@ namespace Tesseract.Core.Util {
 			return dst;
 		}
 
+		/// <summary>
+		/// Reads from this stream into the destination span until either the span has been filled or the end of the
+		/// stream is reached, returning the total number of bytes read.
+		/// </summary>
+		/// <param name="stream">Stream to read</param>
+		/// <param name="dst">Span to write bytes to</param>
+		/// <returns>The total number of bytes read</returns>
+		public static int ReadAny(this Stream stream, Span<byte> dst) {
+			int offset = 0, readn;
+			do {
+				readn = stream.Read(dst[offset..]);
+				offset += readn;
+			} while (readn != 0 && offset < dst.Length);
+			return offset;
+		}
+
 	}
 }

@@ -6,46 +6,6 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
 namespace Tesseract.Core.Util {
-	// Virtually every system is little-endian, but this is not required by the .NET runtime
-	// There is also some utility in having known-endianness types for storage
-
-	public static class Endianness {
-
-		public static bool IsLittleEndian {
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => BitConverter.IsLittleEndian;
-		}
-
-		public static bool IsBigEndian {
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => !BitConverter.IsLittleEndian;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static short Swap(short s) => (short)((s << 8) | (s >> 8));
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ushort Swap(ushort s) => (ushort)((s << 8) | (s >> 8));
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Swap(int i) => (i << 24) | ((i << 8) & 0xFF0000) | ((i >> 8) & 0xFF00) | (i >> 24);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static uint Swap(uint i) => (i << 24) | ((i << 8) & 0xFF0000) | ((i >> 8) & 0xFF00) | (i >> 24);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Swap(long l) => ((long)Swap((int)l) << 32) | (Swap((int)(l >> 32)) & 0xFFFFFFFFL);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ulong Swap(ulong l) => ((ulong)Swap((uint)l) << 32) | Swap((uint)(l >> 32));
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Swap(float f) => BitConverter.Int32BitsToSingle(Swap(BitConverter.SingleToInt32Bits(f)));
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static double Swap(double d) => BitConverter.Int64BitsToDouble(Swap(BitConverter.DoubleToInt64Bits(d)));
-
-	}
 
 	//======================//
 	// Little-Endian Values //
@@ -56,16 +16,16 @@ namespace Tesseract.Core.Util {
 		private short memValue;
 
 		public short Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleInt16(short value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator short(LittleInt16 le16) => le16.Value;
@@ -79,16 +39,16 @@ namespace Tesseract.Core.Util {
 		private ushort memValue;
 
 		public ushort Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleUInt16(ushort value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator ushort(LittleUInt16 le16) => le16.Value;
@@ -102,16 +62,16 @@ namespace Tesseract.Core.Util {
 		private int memValue;
 
 		public int Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleInt32(int value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator int(LittleInt32 le32) => le32.Value;
@@ -125,16 +85,16 @@ namespace Tesseract.Core.Util {
 		private uint memValue;
 
 		public uint Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleUInt32(uint value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator uint(LittleUInt32 le32) => le32.Value;
@@ -148,16 +108,16 @@ namespace Tesseract.Core.Util {
 		private long memValue;
 
 		public long Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleInt64(long value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator long(LittleInt64 le64) => le64.Value;
@@ -171,16 +131,16 @@ namespace Tesseract.Core.Util {
 		private ulong memValue;
 
 		public ulong Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleUInt64(ulong value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator ulong(LittleUInt64 le64) => le64.Value;
@@ -194,16 +154,16 @@ namespace Tesseract.Core.Util {
 		private float memValue;
 
 		public float Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleSingle(float value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator float(LittleSingle les) => les.Value;
@@ -217,16 +177,16 @@ namespace Tesseract.Core.Util {
 		private double memValue;
 
 		public double Value {
-			get => Endianness.IsLittleEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsLittleEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsLittleEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsLittleEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public LittleDouble(double value) {
-			if (Endianness.IsLittleEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsLittleEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator double(LittleDouble led) => led.Value;
@@ -244,16 +204,16 @@ namespace Tesseract.Core.Util {
 		private short memValue;
 
 		public short Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigInt16(short value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator short(BigInt16 le16) => le16.Value;
@@ -267,16 +227,16 @@ namespace Tesseract.Core.Util {
 		private ushort memValue;
 
 		public ushort Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigUInt16(ushort value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator ushort(BigUInt16 le16) => le16.Value;
@@ -290,16 +250,16 @@ namespace Tesseract.Core.Util {
 		private int memValue;
 
 		public int Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigInt32(int value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator int(BigInt32 le32) => le32.Value;
@@ -313,16 +273,16 @@ namespace Tesseract.Core.Util {
 		private uint memValue;
 
 		public uint Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigUInt32(uint value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator uint(BigUInt32 le32) => le32.Value;
@@ -336,16 +296,16 @@ namespace Tesseract.Core.Util {
 		private long memValue;
 
 		public long Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigInt64(long value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator long(BigInt64 le64) => le64.Value;
@@ -359,16 +319,16 @@ namespace Tesseract.Core.Util {
 		private ulong memValue;
 
 		public ulong Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigUInt64(ulong value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator ulong(BigUInt64 le64) => le64.Value;
@@ -382,16 +342,16 @@ namespace Tesseract.Core.Util {
 		private float memValue;
 
 		public float Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigSingle(float value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator float(BigSingle les) => les.Value;
@@ -405,16 +365,16 @@ namespace Tesseract.Core.Util {
 		private double memValue;
 
 		public double Value {
-			get => Endianness.IsBigEndian ? memValue : Endianness.Swap(memValue);
+			get => BinaryUtils.IsBigEndian ? memValue : BinaryUtils.ByteSwap(memValue);
 			set {
-				if (Endianness.IsBigEndian) memValue = value;
-				else memValue = Endianness.Swap(value);
+				if (BinaryUtils.IsBigEndian) memValue = value;
+				else memValue = BinaryUtils.ByteSwap(value);
 			}
 		}
 
 		public BigDouble(double value) {
-			if (Endianness.IsBigEndian) memValue = value;
-			else memValue = Endianness.Swap(value);
+			if (BinaryUtils.IsBigEndian) memValue = value;
+			else memValue = BinaryUtils.ByteSwap(value);
 		}
 
 		public static implicit operator double(BigDouble led) => led.Value;
