@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Util;
 

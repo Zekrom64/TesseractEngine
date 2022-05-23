@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.OpenGL.Native;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.OpenGL.Graphics {

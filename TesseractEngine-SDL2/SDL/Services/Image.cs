@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Tesseract.Core.Graphics;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
 using Tesseract.Core.Services;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Tesseract.Core.Native;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using Tesseract.Core.Resource;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;

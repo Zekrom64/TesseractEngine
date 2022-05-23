@@ -1,6 +1,6 @@
 ﻿using Tesseract.Core.Audio;
 using Tesseract.Core.Graphics;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Core.Media {
 

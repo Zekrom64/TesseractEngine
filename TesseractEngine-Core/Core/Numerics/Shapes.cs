@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 
 	/// <summary>
 	/// A read-only rectangle defined by a 2D position and size.

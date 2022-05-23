@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 
 	/// <summary>
 	/// Extended math functionality.

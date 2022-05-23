@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 

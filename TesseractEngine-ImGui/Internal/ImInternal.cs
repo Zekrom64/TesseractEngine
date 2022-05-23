@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Numerics;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.ImGui.Internal {
 

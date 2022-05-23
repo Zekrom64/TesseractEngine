@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 

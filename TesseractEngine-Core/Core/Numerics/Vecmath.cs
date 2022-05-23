@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 
 	/// <summary>
 	/// Contains utilities for vector mathematics.

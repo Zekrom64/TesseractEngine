@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 	/// <summary>
 	/// A two-component vector of 32-bit integers.
 	/// </summary>

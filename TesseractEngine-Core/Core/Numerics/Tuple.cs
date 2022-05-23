@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Tesseract.Core.Util;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 
 	// IReadOnlyTuple
 

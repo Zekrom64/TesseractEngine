@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.SDL {
 	

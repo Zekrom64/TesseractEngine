@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Math.Dim3D {
+namespace Tesseract.Core.Numerics.Dim3D {
 	
 	/// <summary>
 	/// Interface for simple 3D shapes.

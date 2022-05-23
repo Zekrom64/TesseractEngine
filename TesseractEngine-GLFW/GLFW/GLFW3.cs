@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tesseract.Core.Math;
+using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.GLFW.Native;
 

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Tesseract.Core.Math {
+namespace Tesseract.Core.Numerics {
 	/// <summary>
 	/// A three-component of 16-bit signed integers.
 	/// </summary>

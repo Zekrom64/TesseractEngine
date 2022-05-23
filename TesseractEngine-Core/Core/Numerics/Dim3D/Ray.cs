@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Math.Dim3D {
+namespace Tesseract.Core.Numerics.Dim3D {
 	
 	/// <summary>
 	/// A ray of infinite length, with an origin point and a direction vector.
