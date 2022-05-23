@@ -173,6 +173,8 @@ namespace Tesseract.OpenGL.Graphics {
 			// The current buffer type bound to the blit framebuffer
 			public GLBufferMask currentBlitMask = default;
 
+			public BlitFramebufferState() { }
+
 		}
 
 		/// <summary>

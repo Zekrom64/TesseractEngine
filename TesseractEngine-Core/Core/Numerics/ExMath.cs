@@ -15,7 +15,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static byte Min(byte a, byte b) => System.Math.Min(a, b);
+		public static byte Min(byte a, byte b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -55,7 +55,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static byte Max(byte a, byte b) => System.Math.Max(a, b);
+		public static byte Max(byte a, byte b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -95,7 +95,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static sbyte Min(sbyte a, sbyte b) => System.Math.Min(a, b);
+		public static sbyte Min(sbyte a, sbyte b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -135,7 +135,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static sbyte Max(sbyte a, sbyte b) => System.Math.Max(a, b);
+		public static sbyte Max(sbyte a, sbyte b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -175,7 +175,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static short Min(short a, short b) => System.Math.Min(a, b);
+		public static short Min(short a, short b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -215,7 +215,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static short Max(short a, short b) => System.Math.Max(a, b);
+		public static short Max(short a, short b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -255,7 +255,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ushort Min(ushort a, ushort b) => System.Math.Min(a, b);
+		public static ushort Min(ushort a, ushort b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -295,7 +295,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ushort Max(ushort a, ushort b) => System.Math.Max(a, b);
+		public static ushort Max(ushort a, ushort b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -335,7 +335,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Min(int a, int b) => System.Math.Min(a, b);
+		public static int Min(int a, int b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -375,7 +375,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int Max(int a, int b) => System.Math.Max(a, b);
+		public static int Max(int a, int b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -415,7 +415,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static uint Min(uint a, uint b) => System.Math.Min(a, b);
+		public static uint Min(uint a, uint b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -455,7 +455,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static uint Max(uint a, uint b) => System.Math.Max(a, b);
+		public static uint Max(uint a, uint b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -495,7 +495,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Min(long a, long b) => System.Math.Min(a, b);
+		public static long Min(long a, long b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -535,7 +535,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static long Max(long a, long b) => System.Math.Max(a, b);
+		public static long Max(long a, long b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -575,7 +575,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ulong Min(ulong a, ulong b) => System.Math.Min(a, b);
+		public static ulong Min(ulong a, ulong b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -615,7 +615,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static ulong Max(ulong a, ulong b) => System.Math.Max(a, b);
+		public static ulong Max(ulong a, ulong b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -815,7 +815,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Min(float a, float b) => System.Math.Min(a, b);
+		public static float Min(float a, float b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -855,7 +855,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Max(float a, float b) => System.Math.Max(a, b);
+		public static float Max(float a, float b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -895,7 +895,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static double Min(double a, double b) => System.Math.Min(a, b);
+		public static double Min(double a, double b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -935,7 +935,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static double Max(double a, double b) => System.Math.Max(a, b);
+		public static double Max(double a, double b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -975,7 +975,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Minimum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static decimal Min(decimal a, decimal b) => System.Math.Min(a, b);
+		public static decimal Min(decimal a, decimal b) => Math.Min(a, b);
 
 		/// <summary>
 		/// Computes the minimum of three values.
@@ -1015,7 +1015,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="b">Second value</param>
 		/// <returns>Maximum value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static decimal Max(decimal a, decimal b) => System.Math.Max(a, b);
+		public static decimal Max(decimal a, decimal b) => Math.Max(a, b);
 
 		/// <summary>
 		/// Computes the maximum of three values.
@@ -1315,7 +1315,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="epsilon">Epsilon value</param>
 		/// <returns>If the values are about equal</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool EqualsAbout(double a, double b, double epsilon) => System.Math.Abs(a - b) <= epsilon;
+		public static bool EqualsAbout(double a, double b, double epsilon) => Math.Abs(a - b) <= epsilon;
 
 	}
 

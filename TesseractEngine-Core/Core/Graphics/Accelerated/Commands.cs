@@ -614,21 +614,21 @@ namespace Tesseract.Core.Graphics.Accelerated {
 
 			public TextureLayout Layout { get; init; }
 
-			public ITextureView? ResolveTextureView { get; init; } = null;
+			public ITextureView? ResolveTextureView { get; init; }
 
-			public TextureLayout ResolveTextureLayout { get; init; } = default;
+			public TextureLayout ResolveTextureLayout { get; init; }
 
 			public AttachmentLoadOp LoadOp { get; init; }
 
 			public AttachmentStoreOp StoreOp { get; init; }
 
-			public ClearValue ClearValue { get; init; } = default;
+			public ClearValue ClearValue { get; init; }
 
 		}
 
 		public readonly ref struct RenderingInfo {
 
-			public Recti RenderArea { get; init; }
+			public Recti RenderArea { get; init; } = default;
 
 			public IFramebuffer Framebuffer { get; init; } = null!;
 
@@ -637,6 +637,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			public RenderingAttachmentInfo? DepthAttachment { get; init; } = null;
 
 			public RenderingAttachmentInfo? StencilAttachment { get; init; } = null;
+
+			public RenderingInfo() { }
 
 		}
 

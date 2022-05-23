@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
+using Tesseract.Core.Resource;
 using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Core.Graphics.Model {
@@ -11,6 +12,12 @@ namespace Tesseract.Core.Graphics.Model {
 	public class OBJModelFormat : IModelFormat {
 
 		public bool CanSave => false;
+
+		public IEnumerable<string> MIMETypes {
+			get {
+				yield return MIME.OBJ;
+			}
+		}
 
 		private class OBJModelParser {
 

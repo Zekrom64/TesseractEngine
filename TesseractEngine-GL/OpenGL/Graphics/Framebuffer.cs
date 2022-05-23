@@ -66,7 +66,7 @@ namespace Tesseract.OpenGL.Graphics {
 					if (!attachment.IsUnused) {
 						// Set the appropriate color attachment
 						var view = AttachmentViews![attachment.Attachment];
-						iface.SetFramebufferAttachment(fbo, GL30.GetColorAttachment(j), view);
+						iface.FramebufferTexture(fbo, GL30.GetColorAttachment(j), view, 0, 0);
 					}
 				}
 			}
@@ -77,8 +77,8 @@ namespace Tesseract.OpenGL.Graphics {
 					var view = AttachmentViews![attachment.Attachment];
 					var fmt = view.Format;
 					// Set depth/stencil attachment if format has respective component
-					if (fmt.HasChannel(ChannelType.Depth)) iface.SetFramebufferAttachment(fbo, GLFramebufferAttachment.Depth, view);
-					if (fmt.HasChannel(ChannelType.Stencil)) iface.SetFramebufferAttachment(fbo, GLFramebufferAttachment.Stencil, view);
+					if (fmt.HasChannel(ChannelType.Depth)) iface.FramebufferTexture(fbo, GLFramebufferAttachment.Depth, view, 0, 0);
+					if (fmt.HasChannel(ChannelType.Stencil)) iface.FramebufferTexture(fbo, GLFramebufferAttachment.Stencil, view, 0, 0);
 				}
 			}
 		}

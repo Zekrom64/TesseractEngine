@@ -287,7 +287,7 @@ namespace Tesseract.Core.Graphics {
 					// For each pixel row, copy a row back to the image and shfit the pointer
 					for(int y = 0; y < accessor.Height; y++, ptr += accessor.Width) {
 						Span<TPixel> row = accessor.GetRowSpan(y);
-						MemoryUtil.Copy(row, ptr, rowLength);
+						MemoryUtil.Copy(row, ptr, (ulong)rowLength);
 					}
 				});
 			}

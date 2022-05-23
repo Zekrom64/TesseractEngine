@@ -74,7 +74,7 @@ namespace Tesseract.OpenGL.Graphics {
 			} else {
 				// Else fall back to bound vertex arrays
 				ID = gl33.GenVertexArrays();
-				Graphics.State.BindVertexArray(ID);
+				Graphics.State.BindVertexArray(this);
 				// Use vertex array binding if possible
 				if (vab != null) {
 					foreach (VertexAttrib attrib in Format.Attributes) {

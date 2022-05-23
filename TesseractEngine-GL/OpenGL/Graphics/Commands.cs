@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Graphics.Accelerated;
@@ -102,7 +103,7 @@ namespace Tesseract.OpenGL.Graphics {
 			GLPipelineSet glset = (GLPipelineSet)set;
 			BindPipeline(glset.BasePipeline);
 
-			if (glset.IsVariable(PipelineDynamicState.Viewport)) SetViewports(state.Viewports);
+			if (glset.IsVariable(PipelineDynamicState.Viewport)) SetViewports(state.Viewports.ToArray());
 		}
 
 		// TODO

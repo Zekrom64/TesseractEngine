@@ -325,7 +325,7 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
-		public static UnmanagedPointer<T> operator+(UnmanagedPointer<T> ptr, int offset) {
+		public static UnmanagedPointer<T> operator +(UnmanagedPointer<T> ptr, int offset) {
 			unsafe {
 				int sz = ptr.ArraySize;
 				if (sz != -1) {
@@ -338,7 +338,7 @@ namespace Tesseract.Core.Native {
 
 				return new UnmanagedPointer<T>(iptr, sz);
 			}
-
+		}
 	}
 
 	/// <summary>
