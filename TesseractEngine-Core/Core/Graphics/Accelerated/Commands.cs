@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 
@@ -277,7 +280,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination buffer</param>
 		/// <param name="src">Source buffer</param>
 		/// <param name="regions">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyBuffer(IBuffer dst, IBuffer src, params CopyBufferRegion[] regions) => CopyBuffer(dst, src, new ReadOnlySpan<CopyBufferRegion>(regions));
+
+		/// <summary>
+		/// Copies regions from the source buffer to the destination buffer.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="src">Source buffer</param>
+		/// <param name="regions">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CopyBuffer(IBuffer dst, IBuffer src, IEnumerable<CopyBufferRegion> regions) => CopyBuffer(dst, src, regions.ToArray());
 
 		/// <summary>
 		/// Copies a region of the source buffer to the destination buffer.
@@ -285,10 +298,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination buffer</param>
 		/// <param name="src">Source buffer</param>
 		/// <param name="region">Region to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyBuffer(IBuffer dst, IBuffer src, in CopyBufferRegion region) => CopyBuffer(dst, src, stackalloc CopyBufferRegion[] { region });
 
+		/// <summary>
+		/// A descriptor for a region to copy between textures.
+		/// </summary>
 		public readonly struct CopyTextureRegion {
 
+			/// <summary>
+			/// The source offset in pixels.
+			/// </summary>
 			public Vector3ui SrcOffset { get; init; }
 
 			/// <summary>
@@ -296,86 +316,318 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// </summary>
 			public TextureSubresourceLayers SrcSubresource { get; init; }
 
+			/// <summary>
+			/// The destination offset in pixels.
+			/// </summary>
 			public Vector3ui DstOffset { get; init; }
 
+			/// <summary>
+			/// The destination subresource layers.
+			/// </summary>
 			public TextureSubresourceLayers DstSubresource { get; init; }
 
+			/// <summary>
+			/// The size of the region in pixels.
+			/// </summary>
 			public Vector3ui Size { get; init; }
 
+			/// <summary>
+			/// A bitmask of aspects which are included in the region.
+			/// </summary>
 			public TextureAspect Aspect { get; init; }
 
 		}
 
+		/// <summary>
+		/// Copies a set of texture regions from a source to a destination texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current layout of the destination texture</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current layout of the source texture</param>
+		/// <param name="regions">Texture regions to copy</param>
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
+		/// <summary>
+		/// Copies a set of texture regions from a source to a destination texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current layout of the destination texture</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current layout of the source texture</param>
+		/// <param name="regions">Texture regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
 			CopyTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
 
+		/// <summary>
+		/// Copies a set of texture regions from a source to a destination texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current layout of the destination texture</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current layout of the source texture</param>
+		/// <param name="regions">Texture regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, IEnumerable<CopyTextureRegion> regions) =>
+			CopyTexture(dst, dstLayout, src, srcLayout, regions.ToArray());
+
+		/// <summary>
+		/// Copies a texture region from a source to a destination texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current layout of the destination texture</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current layout of the source texture</param>
+		/// <param name="copy">Texture region to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion copy) =>
 			CopyTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { copy });
 
+		/// <summary>
+		/// A descriptor for a region to "blit" (copy potentially performing scaling/conversion) between textures.
+		/// </summary>
 		public readonly struct BlitTextureRegion {
 
+			/// <summary>
+			/// The offset defining the first corner of the source region to copy.
+			/// </summary>
 			public Vector3ui SrcOffset0 { get; init; }
 
+			/// <summary>
+			/// The offset defining the second corner of the source region to copy.
+			/// </summary>
 			public Vector3ui SrcOffset1 { get; init; }
 
+			/// <summary>
+			/// The source mip level to copy from.
+			/// </summary>
 			public uint SrcLevel { get; init; }
 
+			/// <summary>
+			/// The offset defining the first corner of the destination region.
+			/// </summary>
 			public Vector3ui DstOffset0 { get; init; }
 
+			/// <summary>
+			/// The offset defining the second corner of the destination region.
+			/// </summary>
 			public Vector3ui DstOffset1 { get; init; }
 
+			/// <summary>
+			/// The destination mip level to copy to.
+			/// </summary>
 			public uint DstLevel { get; init; }
 
+			/// <summary>
+			/// A bitmask of texture aspects to copy.
+			/// </summary>
 			public TextureAspect Aspect { get; init; }
 
 		}
 
+		/// <summary>
+		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="filter">Filtering to apply if scaling is performed</param>
+		/// <param name="regions">Texture regions to blit</param>
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<BlitTextureRegion> regions);
 
+		/// <summary>
+		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="filter">Filtering to apply if scaling is performed</param>
+		/// <param name="regions">Texture regions to blit</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, params BlitTextureRegion[] regions) =>
 			BlitTexture(dst, dstLayout, src, srcLayout, filter, new ReadOnlySpan<BlitTextureRegion>(regions));
 
+		/// <summary>
+		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="filter">Filtering to apply if scaling is performed</param>
+		/// <param name="regions">Texture regions to blit</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, IEnumerable<BlitTextureRegion> regions) =>
+			BlitTexture(dst, dstLayout, src, srcLayout, filter, regions.ToArray());
+
+		/// <summary>
+		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="filter">Filtering to apply if scaling is performed</param>
+		/// <param name="blit">Texture region to blit</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in BlitTextureRegion blit) =>
 			BlitTexture(dst, dstLayout, src, srcLayout, filter, stackalloc BlitTextureRegion[] { blit });
 
+		/// <summary>
+		/// A descriptor for a copy between a texture and a buffer.
+		/// </summary>
 		public readonly struct CopyBufferTexture {
 
+			/// <summary>
+			/// The offset to perform the copy at in the buffer.
+			/// </summary>
 			public nuint BufferOffset { get; init; }
 
+			/// <summary>
+			/// The number of pixels between rows of a larger image in the buffer, or 0 to indicate that the row length
+			/// is equal to the texture width.
+			/// </summary>
 			public uint BufferRowLength { get; init; }
 
+			/// <summary>
+			/// The number of pixels between layers of a larger image in the buffer, or 0 to indicate that the image height
+			/// is equal to the texture height.
+			/// </summary>
 			public uint BufferImageHeight { get; init; }
 
+			/// <summary>
+			/// The offset of the copy region in the texture.
+			/// </summary>
 			public Vector3ui TextureOffset { get; init; }
 
+			/// <summary>
+			/// The size of the copy region in the texture.
+			/// </summary>
 			public Vector3ui TextureSize { get; init; }
 
+			/// <summary>
+			/// The subresource to be copied in the texture.
+			/// </summary>
 			public TextureSubresourceLayers TextureSubresource { get; init; }
 
 		}
 
+		/// <summary>
+		/// Copies pixels from a buffer to a texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source buffer</param>
+		/// <param name="copies">Regions to copy</param>
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in ReadOnlySpan<CopyBufferTexture> copies);
 
+		/// <summary>
+		/// Copies pixels from a buffer to a texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source buffer</param>
+		/// <param name="copies">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, params CopyBufferTexture[] copies) =>
 			CopyBufferToTexture(dst, dstLayout, src, new ReadOnlySpan<CopyBufferTexture>(copies));
 
+		/// <summary>
+		/// Copies pixels from a buffer to a texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source buffer</param>
+		/// <param name="copies">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, IEnumerable<CopyBufferTexture> copies) =>
+			CopyBufferToTexture(dst, dstLayout, src, copies.ToArray());
+
+		/// <summary>
+		/// Copies pixels from a buffer to a texture.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source buffer</param>
+		/// <param name="copy">Region to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in CopyBufferTexture copy) =>
 			CopyBufferToTexture(dst, dstLayout, src, stackalloc CopyBufferTexture[] { copy });
 
+		/// <summary>
+		/// Copies pixels from texture to a buffer.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="copies">Regions to copy</param>
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyBufferTexture> copies);
 
+		/// <summary>
+		/// Copies pixels from texture to a buffer.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="copies">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, params CopyBufferTexture[] copies) =>
 			CopyTextureToBuffer(dst, src, srcLayout, new ReadOnlySpan<CopyBufferTexture>(copies));
 
+		/// <summary>
+		/// Copies pixels from texture to a buffer.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="copies">Regions to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, IEnumerable<CopyBufferTexture> copies) =>
+			CopyTextureToBuffer(dst, src, srcLayout, copies.ToArray());
+
+		/// <summary>
+		/// Copies pixels from texture to a buffer.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="src">Source texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="copy">Region to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in CopyBufferTexture copy) =>
 			CopyTextureToBuffer(dst, src, srcLayout, stackalloc CopyBufferTexture[] { copy });
 
+		/// <summary>
+		/// Updates a region of a buffer with the supplied data. The supplied data is recorded with the command stream
+		/// and is generally limited by implementations to be below 64 KiB.
+		/// </summary>
+		/// <param name="dst">Buffer to update</param>
+		/// <param name="dstOffset">Offset of the region to update in bytes</param>
+		/// <param name="dstSize">Size of the region to update in bytes</param>
+		/// <param name="pData">Pointer to update data</param>
 		public void UpdateBuffer(IBuffer dst, nuint dstOffset, nuint dstSize, IntPtr pData);
 
+		/// <summary>
+		/// Updates a region of a buffer with the supplied data. The supplied data is recorded with the command stream
+		/// and is generally limited by implementations to be below 64 KiB.
+		/// </summary>
+		/// <param name="dst">Buffer to update</param>
+		/// <param name="dstOffset">Offset of the region to update in bytes</param>
+		/// <param name="dstSize">Size of the region to update in bytes</param>
+		/// <param name="pData">Pointer to update data</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, nuint dstSize, IConstPointer<T> pData) => UpdateBuffer(dst, dstOffset, dstSize, pData.Ptr);
 
+		/// <summary>
+		/// Updates a region of a buffer with the supplied data. The supplied data is recorded with the command stream
+		/// and is generally limited by implementations to be below 64 KiB.
+		/// </summary>
+		/// <param name="dst">Buffer to update</param>
+		/// <param name="dstOffset">Offset of the region to update in bytes</param>
+		/// <param name="data">Updated data</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, in ReadOnlySpan<T> data) where T : unmanaged {
 			unsafe {
 				fixed (T* pData = data) {
@@ -384,6 +636,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			}
 		}
 
+		/// <summary>
+		/// Updates a region of a buffer with the supplied data. The supplied data is recorded with the command stream
+		/// and is generally limited by implementations to be below 64 KiB.
+		/// </summary>
+		/// <param name="dst">Buffer to update</param>
+		/// <param name="dstOffset">Offset of the region to update in bytes</param>
+		/// <param name="data">Updated data</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, params T[] data) where T : unmanaged {
 			unsafe {
 				fixed(T* pData = data) {
@@ -392,79 +652,273 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			}
 		}
 
+		/// <summary>
+		/// Fills a region of a buffer with a constant 32-bit integer value.
+		/// </summary>
+		/// <param name="dst">Destination buffer</param>
+		/// <param name="dstOffset">Offset to fill at in bytes</param>
+		/// <param name="dstSize">Number of bytes to fill</param>
+		/// <param name="data">Integer value to fill with</param>
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data);
 
+		/// <summary>
+		/// A color value used for clearing attachments.
+		/// </summary>
 		public readonly struct ClearColorValue {
 
+			/// <summary>
+			/// The format of the clear value.
+			/// </summary>
 			public PixelFormat Format { get; init; }
 
+			/// <summary>
+			/// The float components of the clear value, may be uninitialized if unused.
+			/// </summary>
 			public Vector4 Float32 { get; init; }
 
+			/// <summary>
+			/// The signed integer components of the clear value, may be uninitialized if unused.
+			/// </summary>
 			public Vector4i Int32 { get; init; }
 
+			/// <summary>
+			/// The unsigned integer components of the clear value, may be uninitialized if unused.
+			/// </summary>
 			public Vector4ui UInt32 { get; init; }
 
 		}
 
+		/// <summary>
+		/// Clears parts of the specified color texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="color">The color value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions);
 
+		/// <summary>
+		/// Clears parts of the specified color texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="color">The color value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions) =>
 			ClearColorTexture(dst, dstLayout, color, new ReadOnlySpan<TextureSubresourceRange>(regions));
 
+		/// <summary>
+		/// Clears parts of the specified color texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="color">The color value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, IEnumerable<TextureSubresourceRange> regions) =>
+			ClearColorTexture(dst, dstLayout, color, regions.ToArray());
+
+		/// <summary>
+		/// Clears parts of the specified color texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="color">The color value to clear to</param>
+		/// <param name="region">The region of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region) =>
 			ClearColorTexture(dst, dstLayout, color, stackalloc TextureSubresourceRange[] { region });
 
+		/// <summary>
+		/// Clears parts of the specified depth/stencil texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="depth">The depth value to clear to</param>
+		/// <param name="stencil">The stencil value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
 
+		/// <summary>
+		/// Clears parts of the specified depth/stencil texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="depth">The depth value to clear to</param>
+		/// <param name="stencil">The stencil value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions) =>
 			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, new ReadOnlySpan<TextureSubresourceRange>(regions));
 
+		/// <summary>
+		/// Clears parts of the specified depth/stencil texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="depth">The depth value to clear to</param>
+		/// <param name="stencil">The stencil value to clear to</param>
+		/// <param name="regions">The regions of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, IEnumerable<TextureSubresourceRange> regions) =>
+			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, regions.ToArray());
+
+		/// <summary>
+		/// Clears parts of the specified depth/stencil texture to a constant value.
+		/// </summary>
+		/// <param name="dst">Destination texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="depth">The depth value to clear to</param>
+		/// <param name="stencil">The stencil value to clear to</param>
+		/// <param name="region">The region of the texture to clear</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) =>
 			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
 
+		/// <summary>
+		/// A generic clear value for clearing attachments.
+		/// </summary>
 		public readonly struct ClearValue {
 
+			/// <summary>
+			/// A bitmask of texture aspects to clear.
+			/// </summary>
 			public TextureAspect Aspect { get; init; }
 
+			/// <summary>
+			/// The color clear value.
+			/// </summary>
 			public ClearColorValue Color { get; init; }
 
+			/// <summary>
+			/// The depth clear value.
+			/// </summary>
 			public float Depth { get; init; }
 
+			/// <summary>
+			/// The stencil clear value.
+			/// </summary>
 			public int Stencil { get; init; }
 
 		}
 
+		/// <summary>
+		/// A descriptor for clearing a framebuffer attachment.
+		/// </summary>
 		public readonly struct ClearAttachment {
 
+			/// <summary>
+			/// The index of the attachment to clear.
+			/// </summary>
 			public int Attachment { get; init; }
 
+			/// <summary>
+			/// The value to clear the attachment with.
+			/// </summary>
 			public ClearValue Value { get; init; }
 
 		}
 
+		/// <summary>
+		/// An extended descriptor for the area of an attachment to clear.
+		/// </summary>
 		public readonly struct ClearRect {
 
+			/// <summary>
+			/// The 2D area within the attachment to clear.
+			/// </summary>
 			public Recti Rect { get; init; }
 
+			/// <summary>
+			/// The base array layer of the attachment to clear.
+			/// </summary>
 			public uint BaseArrayLayer { get; init; }
 
+			/// <summary>
+			/// The number of array layers within the attachment to clear, or 0 to clear just one.
+			/// </summary>
 			public uint LayerCount { get; init; }
 
 		}
 
+		/// <summary>
+		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// </summary>
+		/// <param name="values">Attachment clear values</param>
+		/// <param name="regions">Attachment clear regions</param>
 		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ReadOnlySpan<ClearRect> regions);
 
+		/// <summary>
+		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// </summary>
+		/// <param name="values">Attachment clear values</param>
+		/// <param name="regions">Attachment clear regions</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, params ClearRect[] regions) =>
 			ClearAttachments(values, new ReadOnlySpan<ClearRect>(regions));
 
+		/// <summary>
+		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// </summary>
+		/// <param name="values">Attachment clear values</param>
+		/// <param name="regions">Attachment clear regions</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, IEnumerable<ClearRect> regions) =>
+			ClearAttachments(values, regions.ToArray());
+
+		/// <summary>
+		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// </summary>
+		/// <param name="values">Attachment clear values</param>
+		/// <param name="region">Attachment clear region</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region) =>
 			ClearAttachments(values, stackalloc ClearRect[] { region });
 
+		/// <summary>
+		/// Resolves the contents of a multisample texture to a regular texture.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source multisample texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="regions">Texture regions to resolve</param>
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
+		/// <summary>
+		/// Resolves the contents of a multisample texture to a regular texture.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source multisample texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="regions">Texture regions to resolve</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
 			ResolveTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
 
+		/// <summary>
+		/// Resolves the contents of a multisample texture to a regular texture.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source multisample texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="regions">Texture regions to resolve</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, IEnumerable<CopyTextureRegion> regions) =>
+			ResolveTexture(dst, dstLayout, src, srcLayout, regions.ToArray());
+
+		/// <summary>
+		/// Resolves the contents of a multisample texture to a regular texture.
+		/// </summary>
+		/// <param name="dst">Desintation texture</param>
+		/// <param name="dstLayout">Current destination texture layout</param>
+		/// <param name="src">Source multisample texture</param>
+		/// <param name="srcLayout">Current source texture layout</param>
+		/// <param name="region">Texture region to resolve</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region) =>
 			ResolveTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { region });
 
@@ -500,76 +954,206 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		// Synchronization / Memory Barriers //
 		//===================================//
 
+		/// <summary>
+		/// Sets the state of the specified sync object once prior commands submitted to this sink have
+		/// reached the specified pipeline stage. The sync object must be an "event" object.
+		/// </summary>
+		/// <param name="dst">Sync object to set</param>
+		/// <param name="stage">Stage which prior commands must reach before the operation</param>
 		public void SetSync(ISync dst, PipelineStage stage);
 
+		/// <summary>
+		/// Resets the state of the specified sync object once prior commands submitted to this sink have
+		/// reached the specified pipeline stage. The sync object must be an "event" object.
+		/// </summary>
+		/// <param name="dst">Sync object to reset</param>
+		/// <param name="stage">Stage which prior commands must reach before the operation</param>
 		public void ResetSync(ISync dst, PipelineStage stage);
 
+		/// <summary>
+		/// A generic global memory barrier descriptor.
+		/// </summary>
 		public struct MemoryBarrier {
 
+			/// <summary>
+			/// Bitmask of memory accesses that must occur before the barrier.
+			/// </summary>
 			public MemoryAccess ProvokingAccess { get; set; }
 
+			/// <summary>
+			/// Bitmask of memory access that must occur after the barrier.
+			/// </summary>
 			public MemoryAccess AwaitingAccess { get; set; }
 
 		}
 
+		/// <summary>
+		/// A memory barrier descriptor for the contents of a buffer object.
+		/// </summary>
 		public struct BufferMemoryBarrier {
 
+			/// <summary>
+			/// Bitmask of memory accesses that must occur before the barrier.
+			/// </summary>
 			public MemoryAccess ProvokingAccess { get; set; }
 
+			/// <summary>
+			/// Bitmask of memory access that must occur after the barrier.
+			/// </summary>
 			public MemoryAccess AwaitingAccess { get; set; }
 
+			/// <summary>
+			/// The buffer whose contents are the subject of the barrier.
+			/// </summary>
 			public IBuffer Buffer { get; set; }
 
+			/// <summary>
+			/// The range of memory in the buffer subject to the barrier.
+			/// </summary>
 			public MemoryRange Range { get; set; }
 
 		}
 
+		/// <summary>
+		/// A memory barrier descriptor for the contents of a texture object.
+		/// </summary>
 		public struct TextureMemoryBarrier {
 
+			/// <summary>
+			/// Bitmask of memory accesses that must occur before the barrier.
+			/// </summary>
 			public MemoryAccess ProvokingAccess { get; set; }
 
+			/// <summary>
+			/// Bitmask of memory access that must occur after the barrier.
+			/// </summary>
 			public MemoryAccess AwaitingAccess { get; set; }
 
+			/// <summary>
+			/// The layout of the texture before the barrier.
+			/// </summary>
 			public TextureLayout OldLayout { get; set; }
 
+			/// <summary>
+			/// The layout to assign to the texture after the barrier.
+			/// </summary>
 			public TextureLayout NewLayout { get; set; }
 
+			/// <summary>
+			/// The texture whose contents are the subject of the barrier.
+			/// </summary>
 			public ITexture Texture { get; set; }
 
+			/// <summary>
+			/// The subresource range within the texture subject to the barrier.
+			/// </summary>
 			public TextureSubresourceRange SubresourceRange { get; set; }
 
 		}
 
+		/// <summary>
+		/// A descriptor containing a set of memory barriers to enforce command order based on.
+		/// </summary>
 		public readonly ref struct PipelineBarriers {
 
+			/// <summary>
+			/// Bitmask of pipeline stages in which operations occur that must come before any of the barriers.
+			/// </summary>
 			public PipelineStage ProvokingStages { get; init; }
 
+			/// <summary>
+			/// Bitmask of pipeline stages in which operations occur that must come after any of the barriers.
+			/// </summary>
 			public PipelineStage AwaitingStages { get; init; }
 
+			/// <summary>
+			/// List of global memory barriers.
+			/// </summary>
 			public ReadOnlySpan<MemoryBarrier> MemoryBarriers { get; init; }
 
+			/// <summary>
+			/// List of buffer memory barriers.
+			/// </summary>
 			public ReadOnlySpan<BufferMemoryBarrier> BufferMemoryBarriers { get; init; }
 
+			/// <summary>
+			/// List of texture memory barriers.
+			/// </summary>
 			public ReadOnlySpan<TextureMemoryBarrier> TextureMemoryBarriers { get; init; }
 
 		}
 
+		/// <summary>
+		/// Waits on the specified sync objects while introducing a set of memory barriers.
+		/// </summary>
+		/// <param name="barriers">Pipeline memory barriers</param>
+		/// <param name="syncs">Sync objects to wait on</param>
 		public void WaitSync(in PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs);
 
+		/// <summary>
+		/// Waits on the specified sync objects while introducing a set of memory barriers.
+		/// </summary>
+		/// <param name="barriers">Pipeline memory barriers</param>
+		/// <param name="syncs">Sync objects to wait on</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void WaitSync(in PipelineBarriers barriers, params ISync[] syncs) => WaitSync(barriers, new ReadOnlySpan<ISync>(syncs));
 
+		/// <summary>
+		/// Waits on the specified sync objects while introducing a set of memory barriers.
+		/// </summary>
+		/// <param name="barriers">Pipeline memory barriers</param>
+		/// <param name="syncs">Sync objects to wait on</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void WaitSync(in PipelineBarriers barriers, IEnumerable<ISync> syncs) => WaitSync(barriers, syncs.ToArray());
+
+		/// <summary>
+		/// Waits on the specified sync object while introducing a set of memory barriers.
+		/// </summary>
+		/// <param name="barriers">Pipeline memory barriers</param>
+		/// <param name="sync">Sync object to wait on</param>
 		public void WaitSync(in PipelineBarriers barriers, ISync sync);
 
+		/// <summary>
+		/// Introduces the specified barriers into the pipeline, performing synchronization as necessary.
+		/// </summary>
+		/// <param name="barriers">Pipeline barriers</param>
 		public void Barrier(in PipelineBarriers barriers);
 
 		//================//
 		// Push Constants //
 		//================//
 
+		/// <summary>
+		/// Updates the current push constants using the provided data.
+		/// </summary>
+		/// <param name="layout">The pipeline layout to use</param>
+		/// <param name="stages">A bitmask of shader stages whose push constants should be updated</param>
+		/// <param name="offset">The offset in bytes within the push constant block to update</param>
+		/// <param name="size">The number of bytes to update</param>
+		/// <param name="pValues">Pointer to memory to update with</param>
 		public void PushConstants(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IntPtr pValues);
 
+		/// <summary>
+		/// Updates the current push constants using the provided data.
+		/// </summary>
+		/// <typeparam name="T">Pointer element type</typeparam>
+		/// <param name="layout">The pipeline layout to use</param>
+		/// <param name="stages">A bitmask of shader stages whose push constants should be updated</param>
+		/// <param name="offset">The offset in bytes within the push constant block to update</param>
+		/// <param name="size">The number of bytes to update</param>
+		/// <param name="pValues">Pointer to memory to update with</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IConstPointer<T> pValues) => PushConstants(layout, stages, offset, size, pValues.Ptr);
 
+		/// <summary>
+		/// Updates the current push constants using the provided data.
+		/// </summary>
+		/// <typeparam name="T">Element type</typeparam>
+		/// <param name="layout">The pipeline layout to use</param>
+		/// <param name="stages">A bitmask of shader stages whose push constants should be updated</param>
+		/// <param name="offset">The offset in bytes within the push constant block to update</param>
+		/// <param name="values">Values to update with</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged {
 			unsafe {
 				fixed(T* pValues = values) {
@@ -578,6 +1162,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			}
 		}
 
+		/// <summary>
+		/// Updates the current push constants using the provided data.
+		/// </summary>
+		/// <typeparam name="T">Element type</typeparam>
+		/// <param name="layout">The pipeline layout to use</param>
+		/// <param name="stages">A bitmask of shader stages whose push constants should be updated</param>
+		/// <param name="offset">The offset in bytes within the push constant block to update</param>
+		/// <param name="values">Values to update with</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, params T[] values) where T : unmanaged {
 			unsafe {
 				fixed (T* pValues = values) {
@@ -590,70 +1183,167 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		// Render Passes //
 		//===============//
 
+		/// <summary>
+		/// Render pass begin information.
+		/// </summary>
 		public readonly ref struct RenderPassBegin {
 
+			/// <summary>
+			/// The render pass to being rendering with.
+			/// </summary>
 			public IRenderPass RenderPass { get; init; }
 
+			/// <summary>
+			/// The framebuffer to begin rendering to.
+			/// </summary>
 			public IFramebuffer Framebuffer { get; init; }
 
+			/// <summary>
+			/// The area within the framebuffer that will be rendered to.
+			/// </summary>
 			public Recti RenderArea { get; init; }
 
+			/// <summary>
+			/// The list of clear values for each attachment, corresponding by index. If an attachment
+			/// is not cleared the value is ignored.
+			/// </summary>
 			public ReadOnlySpan<ClearValue> ClearValues { get; init; }
 
 		}
 
+		/// <summary>
+		/// Begins the specified render pass.
+		/// </summary>
+		/// <param name="begin">Render pass begin information</param>
+		/// <param name="contents">The type of commands that will be submitted in the first subpass</param>
 		public void BeginRenderPass(in RenderPassBegin begin, SubpassContents contents);
 
+		/// <summary>
+		/// Begins the next subpass in the current render pass.
+		/// </summary>
+		/// <param name="contents">The type of commands that will be submitted in the next subpass</param>
 		public void NextSubpass(SubpassContents contents);
 
+		/// <summary>
+		/// Ends the current render pass.
+		/// </summary>
 		public void EndRenderPass();
 
+		/// <summary>
+		/// Attachment information for a framebuffer attachment used in dynamic rendering.
+		/// </summary>
 		public readonly struct RenderingAttachmentInfo {
 
+			/// <summary>
+			/// The index of the attachment within the framebuffer.
+			/// </summary>
 			public uint Index { get; init; }
 
+			/// <summary>
+			/// The current layout of the attachment's texture.
+			/// </summary>
 			public TextureLayout Layout { get; init; }
 
+			/// <summary>
+			/// The texture view to resolve a multisample attachment to at the end of rendering.
+			/// </summary>
 			public ITextureView? ResolveTextureView { get; init; }
 
+			/// <summary>
+			/// The current layout of the resolve texture if there is one.
+			/// </summary>
 			public TextureLayout ResolveTextureLayout { get; init; }
 
+			/// <summary>
+			/// The load operation to perform on the attachment at the start of rendering.
+			/// </summary>
 			public AttachmentLoadOp LoadOp { get; init; }
 
+			/// <summary>
+			/// The store operation to perform on the attachment at the end of rendering.
+			/// </summary>
 			public AttachmentStoreOp StoreOp { get; init; }
 
+			/// <summary>
+			/// The clear value to use if the <see cref="LoadOp"/> is <see cref="AttachmentLoadOp.Clear"/>.
+			/// </summary>
 			public ClearValue ClearValue { get; init; }
 
 		}
 
+		/// <summary>
+		/// Dynamic rendering information.
+		/// </summary>
 		public readonly ref struct RenderingInfo {
 
+			/// <summary>
+			/// The area to render to.
+			/// </summary>
 			public Recti RenderArea { get; init; } = default;
 
+			/// <summary>
+			/// The framebuffer containing the attachments to render to.
+			/// </summary>
 			public IFramebuffer Framebuffer { get; init; } = null!;
 
+			/// <summary>
+			/// The list of color attachments to use during rendering, or null if there are no color attachments.
+			/// </summary>
 			public RenderingAttachmentInfo[]? ColorAttachments { get; init; } = null;
 
+			/// <summary>
+			/// The depth attachment to use during rendering, or null if there is no depth attachment.
+			/// </summary>
 			public RenderingAttachmentInfo? DepthAttachment { get; init; } = null;
 
+			/// <summary>
+			/// The stencil attachment to use during rendering, or null if there is no stencil attachment.
+			/// </summary>
 			public RenderingAttachmentInfo? StencilAttachment { get; init; } = null;
 
 			public RenderingInfo() { }
 
 		}
 
+		/// <summary>
+		/// Begins dynamic rendering according to the supplied information.
+		/// </summary>
+		/// <param name="renderingInfo">Dynamic rendering begin information</param>
 		public void BeginRendering(in RenderingInfo renderingInfo);
 
+		/// <summary>
+		/// Ends dynamic rendering.
+		/// </summary>
 		public void EndRendering();
 
 		//=============================//
 		// Secondary Command Execution //
 		//=============================//
 
+		/// <summary>
+		/// Sequentially executes the commands in a list of secondary command buffers.
+		/// </summary>
+		/// <param name="buffers">Secondary command buffer list</param>
 		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers);
 
+		/// <summary>
+		/// Sequentially executes the commands in a list of secondary command buffers.
+		/// </summary>
+		/// <param name="buffers">Secondary command buffer list</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ExecuteCommands(params ICommandBuffer[] buffers) => ExecuteCommands(new ReadOnlySpan<ICommandBuffer>(buffers));
 
+		/// <summary>
+		/// Sequentially executes the commands in a list of secondary command buffers.
+		/// </summary>
+		/// <param name="buffers">Secondary command buffer list</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteCommands(IEnumerable<ICommandBuffer> buffers) => ExecuteCommands(buffers.ToArray());
+
+		/// <summary>
+		/// Executes the commands in the given secondary command buffer.
+		/// </summary>
+		/// <param name="buffer">Secondary command buffer</param>
 		public void ExecuteCommands(ICommandBuffer buffer);
 
 	}
@@ -735,7 +1425,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	///			<see cref="ICommandSink.ResolveTexture(ITexture, TextureLayout, ITexture, TextureLayout, in ICommandSink.BlitTextureRegion)">ResolveTexture</see>,
 	///			<see cref="ICommandSink.BeginRenderPass(in ICommandSink.RenderPassBegin, SubpassContents)">BeginRenderPass</see>,
 	///			<see cref="ICommandSink.NextSubpass(SubpassContents)">NextSubpass</see>,
-	///			<see cref="ICommandSink.EndRenderPass">EndRenderPass</see>
+	///			<see cref="ICommandSink.EndRenderPass">EndRenderPass</see>,
+	///			<see cref="ICommandSink.BeginRendering(in ICommandSink.RenderingInfo)">BeginRendering</see>,
+	///			<see cref="ICommandSink.EndRendering">EndRendering</see>
 	///		</description>
 	/// </item>
 	/// <item>

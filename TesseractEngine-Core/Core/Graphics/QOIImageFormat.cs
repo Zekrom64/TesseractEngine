@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -86,8 +87,10 @@ namespace Tesseract.Core.Graphics.QOI {
 
 			// Write the width and height
 			int width = image.Width, height = image.Height;
-			stream.Write(BinaryUtils.WriteBytes(tmp, width));
-			stream.Write(BinaryUtils.WriteBytes(tmp, height));
+			BinaryPrimitives.WriteInt32BigEndian(tmp, width);
+			stream.Write(tmp);
+			BinaryPrimitives.WriteInt32BigEndian(tmp, height);
+			stream.Write(tmp);
 			int npixels = width * height;
 
 
@@ -326,9 +329,9 @@ namespace Tesseract.Core.Graphics.QOI {
 			) throw new InvalidDataException("Magic value does not match QOI format");
 
 			stream.ReadFully(buf);
-			header.Width = BinaryUtils.ToUInt32(buf, false);
+			header.Width = BinaryPrimitives.ReadUInt32BigEndian(buf);
 			stream.ReadFully(buf);
-			header.Height = BinaryUtils.ToUInt32(buf, false);
+			header.Height = BinaryPrimitives.ReadUInt32BigEndian(buf);
 			int nextb = stream.ReadByte();
 			if (nextb == -1) throw new IOException("Unexpected end of stream");
 			header.Channels = (QOIChannels)nextb;
