@@ -428,7 +428,7 @@ namespace Tesseract.OpenGL.Graphics {
 				};
 			} else DepthBias = null;
 
-			DepthTestEnable = dynState.Contains(PipelineDynamicState.DepthTest) ? null : dynInfo.DepthTestEnable;
+			DepthTestEnable = dynState.Contains(PipelineDynamicState.DepthTestEnable) ? null : dynInfo.DepthTestEnable;
 			DepthWriteEnable = dynState.Contains(PipelineDynamicState.DepthWriteEnable) ? null : dynInfo.DepthWriteEnable;
 			DepthCompareOp = dynState.Contains(PipelineDynamicState.DepthCompareOp) ? null : GLEnums.Convert(dynInfo.DepthCompareOp);
 			DepthBoundsTestEnable = dynState.Contains(PipelineDynamicState.DepthBoundsTestEnable) ? null : dynInfo.DepthBoundsTestEnable;

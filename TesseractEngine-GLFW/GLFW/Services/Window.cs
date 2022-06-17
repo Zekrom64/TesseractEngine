@@ -94,7 +94,7 @@ namespace Tesseract.GLFW.Services {
 				if (attribs.TryGet(WindowAttributes.Minimized, out bool minimized)) GLFW3.WindowHint(GLFWWindowAttrib.Iconified, minimized ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Resizable, out bool resizable)) GLFW3.WindowHint(GLFWWindowAttrib.Resizable, resizable ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Visible, out bool visible)) GLFW3.WindowHint(GLFWWindowAttrib.Visible, visible ? 1 : 0);
-				if (attribs.TryGet(VKWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) GLFW3.WindowHint(GLFWWindowAttrib.ClientAPI, (int)GLFWClientAPI.NoAPI);
+				if (attribs.TryGet(VulkanWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) GLFW3.WindowHint(GLFWWindowAttrib.ClientAPI, (int)GLFWClientAPI.NoAPI);
 				if (attribs.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
 					if (attribs.TryGet(GLWindowAttributes.RedBits, out int redBits)) GLFW3.WindowHint(GLFWWindowAttrib.RedBits, redBits);
 					if (attribs.TryGet(GLWindowAttributes.GreenBits, out int greenBits)) GLFW3.WindowHint(GLFWWindowAttrib.GreenBits, greenBits);

@@ -30,22 +30,22 @@ namespace Tesseract.Vulkan {
 		public ulong DeviceAddress {
 			get {
 				var info = new VKBufferDeviceAddressInfo() {
-					Type = VKStructureType.BUFFER_DEVICE_ADDRESS_INFO,
+					Type = VKStructureType.BufferDeviceAddressInfo,
 					Buffer = Buffer
 				};
-				if (Device.VK12Functions) return Device.VK12Functions.vkGetBufferDeviceAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress.vkGetBufferDeviceAddressKHR(Device, info);
+				if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferDeviceAddress(Device, info);
+				else return Device.KHRBufferDeviceAddress!.vkGetBufferDeviceAddressKHR(Device, info);
 			}
 		}
 
 		public ulong OpaqueCaptureAddress {
 			get {
 				var info = new VKBufferDeviceAddressInfo() {
-					Type = VKStructureType.BUFFER_DEVICE_ADDRESS_INFO,
+					Type = VKStructureType.BufferDeviceAddressInfo,
 					Buffer = Buffer
 				};
-				if (Device.VK12Functions) return Device.VK12Functions.vkGetBufferOpaqueCaptureAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress.vkGetBufferOpaqueCaptureAddressKHR(Device, info);
+				if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferOpaqueCaptureAddress(Device, info);
+				else return Device.KHRBufferDeviceAddress!.vkGetBufferOpaqueCaptureAddressKHR(Device, info);
 			}
 		}
 

@@ -131,7 +131,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="signal">Semaphore-like sync object to signal when the frame is ready for use</param>
 		/// <returns>Index of the image used by the next frame</returns>
-		public int BeginFrame(ISync signal);
+		public int BeginFrame(ISync? signal);
 
 		/// <summary>
 		/// Ends usage of the most recently acquired frame from <see cref="BeginFrame(ISync[])"/>,
@@ -141,7 +141,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="signalFence">Fence-like sync object to signal when the frame is no longer in use</param>
 		/// <param name="wait">Semaphore-like sync objects to wait for before using the frame</param>
-		public void EndFrame(ISync signalFence, params ISync[] wait);
+		public void EndFrame(ISync? signalFence, params ISync[] wait);
 
 	}
 

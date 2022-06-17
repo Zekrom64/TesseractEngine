@@ -153,6 +153,106 @@ namespace Tesseract.Core.Numerics {
 
 
 		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector2i Min(this Vector2i v1, Vector2i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
+
+		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector3i Min(this Vector3i v1, Vector3i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Z, v2.Z));
+
+		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector4i Min(this Vector4i v1, Vector4i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Y, v2.Y), Math.Min(v1.W, v2.W));
+
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector2i Max(this Vector2i v1, Vector2i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector3i Max(this Vector3i v1, Vector3i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Z, v2.Z));
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector4i Max(this Vector4i v1, Vector4i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Y, v2.Y), Math.Max(v1.W, v2.W));
+
+
+		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector2ui Min(this Vector2ui v1, Vector2ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
+
+		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector3ui Min(this Vector3ui v1, Vector3ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Z, v2.Z));
+
+		/// <summary>
+		/// Computes the minimum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of minimum values</returns>
+		public static Vector4ui Min(this Vector4ui v1, Vector4ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Y, v2.Y), Math.Min(v1.W, v2.W));
+
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector2ui Max(this Vector2ui v1, Vector2ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector3ui Max(this Vector3ui v1, Vector3ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Z, v2.Z));
+
+		/// <summary>
+		/// Computes the maximum of each component between this and a second vector.
+		/// </summary>
+		/// <param name="v1">First vector</param>
+		/// <param name="v2">Second vector</param>
+		/// <returns>Vector of maximum values</returns>
+		public static Vector4ui Max(this Vector4ui v1, Vector4ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Y, v2.Y), Math.Max(v1.W, v2.W));
+
+
+		/// <summary>
 		/// Component-wise determines the minimum and maximum value between two vectors,
 		/// storing the minimums and maximums back into each respective vector.
 		/// </summary>

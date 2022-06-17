@@ -160,6 +160,46 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="reference">Stencil test reference value</param>
 		public void SetStencilReference(CullFace face, uint reference);
 
+		public void SetCullMode(CullFace culling);
+
+		public void SetDepthBoundsTestEnable(bool enabled);
+
+		public void SetDepthCompareOp(CompareOp op);
+
+		public void SetDepthTestEnable(bool enabled);
+
+		public void SetDepthWriteEnable(bool enabled);
+
+		public void SetFrontFace(FrontFace face);
+
+		public void SetDrawMode(DrawMode mode);
+
+		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors);
+
+		public void SetScissorsWithCount(params Recti[] scissors) => SetScissorsWithCount(scissors.AsSpan());
+
+		public void SetStencilOp(CullFace faces, StencilOp failOp, StencilOp passOp, StencilOp depthFailOp, CompareOp compareOp);
+
+		public void SetStencilTestEnable(bool enabled);
+
+		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports);
+
+		public void SetViewportsWithCount(params Viewport[] viewports) => SetViewportsWithCount(viewports.AsSpan());
+
+		public void SetDepthBiasEnable(bool enabled);
+
+		public void SetLogicOp(LogicOp op);
+
+		public void SetPatchControlPoints(uint controlPoints);
+
+		public void SetPrimitiveRestartEnable(bool enabled);
+
+		public void SetRasterizerDiscardEnable(bool enabled);
+
+		public void SetVertexFormat(VertexFormat format);
+
+		public void SetColorWriteEnable(in ReadOnlySpan<bool> enables);
+
 		/// <summary>
 		/// Binds a vertex array to the currently bound pipeline.
 		/// </summary>
@@ -1240,9 +1280,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			public uint Index { get; init; }
 
 			/// <summary>
+			/// The texture view to use as an attachment.
+			/// </summary>
+			public ITextureView TextureView { get; init; }
+
+			/// <summary>
 			/// The current layout of the attachment's texture.
 			/// </summary>
-			public TextureLayout Layout { get; init; }
+			public TextureLayout TextureLayout { get; init; }
+
+			/// <summary>
+			/// The resolution mode to use for any resolve texture.
+			/// </summary>
+			public ResolveMode ResolveMode { get; init; }
 
 			/// <summary>
 			/// The texture view to resolve a multisample attachment to at the end of rendering.
@@ -1289,7 +1339,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The list of color attachments to use during rendering, or null if there are no color attachments.
 			/// </summary>
-			public RenderingAttachmentInfo[]? ColorAttachments { get; init; } = null;
+			public ReadOnlySpan<RenderingAttachmentInfo> ColorAttachments { get; init; } = Span<RenderingAttachmentInfo>.Empty;
 
 			/// <summary>
 			/// The depth attachment to use during rendering, or null if there is no depth attachment.

@@ -537,4 +537,35 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		RightHanded
 	}
 
+	/// <summary>
+	/// Enumeration of multisample resolution modes.
+	/// </summary>
+	[Flags]
+	public enum ResolveMode : uint {
+		/// <summary>
+		/// No resolution is done.
+		/// </summary>
+		None = 0,
+		/// <summary>
+		/// The "first" sample for a single resolved pixel is used for the resulting value.
+		/// </summary>
+		First = 0x1,
+		/// <summary>
+		/// The average of all samples is used.
+		/// </summary>
+		Average = 0x2,
+		/// <summary>
+		/// The minimum of all samples is used.
+		/// </summary>
+		Min = 0x4,
+		/// <summary>
+		/// The maximum of all samples is used.
+		/// </summary>
+		Max = 0x8,
+		/// <summary>
+		/// The default backend-specific resolution mode is used.
+		/// </summary>
+		Default = 0x80000000
+	}
+
 }

@@ -10,7 +10,7 @@ namespace Tesseract.Vulkan.Graphics {
 	/// <summary>
 	/// Vulkan-specific window attributes.
 	/// </summary>
-	public static class VKWindowAttributes {
+	public static class VulkanWindowAttributes {
 
 		/// <summary>
 		/// Attribute specifying if Vulkan graphics will be used with a window.

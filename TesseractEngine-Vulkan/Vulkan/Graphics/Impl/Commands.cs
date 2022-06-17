@@ -37,7 +37,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			/// </summary>
 			public SemaphoreSlim PoolSemaphore { get; } = new(1);
 
-			public CommandPool(CommandBank bank, VKCommandPool pool) {
+			internal CommandPool(CommandBank bank, VKCommandPool pool) {
 				Bank = bank;
 				Pool = pool;
 			}
@@ -115,7 +115,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			// Counter for the next command pool
 			private uint nextCommandPool = 0;
 
-			public CommandBank(int parallelism, VulkanDevice device, VulkanDeviceQueueInfo queueInfo) {
+			internal CommandBank(int parallelism, VulkanDevice device, VulkanDeviceQueueInfo queueInfo) {
 				QueueInfo = queueInfo;
 				commandPools = new CommandPool[parallelism];
 				VKCommandPoolCreateInfo createInfo = new() {
@@ -144,7 +144,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				foreach(CommandPool pool in commandPools) pool.Trim();
 			}
 
-			public void Submit(in VKSubmitInfo info, VKFence? fence) {
+			internal void Submit(in VKSubmitInfo info, VKFence? fence) {
 				QueueInfo.QueueSemaphore?.Wait();
 				try {
 					QueueInfo.Queue.Submit(info, fence);
@@ -153,10 +153,19 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				}
 			}
 
-			public void Submit(in ReadOnlySpan<VKSubmitInfo> info, VKFence fence) {
+			internal VKResult Present(in VKPresentInfoKHR info) {
 				QueueInfo.QueueSemaphore?.Wait();
 				try {
-					QueueInfo.Queue.Submit(info, fence);
+					return QueueInfo.Queue.PresentKHR(info);
+				} finally {
+					QueueInfo.QueueSemaphore?.Release();
+				}
+			}
+
+			internal void WaitIdle() {
+				QueueInfo.QueueSemaphore?.Wait();
+				try {
+					QueueInfo.Queue.WaitIdle();
 				} finally {
 					QueueInfo.QueueSemaphore?.Release();
 				}
@@ -214,14 +223,15 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// Creates a new command manager in the given context.
 		/// </summary>
-		/// <param name="ctx">Vulkan context</param>
 		/// <param name="device">Vulkan device</param>
-		public VulkanCommands(VulkanGraphicsContext ctx, VulkanDevice device) {
-			CommandBankGraphics = new(ctx.CommandPoolParallelism, device, device.QueueGraphics);
-			CommandBankTransfer = new(ctx.CommandPoolParallelism, device, device.QueueTransfer);
-			CommandBankCompute = new(ctx.CommandPoolParallelism, device, device.QueueCompute);
+		/// <param name="poolParallelism">The degree of parallelism for command pools (number of concurrent pools per bank)</param>
+		/// <param name="gcThreshold">The threshold of command buffers above which garbage should be collected</param>
+		public VulkanCommands(VulkanDevice device, int poolParallelism, int gcThreshold) {
+			CommandBankGraphics = new(poolParallelism, device, device.QueueGraphics);
+			CommandBankTransfer = new(poolParallelism, device, device.QueueTransfer);
+			CommandBankCompute = new(poolParallelism, device, device.QueueCompute);
 			canTrim = device.Device.APIVersion >= VK12.ApiVersion || device.EnabledExtensions.Contains(KHRMaintenance1.ExtensionName);
-			gcThreshold = ctx.OrphanedCommandGCThreshold;
+			this.gcThreshold = gcThreshold;
 		}
 
 		/// <summary>
@@ -306,6 +316,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			return new VulkanCommandBuffer(cmdpool, cmdpool.Allocate(createInfo), createInfo.Type);
 		}
 
+		/// <summary>
+		/// Schedules the given command buffer to be disposed of when it is no longer in use.
+		/// </summary>
+		/// <param name="cmdbuf">The command buffer to dispose</param>
+		/// <param name="fence">The fence to wait on to guarentee the commands are not in use</param>
+		/// <param name="delFence">If the fence should be deleted with the command buffer</param>
 		public void DisposeWhenFree(VulkanCommandBuffer cmdbuf, VulkanFenceSync fence, bool delFence) {
 			// Append the orphaned buffer
 			lock(orphanedCommmandBuffers) {
@@ -319,39 +335,22 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			}
 		}
 
-		public void Submit(VulkanCommandBuffer[] commandBuffers, VulkanSemaphoreSync[] waitSem, VKPipelineStageFlagBits[] waitStages, VulkanSemaphoreSync[] signalSem, VulkanFenceSync fence) {
+		internal void Submit(CommandBank cmdBank, in ReadOnlySpan<IntPtr> commandBuffers, in ReadOnlySpan<ulong> waitSem, in ReadOnlySpan<VKPipelineStageFlagBits> waitStages, in ReadOnlySpan<ulong> signalSem, VKFence? fence) {
 			using MemoryStack sp = MemoryStack.Push();
 			// Acquire concurrent lock
 			rwQueuesLock.EnterReadLock();
 			try {
-				// Find common queue ID
-				ulong queueID = 0;
-				foreach(var cmdbuf in commandBuffers) {
-					if (queueID == 0) queueID = cmdbuf.QueueID;
-					else if (queueID != cmdbuf.QueueID) throw new VulkanException("Cannot perform submission to multiple queues");
-				}
-
-				// Find associated command bank
-				CommandBank cmdbank = CommandBankGraphics;
-				if (cmdbank.QueueInfo.QueueID != queueID) {
-					cmdbank = CommandBankTransfer;
-					if (cmdbank.QueueInfo.QueueID != queueID) {
-						cmdbank = CommandBankCompute;
-						if (cmdbank.QueueInfo.QueueID != queueID) throw new VulkanException($"Cannot submit to unknown command queue w/ ID 0x{queueID:X}");
-					}
-				}
-
 				// Submit commands via command bank
-				cmdbank.Submit(new VKSubmitInfo() {
+				cmdBank.Submit(new VKSubmitInfo() {
 					Type = VKStructureType.SubmitInfo,
 					CommandBufferCount = (uint)commandBuffers.Length,
-					CommandBuffers = sp.Values(Array.ConvertAll(commandBuffers, cmdbuf => cmdbuf.CommandBuffer)),
+					CommandBuffers = sp.Values(commandBuffers),
 					SignalSemaphoreCount = (uint)signalSem.Length,
-					SignalSemaphores = sp.Values(Array.ConvertAll(signalSem, sem => sem.Semaphore)),
+					SignalSemaphores = sp.Values(signalSem),
 					WaitSemaphoreCount = (uint)Math.Min(waitSem.Length, waitStages.Length),
-					WaitSemaphores = sp.Values(Array.ConvertAll(waitSem, sem => sem.Semaphore)),
+					WaitSemaphores = sp.Values(waitSem),
 					WaitDstStageMask = sp.Values(waitStages)
-				}, fence?.Fence);
+				}, fence);
 			} finally {
 				rwQueuesLock.ExitReadLock();
 			}
@@ -361,6 +360,9 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			}
 		}
 
+		/// <summary>
+		/// Waits until all command banks are idle.
+		/// </summary>
 		public void WaitIdle() {
 			// Exclude any command submission while waiting
 			rwQueuesLock.EnterWriteLock();
@@ -511,58 +513,59 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 							SetStencilReference(CullFace.Back, state.FrontStencilState.Reference);
 							break;
 						case PipelineDynamicState.CullMode:
-							// TODO
+							SetCullMode(state.CullMode);
 							break;
 						case PipelineDynamicState.FrontFace:
-							// TODO
+							SetFrontFace(state.FrontFace);
 							break;
 						case PipelineDynamicState.DrawMode:
-							// TODO
+							SetDrawMode(state.DrawMode);
 							break;
-						case PipelineDynamicState.DepthTest:
-							// TODO
+						case PipelineDynamicState.DepthTestEnable:
+							SetDepthTestEnable(state.DepthTestEnable);
 							break;
 						case PipelineDynamicState.DepthWriteEnable:
-							// TODO
+							SetDepthWriteEnable(state.DepthWriteEnable);
 							break;
 						case PipelineDynamicState.DepthCompareOp:
-							// TODO
+							SetDepthCompareOp(state.DepthCompareOp);
 							break;
 						case PipelineDynamicState.DepthBoundsTestEnable:
-							// TODO
+							SetDepthBoundsTestEnable(state.DepthBoundsTestEnable);
 							break;
 						case PipelineDynamicState.StencilTestEnable:
-							// TODO
+							SetStencilTestEnable(state.StencilTestEnable);
 							break;
 						case PipelineDynamicState.StencilOp:
-							// TODO
+							SetStencilOp(CullFace.Front, state.FrontStencilState.FailOp, state.FrontStencilState.PassOp, state.FrontStencilState.DepthFailOp, state.FrontStencilState.CompareOp);
+							SetStencilOp(CullFace.Back, state.BackStencilState.FailOp, state.BackStencilState.PassOp, state.BackStencilState.DepthFailOp, state.BackStencilState.CompareOp);
 							break;
 						case PipelineDynamicState.PatchControlPoints:
-							// TODO
+							SetPatchControlPoints(state.PatchControlPoints);
 							break;
 						case PipelineDynamicState.RasterizerDiscardEnable:
-							// TODO
+							SetRasterizerDiscardEnable(state.RasterizerDiscardEnable);
 							break;
 						case PipelineDynamicState.DepthBiasEnable:
-							// TODO
+							SetDepthBiasEnable(state.DepthBiasEnable);
 							break;
 						case PipelineDynamicState.LogicOp:
-							// TODO
+							SetLogicOp(state.LogicOp);
 							break;
 						case PipelineDynamicState.PrimitiveRestartEnable:
-							// TODO
+							SetPrimitiveRestartEnable(state.PrimitiveRestartEnable);
 							break;
 						case PipelineDynamicState.VertexFormat:
-							// TODO
+							SetVertexFormat(state.VertexFormat);
 							break;
 						case PipelineDynamicState.ColorWrite:
-							// TODO
+							SetColorWriteEnable(state.ColorWriteEnable.ToArray());
 							break;
 						case PipelineDynamicState.ViewportCount:
-							// TODO
+							SetViewportsWithCount(state.Viewports.List.ToArray());
 							break;
 						case PipelineDynamicState.ScissorCount:
-							// TODO
+							SetScissorsWithCount(state.Scissors.List.ToArray());
 							break;
 						default: break;
 					}
@@ -747,7 +750,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in ICommandSink.CopyBufferTexture copy) =>
 			CommandBuffer.CopyImageToBuffer(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanBuffer)dst).Buffer, VulkanConverter.Convert(copy));
 
-		public void Dispatch(Vector3i groupCounts) => CommandBuffer.Dispatch((Vector3ui)groupCounts);
+		public void Dispatch(Vector3ui groupCounts) => CommandBuffer.Dispatch(groupCounts);
 
 		public void DispatchIndirect(IBuffer buffer, nuint offset) => CommandBuffer.DispatchIndirect(((VulkanBuffer)buffer).Buffer, offset);
 
@@ -888,20 +891,20 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					NewLayout = VKImageLayout.TransferSrcOptimal,
 				}
 			};
-			Vector3i size = dst.Size;
+			Vector3ui size = dst.Size;
 			// For each mip level from 1-max
 			for(uint level = 1; level < dst.MipLevels; level++) {
 				// Blit from previous level
-				Vector3i newsize = size / 2;
+				Vector3ui newsize = size / 2;
 				CommandBuffer.BlitImage(vkdst.Image, VKImageLayout.TransferSrcOptimal, vkdst.Image, VKImageLayout.TransferDstOptimal, new VKImageBlit() {
-					SrcOffsets = (new VKOffset3D(), size),
+					SrcOffsets = (new VKOffset3D(), (Vector3i)size),
 					SrcSubresource = new() {
 						AspectMask = VKImageAspectFlagBits.Color,
 						BaseArrayLayer = 0,
 						MipLevel = (level - 1),
 						LayerCount = dst.ArrayLayers
 					},
-					DstOffsets = (new VKOffset3D(), newsize),
+					DstOffsets = (new VKOffset3D(), (Vector3i)newsize),
 					DstSubresource = new() {
 						AspectMask = VKImageAspectFlagBits.Color,
 						BaseArrayLayer = 0,
@@ -954,11 +957,41 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public void SetBlendConstants(Vector4 blendConst) => CommandBuffer.SetBlendConstants(blendConst);
 
+		public void SetColorWriteEnable(in ReadOnlySpan<bool> enables) {
+			Span<VKBool32> vkenables = stackalloc VKBool32[enables.Length];
+			for (int i = 0; i < enables.Length; i++) vkenables[i] = enables[i];
+			CommandBuffer.SetColorWriteEnableEXT(vkenables);
+		}
+
+		public void SetCullMode(CullFace culling) => CommandBuffer.SetCullModeEXT(VulkanConverter.ConvertCullMode(culling));
+
 		public void SetDepthBias(float constFactor, float clamp, float slopeFactor) => CommandBuffer.SetDepthBias(constFactor, clamp, slopeFactor);
+
+		public void SetDepthBiasEnable(bool enabled) => CommandBuffer.SetDepthBiasEnableEXT(enabled);
 
 		public void SetDepthBounds(float min, float max) => CommandBuffer.SetDepthBounds(min, max);
 
+		public void SetDepthBoundsTestEnable(bool enabled) => CommandBuffer.SetDepthBoundsTestEnableEXT(enabled);
+
+		public void SetDepthCompareOp(CompareOp op) => CommandBuffer.SetDepthCompareOpEXT(VulkanConverter.Convert(op));
+
+		public void SetDepthTestEnable(bool enabled) => CommandBuffer.SetDepthTestEnableEXT(enabled);
+
+		public void SetDepthWriteEnable(bool enabled) => CommandBuffer.SetDepthWriteEnableEXT(enabled);
+
+		public void SetDrawMode(DrawMode mode) => CommandBuffer.SetPrimitiveTopologyEXT(VulkanConverter.Convert(mode));
+
+		public void SetFrontFace(FrontFace face) => CommandBuffer.SetFrontFaceEXT(VulkanConverter.Convert(face));
+
 		public void SetLineWidth(float lineWidth) => CommandBuffer.SetLineWidth(lineWidth);
+
+		public void SetLogicOp(LogicOp op) => CommandBuffer.SetLogicOpEXT(VulkanConverter.Convert(op));
+
+		public void SetPatchControlPoints(uint controlPoints) => CommandBuffer.SetPatchControlPointsEXT(controlPoints);
+
+		public void SetPrimitiveRestartEnable(bool enabled) => CommandBuffer.SetPrimitiveRestartEnableEXT(enabled);
+
+		public void SetRasterizerDiscardEnable(bool enabled) => CommandBuffer.SetRasterizerDiscardEnableEXT(enabled);
 
 		public void SetScissor(Recti scissor, uint firstScissor = 0) => CommandBuffer.SetScissor(scissor, firstScissor);
 
@@ -974,13 +1007,36 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			CommandBuffer.SetScissor(rects, firstScissor);
 		}
 
+		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors) {
+			Span<VKRect2D> rects = stackalloc VKRect2D[scissors.Length];
+			for (int i = 0; i < rects.Length; i++) rects[i] = scissors[i];
+			CommandBuffer.SetScissorWithCountEXT(rects);
+		}
+
 		public void SetStencilCompareMask(CullFace face, uint compareMask) => CommandBuffer.SetStencilCompareMask(VulkanConverter.ConvertToStencilFace(face), compareMask);
 
+		public void SetStencilOp(CullFace faces, StencilOp failOp, StencilOp passOp, StencilOp depthFailOp, CompareOp compareOp) =>
+			CommandBuffer.SetStencilOpEXT(VulkanConverter.ConvertToStencilFace(faces), VulkanConverter.Convert(failOp), VulkanConverter.Convert(passOp), VulkanConverter.Convert(depthFailOp), VulkanConverter.Convert(compareOp));
+
 		public void SetStencilReference(CullFace face, uint reference) => CommandBuffer.SetStencilCompareMask(VulkanConverter.ConvertToStencilFace(face), reference);
+
+		public void SetStencilTestEnable(bool enabled) => CommandBuffer.SetStencilTestEnableEXT(enabled);
 
 		public void SetStencilWriteMask(CullFace face, uint writeMask) => CommandBuffer.SetStencilCompareMask(VulkanConverter.ConvertToStencilFace(face), writeMask);
 
 		public void SetSync(ISync dst, PipelineStage stage) => CommandBuffer.SetEvent(((VulkanEventSync)dst).Event, VulkanConverter.Convert(stage));
+
+		public void SetVertexFormat(VertexFormat format) {
+			Span<VKVertexInputBindingDescription2EXT> bindings = stackalloc VKVertexInputBindingDescription2EXT[format.Bindings.Count];
+			Span<VKVertexInputAttributeDescription2EXT> attributes = stackalloc VKVertexInputAttributeDescription2EXT[format.Attributes.Count];
+			int i = 0;
+			var eb = format.Bindings.GetEnumerator();
+			while (eb.MoveNext()) bindings[i++] = VulkanConverter.Convert(eb.Current);
+			i = 0;
+			var ea = format.Attributes.GetEnumerator();
+			while (ea.MoveNext()) attributes[i++] = VulkanConverter.Convert(ea.Current);
+			CommandBuffer.SetVertexInputEXT(bindings, attributes);
+		}
 
 		public void SetViewport(Viewport viewport, uint firstViewport = 0) => CommandBuffer.SetViewport(viewport, firstViewport);
 
@@ -994,6 +1050,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			Span<VKViewport> views = stackalloc VKViewport[viewports.Length];
 			for (int i = 0; i < views.Length; i++) views[i] = viewports[i];
 			CommandBuffer.SetViewport(views, firstViewport);
+		}
+
+		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports) {
+			Span<VKViewport> views = stackalloc VKViewport[viewports.Length];
+			for (int i = 0; i < views.Length; i++) views[i] = viewports[i];
+			CommandBuffer.SetViewportWithCountEXT(views);
 		}
 
 		public void UpdateBuffer(IBuffer dst, nuint dstOffset, nuint dstSize, IntPtr pData) => CommandBuffer.UpdateBuffer(((VulkanBuffer)dst).Buffer, dstOffset, dstSize, pData);
@@ -1043,6 +1105,30 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			CommandBuffer.WaitEvents(evt, VulkanConverter.Convert(barriers.ProvokingStages), VulkanConverter.Convert(barriers.AwaitingStages), mems, bufs, imgs);
 		}
 
+		public void BeginRendering(in ICommandSink.RenderingInfo renderingInfo) {
+			using MemoryStack sp = MemoryStack.Push();
+
+			VKRenderingInfoKHR vkInfo = new() {
+				Type = VKStructureType.RenderingInfo,
+				RenderArea = renderingInfo.RenderArea,
+				LayerCount = 1,
+				ViewMask = 0
+			};
+
+			if (renderingInfo.ColorAttachments != null) {
+				var colors = renderingInfo.ColorAttachments;
+				vkInfo.ColorAttachmentCount = (uint)colors.Length;
+				vkInfo.ColorAttachments = sp.Values<VKRenderingAttachmentInfoKHR>(colors.ConvertAll(info => VulkanConverter.Convert(info)));
+			}
+			if (renderingInfo.DepthAttachment != null)
+				vkInfo.DepthAttachment = sp.Values(VulkanConverter.Convert(renderingInfo.DepthAttachment.Value));
+			if (renderingInfo.StencilAttachment != null)
+				vkInfo.StencilAttachment = sp.Values(VulkanConverter.Convert(renderingInfo.StencilAttachment.Value));
+
+			CommandBuffer.BeginRendering(vkInfo);
+		}
+
+		public void EndRendering() => CommandBuffer.EndRendering();
 	}
 
 }

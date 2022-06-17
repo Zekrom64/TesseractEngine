@@ -248,7 +248,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static implicit operator IntPtr(VKPhysicalDevice? pd) => pd.PhysicalDevice;
+		public static implicit operator IntPtr(VKPhysicalDevice? pd) => pd!.PhysicalDevice;
 
 	}
 }

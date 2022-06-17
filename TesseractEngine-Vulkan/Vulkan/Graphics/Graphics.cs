@@ -12,10 +12,29 @@ using Tesseract.Vulkan.Graphics.Impl;
 
 namespace Tesseract.Vulkan.Graphics {
 
+	/// <summary>
+	/// Vulkan graphics implementation.
+	/// </summary>
 	public class VulkanGraphics : IGraphics {
 
+		/// <summary>
+		/// The provider this graphics context was created from.
+		/// </summary>
+		public VulkanGraphicsProvider Provider { get; }
+
+		/// <summary>
+		/// The Vulkan logical device this context uses.
+		/// </summary>
 		public VulkanDevice Device { get; }
+
+		/// <summary>
+		/// The Vulkan memory manager this context uses.
+		/// </summary>
 		public VulkanMemory Memory { get; }
+
+		/// <summary>
+		/// The Vulkan command manager this context uses.
+		/// </summary>
 		public VulkanCommands Commands { get; }
 
 		public IGraphicsProperites Properties { get; }
@@ -107,9 +126,9 @@ namespace Tesseract.Vulkan.Graphics {
 			using MemoryStack sp = MemoryStack.Push();
 			return new VulkanPipelineLayout(Device.Device.CreatePipelineLayout(new VKPipelineLayoutCreateInfo() {
 				Type = VKStructureType.PipelineLayoutCreateInfo,
-				SetLayoutCount = (uint)createInfo.Layouts.Length,
-				SetLayouts = sp.Values(createInfo.Layouts.ConvertAll(layout => ((VulkanBindSetLayout)layout).Layout)),
-				PushConstantRangeCount = (uint)(createInfo.PushConstantRanges?.Length).GetValueOrDefault(0),
+				SetLayoutCount = (uint)createInfo.Layouts.Count,
+				SetLayouts = sp.Values(createInfo.Layouts.ConvertAll(layout => ((VulkanBindSetLayout)layout).Layout.DescriptorSetLayout)),
+				PushConstantRangeCount = (uint)(createInfo.PushConstantRanges?.Count).GetValueOrDefault(0),
 				PushConstantRanges = createInfo.PushConstantRanges != null ? sp.Values(createInfo.PushConstantRanges.ConvertAll(VulkanConverter.Convert)) : IntPtr.Zero
 			}));
 		}
@@ -327,76 +346,66 @@ namespace Tesseract.Vulkan.Graphics {
 		}
 
 		public void SubmitCommands(in IGraphics.CommandBufferSubmitInfo submitInfo) {
-			
+			VulkanCommands.CommandBank? cmdbank = null;
+			ulong queueid = 0;
+			Span<IntPtr> cmds = stackalloc IntPtr[submitInfo.CommandBuffer.Length];
+			for (int i = 0; i < cmds.Length; i++) {
+				var vkcmd = ((VulkanCommandBuffer)submitInfo.CommandBuffer[i]);
+				cmds[i] = vkcmd.CommandBuffer.CommandBuffer;
+				if (cmdbank == null) {
+					cmdbank = vkcmd.CommandPool.Bank;
+					queueid = vkcmd.QueueID;
+				} else if (queueid != vkcmd.QueueID) throw new VulkanException("Cannot submit command buffers which target different queues");
+			}
+			if (cmdbank == null) return;
+
+			VulkanFenceSync? fence = null;
+			int sigcount = 0, waitcount = 0;
+			Span<ulong> sigs = stackalloc ulong[submitInfo.SignalSync.Length];
+			Span<ulong> waits = stackalloc ulong[submitInfo.WaitSync.Length];
+			Span<VKPipelineStageFlagBits> waitStages = stackalloc VKPipelineStageFlagBits[waits.Length];
+
+			// Parse the signal sync list
+			foreach(ISync sync in submitInfo.SignalSync) {
+				if (sync is VulkanFenceSync fsync) {
+					if (fence != null) throw new VulkanException("Cannot submit commands while signaling more than one fence");
+					else fence = fsync;
+				} else if (sync is VulkanSemaphoreSync ssync) {
+					sigs[sigcount++] = ssync.Semaphore.Semaphore;
+				} else throw new VulkanException("Unsupported command submit sync object in signaling list");
+			}
+
+			// Parse the wait sync list
+			foreach(var wait in submitInfo.WaitSync) {
+				if (wait.Item1 is VulkanSemaphoreSync ssync) {
+					waits[waitcount++] = ssync.Semaphore.Semaphore;
+				} else throw new VulkanException("Unsupported command submit sync object in waiting list");
+			}
+
+			Commands.Submit(cmdbank, cmds, waits, waitStages, sigs, fence?.Fence);
 		}
 
 		public void TrimCommandBufferMemory() => Commands.Trim();
 
 		public void WaitIdle() => Commands.WaitIdle();
 
-		public VulkanGraphics(VulkanGraphicsContext context) {
-			Context = context;
-			Device = new VulkanDevice(context);
-			Memory = new VulkanMemory(Device);
-			Commands = new VulkanCommands(context, Device);
+		public VulkanGraphics(VulkanGraphicsProvider provider, VulkanDevice device) {
+			Provider = provider;
+			Device = device;
+			Memory = new VulkanMemory(Device, ((VulkanGraphicsProperties)provider.Properties).Memory);
+			int poolParallelism = Environment.ProcessorCount, gcThreshold = 100;
+			var exinfo = provider.Enumerator.ExtendedInfo;
+			if (exinfo != null) {
+				if (exinfo.CommandPoolParallelism > 0) poolParallelism = exinfo.CommandPoolParallelism;
+				if (exinfo.CommandBufferGCThreshold > 0) gcThreshold = exinfo.CommandBufferGCThreshold;
+			}
+			Commands = new VulkanCommands(Device, poolParallelism, gcThreshold);
 
-			Properties = new VulkanGraphicsProperties(Device, Memory);
-			Features = new VulkanGraphicsFeatures(Device);
+			Properties = new VulkanGraphicsProperties(Device.PhysicalDevice, Memory);
+			Features = new VulkanGraphicsFeatures(Device.PhysicalDevice, Device);
 			Limits = new VulkanGraphicsLimits(Device.PhysicalDevice);
 		}
 
 	}
-
-	/*
-	public class VulkanGraphicsContext {
-
-		/// <summary>
-		/// The instance used to create the graphics.
-		/// </summary>
-		public VKInstance Instance { get; init; } = null!;
-
-		/// <summary>
-		/// The preferred physical device to use, or null.
-		/// </summary>
-		public VKPhysicalDevice? PreferredPhysicalDevice { get; init; } = null;
-
-		/// <summary>
-		/// The collection of required device extensions, or null.
-		/// </summary>
-		public IReadOnlyCollection<string>? RequiredDeviceExtensions { get; init; } = null;
-
-		/// <summary>
-		/// The collection of preferred device extensions, or null.
-		/// </summary>
-		public IReadOnlyCollection<string>? PreferredDeviceExtensions { get; init; } = null;
-
-		/// <summary>
-		/// The weighting of preferred extensions used when calculating device scores.
-		/// </summary>
-		public float ExtensionWeight { get; init; } = 1.0f;
-
-		/// <summary>
-		/// Function to use to score physical devices, or null to use the built-in function.
-		/// </summary>
-		public Func<VulkanPhysicalDeviceInfo, float>? ScoreFunc { get; init; } = null;
-
-		/// <summary>
-		/// THe amount of parallelism to use when creating command pools. By default this
-		/// is set to the processor count so that threads have a low chance of blocking
-		/// waiting for exclusive access to a command pool.
-		/// </summary>
-		public int CommandPoolParallelism { get; init; } = Environment.ProcessorCount;
-
-		/// <summary>
-		/// A collection of required surfaces to test for compatibility with physical devices.
-		/// </summary>
-		public IReadOnlyCollection<VKSurfaceKHR>? RequiredCompatibleSurfaces { get; init; } = null;
-
-		/// <summary>
-		/// The threshold of orphaned command buffers above which they will attempted to be garbage collected.
-		/// </summary>
-		public int OrphanedCommandGCThreshold { get; init; } = 256;
-	}
-	*/
 
 }

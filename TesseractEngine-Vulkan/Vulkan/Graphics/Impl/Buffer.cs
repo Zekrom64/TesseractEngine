@@ -8,10 +8,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Implementation of a Vulkan buffer.
+	/// </summary>
 	public class VulkanBuffer : IBuffer {
 
+		/// <summary>
+		/// The graphics context this buffer belongs to.
+		/// </summary>
 		public VulkanGraphics Graphics { get; }
 
+		/// <summary>
+		/// The underlying Vulkan buffer.
+		/// </summary>
 		public VKBuffer Buffer { get; }
 
 
@@ -19,6 +28,9 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public BufferUsage Usage { get; }
 
+		/// <summary>
+		/// The memory binding for this buffer.
+		/// </summary>
 		public IVKMemoryBinding MemoryBinding { get; }
 
 		IMemoryBinding IBuffer.MemoryBinding => MemoryBinding;

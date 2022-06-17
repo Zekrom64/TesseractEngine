@@ -62,7 +62,9 @@ namespace Tesseract.Vulkan.Graphics {
 				SparseResidency8Samples = features.SparseResidency8Samples,
 				SparseResidency16Samples = features.SparseResidency16Samples,
 				SparseResidencyAliased = features.SparseResidencyAliased,
-				DrawIndirect = true
+				DrawIndirect = true,
+
+				DynamicRendering = info.Extensions.Contains(KHRDynamicRendering.ExtensionName)
 			};
 		}
 
@@ -105,32 +107,45 @@ namespace Tesseract.Vulkan.Graphics {
 
 		public bool LimitedTextureCopyToBuffer => false; // We don't have limitations on texture-to-buffer copying in Vulkan
 
-		public VulkanGraphicsFeatures(VulkanDevice device) {
-			HardwareFeatures = FromVK(device.PhysicalDevice);
+		public VulkanGraphicsFeatures(VulkanPhysicalDeviceInfo device, VulkanDevice? logicalDevice = null) {
+			HardwareFeatures = FromVK(device);
 			SupportedDynamicStates = new FuncReadOnlyIndexer<PipelineDynamicState, bool, HashSet<PipelineDynamicState>>(
 				dynamicStates, (HashSet<PipelineDynamicState> set, PipelineDynamicState state) => set.Contains(state)
 			);
 
-			VKDevice logicalDevice = device.Device;
-			if (logicalDevice.EXTCustomBorderColor) {
-				SamplerCustomBorderColor = device.PhysicalDevice.CustomBorderColorFeaturesEXT!.Value.CustomBorderColors;
+			SamplerCustomBorderColor = device.CustomBorderColorFeaturesEXT?.CustomBorderColors ?? false;
+			if (device.LineRasterizationPropertiesEXT != null) {
+				if (logicalDevice == null || logicalDevice.Device.EXTLineRasterization != null) {
+					var features = device.LineRasterizationFeaturesEXT!.Value;
+					StrictLines = !(features.BresenhamLines || features.RectangularLlines || features.SmoothLines);
+				}
 			}
-			if (logicalDevice.EXTLineRasterization != null) {
-				var features = device.PhysicalDevice.LineRasterizationFeaturesEXT!.Value;
-				StrictLines = !(features.BresenhamLines || features.RectangularLlines || features.SmoothLines);
+			if (device.ExtendedDynamicStateFeaturesEXT != null) {
+				if (logicalDevice == null || logicalDevice.Device.EXTExtendedDynamicState != null) {
+					var features = device.ExtendedDynamicStateFeaturesEXT!.Value;
+					if (features.ExtendedDynamicState) {
+						dynamicStates.Add(PipelineDynamicState.CullMode);
+						dynamicStates.Add(PipelineDynamicState.FrontFace);
+						dynamicStates.Add(PipelineDynamicState.DrawMode);
+						dynamicStates.Add(PipelineDynamicState.DepthTestEnable);
+						dynamicStates.Add(PipelineDynamicState.DepthWriteEnable);
+						dynamicStates.Add(PipelineDynamicState.DepthCompareOp);
+						dynamicStates.Add(PipelineDynamicState.DepthBoundsTestEnable);
+						dynamicStates.Add(PipelineDynamicState.StencilTestEnable);
+						dynamicStates.Add(PipelineDynamicState.StencilOp);
+					}
+				}
 			}
-			if (logicalDevice.EXTExtendedDynamicState != null) {
-				var features = device.PhysicalDevice.ExtendedDynamicStateFeaturesEXT!.Value;
-				if (features.ExtendedDynamicState) {
-					dynamicStates.Add(PipelineDynamicState.CullMode);
-					dynamicStates.Add(PipelineDynamicState.FrontFace);
-					dynamicStates.Add(PipelineDynamicState.DrawMode);
-					dynamicStates.Add(PipelineDynamicState.DepthTest);
-					dynamicStates.Add(PipelineDynamicState.DepthWriteEnable);
-					dynamicStates.Add(PipelineDynamicState.DepthCompareOp);
-					dynamicStates.Add(PipelineDynamicState.DepthBoundsTestEnable);
-					dynamicStates.Add(PipelineDynamicState.StencilTestEnable);
-					dynamicStates.Add(PipelineDynamicState.StencilOp);
+			if (device.ExtendedDynamicState2FeaturesEXT != null) {
+				if (logicalDevice == null || logicalDevice.Device.EXTExtendedDynamicState2) {
+					var features = device.ExtendedDynamicState2FeaturesEXT!.Value;
+					if (features.ExtendedDynamicState2) {
+						dynamicStates.Add(PipelineDynamicState.DepthBiasEnable);
+						dynamicStates.Add(PipelineDynamicState.PrimitiveRestartEnable);
+						dynamicStates.Add(PipelineDynamicState.RasterizerDiscardEnable);
+					}
+					if (features.ExtendedDynamicState2LogicOp) dynamicStates.Add(PipelineDynamicState.LogicOp);
+					if (features.ExtendedDyanmicState2PatchControlPoints) dynamicStates.Add(PipelineDynamicState.PatchControlPoints);
 				}
 			}
 		}

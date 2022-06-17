@@ -72,8 +72,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 	/// </summary>
 	public class VulkanMemoryBinding : IVKMemoryBinding {
 
+		/// <summary>
+		/// The memory manager for this binding.
+		/// </summary>
 		public VulkanMemory MemoryManager { get; init; } = null!;
 
+		/// <summary>
+		/// The underlying VMA allocation for this binding.
+		/// </summary>
 		public VMAAllocation Allocation { get; init; } = null!;
 
 		public VKDeviceMemory DeviceMemory { get; init; } = null!;
@@ -112,6 +118,9 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public ulong TotalCommittedMemory => allocator.Budget.AllocationBytes;
 
+		/// <summary>
+		/// The device this memory manager will allocate from.
+		/// </summary>
 		public VulkanDevice Device { get; }
 
 		private readonly VMAAllocator allocator;
@@ -135,6 +144,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			allocator.Dispose();
 		}
 
+		/// <summary>
+		/// Allocates a memory binding for a buffer.
+		/// </summary>
+		/// <param name="createInfo">The buffer's creation information</param>
+		/// <param name="buffer">The buffer to allocate memory for</param>
+		/// <returns>The allocated memory binding</returns>
 		public VulkanMemoryBinding Allocate(in BufferCreateInfo createInfo, VKBuffer buffer) {
 			VKMemoryPropertyFlagBits reqProps = 0;
 			MemoryMapFlags mapReqs = createInfo.MapFlags;
@@ -178,6 +193,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			};
 		}
 
+		/// <summary>
+		/// Allocates a memory binding for an image.
+		/// </summary>
+		/// <param name="createInfo">The image's creation information</param>
+		/// <param name="image">The image to allocate memory for</param>
+		/// <returns>The allocated memory binding</returns>
 		public VulkanMemoryBinding Allocate(in TextureCreateInfo createInfo, VKImage image) {
 			VKMemoryPropertyFlagBits reqProps = 0;
 			VKMemoryPropertyFlagBits prefProps = VKMemoryPropertyFlagBits.DeviceLocal;

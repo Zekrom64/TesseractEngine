@@ -67,8 +67,8 @@ namespace Tesseract.Vulkan {
 		// VK_KHR_maintenance1
 
 		public void Trim(VKCommandPoolTrimFlags flags = 0) {
-			if (Device.VK11Functions) Device.VK11Functions.vkTrimCommandPool(Device, CommandPool, flags);
-			else Device.KHRMaintenance1.vkTrimCommandPoolKHR(Device, CommandPool, flags);
+			if (Device.VK11Functions) Device.VK11Functions!.vkTrimCommandPool(Device, CommandPool, flags);
+			else Device.KHRMaintenance1!.vkTrimCommandPoolKHR(Device, CommandPool, flags);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

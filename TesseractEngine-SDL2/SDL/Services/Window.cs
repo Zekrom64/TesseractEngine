@@ -235,7 +235,7 @@ namespace Tesseract.SDL.Services {
 			if (attributes.TryGet(WindowAttributes.Maximized, out bool maximized) && maximized) flags |= SDLWindowFlags.Maximized;
 			if (attributes.TryGet(WindowAttributes.Focused, out bool focused) && focused) flags |= SDLWindowFlags.InputFocus;
 			if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) flags |= SDLWindowFlags.OpenGL;
-			if (attributes.TryGet(VKWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) flags |= SDLWindowFlags.Vulkan;
+			if (attributes.TryGet(VulkanWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) flags |= SDLWindowFlags.Vulkan;
 			return flags;
 		}
 

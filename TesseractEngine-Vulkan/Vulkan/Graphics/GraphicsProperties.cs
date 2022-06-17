@@ -4,16 +4,31 @@ using Tesseract.Vulkan.Graphics.Impl;
 
 namespace Tesseract.Vulkan.Graphics {
 
+	/// <summary>
+	/// An interface for objects which can provide memory information.
+	/// </summary>
 	public interface IVulkanMemory {
 
+		/// <summary>
+		/// The total amount of video memory, as defined in <see cref="IGraphicsProperites.TotalVideoMemory"/>.
+		/// </summary>
 		public ulong TotalVideoMemory { get; }
 
+		/// <summary>
+		/// The total amount of device-local memory, as defined in <see cref="IGraphicsProperites.TotalDeviceMemory"/>.
+		/// </summary>
 		public ulong TotalDeviceMemory { get; }
 
+		/// <summary>
+		/// The total amount of committed memory, as defined in <see cref="IGraphicsProperites.TotalCommittedMemory"/>.
+		/// </summary>
 		public ulong TotalCommittedMemory { get; }
 
 	}
 
+	/// <summary>
+	/// An implementation of <see cref="IVulkanMemory"/> which reflects the values provided by a physical device.
+	/// </summary>
 	public class VulkanDeviceMemory : IVulkanMemory {
 
 		public ulong TotalVideoMemory { get; }
@@ -38,6 +53,7 @@ namespace Tesseract.Vulkan.Graphics {
 			switch (device.PhysicalDevice.Properties.DeviceType) {
 				case VKPhysicalDeviceType.CPU:
 				case VKPhysicalDeviceType.IntegratedGPU:
+					// If the device is a CPU or an integrated GPU all memory is technically local
 					totalLocal = totalVisible;
 					break;
 			}
@@ -48,6 +64,9 @@ namespace Tesseract.Vulkan.Graphics {
 
 	}
 
+	/// <summary>
+	/// Vulkan graphics properties instance.
+	/// </summary>
 	public class VulkanGraphicsProperties : IGraphicsProperites {
 
 		public GraphicsType Type => GraphicsType.Vulkan;
@@ -60,21 +79,27 @@ namespace Tesseract.Vulkan.Graphics {
 
 		public ThreadSafetyLevel APIThreadSafety => ThreadSafetyLevel.Concurrent;
 
-		private readonly IVulkanMemory memory;
+		public readonly IVulkanMemory Memory;
 
-		public ulong TotalVideoMemory => memory.TotalVideoMemory;
+		public ulong TotalVideoMemory => Memory.TotalVideoMemory;
 
-		public ulong TotalDeviceMemory => memory.TotalDeviceMemory;
+		public ulong TotalDeviceMemory => Memory.TotalDeviceMemory;
 
-		public ulong TotalCommittedMemory => memory.TotalCommittedMemory;
+		public ulong TotalCommittedMemory => Memory.TotalCommittedMemory;
 
 		public CoordinateSystem CoordinateSystem => CoordinateSystem.RightHanded;
 
-		public VulkanGraphicsProperties(VulkanPhysicalDeviceInfo device, VulkanMemory? memory = null) {
+		/// <summary>
+		/// Creates a new set of Vulkan graphics properties for the given physical device, with
+		/// either a provided memory interface or initializes one from the physical device.
+		/// </summary>
+		/// <param name="device">The Vulkan physical device</param>
+		/// <param name="memory">The memory interface, or null</param>
+		public VulkanGraphicsProperties(VulkanPhysicalDeviceInfo device, IVulkanMemory? memory = null) {
 			var props = device.PhysicalDevice.Properties;
 			RendererName = props.DeviceName;
 			VendorName = props.VendorID.ToString();
-			this.memory = memory != null ? memory : new VulkanDeviceMemory(device);
+			this.Memory = memory ?? new VulkanDeviceMemory(device);
 		}
 
 	}

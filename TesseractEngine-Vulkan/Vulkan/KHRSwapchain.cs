@@ -240,14 +240,14 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKResult AcquireNextImage(ulong timeout, VKSemaphore semaphore, VKFence fence, out uint imageIndex) =>
+		public VKResult AcquireNextImage(ulong timeout, VKSemaphore? semaphore, VKFence? fence, out uint imageIndex) =>
 			Device.KHRSwapchain!.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) =>
 			Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
 
-		public static implicit operator ulong(VKSwapchainKHR swapchain) => swapchain != null ? swapchain.SwapchainKHR : 0;
+		public static implicit operator ulong(VKSwapchainKHR? swapchain) => swapchain != null ? swapchain.SwapchainKHR : 0;
 
 	}
 

@@ -9,8 +9,14 @@ using Tesseract.Core.Util;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Vulkan implementation for a pipeline layout.
+	/// </summary>
 	public class VulkanPipelineLayout : IPipelineLayout {
 
+		/// <summary>
+		/// The underlying Vulkan pipeline layout.
+		/// </summary>
 		public VKPipelineLayout Layout { get; }
 
 		public VulkanPipelineLayout(VKPipelineLayout layout) {
@@ -24,10 +30,19 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan implementation for a pipeline.
+	/// </summary>
 	public class VulkanPipeline : IPipeline {
 
+		/// <summary>
+		/// The underlying Vulkan pipeline.
+		/// </summary>
 		public VKPipeline Pipeline { get; }
 
+		/// <summary>
+		/// The bind point for this pipeline.
+		/// </summary>
 		public VKPipelineBindPoint BindPoint { get; }
 
 		public VulkanPipeline(VKPipeline pipeline, VKPipelineBindPoint bindPoint) {
@@ -42,8 +57,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan implementation of a pipeline cache.
+	/// </summary>
 	public class VulkanPipelineCache : IPipelineCache {
 
+		/// <summary>
+		/// The underlying Vulkan pipeline cache.
+		/// </summary>
 		public VKPipelineCache PipelineCache { get; }
 
 		public byte[] Data => PipelineCache.Data;
@@ -59,18 +80,26 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan implementation for a pipeline set.
+	/// </summary>
 	public class VulkanPipelineSet : IPipelineSet {
 
-		public const int HashingThreshold = 5;
+		// The threshold for variables above which 
+		private const int HashingThreshold = 5;
 
+		// A dynamic field is a variable used 
 		private struct DynamicField {
 
+			// A comparator function which determines if this field is the same between two dynamic infos
 			public Func<PipelineDynamicCreateInfo, PipelineDynamicCreateInfo, bool> Comparator;
 
+			// A merger function which merges just this field's value into a dynamic info
 			public Func<PipelineDynamicCreateInfo, PipelineDynamicCreateInfo, PipelineDynamicCreateInfo> Merger;
 
 		}
 
+		// Converts a dynamic state to a dynamic field.
 		private static DynamicField MakeField(PipelineDynamicState state) => state switch {
 			PipelineDynamicState.Viewport => new() {
 				Comparator = (p1, p2) => p1.Viewports == p2.Viewports,
@@ -142,7 +171,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				Comparator = (p1, p2) => p1.DrawMode == p2.DrawMode,
 				Merger = (pbase, pnew) => pbase with { DrawMode = pnew.DrawMode }
 			},
-			PipelineDynamicState.DepthTest => new() {
+			PipelineDynamicState.DepthTestEnable => new() {
 				Comparator = (p1, p2) => p1.Scissors == p2.Scissors,
 				Merger = (pbase, pnew) => pbase with { Scissors = pnew.Scissors }
 			},
@@ -213,8 +242,10 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			_ => default
 		};
 
+		// The list of pipeline fields to use
 		private readonly List<DynamicField> fields = new();
 
+		// Creates a new derived pipeline using the given dynamic info
 		private (PipelineDynamicCreateInfo, VKPipeline) CreateDerivedPipeline(PipelineDynamicCreateInfo key) {
 			PipelineDynamicCreateInfo newDynInfo = BaseInfo.GraphicsInfo!.DynamicInfo;
 			foreach (var field in fields) newDynInfo = field.Merger(newDynInfo, key);
@@ -227,9 +258,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			return (newDynInfo, ((VulkanPipeline)Graphics.CreatePipeline(createInfo)).Pipeline);
 		}
 
+		// A pipeline set implementation that seeks to match pipelines from a list by their dynamic info
 		private class MatchedPipelineSet : IReadOnlyIndexer<PipelineDynamicCreateInfo, VKPipeline>, IDisposable {
 
+			// The pipeline set using this implementation
 			private readonly VulkanPipelineSet pipelineSet;
+			// The list of all created pipelines 
 			private readonly List<(PipelineDynamicCreateInfo, VKPipeline)> pipelines = new();
 
 			public MatchedPipelineSet(VulkanPipelineSet set) {
@@ -238,6 +272,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			}
 
 			private bool MatchPipelines(PipelineDynamicCreateInfo c1, PipelineDynamicCreateInfo c2) {
+				// All dynamic fields must match
 				foreach (DynamicField field in pipelineSet.fields) if (!field.Comparator(c1, c2)) return false;
 				return true;
 			}
@@ -262,6 +297,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		}
 
+		// A pipeline set implementation that seeks to map pipelines by their dynamic info's hash
 		private class HashedPipelineSet : IReadOnlyIndexer<PipelineDynamicCreateInfo, VKPipeline>, IDisposable {
 
 			private readonly VulkanPipelineSet pipelineSet;
@@ -292,14 +328,29 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		}
 
+		/// <summary>
+		/// Indexer function from dynamic pipeline information to corresponding pipelines.
+		/// </summary>
 		public IReadOnlyIndexer<PipelineDynamicCreateInfo, VKPipeline> Pipelines;
 
+		/// <summary>
+		/// The graphics context this set was created from.
+		/// </summary>
 		public VulkanGraphics Graphics { get; }
 
+		/// <summary>
+		/// The base pipeline for this set's pipelines.
+		/// </summary>
 		public VulkanPipeline BasePipeline { get; }
 
+		/// <summary>
+		/// The base creation info for this set's pipelines.
+		/// </summary>
 		public PipelineCreateInfo BaseInfo { get; }
 
+		/// <summary>
+		/// The bind point for pipelines from this set.
+		/// </summary>
 		public VKPipelineBindPoint BindPoint { get; }
 
 		public VulkanPipelineSet(VulkanGraphics graphics, PipelineSetCreateInfo createInfo) {

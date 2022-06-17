@@ -41,7 +41,7 @@ namespace Tesseract.Vulkan {
 
 		public void Signal(ulong value) {
 			var signalInfo = new VKSemaphoreSignalInfo() {
-				Type = VKStructureType.SEMAPHORE_SIGNAL_INFO,
+				Type = VKStructureType.SemaphoreSignalInfo,
 				Semaphore = Semaphore,
 				Value = value
 			};
@@ -55,7 +55,7 @@ namespace Tesseract.Vulkan {
 			ulong semaphore = Semaphore;
 			unsafe {
 				var waitInfo = new VKSemaphoreWaitInfo() {
-					Type = VKStructureType.SEMAPHORE_WAIT_INFO,
+					Type = VKStructureType.SemaphoreWaitInfo,
 					SemaphoreCount = 1,
 					Semaphores = (IntPtr)(&semaphore),
 					Values = (IntPtr)(&value)

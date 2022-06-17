@@ -108,6 +108,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public TextureUsage SupportedImageUsage { get; init; }
 
+		/// <summary>
+		/// List of supported pixel formats for the swapchain, or null if the swapchain does not define such a list.
+		/// </summary>
+		public IReadOnlyList<PixelFormat>? SupportedFormats { get; init; }
+
 	}
 
 	/// <summary>
@@ -129,6 +134,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Bitmask of the required usages for each image in image-based swapchains.
 		/// </summary>
 		public TextureUsage ImageUsage { get; init; }
+
+		/// <summary>
+		/// The preferred pixel format to use for the images of the swapchain. If null, a pixel format is
+		/// determined automatically based on what the underlying window surface supports.
+		/// </summary>
+		public PixelFormat? PreferredPixelFormat { get; init; } = null;
 
 	}
 
@@ -165,8 +176,16 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	public class EmptyGraphicsEnumerator : IGraphicsEnumerator {
 
-		[SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "Dispose is a no-op, only used to fulfill the contract of IGraphicsEnumerator")]
-		public void Dispose() { }
+		/// <summary>
+		/// The instance of an empty enumerator.
+		/// </summary>
+		public static readonly EmptyGraphicsEnumerator Instance = new();
+
+		private EmptyGraphicsEnumerator() { }
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+		}
 
 		public IEnumerable<IGraphicsProvider> EnumerateProviders() => Collections<IGraphicsProvider>.EmptyList;
 
@@ -196,7 +215,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The window the graphics will draw to. If null, this indicates that
 		/// graphics will be requested in "headless" mode; nothing will be
-		/// presented to the user.
+		/// presented to the user. The created enumerator must be destroyed
+		/// before the window given in the create info is.
 		/// </summary>
 		public IWindow? Window { get; init; } = null;
 

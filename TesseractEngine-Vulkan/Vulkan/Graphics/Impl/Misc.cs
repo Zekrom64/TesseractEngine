@@ -12,20 +12,38 @@ using Tesseract.Core.Util;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Vulkan vertex array implementation. This is just a data structure holding the format, index, and vertex buffers to bind.
+	/// </summary>
 	public class VulkanVertexArray : IVertexArray {
 
+		/// <summary>
+		/// The format of vertices in this vertex array.
+		/// </summary>
 		public VertexFormat Format { get; init; } = null!;
 
 		public void Dispose() => GC.SuppressFinalize(this);
 
+		/// <summary>
+		/// The index buffer to bind, or null.
+		/// </summary>
 		public (VulkanBuffer, MemoryRange, VKIndexType)? IndexBuffer { get; init; }
 
+		/// <summary>
+		/// The list of vertex buffers to bind, or null.
+		/// </summary>
 		public (VulkanBuffer, MemoryRange, uint)[]? VertexBuffers { get; init; }
 
 	}
 
+	/// <summary>
+	/// Vulkan sampler implementation.
+	/// </summary>
 	public class VulkanSampler : ISampler {
 
+		/// <summary>
+		/// The underlying Vulkan sampler.
+		/// </summary>
 		public VKSampler Sampler { get; }
 
 		public VulkanSampler(VKSampler sampler) {
@@ -39,8 +57,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan render pass implementation.
+	/// </summary>
 	public class VulkanRenderPass : IRenderPass {
 
+		/// <summary>
+		/// The underlying Vulkan render pass.
+		/// </summary>
 		public VKRenderPass RenderPass { get; }
 
 		public VulkanRenderPass(VKRenderPass renderPass) {
@@ -54,14 +78,23 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan framebuffer implementation.
+	/// </summary>
 	public class VulkanFramebuffer : IFramebuffer {
 
+		/// <summary>
+		/// The underlying Vulkan framebuffer.
+		/// </summary>
 		public VKFramebuffer Framebuffer { get; }
 
 		public Vector2i Size { get; }
 
 		public uint Layers { get; }
 
+		/// <summary>
+		/// The list of texture views that are used as attachments.
+		/// </summary>
 		public VulkanTextureView[] Attachments { get; }
 
 		public VulkanFramebuffer(VKFramebuffer framebuffer, Vector2i size, uint layers, VulkanTextureView[] attachments) {
@@ -78,8 +111,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan shader module implementation.
+	/// </summary>
 	public class VulkanShader : IShader {
 
+		/// <summary>
+		/// The underlying Vulkan shader module.
+		/// </summary>
 		public VKShaderModule ShaderModule { get; }
 
 		public VulkanShader(VKShaderModule module) {
@@ -99,8 +138,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan bind set layout implementation.
+	/// </summary>
 	public class VulkanBindSetLayout : IBindSetLayout {
 
+		/// <summary>
+		/// The underlying Vulkan descriptor set layout
+		/// </summary>
 		public VKDescriptorSetLayout Layout { get; }
 
 		public IReadOnlyList<BindSetLayoutBinding> Bindings { get; }
@@ -117,39 +162,51 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan bind pool implementation
+	/// </summary>
 	public class VulkanBindPool : IBindPool {
 
+		// Counts the number of bind types required for the given allocation
 		private static Dictionary<BindType,int> CountBindTypes(BindSetAllocateInfo allocateInfo) {
 			Dictionary<BindType, int> counts = new();
 			foreach(var layout in allocateInfo.Layouts) {
 				foreach(var binding in layout.Bindings) {
 					int value = counts.GetValueOrDefault(binding.Type, 0);
-					value += Math.Min((int)binding.ArraySize, 1);
+					value++;
 					counts[binding.Type] = value;
 				}
 			}
 			return counts;
 		}
 
+		// Bind type info structure
 		private struct BindTypeInfo {
 
+			// The type of binding
 			public BindType Type;
 
+			// The maximum number of available bindings
 			public int Max;
 
+			// The current number of bindings
 			public int Count;
 
 		}
 
+		// A slice stores binding information for a single Vulkan descriptor pool
 		private class Slice : IDisposable {
 
+			// The underlying Vulkan descriptor pool
 			public VKDescriptorPool Pool { get; }
 
+			// The list of bind info for this pool
 			private readonly BindTypeInfo[] bindInfos;
 
 			private int setCount = 0;
 			private readonly int maxSets;
 
+			// Attempts to allocate a descriptor set for the given bind set allocation info
 			public bool TryAlloc(BindSetAllocateInfo allocInfo, (BindType, int)[] typeCounts, [NotNullWhen(true)] out VKDescriptorSet? set) {
 				set = null;
 				lock(Pool) {
@@ -227,6 +284,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				Pool.Dispose();
 			}
 
+			// Frees a bind set
 			public void Free(VulkanBindSet set) {
 				lock(Pool) {
 					foreach(var typeCount in set.TypeCounts) {
@@ -244,14 +302,20 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		}
 
+		// The list of all loaded slices
 		private readonly List<Slice> slices = new();
+		// A reader-writer lock for the slice list
 		private readonly ReaderWriterLockSlim lockSlices = new();
+		// The device this bind pool allocates from
 		private readonly VulkanDevice device;
+		// The base bind type info
 		private readonly BindTypeInfo[] baseInfo;
+		// The number of target sets for this pool
 		private readonly int nTargets;
 
 		public VulkanBindPool(VulkanDevice device, BindPoolCreateInfo createInfo) {
 			this.device = device;
+			// Count the total number of bindings to allocate for different types based on the binding type weights and the target pool size
 			Dictionary<BindType, int> typeCounts = new();
 			foreach (var weight in createInfo.BindTypeWeights) typeCounts[weight.Item1] = (int)MathF.Ceiling(weight.Item2 * createInfo.TargetPoolSize);
 			baseInfo = typeCounts.ToArray().ConvertAll(bindcount => new BindTypeInfo() { Type = bindcount.Key, Max = bindcount.Value });
@@ -269,11 +333,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			// Lock list of slices as an upgradeable reader lock first
 			lockSlices.EnterUpgradeableReadLock();
 			try {
+				// Try to allocate from an existing slice first
 				foreach(Slice slice in slices) {
 					if (slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet? set)) return new VulkanBindSet(this, set, typeCounts);
 				}
+				// We need to add a new slice, so upgrade to a writer
 				lockSlices.EnterWriteLock();
 				try {
+					// Create a new slice and allocate from it
 					Slice slice = new(device, baseInfo, nTargets, allocateInfo);
 					slices.Add(slice);
 					if (!slice.TryAlloc(allocateInfo, typeCounts, out VKDescriptorSet? set)) throw new InvalidOperationException("Failed to allocate descriptor set");
@@ -300,12 +367,24 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan bind set implementation.
+	/// </summary>
 	public class VulkanBindSet : IBindSet {
 
+		/// <summary>
+		/// The bind pool this set was allocated from.
+		/// </summary>
 		public VulkanBindPool Pool { get; }
 
+		/// <summary>
+		/// The underlying Vulkan descriptor set.
+		/// </summary>
 		public VKDescriptorSet Set { get; }
 
+		/// <summary>
+		/// The list of allocation counts by their binding type.
+		/// </summary>
 		public (BindType, int)[] TypeCounts { get; }
 
 		public VulkanBindSet(VulkanBindPool pool, VKDescriptorSet set, (BindType, int)[] typeCounts) {

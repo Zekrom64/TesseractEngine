@@ -9,15 +9,21 @@ using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Vulkan texture implementation.
+	/// </summary>
 	public class VulkanTexture : ITexture {
 
+		/// <summary>
+		/// The underlying Vulkan image.
+		/// </summary>
 		public VKImage Image { get; }
 
 		public TextureType Type { get; init; }
 
 		public PixelFormat Format { get; init; } = null!;
 
-		public Vector3i Size { get; init; }
+		public Vector3ui Size { get; init; }
 
 		public uint MipLevels { get; init; }
 
@@ -43,8 +49,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan texture view implementation.
+	/// </summary>
 	public class VulkanTextureView : ITextureView {
 
+		/// <summary>
+		/// The underlying Vulkan texture view.
+		/// </summary>
 		public VKImageView ImageView { get; }
 
 		public TextureType Type { get; }

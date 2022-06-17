@@ -584,6 +584,7 @@ namespace Tesseract.Vulkan {
 		public void SetLineStippleEXT(uint lineStippleFactor, ushort lineStipplePattern) => Device.EXTLineRasterization!.vkCmdSetLineStippleEXT(CommandBuffer, lineStippleFactor, lineStipplePattern);
 
 		// EXT_extended_dynamic_state
+		// Vulkan 1.3
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetCullModeEXT(VKCullModeFlagBits cullMode) => Device.EXTExtendedDynamicState!.vkCmdSetCullModeEXT(CommandBuffer, cullMode);
@@ -697,6 +698,49 @@ namespace Tesseract.Vulkan {
 		public void EndDebugUtilsLabelEXT() => Device.Instance.EXTDebugUtilsFunctions!.vkCmdEndDebugUtilsLabelEXT(CommandBuffer);
 
 		public void InsertDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkCmdInsertDebugUtilsLabelEXT(CommandBuffer, labelInfo);
+
+		// VK_KHR_dynamic_rendering
+		// Vulkan 1.3
+
+		public void BeginRendering(in VKRenderingInfoKHR renderingInfo) => Device.KHRDynamicRendering!.vkCmdBeginRenderingKHR(CommandBuffer, renderingInfo);
+
+		public void EndRendering() => Device.KHRDynamicRendering!.vkCmdEndRenderingKHR(CommandBuffer);
+
+		// VK_EXT_extended_dynamic_state2
+		// Vulkan 1.3
+
+		public void SetDepthBiasEnableEXT(bool enable) => Device.EXTExtendedDynamicState2!.vkCmdSetDepthBiasEnableEXT(CommandBuffer, enable);
+
+		public void SetLogicOpEXT(VKLogicOp op) => Device.EXTExtendedDynamicState2!.vkCmdSetLogicOpEXT(CommandBuffer, op);
+
+		public void SetPatchControlPointsEXT(uint patchControlPoints) => Device.EXTExtendedDynamicState2!.vkCmdSetPatchControlPointsEXT(CommandBuffer, patchControlPoints);
+
+		public void SetPrimitiveRestartEnableEXT(bool enable) => Device.EXTExtendedDynamicState2!.vkCmdSetPrimitiveRestartEnableEXT(CommandBuffer, enable);
+
+		public void SetRasterizerDiscardEnableEXT(bool enable) => Device.EXTExtendedDynamicState2!.vkCmdSetRasterizerDiscardEnableEXT(CommandBuffer, enable);
+
+		// VK_EXT_vertex_input_dynamic_state
+
+		public void SetVertexInputEXT(in ReadOnlySpan<VKVertexInputBindingDescription2EXT> bindings, in ReadOnlySpan<VKVertexInputAttributeDescription2EXT> attributes) {
+			unsafe {
+				fixed(VKVertexInputBindingDescription2EXT* pBindings = bindings) {
+					fixed(VKVertexInputAttributeDescription2EXT* pAttributes = attributes) {
+						Device.EXTVertexInputDynamicState!.vkCmdSetVertexInputEXT(CommandBuffer, (uint)bindings.Length, (IntPtr)pBindings, (uint)attributes.Length, (IntPtr)pAttributes);
+					}
+				}
+			}
+		}
+
+		// VK_EXT_color_write_enable
+
+		public void SetColorWriteEnableEXT(in ReadOnlySpan<VKBool32> colorWriteEnables) {
+			unsafe {
+				fixed(VKBool32* pColorWriteEnables = colorWriteEnables) {
+					Device.EXTColorWriteEnable!.vkCmdSetColorWriteEnableEXT(CommandBuffer, (uint)colorWriteEnables.Length, (IntPtr)pColorWriteEnables);
+				}
+			}
+		}
+
 
 		public static implicit operator IntPtr(VKCommandBuffer? commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;
 

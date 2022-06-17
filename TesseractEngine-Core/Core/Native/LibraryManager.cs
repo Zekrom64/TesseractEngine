@@ -44,6 +44,10 @@ namespace Tesseract.Core.Native {
 
 		public IntPtr Handle { get; }
 
+		public Library(string name) {
+			Handle = NativeLibrary.Load(name);
+		}
+
 		public Library(IntPtr handle) {
 			Handle = handle;
 		}

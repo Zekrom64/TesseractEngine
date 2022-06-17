@@ -202,6 +202,10 @@ namespace Tesseract.Core.Util {
 			return true;
 		}
 
+		public static IEnumerable<T2> ConvertAll<T1,T2>(this IEnumerable<T1> e, Func<T1,T2> converter) {
+			foreach (T1 t1 in e) yield return converter(t1);
+		}
+
 	}
 
 	/// <summary>

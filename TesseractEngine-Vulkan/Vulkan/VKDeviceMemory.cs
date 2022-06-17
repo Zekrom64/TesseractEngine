@@ -29,10 +29,10 @@ namespace Tesseract.Vulkan {
 		public ulong OpaqueCaptureAddress {
 			get {
 				var info = new VKDeviceMemoryOpaqueCaptureAddressInfo() {
-					Type = VKStructureType.DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
+					Type = VKStructureType.DeviceMemoryOpaqueCaptureAddressInfo,
 					Memory = DeviceMemory
 				};
-				if (Device.VK12Functions) return Device.VK12Functions.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
+				if (Device.VK12Functions) return Device.VK12Functions!.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
 				else return Device.KHRBufferDeviceAddress!.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
 			}
 		}

@@ -67,6 +67,10 @@ namespace Tesseract.Vulkan {
 		public KHRTimelineSemaphoreDeviceFunctions? KHRTimelineSemaphore { get; }
 		public bool KHRUniformBufferStandardLayout { get; }
 		public bool KHRVulkanMemoryModel { get; }
+		// Vulkan 1.3
+		public EXTExtendedDynamicStateDeviceFunctions? EXTExtendedDynamicState { get; }
+		public EXTExtendedDynamicStateDeviceFunctions2? EXTExtendedDynamicState2 { get; }
+		public KHRDynamicRenderingDeviceFunctions? KHRDynamicRendering { get; }
 		// Miscellaneous
 		public KHRSwapchainDeviceFunctions? KHRSwapchain { get; }
 
@@ -81,7 +85,8 @@ namespace Tesseract.Vulkan {
 		// Miscellaneous
 		public bool EXTCustomBorderColor { get; }
 		public EXTLineRasterizationDeviceFunctions? EXTLineRasterization { get; }
-		public EXTExtendedDynamicStateDeviceFunctions? EXTExtendedDynamicState { get; }
+		public EXTVertexInputDynamicStateDeviceFunctions? EXTVertexInputDynamicState { get; }
+		public EXTColorWriteEnableDeviceFunctions? EXTColorWriteEnable { get; }
 
 		public VKGetDeviceProcAddr DeviceGetProcAddress;
 
@@ -150,12 +155,19 @@ namespace Tesseract.Vulkan {
 			EXTScalarBlockLayout = exts.Contains(Vulkan.EXTScalarBlockLayout.ExtensionName);
 			EXTSeparateStencilUsage = exts.Contains(Vulkan.EXTSeparateStencilUsage.ExtensionName);
 			EXTShaderViewportIndexLayer = exts.Contains(Vulkan.EXTShaderViewportIndexLayer.ExtensionName);
+			// Vulkan 1.3
+			if (exts.Contains(Vulkan.EXTExtendedDynamicState.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTExtendedDynamicState = new());
+			if (exts.Contains(Vulkan.EXTExtendedDynamicState2.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTExtendedDynamicState2 = new());
+			if (exts.Contains(Vulkan.KHRDynamicRendering.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDynamicRendering = new());
 
+			// KHR Extensions
 			if (exts.Contains(Vulkan.KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchain = new());
 
+			// EXT Extensions
 			EXTCustomBorderColor = exts.Contains(Vulkan.EXTCustomBorderColor.ExtensionName);
-			if (exts.Contains(Vulkan.EXTLineRasterization.ExtensionName)) Library.LoadFunctions(this.GetProcAddr, EXTLineRasterization = new());
-			if (exts.Contains(Vulkan.EXTExtendedDynamicState.ExtensionName)) Library.LoadFunctions(this.GetProcAddr, EXTExtendedDynamicState = new());
+			if (exts.Contains(Vulkan.EXTLineRasterization.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTLineRasterization = new());
+			if (exts.Contains(Vulkan.EXTVertexInputDynamicState.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTVertexInputDynamicState = new());
+			if (exts.Contains(Vulkan.EXTColorWriteEnable.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTColorWriteEnable = new());
 		}
 
 		public void Dispose() {
@@ -540,9 +552,9 @@ namespace Tesseract.Vulkan {
 
 		// VK_EXT_debug_utils
 
-		public void SetDebugUtilsObjectNameEXT(in VKDebugUtilsObjectNameInfoEXT nameInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions.vkSetDebugUtilsObjectNameEXT(Device, nameInfo));
+		public void SetDebugUtilsObjectNameEXT(in VKDebugUtilsObjectNameInfoEXT nameInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions!.vkSetDebugUtilsObjectNameEXT(Device, nameInfo));
 
-		public void SetDebugUtilsObjectTagEXT(in VKDebugUtilsObjectTagInfoEXT tagInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions.vkSetDebugUtilsObjectTagEXT(Device, tagInfo));
+		public void SetDebugUtilsObjectTagEXT(in VKDebugUtilsObjectTagInfoEXT tagInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions!.vkSetDebugUtilsObjectTagEXT(Device, tagInfo));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator IntPtr(VKDevice device) => device != null ? device.Device : IntPtr.Zero;

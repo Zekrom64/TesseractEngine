@@ -347,6 +347,59 @@ namespace Tesseract.Vulkan {
 		BufferOpaqueCaptureAddressCreateInfo = 1000257002,
 		MemoryOpaqueCaptureAddressAllocateInfo = 1000257003,
 		DeviceMemoryOpaqueCaptureAddressInfo = 1000257004,
+		// Vulkan 1.3
+		PhysicalDeviceVulkan1_3_Features = 53,
+		PhysicalDeviceVulkan1_3_Properties = 54,
+		PipelineCreationFeedbackCreateInfo = 1000192000,
+		PhysicalDeviceShaderTerminateInvocationFeatures = 1000215000,
+		PhysicalDeviceToolProperties = 1000245000,
+		PhysicalDeviceShaderDemoteToHelperInvocationFeatures = 1000276000,
+		PhysicalDevicePrivateDataFeatures = 1000295000,
+		DevicePrivateDataCreateInfo = 1000295001,
+		PrivateDataSlotCreateInfo = 1000295002,
+		PhysicalDevicePipelineCreationCacheControlFeatures = 1000297000,
+		MemoryBarrier2 = 1000314000,
+		BufferMemoryBarrier2 = 1000314001,
+		ImageMemoryBarrier2 = 1000314002,
+		DependencyInfo = 1000314003,
+		SubmitInfo2 = 1000314004,
+		SemaphoreSubmitInfo = 1000314005,
+		CommandBufferSubmitInfo = 1000314006,
+		PhysicalDeviceSynchronization2Features = 1000314007,
+		PhysicalDeviceZeroInitializeWorkgroupMemoryFeatures = 1000325000,
+		PhysicalDeviceImageRobustnessFeatures = 1000335000,
+		CopyBufferInfo2 = 1000337000,
+		CopyImageInfo2 = 1000337001,
+		CopyBufferToImageInfo2 = 1000337002,
+		CopyImageToBufferInfo2 = 1000337003,
+		BlitImageInfo2 = 1000337004,
+		ResolveImageInfo2 = 1000337005,
+		BufferCopy2 = 1000337006,
+		ImageCopy2 = 1000337007,
+		ImageBlit2 = 1000337008,
+		BufferImageCopy2 = 1000337009,
+		ImageResolve2 = 1000337010,
+		PhysicalDeviceSubgroupSizeControlProperties = 1000225000,
+		PipelineShaderStageRequiredSubgroupSizeCreateInfo = 1000225001,
+		PhysicalDeviceSubgroupSizeControlFeatures = 1000225002,
+		PhysicalDeviceInlineUniformBlockFeatures = 1000138000,
+		PhysicalDeviceInlineUniformBlockProperties = 1000138001,
+		WriteDescriptorSetInlineUniformBlock = 1000138002,
+		DescriptorPoolInlineUniformBlockCreateInfo = 1000138003,
+		PhysicalDeviceTextureCompressionASTC_HDR_Features = 1000066000,
+		RenderingInfo = 1000044000,
+		RenderingAttachmentInfo = 1000044001,
+		PipelineRenderingCreateInfo = 1000044002,
+		PhysicalDeviceDynamicRenderingFeatures = 1000044003,
+		CommandBufferInheritanceRenderingInfo = 1000044004,
+		PhysicalDeviceShaderIntegerDotProductFeatures = 1000280000,
+		PhysicalDeviceShaderIntegerDotProductProperties = 1000280001,
+		PhysicalDeviceTexelBufferAlignmentProperties = 1000281001,
+		FormatProperties3 = 1000360000,
+		PhysicalDeviceMaintenance4Features = 1000413000,
+		PhysicalDeviceMaintenance4Properties = 1000413001,
+		DeviceBufferMemoryRequirements = 1000413002,
+		DeviceImageMemoryRequirements = 1000413003,
 		// VK_KHR_swapchain
 		SwapchainCreateInfoKHR = 1000001000,
 		PresentInfoKHR = 1000001001,
@@ -376,72 +429,170 @@ namespace Tesseract.Vulkan {
 		DebugReportCallbackCreateInfoEXT = 1000011000,
 		// VK_AMD_rasterization_order
 		PipelineRasterizationStateRasterizationOrderAMD = 1000018000,
-
+		// VK_EXT_debug_marker
 		DebugMarkerObjectNameInfoEXT = 1000022000,
 		DebugMarkerObjectTagInfoEXT = 1000022001,
 		DebugMarkerMarkerInfoEXT = 1000022002,
+		// VK_KHR_video_queue (Beta)
+		VideoProfileKHR = 1000023000,
+		VideoCapabilitiesKHR = 1000023001,
+		VideoPictureResourceKHR = 1000023002,
+		VideoGetMemoryPropertiesKHR = 1000023003,
+		VideoBindMemoryKHR = 1000023004,
+		VideoSessionCreateInfoKHR = 1000023005,
+		VideoSessionParametersCreateInfoKHR = 1000023006,
+		VideoSessionParametersUpdateInfoKHR = 1000023007,
+		VideoBeginCodingInfoKHR = 1000023008,
+		VideoEndCodingInfoKHR = 1000023009,
+		VideoCodingControlInfoKHR = 1000023010,
+		VideoReferenceSlotKHR = 1000023011,
+		VideoQueueFamilyPropertiesKHR = 1000023012,
+		VideoProfilesKHR = 1000023013,
+		PhysicalDeviceVideoFormatInfoKHR = 1000023014,
+		VideoFormatPropertiesKHR = 1000023015,
+		QueueFamilyQueryResultStatusProperties2KHR = 1000023016,
+		// VK_KHR_video_decode_queue (Beta)
+		VideoDecodeInfoKHR = 1000024000,
+		VideoDecodeCapabilitiesKHR = 1000024001,
+		// VK_NV_dedicated_allocation
 		DedicatedAllocationImageCreateInfoNV = 1000026000,
 		DedicatedAllocationBufferCreateInfoNV = 1000026001,
 		DedicatedAllocationMemoryAllocateCreateInfoNV = 1000026002,
+		// VK_EXT_transform_feedback
 		PhysicalDeviceTransformFeedbackFeaturesEXT = 1000028000,
 		PhysicalDeviceTransformFeedbackPropertiesEXT = 1000028001,
 		PipelineRasterizationStateStreamCreateInfoEXT = 1000028002,
+		// VK_NVX_binary_import
+		CUModuleCreateInfoNVX = 1000029000,
+		CUFunctionCreateInfoNVX = 1000029001,
+		CULaunchInfoNVX = 1000029002,
+		// VK_NVX_image_view_handle
 		ImageViewHandleInfoNVX = 1000030000,
 		ImageViewAddressPropertiesNVX = 1000030001,
+		// VK_EXT_video_encode_h264 (Beta)
+		VideoEncodeH264CapabilitiesEXT = 1000038000,
+		VideoEncodeH264SessionParametersCreateInfoEXT = 1000038001,
+		VideoEncodeH264SessionParametersAddInfoEXT = 1000038002,
+		VideoEncodeH264VCLFrameInfoEXT = 1000038003,
+		VideoEncodeH264DPBSlotInfoEXT = 1000038004,
+		VideoEncodeH264NALUSliceEXT = 1000038005,
+		VideoEncodeH264EmitPictureParametersEXT = 1000038006,
+		VideoEncodeH264ProfileEXT = 1000038007,
+		VideoEncodeH264RateControlInfoEXT = 1000038008,
+		VideoEncodeH264RateControlLayerInfoEXT = 1000038009,
+		VideoEncodeH264ReferenceListsEXT = 1000038010,
+		// VK_EXT_video_encode_h265 (Beta)
+		VideoEncodeH265CapabilitiesEXT = 1000039000,
+		VideoEncodeH265SessionParametersCreateInfoEXT = 1000039001,
+		VideoEncodeH265SessionParametersAddInfoEXT = 1000039002,
+		VideoEncodeH265VCLFrameInfoEXT = 1000039003,
+		VideoEncodeH265DPBSlotInfoEXT = 1000039004,
+		VideoEncodeH265NALUSliceEXT = 1000039005,
+		VideoEncodeH265EmitPictureParametersEXT = 1000039006,
+		VideoEncodeH265ProfileEXT = 1000039007,
+		VideoEncodeH265RateControlInfoEXT = 1000039008,
+		VideoEncodeH265RateControlLayerInfoEXT = 1000039009,
+		VideoEncodeH265ReferenceListsEXT = 1000039010,
+		// VK_EXT_video_decode_h264
+		VideoDecodeH264CapabilitiesEXT = 1000040000,
+		VideoDecodeH264PictureInfoEXT = 1000040001,
+		VideoDecodeH264MVC_EXT = 1000040002,
+		VideoDecodeH264ProfileEXT = 1000040003,
+		VideoDecodeH264SessionParametersCreateInfoEXT = 1000040004,
+		VideoDecodeH264SessionParametersAddInfoEXT = 1000040005,
+		VideoDecodeH264DPBSlotInfoEXT = 1000040006,
+		// VK_AMD_texture_gather_bias_lod
 		TextureLODGatherFormatPropertiesAMD = 1000041000,
+		// VK_KHR_dynamic_rendering + VK_KHR_fragment_shading_rate
+		RenderingFragmentShadingRateAttachmentInfoKHR = 1000044006,
+		// VK_KHR_dynamic_rendering + VK_EXT_fragment_density_map
+		RenderingFragmentDensityMapAttachmentInfoEXT = 1000044007,
+		// VK_KHR_dynamic_rendering + VK_AMD_mixed_attachment_samples
+		AttachmentSampleCountInfoKHR = 1000044008,
+		// VK_KHR_dynamic_rendering + VK_NVX_multiview_per_view_attributes
+		MultiviewPerViewAttributesInfoNVX = 1000044009,
+		// VK_GGP_stream_descriptor_surface
 		StreamDescriptorSurfaceCreateInfoGGP = 1000049000,
+		// VK_NV_corner_sampled_image
 		PhysicalDeviceCornerSampledImageFeaturesNV = 1000050000,
+		// VK_NV_external_memory
 		ExternalMemoryImageCreateInfoNV = 1000056000,
 		ExportMemoryAllocateInfoNV = 1000056001,
+		// VK_NV_external_memory_win32
 		ImportMemoryWin32HandleInfoNV = 1000057000,
 		ExportMemoryWin32HandleInfoNV = 1000057001,
+		// VK_NV_win32_keyed_mutex
 		Win32KeyedMutexAcquireReleaseInfoNV = 1000058000,
+		// VK_EXT_validation_flags
 		ValidationFlagsEXT = 1000061000,
+		// VK_NN_vi_surface
 		VISurfaceCreateInfoNN = 1000062000,
-		PhysicalDeviceTextureCompressionASTC_HDRFeaturesEXT = 1000066000,
+		// VK_EXT_astc_decode_mode
 		ImageViewASTCDecodeModeEXT = 1000067000,
 		PhysicalDeviceASTCDecodeFeaturesEXT = 1000067001,
+		// VK_KHR_external_memory_win32
 		ImportMemoryWin32HandleInfoKHR = 1000073000,
 		ExportMemoryWin32HandleInfoKHR = 1000073001,
 		MemoryWin32HandlePropertiesKHR = 1000073002,
 		MemoryGetWin32HandleInfoKHR = 1000073003,
+		// VK_KHR_external_memory_fd
 		ImportMemoryFDInfoKHR = 1000074000,
 		MemoryFDPropertiesKHR = 1000074001,
 		MemoryGetFDInfoKHR = 1000074002,
+		// VK_KHR_win32_keyed_mutex
 		Win32KeyedMutexAcquireReleaseInfoKHR = 1000075000,
+		// VK_KHR_external_semaphore_win32
 		ImportSemaphoreWin32HandleInfoKHR = 1000078000,
 		ExportSemaphoreWin32HandleInfoKHR = 1000078001,
 		D3D12FenceSubmitInfoKHR = 1000078002,
 		SemaphoreGetWin32HandleInfoKHR = 1000078003,
+		// VK_KHR_external_semaphore_fd
 		ImportSemaphoreFDInfoKHR = 1000079000,
 		SemaphoreGetFDInfoKHR = 1000079001,
+		// VK_KHR_push_descriptor
 		PhysicalDevicePushDescriptorPropertiesKHR = 1000080000,
+		// VK_EXT_conditional_rendering
 		CommandBufferInheritanceConditionalRenderingInfoEXT = 1000081000,
 		PhysicalDeviceConditionalRenderingFeaturesEXT = 1000081001,
 		ConditionalRenderingBeginInfoEXT = 1000081002,
+		// VK_KHR_incremental_present
 		PresentRegionsKHR = 1000084000,
+		// VK_NV_clip_space_w_scaling
 		PipelineViewportWScalingStateCreateInfoNV = 1000087000,
+		// VK_EXT_display_surface_counter
 		SurfaceCapabilities2EXT = 1000090000,
+		// VK_EXT_display_control
 		DisplayPowerInfoEXT = 1000091000,
 		DeviceEventInfoEXT = 1000091001,
 		DisplayEventInfoEXT = 1000091002,
 		SwapchainCounterCreateInfoEXT = 1000091003,
+		// VK_GOOGLE_display_timing
 		PresentTimesInfoGOOGLE = 1000092000,
+		// VK_NVX_multiview_per_view_attributes
 		PhysicalDeviceMultiviewPerViewAttributesPropertiesNVX = 1000097000,
+		// VK_NV_viewport_swizzle
 		PipelineViewportSwizzleStateCreateInfoNV = 1000098000,
+		// VK_EXT_discard_rectangles
 		PhysicalDeviceDiscardRectanglePropertiesEXT = 1000099000,
 		PipelineDiscardRectangleStateCreateInfoEXT = 1000099001,
+		// VK_EXT_conservative_rasterization
 		PhysicalDeviceConservativeRasterizationPropertiesEXT = 1000101000,
 		PipelineRasterizationConservativeStateCreateInfoEXT = 1000101001,
+		// VK_EXT_depth_clip_enable
 		PhysicalDeviceDepthClipEnableFeaturesEXT = 1000102000,
 		PipelineRasterizationDepthClipStateCreateInfoEXT = 1000102001,
+		// VK_EXT_hdr_metadata
 		HDRMetadataEXT = 1000105000,
+		// VK_KHR_shared_presentable_image
 		SharedPresentSurfaceCapabilitiesKHR = 1000111000,
+		// VK_KHR_external_fence_win32
 		ImportFenceWin32HandleInfoKHR = 1000114000,
 		ExportFenceWin32HandleInfoKHR = 1000114001,
 		FenceGetWin32HandleInfoKHR = 1000114002,
+		// VK_KHR_external_fence_fd
 		ImportFenceFDInfoKHR = 1000115000,
 		FenceGetFDInfoKHR = 1000115001,
+		// VK_KHR_performance_query
 		PhysicalDevicePerformanceQueryFeaturesKHR = 1000116000,
 		PhysicalDevicePerformanceQueryPropertiesKHR = 1000116001,
 		QueryPoolPerformanceCreateInfoKHR = 1000116002,
@@ -449,42 +600,48 @@ namespace Tesseract.Vulkan {
 		AcquireProfilingLockInfoKHR = 1000116004,
 		PerformanceCounterKHR = 1000116005,
 		PerformanceCounterDescriptionKHR = 1000116006,
+		// VK_KHR_get_surface_capabilities2
 		PhysicalDeviceSurfaceInfo2KHR = 1000119000,
 		SurfaceCapabilities2KHR = 1000119001,
 		SurfaceFormat2KHR = 1000119002,
+		// VK_KHR_get_display_properties2
 		DisplayProperties2KHR = 1000121000,
 		DisplayPlaneProperties2KHR = 1000121001,
 		DisplayModeProperties2KHR = 1000121002,
 		DisplayPlaneInfo2KHR = 1000121003,
 		DisplayPlaneCapabilities2KHR = 1000121004,
+		// VK_MVK_ios_surface
 		IOSSurfaceCreateInfoMVK = 1000122000,
+		// VK_MVK_macos_surface
 		MacOSSurfaceCreateInfoMVK = 1000123000,
+		// VK_EXT_debug_utils
 		DebugUtilsObjectNameInfoEXT = 1000128000,
 		DebugUtilsObjectTagInfoEXT = 1000128001,
 		DebugUtilsLabelEXT = 1000128002,
 		DebugUtilsMessengerCallbackDataEXT = 1000128003,
 		DebugUtilsMessengerCreateInfoEXT = 1000128004,
+		// VK_ANDROID_external_memory_android_hardware_buffer
 		AndroidHardwareBufferUsageANDROID = 1000129000,
 		AndroidHadrwareBufferPropertiesANDROID = 1000129001,
 		AndroidHardwareBufferFormatPropertiesANDROID = 1000129002,
 		ImportAndroidHardwareBufferInfoANDROID = 1000129003,
 		MemoryGetAndroidHardwareBufferInfoANDROID = 1000129004,
 		ExternalFormatANDROID = 1000129005,
-		PhysicalDeviceInlineUniformBlockFeaturesEXT = 1000138000,
-		PhysicalDeviceInlineUniformBlockPropertiesEXT = 1000138001,
-		WriteDescriptorSetInlineUniformBlockEXT = 1000138002,
-		DescriptorPoolInlineUniformBlockCreateInfoEXT = 1000138003,
+		// VK_KHR_format_feature_flags2 + VK_ANDROID_external_memory_android_hardware_buffer
+		AndroidHardwareBufferFormatProperties2ANDROID = 1000129006,
+		// VK_EXT_sample_locations
 		SampleLocationsInfoEXT = 1000143000,
 		RenderPassSampleLocationsBeginInfoEXT = 1000143001,
 		PipelineSampleLocationsStateCreateInfoEXT = 1000143002,
 		PhysicalDeviceSampleLocationsPropertiesEXT = 1000143003,
 		MultisamplePropertiesEXT = 1000143004,
+		// VK_EXT_blend_operation_advanced
 		PhysicalDeviceBlendOperationAdvancedFeaturesEXT = 1000148000,
 		PhysicalDeviceBlendOperationAdvancedPropertiesEXT = 1000148001,
 		PipelineColorBlendAdvancedStateCreateInfoEXT = 1000148002,
-		PipelineCoverageToColorStateCreateInfo = 1000149000,
-		BindAccelerationStructureMemoryInfoKHR = 1000165006,
-		WriteDescriptorSetAccelerationStructureKHR = 1000165007,
+		// VK_NV_fragment_coverage_to_color
+		PipelineCoverageToColorStateCreateInfoNV = 1000149000,
+		// VK_KHR_acceleration_structure
 		AccelerationStructureBuildGeomtryInfoKHR = 1000150000,
 		AccelerationStructureCreateGeometryTypeInfoKHR = 1000150001,
 		AccelerationStructureDeviceAddressInfoKHR = 1000150002,
@@ -497,117 +654,199 @@ namespace Tesseract.Vulkan {
 		CopyAccelerationStructureInfoKHR = 1000150010,
 		CopyAccelerationStructureToMemoryInfoKHR = 1000150011,
 		CopyMemoryToAccelerationStructureInfoKHR = 1000150012,
-		PhysicalDeviceRayTracingFeaturesKHR = 1000150013,
-		PhysicalDeviceRayTracingPropertiesKHR = 1000150014,
+		PhysicalDeviceAccelerationStructureFeaturesKHR = 1000150013,
+		PhysicalDeviceAccelerationStructurePropertiesKHR = 1000150014,
+		AccelerationStructureCreateInfoKHR = 1000150017,
+		AccelerationStructureBuildSizesInfoKHR = 1000150020,
+		// VK_KHR_ray_tracing_pipeline
+		PhysicalDeviceRayTracingPipelineFeaturesKHR = 1000347000,
+		PhysicalDeviceRayTracingPipelinePropertiesKHR = 1000347001,
 		RayTracingPipelineCreateInfoKHR = 1000150015,
 		RayTracingShaderGroupCreateInfoKHR = 1000150016,
-		AccelerationStructureCreateInfoKHR = 1000150017,
 		RayTracingPipelineInterfaceCreateInfoKHR = 1000150018,
+		// VK_KHR_ray_query
+		PhysicalDeviceRayQueryFeaturesKHR = 1000348013,
+		// VK_NV_framebuffer_mixed_samples
 		PipelineCoverageModulationStateCreateInfoNV = 1000152000,
+		// VK_NV_shader_sm_builtins
 		PhysicalDeviceShaderSMBuiltinsFeaturesNV = 1000154000,
 		PhysicalDeviceShaderSMBuiltinsPropertiesNV = 1000154001,
+		// VK_EXT_image_drm_format_modifier
 		DRMFormatModifierPropertiesListEXT = 1000158000,
 		DRMFormatModifierPropertiesEXT = 1000158001,
 		PhysicalDeviceImageDRMFormatModifierInfoEXT = 1000158002,
 		ImageDRMFormatModifierListCreateInfoEXT = 1000158003,
 		ImageDRMFormatModifierExplicitCreateInfoEXT = 1000158004,
 		ImageDRMFormatModifierPropertiesEXT = 1000158005,
+		// VK_KHR_format_feature_flags2 + VK_EXT_image_drm_format_modifier
+		DRMFormatModifierPropertiesList2EXT = 1000158006,
+		// VK_EXT_validation_cache
 		ValidationCacheCreateInfoEXT = 1000160000,
 		ShaderModuleValidationCacheCreateInfoEXT = 1000160001,
+		// VK_KHR_portability_subset (Beta)
+		PhysicalDevicePortabilitySubsetFeaturesKHR = 1000163000,
+		PhysicalDevicePortabilitySubsetPropertiesKHR = 1000163001,
+		// VK_NV_shading_rate_image
 		PipelineViewportShadingRateImageStateCreateInfoNV = 1000164000,
 		PhysicalDeviceShadingRateImageFeaturesNV = 1000164001,
 		PhysicalDeviceShadingRateImagePropertiesNV = 1000164002,
 		PipelineViewportCoarseSampleOrderStateCreateInfoNV = 1000164005,
+		// VK_NV_ray_tracing
 		RayTracingPipelineCreateInfoNV = 1000165000,
 		AccelerationStructureCreateInfoNV = 1000165001,
 		GeometryNV = 1000165003,
 		GeometryTrianglesNV = 1000165004,
 		GeometryAABB_NV = 1000165005,
+		BindAccelerationStructureMemoryInfoNV = 1000165006,
+		WriteDescriptorSetAccelerationStructureNV = 1000165007,
 		AccelerationStructureMemoryRequirementsInfoNV = 1000165008,
 		PhysicalDeviceRayTracingPropertiesNV = 1000165009,
 		RayTracingShaderGroupCreateInfoNV = 1000165011,
 		AccelerationStructureInfoNV = 1000165012,
+		// VK_NV_representative_fragment_test
 		PhysicalDeviceRepresentativeFragmentTestFeaturesNV = 1000166000,
 		PipelineRepresentativeFragmentTestStateCreateInfoNV = 1000166001,
 		PhysicalDeviceImageViewImageFormatInfoEXT = 1000170000,
+		// VK_EXT_filter_cubic
 		FilterCubicImageViewFormatPropertiesEXT = 1000170001,
 		DeviceQueueGlobalPriorityCreateInfoEXT = 1000174000,
+		// VK_EXT_external_memory_host
 		ImportMemoryHostPointerInfoEXT = 1000178000,
 		MemoryHostPointerPropertiesEXT = 1000178001,
 		PhysicalDeviceExternalMemoryHostPropertiesEXT = 1000178002,
+		// VK_KHR_shader_clock
 		PhysicalDeviceShaderClockFeaturesKHR = 1000181000,
+		// VK_AMD_pipeline_compiler_control
 		PipelineCompilerControlCreateInfoAMD = 1000183000,
+		// VK_EXT_calibrated_timestamps
 		CalibratedTimestampInfoEXT = 1000184000,
+		// VK_AMD_shader_core_properties
 		PhysicalDeviceShaderCorePropertiesAMD = 1000185000,
+		// VK_EXT_video_decode_h265 (Beta)
+		VideoDecodeH265CapabilitiesEXT = 1000187000,
+		VideoDecodeH265SessionParametersCreateInfoEXT = 1000187001,
+		VideoDecodeH265SessionParametersAddInfoEXT = 1000187002,
+		VideoDecodeH265ProfileEXT = 1000187003,
+		VideoDecodeH265PictureInfoEXT = 1000187004,
+		VideoDecodeH265DPBSlotInfoEXT = 1000187005,
+		// VK_KHR_global_priority
+		DeviceQueueGlobalPriorityCreateInfoKHR = 1000174000,
+		PhysicalDeviceGlobalPriorityQueryFeaturesKHR = 1000388000,
+		QueueFamilyGlobalPriorityQueryFeaturesKHR = 1000388001,
+		// VK_AMD_memory_overallocation_behavior
 		DeviceMemoryOverallocationCreateInfoAMD = 1000189000,
+		// VK_EXT_vertex_attribute_divisor
 		PhysicalDeviceVertexAttributeDivisorPropertiesEXT = 1000190000,
 		PipelineVertexInputDivisorStateCreateInfoEXT = 1000190001,
 		PhysicalDeviceVertexAttributeDivisorFeaturesEXT = 1000190002,
+		// VK_GGP_frame_token
 		PresentFrameTokenGGP = 1000191000,
-		PipelineCreationFeedbackCreateInfoEXT = 1000192000,
+		// VK_NV_compute_shader_derivatives
 		PhysicalDeviceComputeShaderDerivativesFeaturesNV = 1000201000,
+		// VK_NV_mesh_shader
 		PhysicalDeviceMeshShaderFeaturesNV = 1000202000,
 		PhysicalDeviceMeshShaderPropertiesNV = 1000202001,
-		PhysicalDeviceFragmentShaderBarycentricFeaturesNV = 1000203000,
+		// VK_NV_shader_image_footprint
 		PhysicalDeviceShaderImageFootprintFeaturesNV = 1000204000,
+		// VK_NV_scissor_exclusive
 		PipelineViewportExclusiveScissorStateCreateInfoNV = 1000205000,
 		PhysicalDeviceExclusiveScissorFeaturesNV = 1000205002,
+		// VK_NV_device_diagnostic_checkpoints
 		CheckpointDataNV = 1000206000,
 		QueueFamilyCheckpointPropertiesNV = 1000206001,
+		// VK_INTEL_shdaer_integer_functions2
 		PhysicalDeviceShaderIntegerFunctions2FeaturesINTEL = 1000209000,
+		// VK_INTEL_performance_query
 		QueryPoolPerformanceQueryCreateInfoINTEL = 1000210000,
 		InitializePerformanceAPIInfoIntel = 1000210001,
 		PerformanceMarkerInfoINTEL = 1000210002,
 		PerformanceStreamMarkerInfoINTEL = 1000210003,
 		PerformanceOverrideInfoINTEL = 1000210004,
 		PerformanceConfigurationAcquireInfoINTEL = 1000210005,
+		// VK_EXT_pci_bus_info
 		PhysicalDevicePCIBusInfoPropertiesEXT = 1000212000,
+		// VK_AMD_display_native_hdr
 		DisplayNativeHDRSurfaceCapabilitiesAMD = 1000213000,
 		SwapchainDisplayNativeHDRCreateInfoAMD = 1000213001,
+		// VK_FUCHISA_imagepipe_surface
 		ImagepipeSurfaceCreateInfoFUCHISA = 1000214000,
+		// VK_EXT_metal_surface
 		MetalSurfaceCreateInfoEXT = 1000217000,
+		// VK_EXT_fragment_density_map
 		PhysicalDeviceFragmentDensityMapFeaturesEXT = 1000218000,
 		PhysicalDeviceFragmentDensityMapPropertiesEXT = 1000218001,
 		RenderPassFragmentDensityMapCreateInfoEXT = 1000218002,
-		PhysicalDeviceSubgroupSizeControlPropertiesEXT = 1000225000,
-		PipelineShaderStageRequiredSubgroupSizeCreateInfoEXT = 1000225001,
-		PhysicalDeviceSubgroupSizeControlFeaturesEXT = 1000225002,
+		// VK_KHR_fragment_shading_rate
+		FragmentShadingRateAttachmentInfoKHR = 1000226000,
+		PipelineFragmentShadingRateStateCreateInfoKHR = 1000226001,
+		PhysicalDeviceFragmentRateShadingPropertiesKHR = 1000226002,
+		PhysicalDeviceFragmentRateShadingFeaturesKHR = 1000226003,
+		PhysicalDeviceFramgentShadingRateKHR = 1000226004,
+		// VK_AMD_shader_core_properties2
 		PhysicalDeviceShaderCoreProperties2AMD = 1000227000,
+		// VK_AMD_device_coherent_memory
 		PhysicalDeviceCoherentMemoryFeaturesAMD = 1000229000,
+		// VK_EXT_shader_image_atomic_int64
+		PhysicalDeviceShaderImageAtomicInt64FeaturesEXT = 1000234000,
+		// VK_EXT_memory_budget
 		PhysicalDeviceMemoryBudgetPropertiesEXT = 1000237000,
+		// VK_EXT_memory_priority
 		PhysicalDeviceMemoryPriorityFeaturesEXT = 1000238000,
 		MemoryPriorityAllocateInfoEXT = 1000238001,
+		// VK_KHR_surface_protected_capabilities
 		SurfaceProtectedCapabilitiesKHR = 1000239000,
+		// VK_NV_dedicated_allocation_image_aliasing
 		PhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV = 1000240000,
+		// VK_EXT_buffer_device_address
 		PhysicalDeviceBufferDeviceAddressFeaturesEXT = 1000244000,
 		BufferDeviceAddressCreateInfoEXT = 1000244002,
-		PhysicalDeviceToolPropertiesEXT = 1000245000,
+		// VK_EXT_validation_features
 		ValidationFeaturesEXT = 1000247000,
+		// VK_KHR_present_wait
+		PhysicalDevicePresentWaitFeaturesKHR = 1000248000,
+		// VK_NV_cooperative_matrix
 		PhysicalDeviceCooperativeMatrixFeaturesNV = 1000249000,
 		CooperativeMatrixPropertiesNV = 1000249001,
 		PhysicalDeviceCooperativeMatrixPropertiesNV = 1000249002,
+		// VK_NV_coverage_reduction_mode
 		PhysicalDeviceCoverageReductionModeFeaturesNV = 1000250000,
 		PipelineCoverageReductionStateCreateInfoNV = 1000250001,
 		FramebufferMixedSamplesCombinationNV = 1000250002,
+		// VK_EXT_fragment_shader_interlock
 		PhysicalDeviceFragmentShaderInterlockFeaturesEXT = 1000251000,
+		// VK_EXT_ycbcr_image_arrays
 		PhysicalDeviceYcbcrImageArraysFeaturesEXT = 1000252000,
+		// VK_EXT_provoking_vertex
+		PhysicalDeviceProvokingVertexFeaturesEXT = 1000254000,
+		PipelineRasterizationProvokingVertexStateCreateInfoEXT = 1000254001,
+		PhysicalDeviceProvokingVertexPropertiesEXT = 1000254002,
+		// VK_EXT_full_screen_exclusive
 		SurfaceFullScreenExclusiveInfoEXT = 1000255000,
 		SurfaceCapabilitiesFullScreenExclusiveEXT = 1000255002,
+		// VK_KHR_win32_surface + VK_EXT_full_screen_exclusive
 		SurfaceFullScreenExclusiveWin32InfoEXT = 1000255001,
+		// VK_EXT_headless_surface
 		HeadlessSurfaceCreateInfoEXT = 1000256000,
+		// VK_EXT_line_rasterization
 		PhysicalDeviceLineRasterizationFeaturesEXT = 1000259000,
 		PipelineRasterizationLineStateCreateInfoEXT = 1000259001,
 		PhysicalDeviceLineRasterizationPropertiesEXT = 1000259002,
+		// VK_EXT_shader_atomic_float
+		PhysicalDeviceShaderAtomicFloatFeaturesEXT = 1000260000,
+		// VK_EXT_index_type_uint8
 		PhysicalDeviceIndexTypeUInt8FeaturesEXT = 1000265000,
+		// VK_EXT_extended_dynamic_state
 		PhysicalDeviceExtendedDynamicStateFeaturesEXT = 1000267000,
-		DeferredOperationInfoKHR = 1000268000,
+		// VK_KHR_pipeline_executable_properties
 		PhysicalDevicePipelineExecutablePropertiesFeaturesKHR = 1000269000,
 		PipelineInfoKHR = 1000269001,
-		PiplineExecutablePropertiesKHR = 1000269002,
+		PipelineExecutablePropertiesKHR = 1000269002,
 		PipelineExecutableInfoKHR = 1000269003,
 		PipelineExecutableStatisticKHR = 1000269004,
 		PipelineExecutableInternalRepresentationKHR = 1000269005,
-		PhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT = 1000276000,
+		// VK_EXT_shader_atomic_float2
+		PhysicalDeviceShaderAtomicFloat2FeaturesEXT = 1000273000,
+		// VK_NV_device_generated_commands
 		PhysicalDeviceDeviceGeneratedCommandsPropertiesNV = 1000277000,
 		GraphicsShaderGroupCreateInfoNV = 1000277001,
 		GraphicsPipelineShaderGroupsCreateInfoNV = 1000277002,
@@ -616,84 +855,167 @@ namespace Tesseract.Vulkan {
 		GeneratedCommandsInfoNV = 1000277005,
 		GeneratedCommandsMemoryRequirementsInfoNV = 1000277006,
 		PhysicalDeviceGeneratedCommandsFeaturesNV = 1000277007,
+		// VK_NV_inherited_viewport_scissor
+		PhysicalDeviceInheritedViewportScissorFeaturesNV = 1000278000,
+		CommandBufferInheritanceViewportScissorInfoNV = 1000278001,
+		// VK_EXT_texel_buffer_alignment
 		PhysicalDeviceTexelBufferAlignmentFeaturesEXT = 1000281000,
-		PhysicalDeviceTexelBufferAlignmentPropertiesEXT = 1000281001,
+		// VK_QCOM_render_pass_transform
 		CommandBufferInheritanceRenderPassTransformInfoQCOM = 1000282000,
 		RenderPassTransformBeginInfoQCOM = 1000282001,
+		// VK_EXT_device_memory_report
+		PhysicalDeviceDeviceMemoryReportFeaturesEXT = 1000284000,
+		DeviceDeviceMemoryReportCreateInfoEXT = 1000284001,
+		DeviceMemoryReportCallbackDataEXT = 1000284002,
+		// VK_EXT_robustness2
 		PhysicalDeviceRobustness2FeaturesEXT = 1000286000,
 		PhysicalDeviceRobustness2PropertiesEXT = 1000286001,
+		// VK_EXT_custom_border_color
 		SamplerCustomBorderColorCreateInfoEXT = 1000287000,
 		PhysicalDeviceCustomBorderColorPropertiesEXT = 1000287001,
 		PhysicalDeviceCustomBorderColorFeaturesEXT = 1000287002,
-		PipelineLibraryCreateInfoEXT = 1000290000,
-		PhysicalDevicePrivateDataFeaturesEXT = 1000295000,
-		DevicePrivateDataCreateInfoEXT = 1000295001,
-		PrivateDataSlotCreateInfoEXT = 1000295002,
-		PhysicalDevicePipelineCreationCacheControlFeaturesEXT = 1000297000,
+		// VK_KHR_pipeline_library
+		PipelineLibraryCreateInfoKHR = 1000290000,
+		// VK_KHR_present_id
+		PresentIdKHR = 1000294000,
+		PhysicalDevicePresentIdFeaturesKHR = 1000294001,
+		// VK_KHR_video_encode_queue (Beta)
+		VideoEncodeInfoKHR = 1000299000,
+		VideoEncodeRateControlInfoKHR = 1000299001,
+		VideoEncodeRateControlLayerInfoKHR = 1000299002,
+		VideoEncodeCapabilitiesKHR = 1000299003,
+		// VK_NV_device_diagnostics_config
 		PhysicalDeviceDiagnosticsConfigFeaturesNV = 1000300000,
 		DeviceDiagnosticsConfigCreateInfoNV = 1000300001,
-		MemoryBarrier2KHR = 1000314000,
-		BufferMemoryBarrier2KHR = 1000314001,
-		ImageMemoryBarrier2KHR = 1000314002,
-		DependencyInfoKHR = 1000314003,
-		SubmitInfo2KHR = 1000314004,
-		SemaphoreSubmitInfoKHR = 1000314005,
-		CommandBufferSubmitInfoKHR = 1000314006,
-		PhysicalDeviceSynchronization2FeaturesKHR = 1000314007,
+		// VK_KHR_synchronization2 + VK_NV_device_diagnostic_checkpoints
 		QueueFamilyCheckpointProperties2NV = 1000314008,
 		CheckpointData2NV = 1000314009,
+		// VK_EXT_graphics_pipeline_library
+		PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT = 1000320000,
+		PhysicalDeviceGraphicsPipelineLibraryPropertiesEXT = 1000320001,
+		GraphicsPipelineLibraryCreateInfoEXT = 1000320002,
+		// VK_AMD_shader_early_late_fragment_tests
+		PhysicalDeviceShaderEarlyLateFragmentTestsFeaturesAMD = 1000321000,
+		// VK_KHR_fragment_shader_barycentric
+		PhysicalDeviceFragmentShaderBarycentricFeaturesKHR = 1000203000,
+		PhysicalDeviceFragmentShaderBarycentricPropertiesKHR = 1000322000,
+		// VK_KHR_shader_subgroup_uniform_flow_control
 		PhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR = 1000323000,
-		PhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR = 1000325000,
+		// VK_NV_fragment_shading_rate_enums
 		PhysicalDeviceFragmentShadingRateEnumsPropertiesNV = 1000326000,
 		PhysicalDeviceFragmentShadingRateEnumsFeaturesNV = 1000326001,
 		PipelineFragmentShadingRateEnumStateCreateInfoNV = 1000326002,
+		// VK_NV_ray_tracing_motion_blur
 		AccelerationStructureGeometryMotionTrianglesDataNV = 1000327000,
 		PhysicalDeviceRayTracingMotionBlurFeaturesNV = 1000327001,
 		AccelerationStructureMotionInfoNV = 1000327002,
+		// VK_EXT_ycbcr_2plane_444_formats
 		PhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT = 1000330000,
+		// VK_EXT_fragment_density_map2
 		PhysicalDeviceFragmentDensityMap2FeaturesEXT = 1000332000,
 		PhysicalDeviceFragmentDensityMap2PropertiesEXT = 1000332001,
+		// VK_QCOM_rotated_copy_commands
 		CopyCommandTransformInfoQCOM = 1000333000,
-		PhysicalDeviceImageRobustnessFeaturesEXT = 1000335000,
+		// VK_KHR_workgroup_memory_explicit_layout
 		PhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR = 1000336000,
-		CopyBufferInfo2KHR = 1000337000,
-		CopyImageInfo2KHR = 1000337001,
-		CopyBufferToImageInfo2KHR = 1000337002,
-		CopyImageToBufferInfo2KHR = 1000337003,
-		BlitImageInfo2KHR = 1000337004,
-		ResolveImageInfo2KHR = 1000337005,
-		BufferCopy2KHR = 1000337006,
-		ImageCopy2KHR = 1000337007,
-		ImageBlit2KHR = 1000337008,
-		BufferImageCopy2KHR = 1000337009,
-		ImageResolve2KHR = 1000337010,
+		// VK_EXT_image_compression_control
+		PhysicalDeviceImageCompressionControlFeaturesEXT = 1000338000,
+		ImageCompressionControlEXT = 1000338001,
+		SubresourceLayout2EXT = 1000338002,
+		ImageSubresource2EXT = 1000338003,
+		ImageCompressionPropertiesEXT = 1000338004,
+		// VK_EXT_4444_formats
 		PhysicalDevice4444FormatsFeaturesEXT = 1000340000,
+		// VK_ARM_rasterization_order_attachment_access
+		PhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM = 1000342000,
+		// VK_EXT_rgba10x6_formats
+		PhysicalDeviceRGBA10X6FormatsFeaturesEXT = 1000344000,
+		// VK_EXT_directfb_surface
 		DirectFBSurfaceCreateInfoEXT = 1000346000,
+		// VK_VALVE_mutable_descriptor_type
 		PhysicalDeviceMutableDescriptorTypeFeaturesVALVE = 1000351000,
 		MutableDescriptorTypeCreateInfoVALVE = 1000351002,
+		// VK_EXT_vertex_input_dynamic_state
 		PhysicalDeviceVertexInputDynamicStateFeaturesEXT = 1000352000,
 		VertexInputBindingDescription2EXT = 1000352001,
 		VertexInputAttributeDescription2EXT = 1000352002,
+		// VK_EXT_physical_device_drm
 		PhysicalDeviceDRMPropertiesEXT = 1000353000,
+		// VK_EXT_depth_clip_control
+		PhysicalDeviceDepthClipControlFeaturesEXT = 1000355000,
+		PipelineViewportDepthClipControlCreateInfoEXT = 1000355001,
+		// VK_EXT_primitive_topology_list_restart
+		PhysicalDevicePrimitiveTopologyListRestartFeaturesEXT = 1000356000,
+		// VK_FUCHISA_external_memory
 		ImportMemoryZirconHandleInfoFUCHISA = 1000364000,
 		MemoryZirconHandlePropertiesFUCHISA = 1000364001,
 		MemoryGetZirconHandleInfoFUCHISA = 1000364002,
 		ImportSemaphoreZirconHandleInfoFUCHISA = 1000365000,
 		SemaphoreGetZirconHandleInfoFUCHISA = 1000365001,
+		// VK_FUCHISA_buffer_collection
+		BufferCollectionCreateInfoFUCHISA = 1000366000,
+		ImportMemoryBufferCollectionFUCHISA = 1000366001,
+		BufferCollectionImageCreateInfoFUCHISA = 1000366002,
+		BufferCollectionPropertiesFUCHISA = 1000366003,
+		BufferConstraintsInfoFUCHISA = 1000366004,
+		BufferCollectionBufferCreateInfoFUCHISA = 1000366005,
+		ImageConstraintsInfoFUCHISA = 1000366006,
+		ImageFormatConstraintsInfoFUCHISA = 1000366007,
+		SystemColorSpaceFUCHISA = 1000366008,
+		BufferCollectionConstraintsInfoFUCHISA = 1000366009,
+		// VK_HUAWEI_subpass_shading
 		SubpassShadingPipelineCreateInfoHUAWEI = 1000369000,
 		PhysicalDeviceSubpassShadingFeaturesHUAWEI = 1000369001,
 		PhysicalDeviceSubpassShadingPropertiesHUAWEI = 1000369002,
+		// VK_HUAWEI_invocation_mask
 		PhysicalDeviceInvocationMaskFeaturesHUAWEI = 1000370000,
+		// VK_NV_external_memory_rdma
 		MemoryGetRemoteAddressInfoNV = 1000371000,
 		PhysicalDeviceExternalMemoryRDMAFeaturesNV = 1000371001,
+		// VK_EXT_pipeline_properties
+		PipelinePropertiesIdentifierEXT = 1000372000,
+		PhysicalDevicePipelinePropertiesFeaturesEXT = 1000372001,
+		// VK_EXT_extended_dynamic_state2
 		PhysicalDeviceExtendedDynamicState2FeaturesEXT = 1000377000,
+		// VK_QNX_screen_surface
 		ScreenSurfaceCreateInfoQNX = 1000378000,
+		// VK_EXT_color_write_enable
 		PhysicalDeviceColorWriteEnableFeaturesEXT = 1000381000,
 		PipelineColorWriteCreateInfoEXT = 1000381001,
-		PhysicalDeviceGlobalPriorityQueryFeaturesEXT = 1000388000,
-		QueueFamilyGlobalPriorityPropertiesEXT = 1000388001,
+		// VK_EXT_primitives_generated_query
+		PhysicalDevicePrimitivesGeneratedQueryFeaturesEXT = 1000382000,
+		// VK_KHR_ray_tracing_maintenance1
+		PhysicalDeviceRayTracingMaintenance1FeatuersKHR = 1000386000,
+		// VK_EXT_image_view_min_lod
+		PhysicalDeviceImageViewMinLodFeaturesEXT = 1000391000,
+		ImageViewMinLodCreateInfoEXT = 1000391001,
+		// VK_EXT_multi_draw
 		PhysicalDeviceMultiDrawFeaturesEXT = 1000392000,
-		PhysicalDeviceMultiDrawPropertiesEXT = 1000392001
+		PhysicalDeviceMultiDrawPropertiesEXT = 1000392001,
+		// VK_EXT_image_2d_view_of_3d
+		PhysicalDeviceImage2DViewOf3DFeaturesEXT = 1000393000,
+		// VK_EXT_border_color_swizzle
+		PhysicalDeviceBorderColorSwizzleFeaturesEXT = 1000411000,
+		SamplerBorderColorComponentMappingCreateInfoEXT = 1000411001,
+		// VK_EXT_pageable_device_local_memory
+		PhysicalDevicePageableDeviceLocalMemoryFeaturesEXT = 1000412000,
+		// VK_VALVE_descriptor_set_host_mapping
+		PhysicalDeviceDescriptorSetHostMappingFeaturesVALVE = 1000420000,
+		DescriptorSetBindingReferenceVALVE = 1000420001,
+		DescriptorSetLayoutHostMappingInfoVALVE = 1000420002,
+		// VK_QCOM_fragment_density_map_offset
+		PhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM = 1000425000,
+		PhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM = 1000425001,
+		SubpassFragmentDensityMapOffsetEndInfoQCOM = 1000425002,
+		// VK_NV_linear_color_attachment
+		PhysicalDeviceLinearColorAttachmentFeaturesNV = 1000430000,
+		// VK_EXT_image_compression_control_swapchain
+		PhysicalDeviceImageCompressionControlSwapchainFeaturesEXT = 1000437000,
+		// VK_EXT_subpass_merge_feedback
+		PhysicalDeviceSubpassMergeFeedbackFeaturesEXT = 1000458000,
+		RenderPassCreationControlEXT = 1000458001,
+		RenderPassCreationFeedbackCreateInfoEXT = 1000458002,
+		RenderPassSubpassFeedbackCreateInfoEXT = 1000458003
 	}
 
 	public enum VKSystemAllocationScope : int {
@@ -1285,7 +1607,8 @@ namespace Tesseract.Vulkan {
 	public enum VKAttachmentStoreOp : int {
 		Store = 0,
 		DontCare = 1,
-		NoneQCOM = 1000301000
+		// Vulkan 1.3
+		None = 1000301000
 	}
 
 	public enum VKPipelineBindPoint : int {

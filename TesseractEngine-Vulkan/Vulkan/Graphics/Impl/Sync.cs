@@ -10,8 +10,14 @@ using Tesseract.Vulkan.Native;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Vulkan fence sync object implementation.
+	/// </summary>
 	public class VulkanFenceSync : ISync {
 
+		/// <summary>
+		/// The underlying Vulkan fence.
+		/// </summary>
 		public VKFence Fence { get; }
 
 		public VulkanFenceSync(VKFence fence) {
@@ -39,8 +45,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan event sync object implementation.
+	/// </summary>
 	public class VulkanEventSync : ISync {
 
+		/// <summary>
+		/// The underlying Vulkan event.
+		/// </summary>
 		public VKEvent Event { get; }
 
 		public VulkanEventSync(VKEvent evt) {
@@ -76,8 +88,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		}
 	}
 
+	/// <summary>
+	/// Vulkan semaphore sync object implementation.
+	/// </summary>
 	public class VulkanSemaphoreSync : ISync {
 
+		/// <summary>
+		/// The underlying Vulkan semaphore.
+		/// </summary>
 		public VKSemaphore Semaphore { get; }
 
 		public VulkanSemaphoreSync(VKSemaphore semaphore) {

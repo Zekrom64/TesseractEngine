@@ -340,7 +340,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The depth test may be dynamically enabled or disabled.
 		/// </summary>
-		DepthTest,
+		DepthTestEnable,
 		/// <summary>
 		/// Depth writing may be dynamically enabled or disabled.
 		/// </summary>

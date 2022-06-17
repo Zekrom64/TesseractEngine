@@ -12,45 +12,94 @@ using Tesseract.Core.Util;
 
 namespace Tesseract.Vulkan.Graphics.Impl {
 
+	/// <summary>
+	/// Identifies a Vulkan physical device and backend-required information about it.
+	/// </summary>
 	public class VulkanPhysicalDeviceInfo {
 
 		/*
 		public const float UnsupportedDeviceScore = float.NegativeInfinity;
 		*/
 
+		/// <summary>
+		/// The underlying Vulkan physical device.
+		/// </summary>
 		public VKPhysicalDevice PhysicalDevice { get; }
 
 		// Vulkan 1.0
 
+		/// <summary>
+		/// The set of supported device extensions.
+		/// </summary>
 		public IReadOnlySet<string> Extensions { get; }
 
+		/// <summary>
+		/// The set of supported device layers.
+		/// </summary>
 		public IReadOnlySet<string> Layers { get; }
 
+		/// <summary>
+		/// The supported device features.
+		/// </summary>
 		public VKPhysicalDeviceFeatures Features { get; }
 
+		/// <summary>
+		/// The supported device properties.
+		/// </summary>
 		public VKPhysicalDeviceProperties Properties { get; }
 
+		/// <summary>
+		/// The limits of the device.
+		/// </summary>
 		public VKPhysicalDeviceLimits Limits => Properties.Limits;
 
+		/// <summary>
+		/// The memory properties of the device.
+		/// </summary>
 		public VKPhysicalDeviceMemoryProperties MemoryProperties { get; }
 
+		/// <summary>
+		/// The list of queue family properties for this device.
+		/// </summary>
 		public VKQueueFamilyProperties[] QueueFamilyProperties { get; }
 
 		// EXT_custom_border_color
 
+		/// <summary>
+		/// The custom border color features of the device, or null if unsupported.
+		/// </summary>
 		public VKPhysicalDeviceCustomBorderColorFeaturesEXT? CustomBorderColorFeaturesEXT { get; } = null;
 
+		/// <summary>
+		/// The custom border color properties of the device, or null if unsupported.
+		/// </summary>
 		public VKPhysicalDeviceCustomBorderColorPropertiesEXT? CustomBorderColorPropertiesEXT { get; } = null;
 
 		// EXT_line_rasterization
 
+		/// <summary>
+		/// The line rasterization features of the device, or null if unsupported.
+		/// </summary>
 		public VKPhysicalDeviceLineRasterizationFeaturesEXT? LineRasterizationFeaturesEXT { get; } = null;
 
+		/// <summary>
+		/// The line rasterization properties of the device, or null if unsupported.
+		/// </summary>
 		public VKPhysicalDeviceLineRasterizationPropertiesEXT? LineRasterizationPropertiesEXT { get; } = null;
 
 		// EXT_extended_dynamic_state
 
+		/// <summary>
+		/// The extended dynamic state features of the device, or null if unsupported.
+		/// </summary>
 		public VKPhysicalDeviceExtendedDynamicStateFeaturesEXT? ExtendedDynamicStateFeaturesEXT { get; } = null;
+
+		// EXT_extended_dynamic_state2
+
+		/// <summary>
+		/// The second version extended dynamic state features of the device, or null if unsupported.
+		/// </summary>
+		public VKPhysicalDeviceExtendedDynamicState2FeaturesEXT? ExtendedDynamicState2FeaturesEXT { get; } = null;
 
 		/*
 		public float Score { get; } = UnsupportedDeviceScore;
@@ -61,28 +110,34 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public VulkanPhysicalDeviceInfo(VKPhysicalDevice physicalDevice) {
 			PhysicalDevice = physicalDevice;
 
+			// Gather extensions and layers
 			HashSet<string> extensions = new(), layers = new();
 			foreach (var ext in physicalDevice.DeviceExtensions) extensions.Add(ext.ExtensionName);
 			Extensions = extensions;
 			foreach (var lyr in physicalDevice.DeviceLayers) layers.Add(lyr.LayerName);
 			Layers = layers;
 
+			// Gather base features and properties
 			Features = physicalDevice.Features;
 			Properties = physicalDevice.Properties;
 			MemoryProperties = physicalDevice.MemoryProperties;
 			QueueFamilyProperties = physicalDevice.QueueFamilyProperties;
 
+			// If the physical device supports the second version of physical device reflection
 			if (physicalDevice.Instance.APIVersion >= VK11.ApiVersion || physicalDevice.Instance.KHRGetPhysicalDeviceProperties2Functions != null) {
 				using MemoryStack sp = MemoryStack.Push();
 				int bp = sp.Pointer;
 
+				// Check if the given extensions are supported
 				bool extCustomBorderColor = Extensions.Contains(EXTCustomBorderColor.ExtensionName);
 				bool extLineRasterization = Extensions.Contains(EXTLineRasterization.ExtensionName);
 				bool extExtendedDynamicState = Extensions.Contains(EXTExtendedDynamicState.ExtensionName);
+				bool extExtendedDynamicState2 = Extensions.Contains(EXTExtendedDynamicState2.ExtensionName);
 
 				{
 					IntPtr next = IntPtr.Zero;
 					
+					// Get border color features if possible
 					UnmanagedPointer<VKPhysicalDeviceCustomBorderColorFeaturesEXT> pCustomBorderColorFeatures = default;
 					if (extCustomBorderColor) {
 						pCustomBorderColorFeatures = sp.Values(new VKPhysicalDeviceCustomBorderColorFeaturesEXT() {
@@ -92,6 +147,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 						next = pCustomBorderColorFeatures;
 					}
 
+					// Get line rasterization features if possible
 					UnmanagedPointer<VKPhysicalDeviceLineRasterizationFeaturesEXT> pLineRasterizationFeatures = default;
 					if (extLineRasterization) {
 						pLineRasterizationFeatures = sp.Values(new VKPhysicalDeviceLineRasterizationFeaturesEXT() {
@@ -101,6 +157,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 						next = pLineRasterizationFeatures;
 					}
 
+					// Get extended dynamic staate features if possible
 					UnmanagedPointer<VKPhysicalDeviceExtendedDynamicStateFeaturesEXT> pExtendedDynamicStateFeatures = default;
 					if (extExtendedDynamicState) {
 						pExtendedDynamicStateFeatures = sp.Values(new VKPhysicalDeviceExtendedDynamicStateFeaturesEXT() {
@@ -110,20 +167,32 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 						next = pExtendedDynamicStateFeatures;
 					}
 
+					UnmanagedPointer<VKPhysicalDeviceExtendedDynamicState2FeaturesEXT> pExtendedDynamicState2Features = default;
+					if (extExtendedDynamicState2) {
+						pExtendedDynamicState2Features = sp.Values(new VKPhysicalDeviceExtendedDynamicState2FeaturesEXT() {
+							Type = VKStructureType.PhysicalDeviceExtendedDynamicState2FeaturesEXT,
+							Next = next
+						});
+						next = pExtendedDynamicState2Features;
+					}
+
 					VKPhysicalDeviceFeatures2 features2 = new() { Type = VKStructureType.PhysicalDeviceFeatures2, Next = next };
 
 					physicalDevice.GetFeatures2(ref features2);
 
 					Features = features2.Features;
 
+					// Load feature structs from non-null pointers
 					if (pCustomBorderColorFeatures) CustomBorderColorFeaturesEXT = pCustomBorderColorFeatures.Value;
 					if (pLineRasterizationFeatures) LineRasterizationFeaturesEXT = pLineRasterizationFeatures.Value;
 					if (pExtendedDynamicStateFeatures) ExtendedDynamicStateFeaturesEXT = pExtendedDynamicStateFeatures.Value;
+					if (pExtendedDynamicState2Features) ExtendedDynamicState2FeaturesEXT = pExtendedDynamicState2Features.Value;
 				}
 				sp.Pointer = bp;
 				{
 					IntPtr next = IntPtr.Zero;
 
+					// Get border color properties if possible
 					UnmanagedPointer<VKPhysicalDeviceCustomBorderColorPropertiesEXT> pCustomBorderColorProperties = default;
 					if (extCustomBorderColor) {
 						pCustomBorderColorProperties = sp.Values(new VKPhysicalDeviceCustomBorderColorPropertiesEXT() {
@@ -133,6 +202,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 						next = pCustomBorderColorProperties;
 					}
 
+					// Get line rasterization properties if possible
 					UnmanagedPointer<VKPhysicalDeviceLineRasterizationPropertiesEXT> pLineRasterizationProperties = default;
 					if (extLineRasterization) {
 						pLineRasterizationProperties = sp.Values(new VKPhysicalDeviceLineRasterizationPropertiesEXT() {
@@ -208,6 +278,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		}
 		*/
 
+		/// <summary>
+		/// Finds a queue in this physical device which matches the required parameters.
+		/// </summary>
+		/// <param name="bits">Bitmask of required queue flags</param>
+		/// <param name="notPreferred">A list of queue indices which are not preferred</param>
+		/// <returns>The selected queue, or -1 if no compatible queue could be found</returns>
 		public int FindQueue(VKQueueFlagBits bits, params int[] notPreferred) {
 			int targetCount = BitOperations.PopCount((uint)bits);
 			var primaryChoice = from family in LINQ.Seq(QueueFamilyProperties.Length) // For each queue family index
@@ -236,20 +312,44 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 	}
 
+	/// <summary>
+	/// Vulkan device queue inforomation.
+	/// </summary>
 	public struct VulkanDeviceQueueInfo : IDisposable {
 
+		/// <summary>
+		/// The family index of the queue.
+		/// </summary>
 		public uint QueueFamily;
 
+		/// <summary>
+		/// The index of the queue within its family.
+		/// </summary>
 		public uint QueueIndex;
 
+		/// <summary>
+		/// The bitmask of flags supported by this queue.
+		/// </summary>
 		public VKQueueFlagBits QueueFlags;
 
+		/// <summary>
+		/// The minimum image transfer granularity for this queue.
+		/// </summary>
 		public Vector3ui MinImageTransferGranularity;
 
+		/// <summary>
+		/// The Vulkan queue.
+		/// </summary>
 		public VKQueue Queue;
 
+		/// <summary>
+		/// The opaque ID of this queue.
+		/// </summary>
 		public ulong QueueID => (ulong)Queue.Queue;
 
+		/// <summary>
+		/// The semaphore to lock on to get access to the queue.
+		/// </summary>
 		public SemaphoreSlim QueueSemaphore;
 
 		public void Dispose() {
@@ -257,35 +357,73 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			QueueSemaphore = null!;
 		}
 
+		/// <summary>
+		/// Initializes the queue from the created device.
+		/// </summary>
+		/// <param name="device">Device to create the queue from</param>
 		public void InitQueue(VulkanDevice device) {
 			if (Queue == null) Queue = device.Device.GetQueue(QueueFamily, QueueIndex);
 		}
 
 	}
 
+	/// <summary>
+	/// A logical Vulkan device, with associated parameters.
+	/// </summary>
 	public class VulkanDevice : IDisposable {
 
+		/// <summary>
+		/// The physical device this logical device was constructed from.
+		/// </summary>
 		public VulkanPhysicalDeviceInfo PhysicalDevice { get; }
 
-
+		/// <summary>
+		/// The set of enabled device extensions.
+		/// </summary>
 		public IReadOnlySet<string> EnabledExtensions { get; }
 		
+		/// <summary>
+		/// The set of enabled device layers.
+		/// </summary>
 		public IReadOnlySet<string> EnabledLayers { get; }
 
+		/// <summary>
+		/// The sharing mode to use for resources created from this device.
+		/// </summary>
 		public VKSharingMode ResourceSharingMode { get; }
 
+		/// <summary>
+		/// The queue indices to use for shared resources created from this device.
+		/// </summary>
 		public ManagedPointer<int> ResourceSharingIndices { get; }
 
 		private VulkanDeviceQueueInfo queueGraphics;
+		/// <summary>
+		/// The queue information for the selected graphics queue.
+		/// </summary>
 		public VulkanDeviceQueueInfo QueueGraphics => queueGraphics;
 
 		private VulkanDeviceQueueInfo queueTransfer;
+		/// <summary>
+		/// The queue information for the selected transfer queue.
+		/// </summary>
 		public VulkanDeviceQueueInfo QueueTransfer => queueTransfer;
 
 		private VulkanDeviceQueueInfo queueCompute;
+		/// <summary>
+		/// The queue information for the selected compute queue.
+		/// </summary>
 		public VulkanDeviceQueueInfo QueueCompute => queueCompute;
 
+		private VulkanDeviceQueueInfo queuePresent;
+		/// <summary>
+		/// The queue information for the selected presentation queue.
+		/// </summary>
+		public VulkanDeviceQueueInfo QueuePresent => queuePresent;
 
+		/// <summary>
+		/// The underlying Vulkan device.
+		/// </summary>
 		public VKDevice Device { get; }
 
 		/*
@@ -318,7 +456,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		}
 		*/
 
-		public VulkanDevice(VulkanGraphicsProvider provider, VulkanPhysicalDeviceInfo physicalDevice, GraphicsCreateInfo createInfo) {
+		public VulkanDevice(VulkanPhysicalDeviceInfo physicalDevice, GraphicsCreateInfo createInfo) {
 			using MemoryStack sp = MemoryStack.Push();
 			PhysicalDevice = physicalDevice;
 			var hwfeatures = createInfo.EnabledFeatures;

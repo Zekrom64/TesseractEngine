@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan {
 
@@ -66,6 +67,12 @@ namespace Tesseract.Vulkan {
 		/// The Vulkan instance extensions required to use the surface provider.
 		/// </summary>
 		public string[] RequiredInstanceExtensions { get; }
+
+		/// <summary>
+		/// Gets the extent as reported by the surface. Swapchains created from this surface should attempt
+		/// to match this extent.
+		/// </summary>
+		public Vector2i SurfaceExtent { get; }
 
 		/// <summary>
 		/// Creates a new Vulkan surface from this object.

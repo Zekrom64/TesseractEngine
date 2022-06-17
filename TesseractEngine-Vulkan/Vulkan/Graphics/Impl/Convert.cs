@@ -154,7 +154,11 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			{ PixelFormat.D32SFloatS8UInt, VKFormat.D32SFloatS8UInt }
 		};
 
+		private static readonly Dictionary<VKFormat, PixelFormat?> vkToStd = stdToVk.ToDictionary(item => item.Value, item => (PixelFormat?)item.Key);
+
 		public static VKFormat Convert(PixelFormat format) => stdToVk.GetValueOrDefault(format, VKFormat.Undefined);
+
+		public static PixelFormat? Convert(VKFormat format) => vkToStd.GetValueOrDefault(format, null);
 
 		public static VKFilter ConvertFilter(TextureFilter filter) => filter switch {
 			TextureFilter.Linear => VKFilter.Linear,
@@ -282,32 +286,32 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		};
 
 		public static VKImageBlit Convert(ICommandSink.BlitTextureRegion region, VulkanTexture src, VulkanTexture dst) => new() {
-			SrcOffsets = new(region.SrcOffset0, region.SrcOffset1),
+			SrcOffsets = new((Vector3i)region.SrcOffset0, (Vector3i)region.SrcOffset1),
 			SrcSubresource = new() {
 				AspectMask = Convert(region.Aspect),
 				BaseArrayLayer = src.Type switch {
-					TextureType.Texture1DArray => (uint)region.SrcOffset0.Y,
-					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (uint)region.SrcOffset0.Z,
+					TextureType.Texture1DArray => region.SrcOffset0.Y,
+					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => region.SrcOffset0.Z,
 					_ => 0
 				},
 				LayerCount = src.Type switch {
-					TextureType.Texture1DArray => (uint)(region.SrcOffset1.Y - region.SrcOffset0.Y),
-					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (uint)(region.SrcOffset1.Z - region.SrcOffset0.Z),
+					TextureType.Texture1DArray => (region.SrcOffset1.Y - region.SrcOffset0.Y),
+					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (region.SrcOffset1.Z - region.SrcOffset0.Z),
 					_ => 1
 				},
 				MipLevel = region.SrcLevel
 			},
-			DstOffsets = new(region.DstOffset0, region.DstOffset1),
+			DstOffsets = new((Vector3i)region.DstOffset0, (Vector3i)region.DstOffset1),
 			DstSubresource = new() {
 				AspectMask = Convert(region.Aspect),
 				BaseArrayLayer = dst.Type switch {
-					TextureType.Texture1DArray => (uint)region.DstOffset0.Y,
-					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (uint)region.DstOffset0.Z,
+					TextureType.Texture1DArray => region.DstOffset0.Y,
+					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => region.DstOffset0.Z,
 					_ => 0
 				},
 				LayerCount = dst.Type switch {
-					TextureType.Texture1DArray => (uint)(region.SrcOffset1.Y - region.DstOffset0.Y),
-					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (uint)(region.DstOffset1.Z - region.DstOffset0.Z),
+					TextureType.Texture1DArray => (region.SrcOffset1.Y - region.DstOffset0.Y),
+					TextureType.Texture2DArray or TextureType.Texture2DCube or TextureType.Texture2DCubeArray => (region.DstOffset1.Z - region.DstOffset0.Z),
 					_ => 1
 				},
 				MipLevel = region.DstLevel
@@ -602,7 +606,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			PipelineDynamicState.CullMode => VKDynamicState.CullModeEXT,
 			PipelineDynamicState.FrontFace => VKDynamicState.FrontFaceEXT,
 			PipelineDynamicState.DrawMode => VKDynamicState.PrimitiveTopologyEXT,
-			PipelineDynamicState.DepthTest => VKDynamicState.DepthTestEnableEXT,
+			PipelineDynamicState.DepthTestEnable => VKDynamicState.DepthTestEnableEXT,
 			PipelineDynamicState.DepthWriteEnable => VKDynamicState.DepthWriteEnableEXT,
 			PipelineDynamicState.DepthCompareOp => VKDynamicState.DepthCompareOpEXT,
 			PipelineDynamicState.DepthBoundsTestEnable => VKDynamicState.DepthBoundsTestEnableEXT,
@@ -716,11 +720,11 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		};
 
 		public static VKImageResolve ConvertImageResolve(ICommandSink.CopyTextureRegion region) => new() {
-			DstOffset = region.DstOffset,
+			DstOffset = (Vector3i)region.DstOffset,
 			DstSubresource = Convert(region.DstSubresource),
-			SrcOffset = region.SrcOffset,
+			SrcOffset = (Vector3i)region.SrcOffset,
 			SrcSubresource = Convert(region.SrcSubresource),
-			Extent = (Vector3ui)region.Size
+			Extent = region.Size
 		};
 
 		public static VKClearColorValue Convert(ICommandSink.ClearColorValue value) {
@@ -764,17 +768,17 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			BufferOffset = copy.BufferOffset,
 			BufferRowLength = copy.BufferRowLength,
 			BufferImageHeight = copy.BufferImageHeight,
-			ImageOffset = copy.TextureOffset,
-			ImageExtent = (Vector3ui)copy.TextureSize,
+			ImageOffset = (Vector3i)copy.TextureOffset,
+			ImageExtent = copy.TextureSize,
 			ImageSubresource = Convert(copy.TextureSubresource)
 		};
 
 		public static VKImageCopy ConvertImageCopy(ICommandSink.CopyTextureRegion region) => new() {
-			SrcOffset = region.SrcOffset,
+			SrcOffset = (Vector3i)region.SrcOffset,
 			SrcSubresource = Convert(region.SrcSubresource),
-			DstOffset = region.DstOffset,
+			DstOffset = (Vector3i)region.DstOffset,
 			DstSubresource = Convert(region.DstSubresource),
-			Extent = (Vector3ui)region.Size
+			Extent = region.Size
 		};
 
 		public static VKBufferCopy Convert(ICommandSink.CopyBufferRegion region) => new() {
@@ -821,6 +825,19 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			if ((usage & TextureUsage.TransferDst) != 0) flags |= VKImageUsageFlagBits.TransferDst;
 			if ((usage & TextureUsage.TransferSrc) != 0) flags |= VKImageUsageFlagBits.TransferSrc;
 			if ((usage & TextureUsage.TransientAttachment) != 0) flags |= VKImageUsageFlagBits.TransientAttachment;
+			return flags;
+		}
+
+		public static TextureUsage Convert(VKImageUsageFlagBits usage) {
+			TextureUsage flags = 0;
+			if ((usage & VKImageUsageFlagBits.ColorAttachment) != 0) flags |= TextureUsage.ColorAttachment;
+			if ((usage & VKImageUsageFlagBits.DepthStencilAttachment) != 0) flags |= TextureUsage.DepthStencilAttachment;
+			if ((usage & VKImageUsageFlagBits.InputAttachment) != 0) flags |= TextureUsage.InputAttachment;
+			if ((usage & VKImageUsageFlagBits.Sampled) != 0) flags |= TextureUsage.Sampled;
+			if ((usage & VKImageUsageFlagBits.Storage) != 0) flags |= TextureUsage.Storage;
+			if ((usage & VKImageUsageFlagBits.TransferDst) != 0) flags |= TextureUsage.TransferDst;
+			if ((usage & VKImageUsageFlagBits.TransferSrc) != 0) flags |= TextureUsage.TransferSrc;
+			if ((usage & VKImageUsageFlagBits.TransientAttachment) != 0) flags |= TextureUsage.TransientAttachment;
 			return flags;
 		}
 
@@ -941,8 +958,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			Type = VKStructureType.WriteDescriptorSet,
 			DstSet = set,
 			DstBinding = write.Binding,
-			DstArrayElement = write.ArrayElement,
-			DescriptorCount = write.Count != 0 ? write.Count : 1,
+			DstArrayElement = 0,
+			DescriptorCount = 1,
 			DescriptorType = Convert(write.Type),
 			BufferInfo = write.BufferInfo != null ? sp.Values(write.BufferInfo.ConvertAll(Convert)) : IntPtr.Zero,
 			ImageInfo = write.TextureInfo != null ? sp.Values(write.TextureInfo.ConvertAll(Convert)) : IntPtr.Zero
@@ -951,7 +968,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public static VKDescriptorSetLayoutBinding Convert(BindSetLayoutBinding binding) => new() {
 			Binding = binding.Binding,
 			DescriptorType = Convert(binding.Type),
-			DescriptorCount = binding.ArraySize != 0 ? binding.ArraySize : 1,
+			DescriptorCount = 1,
 			StageFlags = Convert(binding.Stages)
 		};
 
@@ -960,6 +977,65 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			Offset = range.Offset,
 			Size = range.Size
 		};
+
+		public static SwapchainPresentMode Convert(VKPresentModeKHR mode) => mode switch {
+			VKPresentModeKHR.FIFO => SwapchainPresentMode.FIFO,
+			VKPresentModeKHR.FIFORelaxed => SwapchainPresentMode.RelaxedFIFO,
+			VKPresentModeKHR.Immediate => SwapchainPresentMode.Immediate,
+			VKPresentModeKHR.Mailbox => SwapchainPresentMode.Mailbox,
+			_ => default
+		};
+
+		public static VKPresentModeKHR Convert(SwapchainPresentMode mode) => mode switch {
+			SwapchainPresentMode.FIFO => VKPresentModeKHR.FIFO,
+			SwapchainPresentMode.RelaxedFIFO => VKPresentModeKHR.FIFORelaxed,
+			SwapchainPresentMode.Immediate => VKPresentModeKHR.Immediate,
+			SwapchainPresentMode.Mailbox => VKPresentModeKHR.Mailbox,
+			_ => default
+		};
+
+		public static VKResolveModeFlagBits Convert(ResolveMode mode) {
+			VKResolveModeFlagBits vkmode = 0;
+			if ((mode & ResolveMode.First) != 0) vkmode |= VKResolveModeFlagBits.SampleZero;
+			if ((mode & (ResolveMode.Average | ResolveMode.Default)) != 0) vkmode |= VKResolveModeFlagBits.Average;
+			if ((mode & ResolveMode.Min) != 0) vkmode |= VKResolveModeFlagBits.Min;
+			if ((mode & ResolveMode.Max) != 0) vkmode |= VKResolveModeFlagBits.Max;
+			return vkmode;
+		}
+
+		public static VKRenderingAttachmentInfoKHR Convert(in ICommandSink.RenderingAttachmentInfo info) {
+			return new VKRenderingAttachmentInfoKHR() {
+				Type = VKStructureType.RenderingAttachmentInfo,
+				ImageView = ((VulkanTextureView)info.TextureView).ImageView.ImageView,
+				ImageLayout = Convert(info.TextureLayout),
+				ResolveMode = Convert(info.ResolveMode),
+				ResolveImageView = ((VulkanTextureView?)info.ResolveTextureView)?.ImageView?.ImageView ?? 0,
+				ResolveImageLayout = Convert(info.ResolveTextureLayout),
+				LoadOp = Convert(info.LoadOp),
+				StoreOp = Convert(info.StoreOp),
+				ClearValue = Convert(info.ClearValue)
+			};
+		}
+
+		public static VKVertexInputBindingDescription2EXT Convert(VertexBinding binding) {
+			return new VKVertexInputBindingDescription2EXT() {
+				Type = VKStructureType.VertexInputBindingDescription2EXT,
+				Binding = binding.Binding,
+				InputRate = Convert(binding.InputRate),
+				Stride = binding.Stride,
+				Divisor = 1
+			};
+		}
+
+		public static VKVertexInputAttributeDescription2EXT Convert(VertexAttrib attrib) {
+			return new VKVertexInputAttributeDescription2EXT() {
+				Type = VKStructureType.VertexInputAttributeDescription2EXT,
+				Binding = attrib.Binding,
+				Location = attrib.Location,
+				Format = Convert(attrib.Format),
+				Offset = attrib.Offset
+			};
+		}
 
 	}
 
