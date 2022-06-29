@@ -93,9 +93,9 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLRenderPass(GLGraphics graphics, RenderPassCreateInfo createInfo) {
 			Graphics = graphics;
-			AttachmentBegins = new AttachmentBegin[createInfo.Attachments.Length];
+			AttachmentBegins = new AttachmentBegin[createInfo.Attachments.Count];
 			AttachmentEnds = new AttachmentEnd[AttachmentBegins.Length];
-			for (int i = 0; i < createInfo.Attachments.Length; i++) {
+			for (int i = 0; i < createInfo.Attachments.Count; i++) {
 				var attachment = createInfo.Attachments[i];
 				AttachmentBegins[i] = new AttachmentBegin {
 					LoadOp = attachment.LoadOp,

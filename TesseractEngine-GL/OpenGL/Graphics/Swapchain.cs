@@ -65,9 +65,9 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public event Action? OnRebuild;
 
-		public int BeginFrame(ISync signal) => 0; // We can cheat alot here
+		public int BeginFrame(ISync? signal) => 0; // We can cheat alot here
 
-		public void EndFrame(ISync signalFence, params ISync[] wait) {
+		public void EndFrame(ISync? signalFence, params ISync[] wait) {
 			Context.SwapGLBuffers();
 			if (signalFence is GLSync sync && sync.IsFence) sync.GenerateFence();
 			// Recreate the "framebuffer" if the size changes

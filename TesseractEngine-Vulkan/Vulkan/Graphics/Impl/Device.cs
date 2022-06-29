@@ -415,12 +415,6 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// </summary>
 		public VulkanDeviceQueueInfo QueueCompute => queueCompute;
 
-		private VulkanDeviceQueueInfo queuePresent;
-		/// <summary>
-		/// The queue information for the selected presentation queue.
-		/// </summary>
-		public VulkanDeviceQueueInfo QueuePresent => queuePresent;
-
 		/// <summary>
 		/// The underlying Vulkan device.
 		/// </summary>

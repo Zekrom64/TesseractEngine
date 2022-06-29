@@ -15,18 +15,29 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public nuint SyncID { get; private set; }
 
-		public bool IsFence { get; }
+		public bool IsFence => Direction == SyncDirection.GPUToHost;
 
 
-		public SyncGranularity Granularity => throw new NotImplementedException();
+		public SyncGranularity Granularity { get; }
 
-		public SyncDirection Direction => throw new NotImplementedException();
+		public SyncDirection Direction { get; }
 
-		public SyncFeatures Features => throw new NotImplementedException();
+		public SyncFeatures Features { get; }
 
 		public GLSync(GLGraphics graphics, SyncCreateInfo createInfo) {
 			Graphics = graphics;
-
+			Granularity = createInfo.Granularity;
+			if (Granularity == SyncGranularity.PipelineStage)
+				throw new GLException("Cannot create sync object with pipline stage granularity");
+			Direction = createInfo.Direction;
+			if (Direction == SyncDirection.Any)
+				throw new GLException("Sync object direction must be GPU to GPU or GPU to Host");
+			SyncFeatures availFeatures = IsFence ?
+				SyncFeatures.HostPolling | SyncFeatures.HostWaiting | SyncFeatures.GPUWorkSignaling :
+				SyncFeatures.GPUWorkSignaling | SyncFeatures.GPUWorkWaiting;
+			if ((createInfo.Features & ~availFeatures) != 0)
+				throw new GLException("Cannot provide sync object with requested features");
+			Features = availFeatures;
 		}
 
 		public void GenerateFence() {

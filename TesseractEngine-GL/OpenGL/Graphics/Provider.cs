@@ -73,7 +73,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public static IGraphicsEnumerator GetEnumerator(GraphicsEnumeratorCreateInfo createInfo) {
 			IWindow? window = createInfo.Window;
 			if (window != null && window.GetService(GLServices.GLContextProvider) == null) window = null;
-			if (window == null) return new EmptyGraphicsEnumerator();
+			if (window == null) return EmptyGraphicsEnumerator.Instance;
 			return new GLGraphicsEnumerator(window);
 		}
 

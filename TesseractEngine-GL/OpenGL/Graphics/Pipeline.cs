@@ -12,6 +12,14 @@ using Tesseract.Core.Util;
 
 namespace Tesseract.OpenGL.Graphics {
 
+	public class GLPipelineLayout : IPipelineLayout {
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+		}
+
+	}
+
 	/// <summary>
 	/// <para>
 	/// Interface for objects that store an OpenGL shader program.

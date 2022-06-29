@@ -899,12 +899,12 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public static VKRenderPassCreateInfo Convert(MemoryStack sp, RenderPassCreateInfo createInfo) => new() {
 			Type = VKStructureType.RenderPassCreateInfo,
-			AttachmentCount = (uint)createInfo.Attachments.Length,
-			Attachments = sp.Values<VKAttachmentDescription>(createInfo.Attachments.ConvertAll(Convert)),
-			SubpassCount = (uint)createInfo.Subpasses.Length,
-			Subpasses = sp.Values<VKSubpassDescription>(createInfo.Subpasses.ConvertAll(subpass => Convert(sp, subpass))),
-			DependencyCount = (uint)createInfo.Dependencies.Length,
-			Dependencies = sp.Values<VKSubpassDependency>(createInfo.Dependencies.ConvertAll(Convert))
+			AttachmentCount = (uint)createInfo.Attachments.Count,
+			Attachments = sp.Values(createInfo.Attachments.ConvertAll(Convert)),
+			SubpassCount = (uint)createInfo.Subpasses.Count,
+			Subpasses = sp.Values(createInfo.Subpasses.ConvertAll(subpass => Convert(sp, subpass))),
+			DependencyCount = (uint)createInfo.Dependencies.Count,
+			Dependencies = sp.Values(createInfo.Dependencies.ConvertAll(Convert))
 		};
 
 		public static VKPipelineShaderStageCreateInfo Convert(PipelineShaderStageInfo stage) => new() {

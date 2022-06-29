@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tesseract.Core.Util;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -217,22 +218,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Render pass creation information.
 	/// </summary>
-	public readonly ref struct RenderPassCreateInfo {
+	public record RenderPassCreateInfo {
 
 		/// <summary>
 		/// The list of attachments used by this render pass.
 		/// </summary>
-		public ReadOnlySpan<RenderPassAttachment> Attachments { get; init; }
+		public IReadOnlyList<RenderPassAttachment> Attachments { get; init; } = Array.Empty<RenderPassAttachment>();
 
 		/// <summary>
 		/// The list of subpasses contained in this render pass.
 		/// </summary>
-		public ReadOnlySpan<RenderPassSubpass> Subpasses { get; init; }
+		public IReadOnlyList<RenderPassSubpass> Subpasses { get; init; } = Array.Empty<RenderPassSubpass>();
 
 		/// <summary>
 		/// The list of dependencies in this render pass.
 		/// </summary>
-		public ReadOnlySpan<RenderPassDependency> Dependencies { get; init; }
+		public IReadOnlyList<RenderPassDependency> Dependencies { get; init; } = Array.Empty<RenderPassDependency>();
 
 	}
 

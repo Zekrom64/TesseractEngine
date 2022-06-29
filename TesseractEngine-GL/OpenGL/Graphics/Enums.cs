@@ -310,8 +310,9 @@ namespace Tesseract.OpenGL.Graphics {
 		public static GLMemoryBarrier Convert(ICommandSink.BufferMemoryBarrier barrier) {
 			GLMemoryBarrier glbarrier = 0;
 			IBuffer buffer = barrier.Buffer;
-			if ((barrier.ProvokingAccess & MemoryAccess.VertexAttributeRead) != 0) glbarrier |= GLMemoryBarrier.VertexAttribArray;
+			if ((barrier.ProvokingAccess & MemoryAccess.IndirectCommandRead) != 0) glbarrier |= GLMemoryBarrier.Command;
 			if ((barrier.ProvokingAccess & MemoryAccess.IndexRead) != 0) glbarrier |= GLMemoryBarrier.ElementArray;
+			if ((barrier.ProvokingAccess & MemoryAccess.VertexAttributeRead) != 0) glbarrier |= GLMemoryBarrier.VertexAttribArray;
 			if ((barrier.ProvokingAccess & MemoryAccess.UniformRead) != 0) glbarrier |= GLMemoryBarrier.Uniform;
 			if ((barrier.ProvokingAccess & MemoryAccess.ShaderRead) != 0) {
 				if ((buffer.Usage & BufferUsage.StorageBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderStorage;
@@ -322,7 +323,6 @@ namespace Tesseract.OpenGL.Graphics {
 				if ((buffer.Usage & BufferUsage.StorageBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderStorage;
 				if ((buffer.Usage & BufferUsage.StorageTexelBuffer) != 0) glbarrier |= GLMemoryBarrier.ShaderImageAccess;
 			}
-			if ((barrier.ProvokingAccess & MemoryAccess.IndirectCommandRead) != 0) glbarrier |= GLMemoryBarrier.Command;
 			if ((barrier.ProvokingAccess & (MemoryAccess.TransferRead | MemoryAccess.TransferWrite)) != 0) glbarrier |= GLMemoryBarrier.BufferUpdate;
 			if ((barrier.ProvokingAccess & (MemoryAccess.HostRead | MemoryAccess.HostWrite)) != 0) glbarrier |= GLMemoryBarrier.ClientMappedBuffer;
 			return glbarrier;
@@ -331,6 +331,17 @@ namespace Tesseract.OpenGL.Graphics {
 		public static GLMemoryBarrier Convert(ICommandSink.TextureMemoryBarrier barrier) {
 			GLMemoryBarrier glbarrier = 0;
 			ITexture texture = barrier.Texture;
+			if ((barrier.ProvokingAccess & MemoryAccess.ShaderRead) != 0) {
+				if ((texture.Usage & TextureUsage.Sampled) != 0) glbarrier |= GLMemoryBarrier.TextureFetch;
+				if ((texture.Usage & TextureUsage.Storage) != 0) glbarrier |= GLMemoryBarrier.ShaderImageAccess;
+			}
+			if ((barrier.ProvokingAccess & MemoryAccess.ShaderWrite) != 0) glbarrier |= GLMemoryBarrier.ShaderImageAccess;
+			if ((barrier.ProvokingAccess & (
+				MemoryAccess.ColorAttachmentRead | MemoryAccess.ColorAttachmentWrite |
+				MemoryAccess.DepthStencilAttachmentRead | MemoryAccess.DepthStencilAttachmentWrite
+			)) != 0) glbarrier |= GLMemoryBarrier.Framebuffer;
+			if ((barrier.ProvokingAccess & (MemoryAccess.TransferRead | MemoryAccess.TransferWrite)) != 0) glbarrier |= GLMemoryBarrier.TextureUpdate;
+			return glbarrier;
 		}
 
 	}

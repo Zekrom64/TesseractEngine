@@ -184,12 +184,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// The information for a single shader stage for a pipeline.
 	/// </summary>
-	public record PipelineShaderStageInfo {
+	public record struct PipelineShaderStageInfo {
 
 		/// <summary>
 		/// The type of shader stage this information is for.
 		/// </summary>
-		public ShaderType Type { get; init; }
+		public ShaderType Type { get; init; } = default;
 
 		/// <summary>
 		/// The shader to use for this shader stage.
@@ -203,12 +203,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public string EntryPoint { get; init; } = "main";
 
+		public PipelineShaderStageInfo() { }
+
 	}
 
 	/// <summary>
 	/// The stencil test state for a pipeline.
 	/// </summary>
-	public record PipelineStencilState {
+	public record struct PipelineStencilState {
 
 		/// <summary>
 		/// The stencil operation to perform if the stencil test fails.
@@ -245,20 +247,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint Reference { get; init; }
 
-		public override int GetHashCode() {
-			int hash = ((int)FailOp) ^ (((int)PassOp) << 3) ^ (((int)DepthFailOp) << 6) ^ (((int)CompareOp) << 9);
-			hash ^= (int)CompareMask;
-			hash ^= (int)(WriteMask << 4);
-			hash ^= (int)(Reference << 8);
-			return hash;
-		}
-
 	}
 
 	/// <summary>
 	/// The pipeline state information for a color attachment.
 	/// </summary>
-	public record PipelineColorAttachmentState {
+	public record struct PipelineColorAttachmentState {
 
 		/// <summary>
 		/// If color blending is enabled, otherwise the source color values are passed through unmodified.
@@ -274,13 +268,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Bitmask of color components that will be written to the destination.
 		/// </summary>
 		public ColorComponent ColorWriteMask { get; init; }
-
-		public override int GetHashCode() {
-			int hash = ((int)BlendEquation.SrcRGB) ^ (((int)BlendEquation.DstRGB) << 4) ^ (((int)BlendEquation.SrcAlpha) << 8) ^ (((int)BlendEquation.DstAlpha) << 12);
-			hash ^= ((int)BlendEquation.RGBOp) | (((int)BlendEquation.AlphaOp) << 3) | (((int)ColorWriteMask) << 6);
-			if (BlendEnable) hash = ~hash;
-			return hash;
-		}
 
 	}
 
@@ -629,7 +616,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The compute shader binding.
 		/// </summary>
-		public PipelineShaderStageInfo Shader { get; init; } = null!;
+		public PipelineShaderStageInfo Shader { get; init; }
 
 	}
 

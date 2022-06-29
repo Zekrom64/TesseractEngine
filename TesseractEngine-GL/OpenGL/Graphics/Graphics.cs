@@ -44,19 +44,13 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IBuffer CreateBuffer(BufferCreateInfo createInfo) => new GLBuffer(this, createInfo);
 
-		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public ICommandBuffer CreateCommandBuffer(CommandBufferCreateInfo createInfo) => new GLCommandBuffer(this, createInfo);
 
 		public IPipeline CreatePipeline(PipelineCreateInfo createInfo) => new GLPipeline(this, createInfo);
 
 		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo) => new GLPipelineCache(this, createInfo);
 
-		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public IPipelineLayout CreatePipelineLayout(PipelineLayoutCreateInfo createInfo) => new GLPipelineLayout();
 
 		public ITexture CreateTexture(TextureCreateInfo createInfo) => new GLTexture(this, createInfo);
 
@@ -66,29 +60,17 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IShader CreateShader(ShaderCreateInfo createInfo) => new GLShader(this, createInfo);
 
-		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) => new GLPipelineSet(this, createInfo);
 
-		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) => new GLRenderPass(this, createInfo);
 
 		public IFramebuffer CreateFramebuffer(FramebufferCreateInfo createInfo) => new GLFramebuffer(this, createInfo);
 
-		public ISync CreateSync(SyncCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public ISync CreateSync(SyncCreateInfo createInfo) => new GLSync(this, createInfo);
 
 		public IVertexArray CreateVertexArray(VertexArrayCreateInfo createInfo) => new GLVertexArray(this, createInfo);
 
-		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => new GLBind
 
 		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) {
 			// TODO
@@ -96,15 +78,23 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		public void SubmitCommands(in IGraphics.CommandBufferSubmitInfo submitInfo) {
-			// TODO
+			foreach (var sync in submitInfo.WaitSync)
+				if (sync.Item1 is GLSync glsync && glsync.IsFence) glsync.HostWait(ulong.MaxValue);
+			foreach (ICommandBuffer buffer in submitInfo.CommandBuffer)
+				if (buffer is GLCommandBuffer glbuffer) glbuffer.RunCommands();
+			foreach (var sync in submitInfo.SignalSync)
+				if (sync is GLSync glsync && glsync.IsFence) glsync.GenerateFence();
 			throw new NotImplementedException();
 		}
 
 		public void TrimCommandBufferMemory() { } // No-op
 
 		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in IGraphics.CommandBufferSubmitInfo submitInfo) {
-			// TODO: Handle command syncing
+			foreach (var sync in submitInfo.WaitSync)
+				if (sync.Item1 is GLSync glsync && glsync.IsFence) glsync.HostWait(ulong.MaxValue);
 			cmdSink(immediateCommandSink);
+			foreach (var sync in submitInfo.SignalSync)
+				if (sync is GLSync glsync && glsync.IsFence) glsync.GenerateFence();
 		}
 
 		public void WaitIdle() {

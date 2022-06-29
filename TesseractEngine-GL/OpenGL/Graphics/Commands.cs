@@ -98,12 +98,68 @@ namespace Tesseract.OpenGL.Graphics {
 			DoImpl(() => Graphics.State.BindPipeline(glpipeline));
 		}
 
-		// TODO
 		public void BindPipelineWithState(IPipelineSet set, PipelineDynamicCreateInfo state) {
 			GLPipelineSet glset = (GLPipelineSet)set;
 			BindPipeline(glset.BasePipeline);
-
+			if (glset.IsVariable(PipelineDynamicState.DrawMode)) SetDrawMode(state.DrawMode);
+			if (glset.IsVariable(PipelineDynamicState.PrimitiveRestartEnable)) SetPrimitiveRestartEnable(state.PrimitiveRestartEnable);
+			if (glset.IsVariable(PipelineDynamicState.PatchControlPoints)) SetPatchControlPoints(state.PatchControlPoints);
 			if (glset.IsVariable(PipelineDynamicState.Viewport)) SetViewports(state.Viewports.ToArray());
+			if (glset.IsVariable(PipelineDynamicState.Scissor)) SetScissors(state.Scissors.ToArray());
+			if (glset.IsVariable(PipelineDynamicState.RasterizerDiscardEnable)) SetRasterizerDiscardEnable(state.RasterizerDiscardEnable);
+			if (glset.IsVariable(PipelineDynamicState.CullMode)) SetCullMode(state.CullMode);
+			if (glset.IsVariable(PipelineDynamicState.FrontFace)) SetFrontFace(state.FrontFace);
+			if (glset.IsVariable(PipelineDynamicState.LineWidth)) SetLineWidth(state.LineWidth);
+			if (glset.IsVariable(PipelineDynamicState.DepthBiasEnable)) SetDepthBiasEnable(state.DepthBiasEnable);
+			if (glset.IsVariable(PipelineDynamicState.DepthBias)) SetDepthBias(state.DepthBiasConstantFactor, state.DepthBiasClamp, state.DepthBiasSlopeFactor);
+			if (glset.IsVariable(PipelineDynamicState.DepthTestEnable)) SetDepthTestEnable(state.DepthTestEnable);
+			if (glset.IsVariable(PipelineDynamicState.DepthWriteEnable)) SetDepthWriteEnable(state.DepthWriteEnable);
+			if (glset.IsVariable(PipelineDynamicState.DepthCompareOp)) SetDepthCompareOp(state.DepthCompareOp);
+			if (glset.IsVariable(PipelineDynamicState.DepthBoundsTestEnable)) SetDepthBoundsTestEnable(state.DepthBoundsTestEnable);
+			if (glset.IsVariable(PipelineDynamicState.StencilTestEnable)) SetStencilTestEnable(state.StencilTestEnable);
+			if (glset.IsVariable(PipelineDynamicState.StencilReference)) {
+				var reference = ((int)state.FrontStencilState.Reference, (int)state.BackStencilState.Reference);
+				if (reference.Item1 == reference.Item2) {
+					DoImpl(() => Graphics.State.SetStencilReference(GLFace.FrontAndBack, reference.Item1));
+				} else {
+					DoImpl(() => {
+						Graphics.State.SetStencilReference(GLFace.Front, reference.Item1);
+						Graphics.State.SetStencilReference(GLFace.Back, reference.Item2);
+					});
+				}
+			}
+			if (glset.IsVariable(PipelineDynamicState.StencilCompareMask)) {
+				var mask = (state.FrontStencilState.CompareMask, state.BackStencilState.CompareMask);
+				if (mask.Item1 == mask.Item2) {
+					DoImpl(() => Graphics.State.SetStencilCompareMask(GLFace.FrontAndBack, mask.Item1));
+				} else {
+					DoImpl(() => {
+						Graphics.State.SetStencilCompareMask(GLFace.Front, mask.Item1);
+						Graphics.State.SetStencilCompareMask(GLFace.Back, mask.Item2);
+					});
+				}
+			}
+			if (glset.IsVariable(PipelineDynamicState.StencilOp)) {
+				var front = state.FrontStencilState;
+				SetStencilOp(CullFace.Front, front.FailOp, front.PassOp, front.DepthFailOp, front.CompareOp);
+				var back = state.BackStencilState;
+				SetStencilOp(CullFace.Back, back.FailOp, back.PassOp, back.DepthFailOp, back.CompareOp);
+			}
+			if (glset.IsVariable(PipelineDynamicState.StencilWriteMask)) {
+				var mask = (state.FrontStencilState.WriteMask, state.BackStencilState.WriteMask);
+				if (mask.Item1 == mask.Item2) {
+					DoImpl(() => Graphics.State.SetStencilWriteMask(GLFace.FrontAndBack, mask.Item1));
+				} else {
+					DoImpl(() => {
+						Graphics.State.SetStencilWriteMask(GLFace.Front, mask.Item1);
+						Graphics.State.SetStencilWriteMask(GLFace.Back, mask.Item2);
+					});
+				}
+			}
+
+			if (glset.IsVariable(PipelineDynamicState.DepthBounds)) SetDepthBounds(state.DepthBounds.Item1, state.DepthBounds.Item2);
+			if (glset.IsVariable(PipelineDynamicState.LogicOp)) SetLogicOp(state.LogicOp);
+			if (glset.IsVariable(PipelineDynamicState.BlendConstants)) SetBlendConstants(state.BlendConstant);
 		}
 
 		// TODO
@@ -277,8 +333,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged =>
 			throw new GLException("Push constants are not supported on OpenGL");
 
-		// TODO
-		public void ResetSync(ISync dst, PipelineStage stage) => throw new NotImplementedException();
+		public void ResetSync(ISync dst, PipelineStage stage) => throw new GLException("SetSync is unsupported on OpenGL");
 
 		// TODO
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyTextureRegion> regions) => throw new NotImplementedException();
@@ -324,10 +379,7 @@ namespace Tesseract.OpenGL.Graphics {
 			DoImpl(() => Graphics.State.SetStencilWriteMask(GLEnums.Convert(face), writeMask));
 		}
 
-		public void SetSync(ISync dst, PipelineStage stage) {
-			GLSync gldst = (GLSync)dst;
-			gldst.GenerateFence(); // TODO: Generate based on sync type?
-		}
+		public void SetSync(ISync dst, PipelineStage stage) => throw new GLException("SetSync is unsupported on OpenGL");
 
 		public void SetViewport(Viewport viewport, uint firstViewport = 0) =>
 			DoImpl(() => Graphics.State.SetViewports(stackalloc Viewport[] { viewport }, firstViewport));
@@ -338,6 +390,74 @@ namespace Tesseract.OpenGL.Graphics {
 				Viewport[] viewports2 = viewports.ToArray();
 				indirect(() => Graphics.State.SetViewports(viewports2, firstViewport));
 			} else Graphics.State.SetViewports(viewports, firstViewport);
+		}
+
+		public void SetCullMode(CullFace culling) {
+			GLFace face = GLEnums.Convert(culling);
+			DoImpl(() => Graphics.State.SetCullMode(culling != CullFace.None, face));
+		}
+
+		public void SetDepthBoundsTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthBoundsTestEnable(enabled));
+
+		public void SetDepthCompareOp(CompareOp op) {
+			GLCompareFunc glop = GLEnums.Convert(op);
+			DoImpl(() => Graphics.State.SetDepthCompareOp(glop));
+		}
+
+		public void SetDepthTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthTestEnable(enabled));
+
+		public void SetDepthWriteEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthWriteEnable(enabled));
+
+		public void SetFrontFace(FrontFace face) {
+			GLCullFace glface = GLEnums.Convert(face);
+			DoImpl(() => Graphics.State.SetFrontFace(glface));
+		}
+
+		public void SetDrawMode(DrawMode mode) {
+			GLDrawMode glmode = GLEnums.Convert(mode);
+			DoImpl(() => Graphics.State.SetDrawMode(glmode));
+		}
+
+		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors) => SetScissors(scissors);
+
+		public void SetScissorsWithCount(params Recti[] scissors) => SetScissorsWithCount(scissors.AsSpan());
+
+		public void SetStencilOp(CullFace faces, StencilOp failOp, StencilOp passOp, StencilOp depthFailOp, CompareOp compareOp) {
+			if (faces == CullFace.None) return;
+			GLPipeline.StencilOpState state = new() {
+				FailOp = GLEnums.Convert(failOp),
+				PassOp = GLEnums.Convert(passOp),
+				DepthFailOp = GLEnums.Convert(depthFailOp),
+				CompareOp = GLEnums.ConvertStencilFunc(compareOp)
+			};
+			GLFace glfaces = GLEnums.Convert(faces);
+			DoImpl(() => Graphics.State.SetStencilOp(glfaces, state));
+		}
+
+		public void SetStencilTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetStencilTestEnable(enabled));
+
+		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports) => SetViewports(viewports);
+
+		public void SetViewportsWithCount(params Viewport[] viewports) => SetViewportsWithCount(viewports.AsSpan());
+
+		public void SetDepthBiasEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthBiasEnable(enabled));
+
+		public void SetLogicOp(LogicOp op) {
+			GLLogicOp glop = GLEnums.Convert(op);
+			DoImpl(() => Graphics.State.SetLogicOp(glop));
+		}
+
+		public void SetPatchControlPoints(uint controlPoints) => DoImpl(() => Graphics.State.SetPatchControlPoints(controlPoints));
+
+		public void SetPrimitiveRestartEnable(bool enabled) => DoImpl(() => Graphics.State.SetPrimitiveRestartEnable(enabled));
+
+		public void SetRasterizerDiscardEnable(bool enabled) => DoImpl(() => Graphics.State.SetRasterizerDiscardEnable(enabled));
+
+		public void SetVertexFormat(VertexFormat format) { } // No-op, vertex specification is done via vertex arrays
+
+		public void SetColorWriteEnable(in ReadOnlySpan<bool> enables) {
+			bool[] enables2 = enables.ToArray();
+			DoImpl(() => Graphics.State.SetColorWriteEnable(enables2));
 		}
 
 		public void UpdateBuffer(IBuffer dst, nuint dstOffset, nuint dstSize, IntPtr pData) {
@@ -375,11 +495,10 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 		}
 
-		// TODO
-		public void WaitSync(in ICommandSink.PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs) => throw new NotImplementedException();
+		public void WaitSync(in ICommandSink.PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs) { }
 
-		// TODO
-		public void WaitSync(in ICommandSink.PipelineBarriers barriers, ISync sync) => throw new NotImplementedException();
+		public void WaitSync(in ICommandSink.PipelineBarriers barriers, ISync sync) { }
+
 	}
 
 }
