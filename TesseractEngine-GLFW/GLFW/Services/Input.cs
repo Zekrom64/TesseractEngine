@@ -132,6 +132,7 @@ namespace Tesseract.GLFW.Services {
 
 		public string Name => "GLFW Keyboard";
 
+#pragma warning disable 0067
 		public event Action? OnDisconnected;
 		
 		public event Action<KeyEvent>? OnKey;
@@ -139,6 +140,7 @@ namespace Tesseract.GLFW.Services {
 		public event Action<TextInputEvent>? OnTextInput;
 
 		public event Action<TextEditEvent>? OnTextEdit;
+#pragma warning restore 0067
 
 		public void EndTextInput() => throw new NotImplementedException();
 
@@ -172,6 +174,7 @@ namespace Tesseract.GLFW.Services {
 
 		public Vector2i MousePosition => throw new NotImplementedException();
 
+#pragma warning disable 0067
 		public event Action? OnDisconnected;
 
 		public event Action<MouseMoveEvent>? OnMouseMove;
@@ -179,6 +182,7 @@ namespace Tesseract.GLFW.Services {
 		public event Action<MouseButtonEvent>? OnMouseButton;
 
 		public event Action<MouseWheelEvent>? OnMouseWheel;
+#pragma warning restore 0067
 
 		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
 
@@ -351,7 +355,7 @@ namespace Tesseract.GLFW.Services {
 
 		public IKeyboard Keyboard { get; } = new GLFWServiceKeyboard();
 
-		public IMouse Mouse => throw new NotImplementedException();
+		public IMouse Mouse => new GLFWServiceMouse();
 
 		private readonly List<GLFWServiceJoystick> joysticks = new();
 		public IReadOnlyList<IJoystick> Joysticks => joysticks;

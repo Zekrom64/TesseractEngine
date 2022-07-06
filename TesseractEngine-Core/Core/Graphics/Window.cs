@@ -420,8 +420,8 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// Sets the fullscreen mode for this window.
 		/// </summary>
-		/// <param name="display">Display to make fullscreen on</param>
-		/// <param name="mode">Display mode to use in fullscreen mode</param>
+		/// <param name="display">Display to make fullscreen on, or null to make windowed</param>
+		/// <param name="mode">Display mode to use in fullscreen mode, or null to use the display's current mode</param>
 		public void SetFullscreen(IDisplay? display, IDisplayMode? mode);
 
 		/// <summary>

@@ -300,7 +300,9 @@ namespace Tesseract.GLFW.Services {
 		public event Action? OnClosing;
 		public event Action<KeyEvent>? OnKey;
 		public event Action<TextInputEvent>? OnTextInput;
+#pragma warning disable 0067
 		public event Action<TextEditEvent>? OnTextEdit;
+#pragma warning restore 0067
 		private Vector2i lastCursorPos;
 		public event Action<MouseMoveEvent>? OnMouseMove;
 		public event Action<MouseButtonEvent>? OnMouseButton;
@@ -383,6 +385,8 @@ namespace Tesseract.GLFW.Services {
 				return exts;
 			}
 		}
+
+		public Vector2i SurfaceExtent => Size;
 
 		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
 			VK.CheckError((VKResult)GLFW3.Functions.glfwCreateWindowSurface(instance, Window.Window, allocator, out ulong surface), "Failed to create window surface");

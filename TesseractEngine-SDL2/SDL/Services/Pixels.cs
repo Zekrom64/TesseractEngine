@@ -14,7 +14,6 @@ namespace Tesseract.SDL.Services {
 	public static class SDLPixelService {
 
 		private static readonly Dictionary<SDLPixelFormatEnum, PixelFormat> fromSDL = new() {
-			{ SDLPixelFormatEnum.Unknown, null },
 			// Standard pixel formats
 			{ SDLPixelFormatEnum.RGB24, PixelFormat.R8G8B8UNorm },
 			{ SDLPixelFormatEnum.BGR24, PixelFormat.B8G8R8UNorm },
@@ -136,7 +135,7 @@ namespace Tesseract.SDL.Services {
 		/// </summary>
 		/// <param name="pixelFormat">Pixel format to convert</param>
 		/// <returns>Converted pixel format, or null</returns>
-		public static PixelFormat ConvertPixelFormat(SDLPixelFormatEnum pixelFormat) => fromSDL.GetValueOrDefault(pixelFormat);
+		public static PixelFormat? ConvertPixelFormat(SDLPixelFormatEnum pixelFormat) => fromSDL.GetValueOrDefault(pixelFormat);
 
 		/// <summary>
 		/// Converts a standard pixel format to an SDL pixel format.

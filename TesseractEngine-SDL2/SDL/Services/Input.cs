@@ -155,11 +155,11 @@ namespace Tesseract.SDL.Services {
 
 		public event Action OnDisconnected { add { } remove { } }
 
-		public event Action<KeyEvent> OnKey;
+		public event Action<KeyEvent>? OnKey;
 		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
-		public event Action<TextInputEvent> OnTextInput;
+		public event Action<TextInputEvent>? OnTextInput;
 		internal void DoOnTextInput(TextInputEvent evt) => OnTextInput?.Invoke(evt);
-		public event Action<TextEditEvent> OnTextEdit;
+		public event Action<TextEditEvent>? OnTextEdit;
 		internal void DoOnTextEdit(TextEditEvent evt) => OnTextEdit?.Invoke(evt);
 
 		public void EndTextInput() => SDL2.StopTextInput();
@@ -171,7 +171,7 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetKeyState(Key key) => GetCurrentKeyState(key);
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public void StartTextInput() => SDL2.StartTextInput();
 
@@ -207,11 +207,11 @@ namespace Tesseract.SDL.Services {
 
 		public event Action OnDisconnected { add { } remove { } }
 
-		public event Action<MouseMoveEvent> OnMouseMove;
+		public event Action<MouseMoveEvent>? OnMouseMove;
 		internal void DoOnMouseMove(MouseMoveEvent evt) => OnMouseMove?.Invoke(evt);
-		public event Action<MouseButtonEvent> OnMouseButton;
+		public event Action<MouseButtonEvent>? OnMouseButton;
 		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
-		public event Action<MouseWheelEvent> OnMouseWheel;
+		public event Action<MouseWheelEvent>? OnMouseWheel;
 		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
 
 		public static bool GetCurrentMouseButtonState(int button) {
@@ -221,7 +221,7 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetMouseButtonState(int button) => GetCurrentMouseButtonState(button);
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -229,14 +229,14 @@ namespace Tesseract.SDL.Services {
 
 		private class SDLServiceJoystickLightSystem : ILightSystem {
 
-			public SDLServiceJoystick Joystick { get; init; }
+			public SDLServiceJoystick Joystick { get; init; } = null!;
 
 			public string Name => Joystick.Name;
 
-			public event Action OnDisconnected;
+			public event Action? OnDisconnected;
 			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
 
-			public T GetService<T>(IService<T> service) => default;
+			public T? GetService<T>(IService<T> service) => default;
 
 			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
 
@@ -250,9 +250,9 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public readonly SDLJoystick Joystick;
-		private readonly SDLServiceJoystickLightSystem lightSystem;
+		private readonly SDLServiceJoystickLightSystem? lightSystem;
 
-		public event Action OnDisconnected;
+		public event Action? OnDisconnected;
 		internal void DoOnDisconnected() {
 			OnDisconnected?.Invoke();
 			if (lightSystem != null) lightSystem.DoOnDisconnected();
@@ -285,8 +285,8 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public virtual T GetService<T>(IService<T> service) {
-			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
+		public virtual T? GetService<T>(IService<T> service) {
+			if (service == InputServices.LightSystem) return (T?)(object?)lightSystem;
 			// TODO: Advanced haptic services
 			return default;
 		}
@@ -320,14 +320,14 @@ namespace Tesseract.SDL.Services {
 
 		private class SDLServiceGamepadLightSystem : ILightSystem {
 
-			public SDLServiceGamepad Gamepad { get; init; }
+			public SDLServiceGamepad Gamepad { get; init; } = null!;
 
 			public string Name => Gamepad.Name;
 
-			public event Action OnDisconnected;
+			public event Action? OnDisconnected;
 			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
 
-			public T GetService<T>(IService<T> service) => default;
+			public T? GetService<T>(IService<T> service) => default;
 
 			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
 
@@ -341,7 +341,7 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public readonly SDLGameController GameController;
-		private readonly SDLServiceGamepadLightSystem lightSystem;
+		private readonly SDLServiceGamepadLightSystem? lightSystem;
 
 		public SDLServiceGamepad(SDLGameController gameController) : base(gameController.Joystick) {
 			GameController = gameController;
@@ -349,11 +349,14 @@ namespace Tesseract.SDL.Services {
 			else lightSystem = null;
 		}
 
+		// Apparently the compiler has a hissy fit trying to override a virtual with a nullable return
+#nullable disable
 		public override T GetService<T>(IService<T> service) {
 			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
 			// TODO: Advanced haptic services
 			return base.GetService(service);
 		}
+#nullable restore
 
 		public const int NumButtons = 21;
 
@@ -440,7 +443,7 @@ namespace Tesseract.SDL.Services {
 
 		public IReadOnlyList<ILightSystem> LightSystems => throw new NotImplementedException();
 
-		public event Action<IInputDevice> OnConnected;
+		public event Action<IInputDevice>? OnConnected;
 
 		private SDLKeymod lastModState = default;
 
@@ -466,7 +469,7 @@ namespace Tesseract.SDL.Services {
 			joysticks.Clear();
 		}
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public void RunEvents() {
 			SDL2.PumpEvents();
@@ -474,7 +477,7 @@ namespace Tesseract.SDL.Services {
 			while ((evt = SDL2.PollEvent()).HasValue) PushEvent(evt.Value);
 		}
 
-		private static SDLServiceWindow GetWindowFromID(uint id) {
+		private static SDLServiceWindow? GetWindowFromID(uint id) {
 			IntPtr pSDLWindow = SDL2.Functions.SDL_GetWindowFromID(id);
 			if (pSDLWindow == IntPtr.Zero) return null;
 			IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(pSDLWindow, SDLServiceWindow.WindowDataID);
@@ -485,18 +488,20 @@ namespace Tesseract.SDL.Services {
 		private void PushEvent(in SDLEvent evt) {
 			switch (evt.Type) {
 				case SDLEventType.WindowEvent: {
-					SDLServiceWindow window = GetWindowFromID(evt.Window.WindowID);
-					switch (evt.Window.Event) {
-						case SDLWindowEventID.Resized: window.DoOnResize(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
-						case SDLWindowEventID.Moved: window.DoOnMove(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
-						case SDLWindowEventID.Minimized: window.DoOnMinimized(); break;
-						case SDLWindowEventID.Maximized: window.DoOnMaximized(); break;
-						case SDLWindowEventID.Restored: window.DoOnRestored(); break;
-						case SDLWindowEventID.FocusGained: window.DoOnFocused(); break;
-						case SDLWindowEventID.FocusLost: window.DoOnUnfocused(); break;
-						case SDLWindowEventID.Close: window.DoOnClosing(); break;
-						default: break;
-					}
+					SDLServiceWindow? window = GetWindowFromID(evt.Window.WindowID);
+						if (window != null) {
+							switch (evt.Window.Event) {
+								case SDLWindowEventID.Resized: window.DoOnResize(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+								case SDLWindowEventID.Moved: window.DoOnMove(new Vector2i(evt.Window.Data1, evt.Window.Data2)); break;
+								case SDLWindowEventID.Minimized: window.DoOnMinimized(); break;
+								case SDLWindowEventID.Maximized: window.DoOnMaximized(); break;
+								case SDLWindowEventID.Restored: window.DoOnRestored(); break;
+								case SDLWindowEventID.FocusGained: window.DoOnFocused(); break;
+								case SDLWindowEventID.FocusLost: window.DoOnUnfocused(); break;
+								case SDLWindowEventID.Close: window.DoOnClosing(); break;
+								default: break;
+							}
+						}
 				} break;
 				case SDLEventType.KeyDown:
 				case SDLEventType.KeyUp: {
@@ -537,7 +542,7 @@ namespace Tesseract.SDL.Services {
 						// Keymod state not provided with mouse button, infer from last known state
 						Mod = SDLServiceKeyboard.SDLToStdKeyMod(lastModState)
 					};
-					SDLServiceWindow window = GetWindowFromID(evt.Button.WindowID);
+					SDLServiceWindow? window = GetWindowFromID(evt.Button.WindowID);
 					Vector2i pos = window != null ? window.Position : new();
 					window?.DoOnMouseButton(btn);
 					// Correct position to global and then fire event
@@ -549,7 +554,7 @@ namespace Tesseract.SDL.Services {
 						Position = new Vector2i(evt.Motion.X, evt.Motion.Y),
 						Delta = new Vector2i(evt.Motion.XRel, evt.Motion.YRel)
 					};
-					SDLServiceWindow window = GetWindowFromID(evt.Button.WindowID);
+					SDLServiceWindow? window = GetWindowFromID(evt.Button.WindowID);
 					Vector2i pos = window != null ? window.Position : new();
 					window?.DoOnMouseMove(mv);
 					// Correct position to global and then fire event
@@ -560,7 +565,7 @@ namespace Tesseract.SDL.Services {
 					MouseWheelEvent whl = new() {
 						Delta = new Vector2i(evt.Wheel.X, evt.Wheel.Y)
 					};
-					SDLServiceWindow window = GetWindowFromID(evt.Button.WindowID);
+					SDLServiceWindow? window = GetWindowFromID(evt.Button.WindowID);
 					if (window != null) {
 						whl.Position = window.LastMousePos;
 						window.DoOnMouseWheel(whl);
@@ -584,14 +589,17 @@ namespace Tesseract.SDL.Services {
 				} break;
 				case SDLEventType.JoyDeviceRemoved: {
 					int joystickID = evt.JDevice.Which;
-					IntPtr pJoystick = SDLJoystick.FromInstanceID(joystickID).Joystick.Ptr;
-					for(int i = 0; i < joysticks.Count; i++) {
-						SDLServiceJoystick svjoy = joysticks[i];
-						SDLJoystick joy = svjoy.Joystick;
-						if (joy.Joystick.Ptr == pJoystick) {
-							svjoy.DoOnDisconnected();
-							joysticks.RemoveAt(i);
-							break;
+					SDLJoystick? sdljoy = SDLJoystick.FromInstanceID(joystickID);
+					if (sdljoy != null) {
+						IntPtr pJoystick = sdljoy.Joystick.Ptr;
+						for (int i = 0; i < joysticks.Count; i++) {
+							SDLServiceJoystick svjoy = joysticks[i];
+							SDLJoystick joy = svjoy.Joystick;
+							if (joy.Joystick.Ptr == pJoystick) {
+								svjoy.DoOnDisconnected();
+								joysticks.RemoveAt(i);
+								break;
+							}
 						}
 					}
 				} break;

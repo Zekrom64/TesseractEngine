@@ -19,7 +19,7 @@ namespace Tesseract.SDL.Services {
 		public SDLServiceImage(SDLSurface surface) {
 			Surface = surface;
 			Size = new Vector2i(surface.W, surface.H);
-			Format = SDLPixelService.ConvertPixelFormat(surface.PixelFormatEnum);
+			Format = SDLPixelService.ConvertPixelFormat(surface.PixelFormatEnum) ?? throw new SDLException("Surface has invalid pixel format");
 		}
 
 		public SDLServiceImage(int w, int h, PixelFormat format) {
@@ -43,7 +43,7 @@ namespace Tesseract.SDL.Services {
 				Surface = new SDLSurface(Size.X, Size.Y, sdlformat);
 				IPointer<byte> pSrc = image.MapPixels(MapMode.ReadOnly);
 				IPointer<byte> pDst = MapPixels(MapMode.WriteOnly);
-				MemoryUtil.Copy(pDst, pSrc, Size.X * Size.Y * Format.SizeOf);
+				MemoryUtil.Copy(pDst, pSrc, (ulong)(Size.X * Size.Y * Format.SizeOf));
 				image.UnmapPixels();
 				UnmapPixels();
 			}
@@ -112,6 +112,10 @@ namespace Tesseract.SDL.Services {
 	}
 
 	public class SDLImageIOService : IImageIO {
+
+		public bool CanLoad(string mime) => mime == MIME.BMP;
+
+		public bool CanSave(string mime) => mime == MIME.BMP;
 
 		public IImage Load(ResourceLocation location) {
 			string? mime = location.Metadata.MIMEType;

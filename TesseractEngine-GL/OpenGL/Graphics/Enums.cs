@@ -101,9 +101,9 @@ namespace Tesseract.OpenGL.Graphics {
 			return false;
 		}
 
-		public static GLPixelFormat StdToGLFormat(PixelFormat format) {
+		public static GLPixelFormat? StdToGLFormat(PixelFormat format) {
 			if (stdToInternalFormat.TryGetValue(format, out GLInternalFormat glformat)) return internalFormats[glformat];
-			if (stdToGLFormat.TryGetValue(format, out GLPixelFormat glpxformat)) return glpxformat;
+			if (stdToGLFormat.TryGetValue(format, out GLPixelFormat? glpxformat)) return glpxformat;
 			/* TODO: OpenGL supports more formats, but how to convert from PixelFormat correctly?
 			foreach(GLPixelFormat glfmt in internalFormats.Values) {
 				if (format.SizeOf != glfmt.SizeOf) continue;

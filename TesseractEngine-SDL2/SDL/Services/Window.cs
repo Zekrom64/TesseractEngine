@@ -19,16 +19,16 @@ namespace Tesseract.SDL.Services {
 
 		public bool CustomCursorSupport => true;
 
-		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList attributes = null) => new SDLServiceWindow(title, w, h, attributes);
+		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList? attributes = null) => new SDLServiceWindow(title, w, h, attributes);
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public ICursor CreateCursor(IImage image, Vector2i hotspot) {
 			SDLServiceImage sdlimg;
 			bool dispose = false;
-			if (image is SDLServiceImage) sdlimg = image as SDLServiceImage;
+			if (image is SDLServiceImage img) sdlimg = img;
 			else {
 				sdlimg = new SDLServiceImage(image);
 				dispose = true;
@@ -40,15 +40,13 @@ namespace Tesseract.SDL.Services {
 
 		public ICursor CreateStandardCursor(StandardCursor std) {
 			SDLSystemCursor sdlcur = std switch {
-				StandardCursor.Arrow => SDLSystemCursor.Arrow,
 				StandardCursor.Crosshair => SDLSystemCursor.Crosshair,
 				StandardCursor.Hand => SDLSystemCursor.Hand,
 				StandardCursor.HResize => SDLSystemCursor.SizeWE,
 				StandardCursor.VResize => SDLSystemCursor.SizeNS,
 				StandardCursor.IBeam => SDLSystemCursor.IBeam,
-				_ => SDLSystemCursor.No
+				StandardCursor.Arrow or _ => SDLSystemCursor.Arrow,
 			};
-			if (sdlcur == SDLSystemCursor.No) return null;
 			return new SDLServiceCursor(new SDLCursor(sdlcur));
 		}
 
@@ -58,11 +56,12 @@ namespace Tesseract.SDL.Services {
 
 		public readonly SDLDisplayMode DisplayMode;
 
+		public PixelFormat PixelFormat { get; }
+
 		public SDLServiceDisplayMode(SDLDisplayMode mode) {
 			DisplayMode = mode;
+			PixelFormat = SDLPixelService.ConvertPixelFormat(DisplayMode.Format) ?? throw new SDLException("Display mode has invalid pixel format");
 		}
-
-		public PixelFormat PixelFormat => SDLPixelService.ConvertPixelFormat(DisplayMode.Format);
 
 		public IReadOnlyTuple2<int> Size => new Vector2i(DisplayMode.W, DisplayMode.H);
 
@@ -86,7 +85,7 @@ namespace Tesseract.SDL.Services {
 
 		public IDisplayMode[] GetDisplayModes() => Display.Modes.ConvertAll(mode => new SDLServiceDisplayMode(mode));
 
-		public T GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) => default;
 
 		public SDLServiceDisplay(SDLDisplay display) {
 			Display = display;
@@ -116,7 +115,7 @@ namespace Tesseract.SDL.Services {
 		public readonly SDLWindow Window;
 
 		private readonly object lockGlcontext = new();
-		private SDLGLContext glcontext = null;
+		private SDLGLContext? glcontext = null;
 
 		public string Title { get => Window.Name; set => Window.Name = value; }
 		public Vector2i Size { get => Window.Size; set => Window.Size = value; }
@@ -152,7 +151,7 @@ namespace Tesseract.SDL.Services {
 		public float Opacity { get => Window.Opacity; set => Window.Opacity = value; }
 		public bool Resizable { get => Window.Resizable; set => Window.Resizable = value; }
 		public bool Fullscreen { get => (Window.Flags & SDLWindowFlags.Fullscreen) != 0; }
-		public IDisplay FullscreenDisplay {
+		public IDisplay? FullscreenDisplay {
 			get {
 				if (!Fullscreen) return null;
 				int index = SDL2.Functions.SDL_GetWindowDisplayIndex(Window.Window.Ptr);
@@ -163,49 +162,49 @@ namespace Tesseract.SDL.Services {
 
 		internal Vector2i LastMousePos = new();
 
-		public event Action<Vector2i> OnResize;
+		public event Action<Vector2i>? OnResize;
 		internal void DoOnResize(Vector2i size) => OnResize?.Invoke(size);
-		public event Action<Vector2i> OnMove;
+		public event Action<Vector2i>? OnMove;
 		internal void DoOnMove(Vector2i pos) => OnMove?.Invoke(pos);
-		public event Action OnMinimized;
+		public event Action? OnMinimized;
 		internal void DoOnMinimized() => OnMinimized?.Invoke();
-		public event Action OnMaximized;
+		public event Action? OnMaximized;
 		internal void DoOnMaximized() => OnMaximized?.Invoke();
-		public event Action OnRestored;
+		public event Action? OnRestored;
 		internal void DoOnRestored() => OnRestored?.Invoke();
-		public event Action OnFocused;
+		public event Action? OnFocused;
 		internal void DoOnFocused() {
 			if (captureMouse) SDL2.RelativeMouseMode = true;
 			if (windowCursor != null) SDL2.Cursor = windowCursor;
 			OnFocused?.Invoke();
 		}
-		public event Action OnUnfocused;
+		public event Action? OnUnfocused;
 		internal void DoOnUnfocused() {
 			if (captureMouse) SDL2.RelativeMouseMode = false;
 			if (windowCursor != null) SDL2.Cursor = SDLCursor.DefaultCursor;
 			OnUnfocused?.Invoke();
 		}
-		public event Action OnClosing;
+		public event Action? OnClosing;
 		internal void DoOnClosing() => OnClosing?.Invoke();
-		public event Action<KeyEvent> OnKey;
+		public event Action<KeyEvent>? OnKey;
 		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
 		private bool textInput = false;
-		public event Action<TextInputEvent> OnTextInput;
+		public event Action<TextInputEvent>? OnTextInput;
 		internal void DoOnTextInput(TextInputEvent evt) {
 			if (textInput) OnTextInput?.Invoke(evt);
 		}
-		public event Action<TextEditEvent> OnTextEdit;
+		public event Action<TextEditEvent>? OnTextEdit;
 		internal void DoOnTextEdit(TextEditEvent evt) {
 			if (textInput) OnTextEdit?.Invoke(evt);
 		}
-		public event Action<MouseMoveEvent> OnMouseMove;
+		public event Action<MouseMoveEvent>? OnMouseMove;
 		internal void DoOnMouseMove(MouseMoveEvent evt) {
 			LastMousePos = evt.Position;
 			OnMouseMove?.Invoke(evt);
 		}
-		public event Action<MouseButtonEvent> OnMouseButton;
+		public event Action<MouseButtonEvent>? OnMouseButton;
 		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
-		public event Action<MouseWheelEvent> OnMouseWheel;
+		public event Action<MouseWheelEvent>? OnMouseWheel;
 		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
 
 		private bool captureMouse;
@@ -221,9 +220,9 @@ namespace Tesseract.SDL.Services {
 
 		public Vector2i MousePosition => LastMousePos;
 
-		private SDLCursor windowCursor = null;
+		private SDLCursor? windowCursor = null;
 
-		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList attributes) {
+		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList? attributes) {
 			if (attributes == null) return 0;
 			SDLWindowFlags flags = 0;
 			if (attributes.TryGet(WindowAttributes.Visible, out bool visible)) {
@@ -239,16 +238,16 @@ namespace Tesseract.SDL.Services {
 			return flags;
 		}
 
-		public SDLServiceWindow(string title, int w, int h, WindowAttributeList attributes) {
+		public SDLServiceWindow(string title, int w, int h, WindowAttributeList? attributes) {
 			Vector2i position = new(SDL2.WindowPosUndefined);
 			if (attributes != null) {
-				if (attributes.TryGet(WindowAttributes.Title, out string newTitle)) title = newTitle;
+				if (attributes.TryGet(WindowAttributes.Title, out string? newTitle)) title = newTitle!;
 				if (attributes.TryGet(WindowAttributes.Position, out Vector2i newPosition)) position = newPosition;
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
-			}
-			if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
-				if (attributes.TryGet(GLWindowAttributes.ContextVersionMajor, out int majorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMajorVersion, majorver);
-				if (attributes.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMinorVersion, minorver);
+				if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
+					if (attributes.TryGet(GLWindowAttributes.ContextVersionMajor, out int majorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMajorVersion, majorver);
+					if (attributes.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMinorVersion, minorver);
+				}
 			}
 			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
 			if (attributes != null) {
@@ -269,7 +268,7 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public T GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) {
 			if (service == GLServices.GLContextProvider ||
 				service == GraphicsServices.GammaRampObject ||
 				service == VKServices.SurfaceProvider) return (T)(object)this;
@@ -281,15 +280,16 @@ namespace Tesseract.SDL.Services {
 			Window.Restore();
 		}
 
-		public void SetFullscreen(IDisplay display, IDisplayMode mode) {
+		public void SetFullscreen(IDisplay? display, IDisplayMode? mode) {
 			if (display == null) {
 				Restore();
 				return;
 			}
-			SDLDisplay sdldisplay = (display as SDLServiceDisplay).Display;
+			SDLDisplay sdldisplay = ((SDLServiceDisplay)display).Display;
 			SDLDisplayMode sdlmode;
-			if (mode is SDLServiceDisplayMode) sdlmode = (mode as SDLServiceDisplayMode).DisplayMode;
+			if (mode is SDLServiceDisplayMode sdlsmode) sdlmode = sdlsmode.DisplayMode;
 			else {
+				if (mode == null) mode = display.CurrentMode;
 				sdlmode = new SDLDisplayMode() {
 					W = mode.Size.X,
 					H = mode.Size.Y,
@@ -343,12 +343,12 @@ namespace Tesseract.SDL.Services {
 			Window.Dispose();
 		}
 
-		public void SetCursor(ICursor cursor) {
+		public void SetCursor(ICursor? cursor) {
 			if (cursor == null) {
 				windowCursor = null;
 				if (Focused) SDL2.Cursor = SDLCursor.DefaultCursor;
 			} else {
-				windowCursor = (cursor as SDLServiceCursor).Cursor;
+				windowCursor = ((SDLServiceCursor)cursor).Cursor;
 				if (Focused) SDL2.Cursor = windowCursor;
 			}
 		}
@@ -370,7 +370,7 @@ namespace Tesseract.SDL.Services {
 		public void BlitToSurface(IReadOnlyTuple2<int> dstPos, IImage srcImage, IReadOnlyRect<int> srcArea) {
 			SDLServiceImage sdlimg;
 			bool dispose = false;
-			if (srcImage is SDLServiceImage) sdlimg = srcImage as SDLServiceImage;
+			if (srcImage is SDLServiceImage sdlsrc) sdlimg = sdlsrc;
 			else {
 				sdlimg = new SDLServiceImage(srcImage);
 				dispose = true;
@@ -396,12 +396,14 @@ namespace Tesseract.SDL.Services {
 				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Ptr, out int count, out IntPtr names)) throw new SDLException(SDL2.GetError());
 				UnmanagedPointer<IntPtr> pNames = new(names);
 				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i]);
+				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
 				return exts;
 			}
 		}
 
-		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks allocator = null) {
+		public Vector2i SurfaceExtent => Size;
+
+		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
 			if (!SDL2.Functions.SDL_Vulkan_CreateSurface(Window.Window.Ptr, instance, out ulong surface)) throw new SDLException(SDL2.GetError());
 			return new VKSurfaceKHR(instance, surface, null);
 		}

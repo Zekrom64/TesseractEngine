@@ -431,7 +431,7 @@ namespace Tesseract.SDL {
 		public void SetWindowShape(SDLSurface shape, SDLWindowShapeMode shapeMode) =>
 			SDL2.CheckError(SDL2.Functions.SDL_SetWindowShape(Window.Ptr, shape.Surface.Ptr, shapeMode));
 
-		public SDLSysWMInfo GetWindowWMInfo(SDLVersion ver) {
+		public SDLSysWMInfo? GetWindowWMInfo(SDLVersion ver) {
 			unsafe {
 				SDL_SysWMinfo info = new() {
 					Version = ver
