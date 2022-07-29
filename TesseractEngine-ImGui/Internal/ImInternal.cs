@@ -11,7 +11,30 @@ namespace Tesseract.ImGui.Internal {
 	// Publicly-facing opaque types //
 	//==============================//
 
-	public class ImGuiContext { }
+	public class ImGuiContext {
+
+		internal bool Initialized;
+		internal bool FontAtlasOwnedByContext;
+		internal ImGuiIO IO = new();
+		internal List<ImGuiInputEvent> InputEventsQueue = new();
+		internal List<ImGuiInputEvent> InputEventsTrail = new();
+		internal ImGuiStyle Style;
+		internal ImFont Font;
+		internal float FontSize;
+		internal float FontBaseSize;
+		internal ImDrawListSharedData DrawListSharedData;
+		internal double Time;
+		internal int FrameCount;
+		internal int FrameCountEnded;
+		internal int FrameCountRendered;
+		internal bool WithinFrameScope;
+		internal bool WithinFrameScopeWithImplicitWindow;
+		internal bool WithinEndChild;
+		internal bool GCCompactAll;
+		internal bool TestEngineHookItems;
+		internal IntPtr TestEngine;
+
+	}
 
 	public class ImDrawListSharedData {
 
@@ -27,6 +50,12 @@ namespace Tesseract.ImGui.Internal {
 		internal float ArcFastRadiusCutoff;
 		internal byte[] CircleSegmentCounts = new byte[64];
 		internal Vector4 TexUvLines;
+
+	}
+
+	public static partial class ImGui {
+
+		internal static ImGuiContext GImGui = default!;
 
 	}
 

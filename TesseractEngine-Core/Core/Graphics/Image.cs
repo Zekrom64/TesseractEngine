@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
@@ -195,7 +196,7 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="dstArea">Destination area to fill</param>
 		/// <param name="color">Color to fill with</param>
-		public void Fill(IReadOnlyRect<int> dstArea, IReadOnlyColor color);
+		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color);
 
 	}
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Tesseract.Core.Numerics;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
@@ -514,7 +514,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The minimum and maximum values for depth bounds testing.
 		/// </summary>
-		public (float, float) DepthBounds { get; init; }
+		public (float Min, float Max) DepthBounds { get; init; }
 
 		// Color blend state
 

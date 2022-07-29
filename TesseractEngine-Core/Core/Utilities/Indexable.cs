@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// A read-only indexer provides a method for reading values using the array subscript.

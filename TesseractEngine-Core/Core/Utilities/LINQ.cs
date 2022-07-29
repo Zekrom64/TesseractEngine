@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// LINQ-related helper methods.

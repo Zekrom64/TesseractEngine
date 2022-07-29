@@ -1,4 +1,5 @@
-﻿using Tesseract.Core.Graphics;
+﻿using System.Numerics;
+using Tesseract.Core.Graphics;
 
 namespace Tesseract.Core.Input {
 
@@ -15,7 +16,7 @@ namespace Tesseract.Core.Input {
 		/// <summary>
 		/// The color of the light.
 		/// </summary>
-		public IReadOnlyColor Color { get; init; } = new Color3f();
+		public Vector3 Color { get; init; } = Vector3.Zero;
 
 	}
 

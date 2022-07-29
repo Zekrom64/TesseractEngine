@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 	
 	/// <summary>
 	/// A pure C# implementation of the xxHash64 hashing algorithm.

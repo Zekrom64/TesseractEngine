@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 namespace Tesseract.ImGui.Internal {
+
 	internal class ImGuiInputTextState {
 
 		public int ID;

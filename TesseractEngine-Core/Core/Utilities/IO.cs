@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// A "first-in first-out" stream, which will store all written bytes to a buffer

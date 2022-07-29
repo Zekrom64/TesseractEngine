@@ -32,7 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-LMDB", "Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-AL", "TesseractEngine-AL\TesseractEngine-AL.csproj", "{5A243E15-C1A0-4210-89D8-A296ECF0CD02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-ImGui", "TesseractEngine-ImGui\TesseractEngine-ImGui.csproj", "{1CBD56D7-57BD-4D92-872B-9D1B44054154}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui", "TesseractEngine-ImGui\TesseractEngine-ImGui.csproj", "{1CBD56D7-57BD-4D92-872B-9D1B44054154}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Engine2D", "TesseractEngine-Engine2D\TesseractEngine-Engine2D.csproj", "{7166552D-E01E-498A-BAA8-29FD79C922EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,10 @@ Global
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,31 +6,39 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	//======================//
 	// Little-Endian Values //
 	//======================//
 
+	/// <summary>
+	/// A 16-bit integer which will always be stored in little-endian byte order in memory.
+	/// </summary>
 	public struct LittleInt16 {
 
 		private short memValue;
 
 		public short Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
 				if (BitConverter.IsLittleEndian) memValue = value;
 				else memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleInt16(short value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator short(LittleInt16 le16) => le16.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleInt16(short s) => new(s);
 
 	}
@@ -40,20 +48,25 @@ namespace Tesseract.Core.Util {
 		private ushort memValue;
 
 		public ushort Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
 				if (BitConverter.IsLittleEndian) memValue = value;
 				else memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleUInt16(ushort value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ushort(LittleUInt16 le16) => le16.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleUInt16(ushort s) => new(s);
 
 	}
@@ -63,20 +76,27 @@ namespace Tesseract.Core.Util {
 		private int memValue;
 
 		public int Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
-				if (BitConverter.IsLittleEndian) memValue = value;
-				else memValue = BinaryPrimitives.ReverseEndianness(value);
+				if (BitConverter.IsLittleEndian)
+					memValue = value;
+				else
+					memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleInt32(int value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator int(LittleInt32 le32) => le32.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleInt32(int s) => new(s);
 
 	}
@@ -86,20 +106,27 @@ namespace Tesseract.Core.Util {
 		private uint memValue;
 
 		public uint Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
-				if (BitConverter.IsLittleEndian) memValue = value;
-				else memValue = BinaryPrimitives.ReverseEndianness(value);
+				if (BitConverter.IsLittleEndian)
+					memValue = value;
+				else
+					memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleUInt32(uint value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator uint(LittleUInt32 le32) => le32.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleUInt32(uint s) => new(s);
 
 	}
@@ -109,20 +136,27 @@ namespace Tesseract.Core.Util {
 		private long memValue;
 
 		public long Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
-				if (BitConverter.IsLittleEndian) memValue = value;
-				else memValue = BinaryPrimitives.ReverseEndianness(value);
+				if (BitConverter.IsLittleEndian)
+					memValue = value;
+				else
+					memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleInt64(long value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator long(LittleInt64 le64) => le64.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleInt64(long s) => new(s);
 
 	}
@@ -132,20 +166,25 @@ namespace Tesseract.Core.Util {
 		private ulong memValue;
 
 		public ulong Value {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => BitConverter.IsLittleEndian ? memValue : BinaryPrimitives.ReverseEndianness(memValue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
 				if (BitConverter.IsLittleEndian) memValue = value;
 				else memValue = BinaryPrimitives.ReverseEndianness(value);
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public LittleUInt64(ulong value) {
 			if (BitConverter.IsLittleEndian) memValue = value;
 			else memValue = BinaryPrimitives.ReverseEndianness(value);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ulong(LittleUInt64 le64) => le64.Value;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator LittleUInt64(ulong s) => new(s);
 
 	}

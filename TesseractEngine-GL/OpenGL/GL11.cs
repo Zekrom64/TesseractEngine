@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {

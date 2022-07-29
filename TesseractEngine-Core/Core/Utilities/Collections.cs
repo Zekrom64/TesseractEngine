@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// A read-only list that provides a view of an array. The underlying array
@@ -303,6 +303,30 @@ namespace Tesseract.Core.Util {
 			foreach (T1 t in c) list.Add(convert(t));
 			return list;
 		}
+
+		/// <summary>
+		/// Creates a tuple with two duplicate elements.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="val">Value to duplicate</param>
+		/// <returns>Duplicate tuple</returns>
+		public static (T, T) TupleDup2<T>(T val) => (val, val);
+
+		/// <summary>
+		/// Creates a tuple with three duplicate elements.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="val">Value to duplicate</param>
+		/// <returns>Duplicate tuple</returns>
+		public static (T, T, T) TupleDup3<T>(T val) => (val, val, val);
+
+		/// <summary>
+		/// Creates a tuple with four duplicate elements.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="val">Value to duplicate</param>
+		/// <returns>Duplicate tuple</returns>
+		public static (T, T, T, T) TupleDup4<T>(T val) => (val, val, val, val);
 
 	}
 

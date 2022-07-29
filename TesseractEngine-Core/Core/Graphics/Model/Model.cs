@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Resource;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Model {
 

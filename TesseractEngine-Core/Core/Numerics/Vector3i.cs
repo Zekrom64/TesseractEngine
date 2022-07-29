@@ -61,6 +61,15 @@ namespace Tesseract.Core.Numerics {
 			Z = tuple.Z;
 		}
 
+		/// <summary>
+		/// Casts a tuple of another type to a vector type.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="tuple">Tuple to cast</param>
+		/// <returns>Vector from tuple value</returns>
+		public static Vector3i Cast<T>(IReadOnlyTuple3<T> tuple) where T : unmanaged =>
+			new(Convert.ToInt32(tuple.X), Convert.ToInt32(tuple.Y), Convert.ToInt32(tuple.Z));
+
 		public bool Equals(IReadOnlyTuple3<int>? other) => other != null && X == other.X && Y == other.Y && Z == other.Z;
 
 		public override bool Equals(object? obj) => obj is IReadOnlyTuple3<int> other && Equals(other);
@@ -114,7 +123,7 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3i operator -(Vector3i value) => new(-value.X, -value.Y, -value.Z);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector3i operator +(Vector3i value) => new(+value.X, +value.Y, +value.Z);
+		public static Vector3i operator +(Vector3i value) => new(Math.Abs(value.X), Math.Abs(value.Y), Math.Abs(value.Z));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3i operator ++(Vector3i value) => new(value.X + 1, value.Y + 1, value.Z + 1);
@@ -142,10 +151,17 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3i operator ^(Vector3i left, int right) => new(left.X ^ right, left.Y ^ right, left.Z ^ right);
 
-		public static implicit operator Vector<int>(Vector3i v) => new(stackalloc[] { v.X, v.Y, v.Z });
-		public static implicit operator Vector3i(Vector<int> v) => new(v[0], v[1], v[2]);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector3i(Vector3 v) => new((int)v.X, (int)v.Y, (int)v.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector3i(Vector3ui v) => new((int)v.X, (int)v.Y, (int)v.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector3i(Vector3s v) => new(v.X, v.Y, v.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector3i(Vector3us v) => new(v.X, v.Y, v.Z);
 
-		public static explicit operator Vector3ui(Vector3i v) => new((uint)v.X, (uint)v.Y, (uint)v.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector3(Vector3i v) => new(v.X, v.Y, v.Z);
 
 	}
 

@@ -83,7 +83,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v">Vector value</param>
 		/// <returns>Absolute vector value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector2 Abs(this Vector2 v) => new(MathF.Abs(v.X), MathF.Abs(v.Y));
+		public static Vector2 Abs(this Vector2 v) => Vector2.Abs(v);
 
 		/// <summary>
 		/// Computes the absolute value of this vector.
@@ -91,7 +91,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v">Vector value</param>
 		/// <returns>Absolute vector value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector3 Abs(this Vector3 v) => new(MathF.Abs(v.X), MathF.Abs(v.Y), MathF.Abs(v.Z));
+		public static Vector3 Abs(this Vector3 v) => Vector3.Abs(v);
 
 		/// <summary>
 		/// Computes the absolute value of this vector.
@@ -99,7 +99,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v">Vector value</param>
 		/// <returns>Absolute vector value</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector4 Abs(this Vector4 v) => new(MathF.Abs(v.X), MathF.Abs(v.Y), MathF.Abs(v.Z), MathF.Abs(v.W));
+		public static Vector4 Abs(this Vector4 v) => Vector4.Abs(v);
 
 
 		/// <summary>
@@ -108,7 +108,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
-		public static Vector2 Min(this Vector2 v1, Vector2 v2) => new(MathF.Min(v1.X, v2.X), MathF.Min(v1.Y, v2.Y));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Min(this Vector2 v1, Vector2 v2) => Vector2.Min(v1, v2);
 
 		/// <summary>
 		/// Computes the minimum of each component between this and a second vector.
@@ -116,7 +117,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
-		public static Vector3 Min(this Vector3 v1, Vector3 v2) => new(MathF.Min(v1.X, v2.X), MathF.Min(v1.Y, v2.Y), MathF.Min(v1.Z, v2.Z));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Min(this Vector3 v1, Vector3 v2) => Vector3.Min(v1, v2);
 
 		/// <summary>
 		/// Computes the minimum of each component between this and a second vector.
@@ -124,7 +126,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
-		public static Vector4 Min(this Vector4 v1, Vector4 v2) => new(MathF.Min(v1.X, v2.X), MathF.Min(v1.Y, v2.Y), MathF.Min(v1.Y, v2.Y), MathF.Min(v1.W, v2.W));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Min(this Vector4 v1, Vector4 v2) => Vector4.Min(v1, v2);
 
 
 		/// <summary>
@@ -133,7 +136,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
-		public static Vector2 Max(this Vector2 v1, Vector2 v2) => new(MathF.Max(v1.X, v2.X), MathF.Max(v1.Y, v2.Y));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Max(this Vector2 v1, Vector2 v2) => Vector2.Max(v1, v2);
 
 		/// <summary>
 		/// Computes the maximum of each component between this and a second vector.
@@ -141,7 +145,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
-		public static Vector3 Max(this Vector3 v1, Vector3 v2) => new(MathF.Max(v1.X, v2.X), MathF.Max(v1.Y, v2.Y), MathF.Max(v1.Z, v2.Z));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Max(this Vector3 v1, Vector3 v2) => Vector3.Max(v1, v2);
 
 		/// <summary>
 		/// Computes the maximum of each component between this and a second vector.
@@ -149,7 +154,8 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
-		public static Vector4 Max(this Vector4 v1, Vector4 v2) => new(MathF.Max(v1.X, v2.X), MathF.Max(v1.Y, v2.Y), MathF.Max(v1.Y, v2.Y), MathF.Max(v1.W, v2.W));
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Max(this Vector4 v1, Vector4 v2) => Vector4.Max(v1, v2);
 
 
 		/// <summary>
@@ -158,6 +164,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i Min(this Vector2i v1, Vector2i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
 
 		/// <summary>
@@ -166,6 +173,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3i Min(this Vector3i v1, Vector3i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Z, v2.Z));
 
 		/// <summary>
@@ -174,6 +182,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4i Min(this Vector4i v1, Vector4i v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Y, v2.Y), Math.Min(v1.W, v2.W));
 
 
@@ -183,6 +192,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i Max(this Vector2i v1, Vector2i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
 
 		/// <summary>
@@ -191,6 +201,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3i Max(this Vector3i v1, Vector3i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Z, v2.Z));
 
 		/// <summary>
@@ -199,6 +210,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4i Max(this Vector4i v1, Vector4i v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Y, v2.Y), Math.Max(v1.W, v2.W));
 
 
@@ -208,6 +220,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2ui Min(this Vector2ui v1, Vector2ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
 
 		/// <summary>
@@ -216,6 +229,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3ui Min(this Vector3ui v1, Vector3ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Z, v2.Z));
 
 		/// <summary>
@@ -224,6 +238,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of minimum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4ui Min(this Vector4ui v1, Vector4ui v2) => new(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y), Math.Min(v1.Y, v2.Y), Math.Min(v1.W, v2.W));
 
 
@@ -233,6 +248,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2ui Max(this Vector2ui v1, Vector2ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
 
 		/// <summary>
@@ -241,6 +257,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector3ui Max(this Vector3ui v1, Vector3ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Z, v2.Z));
 
 		/// <summary>
@@ -249,6 +266,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v1">First vector</param>
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector of maximum values</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4ui Max(this Vector4ui v1, Vector4ui v2) => new(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y), Math.Max(v1.Y, v2.Y), Math.Max(v1.W, v2.W));
 
 
@@ -346,7 +364,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector dot product</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Dot(this Vector2 v1, Vector2 v2) => (v1 * v2).Sum();
+		public static float Dot(this Vector2 v1, Vector2 v2) => Vector2.Dot(v1, v2);
 
 		/// <summary>
 		/// Computes the dot product between this and a second vector.
@@ -355,7 +373,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector dot product</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Dot(this Vector3 v1, Vector3 v2) => (v1 * v2).Sum();
+		public static float Dot(this Vector3 v1, Vector3 v2) => Vector3.Dot(v1, v2);
 
 		/// <summary>
 		/// Computes the dot product between this and a second vector.
@@ -364,7 +382,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="v2">Second vector</param>
 		/// <returns>Vector dot product</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Dot(this Vector4 v1, Vector4 v2) => (v1 * v2).Sum();
+		public static float Dot(this Vector4 v1, Vector4 v2) => Vector4.Dot(v1, v2);
 
 		/// <summary>
 		/// Computes the floor of every component of this vector.
@@ -413,6 +431,135 @@ namespace Tesseract.Core.Numerics {
 		/// <returns>Ceiling vector</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4 Ceiling(this Vector4 v) => new(MathF.Ceiling(v.X), MathF.Ceiling(v.Y), MathF.Ceiling(v.Z), MathF.Ceiling(v.W));
+
+		/// <summary>
+		/// Normalizes a vector by dividing each component by its length.
+		/// </summary>
+		/// <param name="v">Vector to normalize</param>
+		/// <returns>Normalized vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Normalize(this Vector2 v) => Vector2.Normalize(v);
+
+		/// <summary>
+		/// Normalizes a vector by dividing each component by its length.
+		/// </summary>
+		/// <param name="v">Vector to normalize</param>
+		/// <returns>Normalized vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Normalize(this Vector3 v) => Vector3.Normalize(v);
+
+		/// <summary>
+		/// Normalizes a vector by dividing each component by its length.
+		/// </summary>
+		/// <param name="v">Vector to normalize</param>
+		/// <returns>Normalized vector</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Normalize(this Vector4 v) => Vector4.Normalize(v);
+
+		/// <summary>
+		/// Gets the distance squared between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance squared between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float DistanceSquared(this Vector2 a, Vector2 b) => Vector2.DistanceSquared(a, b);
+
+		/// <summary>
+		/// Gets the distance squared between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance squared between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float DistanceSquared(this Vector3 a, Vector3 b) => Vector3.DistanceSquared(a, b);
+
+		/// <summary>
+		/// Gets the distance squared between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance squared between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float DistanceSquared(this Vector4 a, Vector4 b) => Vector4.DistanceSquared(a, b);
+
+		/// <summary>
+		/// Gets the distance between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Distance(this Vector2 a, Vector2 b) => Vector2.Distance(a, b);
+
+		/// <summary>
+		/// Gets the distance between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Distance(this Vector3 a, Vector3 b) => Vector3.Distance(a, b);
+
+		/// <summary>
+		/// Gets the distance between this and a second vector.
+		/// </summary>
+		/// <param name="a">First position vector</param>
+		/// <param name="b">Second position vector</param>
+		/// <returns>Distance between vectors</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Distance(this Vector4 a, Vector4 b) => Vector4.Distance(a, b);
+
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Get(this Vector2 v, int idx) => idx switch { 0 => v.X, 1 => v.Y, _ => 0 };
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Get(this Vector3 v, int idx) => idx switch { 0 => v.X, 1 => v.Y, 2 => v.Z, _ => 0 };
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Get(this Vector4 v, int idx) => idx switch { 0 => v.X, 1 => v.Y, 2 => v.Z, 3 => v.W, _ => 0 };
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Set(this Vector2 v, int idx, float value) {
+			switch(idx) {
+				case 0:
+					v.X = value;
+					break;
+				case 1:
+					v.Y = value;
+					break;
+			}
+		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Set(this Vector3 v, int idx, float value) {
+			switch (idx) {
+				case 0:
+					v.X = value;
+					break;
+				case 1:
+					v.Y = value;
+					break;
+				case 2:
+					v.Z = value;
+					break;
+			}
+		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Set(this Vector4 v, int idx, float value) {
+			switch (idx) {
+				case 0:
+					v.X = value;
+					break;
+				case 1:
+					v.Y = value;
+					break;
+				case 2:
+					v.Z = value;
+					break;
+				case 3:
+					v.W = value;
+					break;
+			}
+		}
 
 	}
 

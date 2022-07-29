@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// Enumeration of levels for thread safety.

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 	
 	/// <summary>
 	/// Enumeration of simple logging levels. Higher-priority levels are numerically

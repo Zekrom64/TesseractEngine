@@ -1,3 +1,0 @@
-﻿namespace Tesseract.Core.Util {
-
-}

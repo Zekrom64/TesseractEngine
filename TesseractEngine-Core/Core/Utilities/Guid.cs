@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// <para>

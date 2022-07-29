@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Native;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.OpenAL {
 

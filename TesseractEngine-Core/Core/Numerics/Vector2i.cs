@@ -50,6 +50,15 @@ namespace Tesseract.Core.Numerics {
 			Y = tuple.Y;
 		}
 
+		/// <summary>
+		/// Casts a tuple of another type to a vector type.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="tuple">Tuple to cast</param>
+		/// <returns>Vector from tuple value</returns>
+		public static Vector2i Cast<T>(IReadOnlyTuple2<T> tuple) where T : unmanaged =>
+			new(Convert.ToInt32(tuple.X), Convert.ToInt32(tuple.Y));
+
 		public bool Equals(IReadOnlyTuple2<int>? other) => other != null && X == other.X && Y == other.Y;
 
 		public override bool Equals(object? obj) => obj is IReadOnlyTuple2<int> other && Equals(other);
@@ -110,7 +119,7 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator -(Vector2i value) => new(-value.X, -value.Y);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector2i operator +(Vector2i value) => new(+value.X, +value.Y);
+		public static Vector2i operator +(Vector2i value) => new(Math.Abs(value.X), Math.Abs(value.Y));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator ++(Vector2i value) => new(value.X + 1, value.Y + 1);
@@ -140,10 +149,15 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator ^(Vector2i left, int right) => new(left.X ^ right, left.Y ^ right);
 
-		public static implicit operator Vector<int>(Vector2i v) => new(stackalloc[] { v.X, v.Y });
-		public static implicit operator Vector2i(Vector<int> v) => new(v[0], v[1]);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector2i(Vector2 v) => new((int)v.X, (int)v.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector2i(Vector2d v) => new((int)v.X, (int)v.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector2i(Vector2ui v) => new((int)v.X, (int)v.Y);
 
-		public static explicit operator Vector2ui(Vector2i v) => new((uint)v.X, (uint)v.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector2(Vector2i v) => new(v.X, v.Y);
 
 	}
 

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Tesseract.Engine2D</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Sprites\" />
+  </ItemGroup>
+
+</Project>

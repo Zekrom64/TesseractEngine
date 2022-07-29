@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Vulkan {
 

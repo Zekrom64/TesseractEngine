@@ -8,7 +8,7 @@ using Tesseract.Core.Input;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using Tesseract.OpenGL;
 using Tesseract.Vulkan;
 using Tesseract.Vulkan.Graphics;

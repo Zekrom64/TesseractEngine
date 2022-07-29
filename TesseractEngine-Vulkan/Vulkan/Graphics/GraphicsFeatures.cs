@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using Tesseract.Vulkan.Graphics.Impl;
 
 namespace Tesseract.Vulkan.Graphics {

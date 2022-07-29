@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Audio {
 

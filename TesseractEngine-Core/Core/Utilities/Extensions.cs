@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace Tesseract.Core.Util {
+namespace Tesseract.Core.Utilities {
 
 	/// <summary>
 	/// Array extension methods.
