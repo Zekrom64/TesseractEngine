@@ -1,31 +1,25 @@
 ﻿using System.Numerics;
 
 namespace Tesseract.ImGui {
-	public class ImDrawData {
 
-		public bool Valid;
-		public int TotalIdxCount;
-		public int TotalVtxCount;
-		public readonly List<ImDrawList> CmdLists = new();
-		public Vector2 DisplayPos;
-		public Vector2 DisplaySize;
-		public Vector2 FramebufferScale;
+	public interface IImDrawData {
 
-		public void Clear() {
-			Valid = false;
-			TotalIdxCount = TotalVtxCount = 0;
-			CmdLists.Clear();
-			DisplayPos = DisplaySize = FramebufferScale = Vector2.Zero;
-		}
+		public bool Valid { get; }
+		public int TotalIdxCount { get; }
+		public int TotalVtxCount { get; }
+		public IList<IImDrawList> CmdLists { get; }
+		public Vector2 DisplayPos { get; }
+		public Vector2 DisplaySize { get; }
+		public Vector2 FramebufferScale { get; }
 
-		public void DeIndexAllBuffers() {
+		public void Clear();
 
-		}
+		public void DeIndexAllBuffers();
 
-		public void ScaleClipRects(Vector2 fbScale) {
-
-		}
+		public void ScaleClipRects(Vector2 fbScale);
 
 	}
+
+	public interface IImDrawList { }
 
 }

@@ -116,7 +116,7 @@ namespace Tesseract.ImGui {
 
 	}
 
-	public delegate void ImDrawCallback(ImDrawList parentList, ImDrawCmd cmd);
+	public delegate void ImDrawCallback(IImDrawList parentList, ImDrawCmd cmd);
 
 	public struct ImDrawCmd {
 

@@ -631,7 +631,7 @@ namespace Tesseract.ImGui {
 		Middle = 2
 	}
 
-	public enum ImGUiMouseCursor : int {
+	public enum ImGuiMouseCursor : int {
 		None = -1,
 		Arrow = 0,
 		TextInput,

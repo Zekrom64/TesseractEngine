@@ -20,7 +20,7 @@ namespace Tesseract.ImGui {
 		public char EllipsisChar { get; init; } = unchecked((char)-1);
 
 		internal string Name = "";
-		internal ImFont? DstFont;
+		internal IImFont? DstFont;
 	}
 
 }
