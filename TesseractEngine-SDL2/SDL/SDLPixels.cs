@@ -409,6 +409,20 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public byte A;
 
+		public SDLColor(byte r, byte g, byte b) {
+			R = r;
+			G = g;
+			B = b;
+			A = 0xFF;
+		}
+
+		public SDLColor(byte r, byte g, byte b, byte a) {
+			R = r;
+			G = g;
+			B = b;
+			A = a;
+		}
+
 	}
 
 	public class SDLPalette : IDisposable {

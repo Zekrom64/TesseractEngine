@@ -118,6 +118,15 @@ namespace Tesseract.SDL {
 		Vertical = 0x2
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDLVertex {
+
+		public SDLFPoint Position;
+		public SDLColor Color;
+		public SDLFPoint TexCoord;
+
+	}
+
 	public class SDLRenderer : IDisposable {
 
 		public IPointer<SDL_Renderer> Renderer { get; private set; }
@@ -440,6 +449,34 @@ namespace Tesseract.SDL {
 				SDLFRect dr;
 				if (dstrect.HasValue) dr = dstrect.Value;
 				SDL2.CheckError(SDL2.Functions.SDL_RenderCopyExF(Renderer.Ptr, texture.Texture.Ptr, srcrect.HasValue ? (IntPtr)(&sr) : IntPtr.Zero, dstrect.HasValue ? (IntPtr)(&dr) : IntPtr.Zero, angle, center, flip));
+			}
+		}
+
+		public void RenderGeometry(SDLTexture texture, in ReadOnlySpan<SDLVertex> vertices, in ReadOnlySpan<int> indices) {
+			unsafe {
+				fixed(SDLVertex* pVertices = vertices) {
+					fixed(int* pIndices = indices) {
+						SDL2.CheckError(SDL2.Functions.SDL_RenderGeometry(Renderer.Ptr, texture.Texture.Ptr, (IntPtr)pVertices, vertices.Length, (IntPtr)pIndices, indices.Length));
+					}
+				}
+			}
+		}
+
+		public void RenderGeometryRaw<T>(SDLTexture texture, in ReadOnlySpan<float> xy, int xyStride, in ReadOnlySpan<SDLColor> color, int colorStride, in ReadOnlySpan<float> uv, int uvStride, in ReadOnlySpan<T> indices, int numVertices = -1, int numIndices = -1) where T : unmanaged {
+			unsafe {
+				fixed (float* pXY = xy) {
+					fixed (SDLColor* pColor = color) {
+						fixed (float* pUV = uv) {
+							int maxVertices = ExMath.Min(xy.Length / xyStride, color.Length / colorStride, uv.Length / uvStride);
+							if (numVertices > maxVertices || numVertices < 0) numVertices = maxVertices;
+							fixed(T* pIndices = indices) {
+								int maxIndices = indices.Length;
+								if (numIndices > maxIndices || numIndices < 0) numIndices = maxIndices;
+								SDL2.CheckError(SDL2.Functions.SDL_RenderGeometryRaw(Renderer.Ptr, texture.Texture.Ptr, (IntPtr)pXY, xyStride, (IntPtr)pColor, colorStride, (IntPtr)pUV, uvStride, numVertices, (IntPtr)pIndices, numIndices, Marshal.SizeOf<T>()));
+							}
+						}
+					}
+				}
 			}
 		}
 
