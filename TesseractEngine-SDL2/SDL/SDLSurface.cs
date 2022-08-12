@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
 using Tesseract.SDL.Native;
 
 namespace Tesseract.SDL {
@@ -147,8 +148,8 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The modulating color of the surface.
 		/// </summary>
-		public Color3b ColorMod {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceColorMod(Surface.Ptr, value.R, value.G, value.B));
+		public Vector3b ColorMod {
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceColorMod(Surface.Ptr, value.X, value.Y, value.Z));
 			get {
 				SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceColorMod(Surface.Ptr, out byte R, out byte G, out byte B));
 				return new(R, G, B);

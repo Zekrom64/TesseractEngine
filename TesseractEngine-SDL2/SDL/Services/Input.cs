@@ -242,7 +242,7 @@ namespace Tesseract.SDL.Services {
 
 			public void SetLightPattern(ILightPattern pattern) {
 				if (pattern is SingleLightPattern light) {
-					Vector4 color = light.Color.Normalized;
+					Vector3 color = light.Color;
 					Joystick.Joystick.SetLED((byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255));
 				}
 			}
@@ -333,7 +333,7 @@ namespace Tesseract.SDL.Services {
 
 			public void SetLightPattern(ILightPattern pattern) {
 				if (pattern is SingleLightPattern light) {
-					Vector4 color = light.Color.Normalized;
+					Vector3 color = light.Color;
 					Gamepad.Joystick.SetLED((byte)(color.X * 255), (byte)(color.Y * 255), (byte)(color.Z * 255));
 				}
 			}

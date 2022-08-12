@@ -5,6 +5,7 @@ using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Resource;
 using Tesseract.Core.Services;
+using System.Numerics;
 
 namespace Tesseract.SDL.Services {
 
@@ -100,7 +101,7 @@ namespace Tesseract.SDL.Services {
 			if (dispose) sdlsrc.Dispose();
 		}
 
-		public void Fill(IReadOnlyRect<int> dstArea, IReadOnlyColor color) {
+		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color) {
 			Surface.FillRect(new SDLRect() {
 				X = dstArea.Position.X,
 				Y = dstArea.Position.Y,

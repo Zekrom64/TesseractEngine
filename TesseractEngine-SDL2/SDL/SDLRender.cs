@@ -194,11 +194,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public Color4b DrawColor {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetRenderDrawColor(Renderer.Ptr, value.R, value.G, value.B, value.A));
+		public Vector4b DrawColor {
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetRenderDrawColor(Renderer.Ptr, value.X, value.Y, value.Z, value.W));
 			get {
 				SDL2.CheckError(SDL2.Functions.SDL_GetRenderDrawColor(Renderer.Ptr, out byte r, out byte g, out byte b, out byte a));
-				return new Color4b() { R = r, G = g, B = b, A = a };
+				return new Vector4b() { X = r, Y = g, Z = b, W = a };
 			}
 		}
 
@@ -472,11 +472,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public Color3b ColorMod {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetTextureColorMod(Texture.Ptr, value.R, value.G, value.B));
+		public Vector3b ColorMod {
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetTextureColorMod(Texture.Ptr, value.X, value.Y, value.Z));
 			get {
 				SDL2.CheckError(SDL2.Functions.SDL_GetTextureColorMod(Texture.Ptr, out byte r, out byte g, out byte b));
-				return new Color3b(r, g, b);
+				return new Vector3b(r, g, b);
 			}
 		}
 
