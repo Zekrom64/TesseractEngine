@@ -6,6 +6,8 @@ namespace Tesseract.ImGui {
 
 	public static class ImGui {
 
+		public static readonly ImDrawCallback ResetRenderState = (IImDrawList parentList, in ImDrawCmd cmd) => { };
+
 
 		internal const float FltMin = 1.175494351e-38f;
 

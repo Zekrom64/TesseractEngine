@@ -586,8 +586,12 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			ncmd.IdxOffset = cmd.IdxOffset;
 			ncmd.ElemCount = cmd.ElemCount;
 			if (cmd.UserCallback) {
-				ncmd.UserCallback = g_customDrawCallback;
-				ncmd.UserCallbackData = DrawCallbackHolder::Instance->Register(cmd.UserCallback);
+				if (cmd.UserCallback == Tesseract::ImGui::ImGui::ResetRenderState) {
+					ncmd.UserCallback = ImDrawCallback_ResetRenderState;
+				} else {
+					ncmd.UserCallback = g_customDrawCallback;
+					ncmd.UserCallbackData = DrawCallbackHolder::Instance->Register(cmd.UserCallback);
+				}
 			}
 			return ncmd;
 		}
@@ -599,8 +603,12 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			mcmd.VtxOffset = cmd.VtxOffset;
 			mcmd.IdxOffset = cmd.IdxOffset;
 			mcmd.ElemCount = cmd.ElemCount;
-			if (cmd.UserCallback && cmd.UserCallback == g_customDrawCallback) {
-				mcmd.UserCallback = DrawCallbackHolder::Instance->Get(cmd.UserCallbackData);
+			if (cmd.UserCallback) {
+				if (cmd.UserCallback == g_customDrawCallback) {
+					mcmd.UserCallback = DrawCallbackHolder::Instance->Get(cmd.UserCallbackData);
+				} else if (cmd.UserCallback == ImDrawCallback_ResetRenderState) {
+					mcmd.UserCallback = Tesseract::ImGui::ImGui::ResetRenderState;
+				}
 			}
 			return mcmd;
 		}
@@ -1864,6 +1872,14 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 		virtual void AddInputCharacters(System::String^ str) {
 			StringParam pStr(str);
 			m_io->AddInputCharactersUTF8(pStr.c_str());
+		}
+
+		// [Internal]
+
+		virtual property System::Numerics::Vector2 MousePos {
+			virtual Vector2 get() {
+				return Vector2(m_io->MousePos.x, m_io->MousePos.y);
+			}
 		}
 
 	};

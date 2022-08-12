@@ -267,6 +267,13 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public Vector2 MouseDelta { get; }
 
+		// [Internal]
+
+		/// <summary>
+		/// Mouse position, in pixels. Set to ImVec2(-FLT_MAX, -FLT_MAX) if mouse is unavailable (on another screen, etc.)
+		/// </summary>
+		public Vector2 MousePos { get; }
+
 	}
 
 }

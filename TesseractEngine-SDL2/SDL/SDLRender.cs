@@ -561,6 +561,16 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		public void UpdateTexture<T>(SDLRect? rect, in ReadOnlySpan<T> pixels, int pitch) where T : unmanaged {
+			unsafe {
+				SDLRect r;
+				if (rect.HasValue) r = rect.Value;
+				fixed(T* pPixels = pixels) {
+					SDL2.CheckError(SDL2.Functions.SDL_UpdateTexture(Texture.Ptr, rect.HasValue ? (IntPtr)(&r) : IntPtr.Zero, (IntPtr)pPixels, pitch));
+				}
+			}
+		}
+
 		public void UpdateYUVTexture(SDLRect? rect, IConstPointer<byte> ypixels, int ypitch, IConstPointer<byte> upixels, int upitch, IConstPointer<byte> vpixels, int vpitch) {
 			unsafe {
 				SDLRect r;

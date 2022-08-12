@@ -641,7 +641,9 @@ namespace Tesseract.ImGui {
 		ResizeNESW,
 		ResizeNWSE,
 		Hand,
-		NotAllowed
+		NotAllowed,
+
+		Count
 	}
 
 	[Flags]

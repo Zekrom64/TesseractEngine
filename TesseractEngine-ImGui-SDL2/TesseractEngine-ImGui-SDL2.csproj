@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Tesseract.ImGui.SDL</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine-ImGui\TesseractEngine-ImGui.csproj" />
+    <ProjectReference Include="..\TesseractEngine-SDL2\TesseractEngine-SDL2.csproj" />
+  </ItemGroup>
+
+</Project>
