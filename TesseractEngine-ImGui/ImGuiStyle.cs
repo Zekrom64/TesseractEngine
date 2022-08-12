@@ -8,7 +8,7 @@ namespace Tesseract.ImGui {
 	/// During the frame, use <see cref="ImGui.PushStyleVar(ImGuiStyleVar, float)"/>/<see cref="ImGui.PopStyleVar(int)"/> to alter the main style values,
 	/// and <see cref="ImGui.PushStyleColor(ImGuiCol, uint)"/>/<see cref="ImGui.PopStyleColor(int)"/> for colors.
 	/// </summary>
-	public interface IImGuiStyle {
+	public interface IImGuiStyle : IDisposable {
 
 		/// <summary>
 		/// Global alpha applies to everything in Dear ImGui.

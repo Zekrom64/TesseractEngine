@@ -343,4 +343,30 @@ namespace Tesseract.Core.Utilities {
 
 	}
 
+	/// <summary>
+	/// Enumerator implementation for lists. Can be used in cases where yield returns are not available (such as C++/CLI).
+	/// </summary>
+	/// <typeparam name="T">Element type</typeparam>
+	public class ListEnumerator<T> : IEnumerator<T> {
+
+		private readonly IReadOnlyList<T> list;
+		private int index = -1;
+
+		public ListEnumerator(IReadOnlyList<T> list) {
+			this.list = list;
+		}
+
+		T IEnumerator<T>.Current => list[index];
+
+		object IEnumerator.Current => list[index]!;
+
+		void IDisposable.Dispose() {
+			GC.SuppressFinalize(this);
+		}
+
+		bool IEnumerator.MoveNext() => ++index < list.Count;
+
+		void IEnumerator.Reset() => index = -1;
+	}
+
 }

@@ -169,7 +169,7 @@ namespace Tesseract.ImGui {
 	}
 
 	[Flags]
-	public enum ImgGuiTabBarFlags : int {
+	public enum ImGuiTabBarFlags : int {
 		None = 0,
 		Reorderable = 1 << 0,
 		AutoSelectNewTabs = 1 << 1,

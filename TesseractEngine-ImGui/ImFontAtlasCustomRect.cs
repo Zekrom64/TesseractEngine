@@ -13,9 +13,9 @@ namespace Tesseract.ImGui {
 
 		public ushort Height { get; set; }
 
-		public ushort X { get; set; }
+		public ushort X { get; }
 
-		public ushort Y { get; set; }
+		public ushort Y { get; }
 
 		public uint GlyphID { get; set; }
 

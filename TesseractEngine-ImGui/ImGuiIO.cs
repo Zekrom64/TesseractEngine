@@ -14,7 +14,7 @@ namespace Tesseract.ImGui {
 		/// <summary>
 		/// See <see cref="ImGuiConfigFlags"/> enum. Set by user/application. Gamepad/keyboard navigation options, etc.
 		/// </summary>
-		public ImGuiConfigFlags Flags { get; set; }
+		public ImGuiConfigFlags ConfigFlags { get; set; }
 		/// <summary>
 		/// See <see cref="ImGuiBackendFlags"/> enum. Set by backend (imgui_impl_xxx files or custom backend) to communicate features supported by the backend.
 		/// </summary>
@@ -199,13 +199,13 @@ namespace Tesseract.ImGui {
 		/// Queue a new characters input from an UTF-8 string.
 		/// </summary>
 		/// <param name="str">The UTF-8 string to queue</param>
-		public void AddInputCharactersUTF8(in ReadOnlySpan<byte> str);
+		public void AddInputCharactersUTF8(ReadOnlySpan<byte> str);
 
 		/// <summary>
-		/// Queue a new characters input from an UTF-8 string.
+		/// Queue a new characters input from a managed string.
 		/// </summary>
-		/// <param name="str">The null-terminated UTF-8 string to queue</param>
-		public void AddInputCharactersUTF8(IConstPointer<byte> str);
+		/// <param name="str">The string to queue</param>
+		public void AddInputCharacters(string str);
 
 
 		// Output

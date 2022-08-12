@@ -19,7 +19,7 @@ namespace Tesseract.ImGui {
 	//   You can set font_cfg->FontDataOwnedByAtlas=false to keep ownership of your data and it won't be freed,
 	// - Even though many functions are suffixed with "TTF", OTF data is supported just as well.
 	// - This is an old API and it is currently awkward for those and and various other reasons! We will address them in the future!
-	public interface IImFontAtlas {
+	public interface IImFontAtlas : IDisposable {
 
 		public IImFont AddFont(ImFontConfig config);
 
@@ -45,13 +45,13 @@ namespace Tesseract.ImGui {
 
 		public bool Build();
 
-		public void GetTexDataAsAlpha8(Span<byte> outPixels, out int outWidth, out int outHeight, out int outBytesPerPixel);
+		public ReadOnlySpan<byte> GetTexDataAsAlpha8(out int outWidth, out int outHeight, out int outBytesPerPixel);
 
-		public void GetTexDataAsRGBA32(Span<byte> outPixels, out int outWidth, out int outHeight, out int outBytesPerPixel);
+		public ReadOnlySpan<byte> GetTexDataAsRGBA32(out int outWidth, out int outHeight, out int outBytesPerPixel);
 
 		public bool IsBuilt { get; }
 
-		public void SetTexID(IntPtr id);
+		public void SetTexID(nuint id);
 
 
 		public ReadOnlySpan<char> GlyphRangesDefault { get; }
@@ -73,7 +73,7 @@ namespace Tesseract.ImGui {
 
 		public int AddCustomRectRegular(int width, int height);
 
-		public int AddCustomRectFontGlyph(IImFont font, char id, int width, int height, int advanceX, Vector2 offset = default);
+		public int AddCustomRectFontGlyph(IImFont font, char id, int width, int height, float advanceX, Vector2 offset = default);
 
 		public IImFontAtlasCustomRect GetCustomRectByIndex(int index);
 
@@ -85,13 +85,13 @@ namespace Tesseract.ImGui {
 
 		public ImFontAtlasFlags Flags { get; set; }
 
-		public IntPtr TexID { get; set; }
+		public nuint TexID { get; set; }
 
 		public int TexDesiredWidth { get; set; }
 
 		public int TexGlyphPadding { get; set; }
 
-		public bool Locked { get; set; }
+		public bool Locked { get; }
 
 	}
 

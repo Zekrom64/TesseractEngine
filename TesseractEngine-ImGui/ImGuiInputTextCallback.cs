@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Native;
 
 namespace Tesseract.ImGui {
 
-	public delegate int ImGuiInputTextCallback(ref ImGuiInputTextCallbackData data);
+	public delegate int ImGuiInputTextCallback(IImGuiInputTextCallbackData data);
 
 	// Shared state of InputText(), passed as an argument to your callback when a ImGuiInputTextFlags_Callback* flag is used.
 	// The callback function should return 0 by default.
@@ -19,47 +17,33 @@ namespace Tesseract.ImGui {
 	// - ImGuiInputTextFlags_CallbackHistory:     Callback on pressing Up/Down arrows
 	// - ImGuiInputTextFlags_CallbackCharFilter:  Callback on character inputs to replace or discard them. Modify 'EventChar' to replace or discard, or return 1 in callback to discard.
 	// - ImGuiInputTextFlags_CallbackResize:      Callback on buffer capacity changes request (beyond 'buf_size' parameter value), allowing the string to grow.
-	[StructLayout(LayoutKind.Sequential)]
-	public struct ImGuiInputTextCallbackData {
+	public interface IImGuiInputTextCallbackData {
 
-		public ImGuiInputTextFlags EventFlag;
+		public ImGuiInputTextFlags EventFlag { get; }
 
-		public ImGuiInputTextFlags Flags;
+		public ImGuiInputTextFlags Flags { get; }
 
-		public IntPtr UserData;
+		public char EventChar { get; }
 
-		public char EventChar;
+		public ImGuiKey EventKey { get; }
 
-		public ImGuiKey EventKey;
+		public Span<byte> Buf { get; }
 
-		[NativeType("char*")]
-		public IntPtr Buf;
+		public bool BufDirty { get; set; }
 
-		public int BufTextLen;
+		public int CursorPos { get; set; }
 
-		public int BufSize;
+		public int SelectionStart { get; set; }
 
-		[MarshalAs(UnmanagedType.U1)]
-		public bool BufDirty;
-
-		public int CursorPos;
-
-		public int SelectionStart;
-
-		public int SelectionEnd;
+		public int SelectionEnd { get; set; }
 
 		public void DeleteChars(int pos, int bytesCount);
 
 		public void InsertChars(int pos, string text);
 
-		public void SelectAll() {
-			SelectionStart = 0;
-			SelectionEnd = BufTextLen;
-		}
+		public void SelectAll();
 
-		public void ClearSelection() {
-			SelectionStart = SelectionEnd = BufTextLen;
-		}
+		public void ClearSelection();
 
 		public bool HasSelection => SelectionStart != SelectionEnd;
 

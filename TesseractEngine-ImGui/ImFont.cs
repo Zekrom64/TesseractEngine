@@ -4,16 +4,15 @@ namespace Tesseract.ImGui {
 
 	public interface IImFont {
 
-		public IList<float> IndexAdvanceX { get; }
+		public IReadOnlyList<float> IndexAdvanceX { get; }
 		public float FallbackAdvanceX { get; }
 		public float FontSize { get; set; }
 
-		public IList<char> IndexLookup { get; }
-		public IList<ImFontGlyph> Glyphs { get; }
+		public IReadOnlyList<char> IndexLookup { get; }
+		public IReadOnlyList<ImFontGlyph> Glyphs { get; }
 		public ImFontGlyph FallbackGlyph { get; }
 
 		public IImFontAtlas ContainerAtlas { get; }
-		public IEnumerable<ImFontConfig> ConfigData { set; }
 		public char FallbackChar { get; }
 		public char EllipsisChar { get; }
 		public char DotChar { get; }
@@ -25,7 +24,7 @@ namespace Tesseract.ImGui {
 
 		public ImFontGlyph FintGlyph(char c);
 
-		public ImFontGlyph FindGlyphNoFallback(char c);
+		public ImFontGlyph? FindGlyphNoFallback(char c);
 
 		public float GetCharAdvance(char c);
 

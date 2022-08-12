@@ -35,6 +35,8 @@ namespace Tesseract.Core.Numerics {
 
 		int ITuple<int, int, int, int>.W { get => W; set => W = value; }
 
+		public Span<int> AsSpan => MemoryMarshal.CreateSpan(ref X, 4);
+
 		/// <summary>
 		/// Creates a new vector from a scalar value.
 		/// </summary>
