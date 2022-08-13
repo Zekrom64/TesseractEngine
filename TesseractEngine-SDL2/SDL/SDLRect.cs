@@ -58,9 +58,21 @@ namespace Tesseract.SDL {
 
 		public bool Empty => W <= 0 || H <= 0;
 
-		public IReadOnlyTuple2<int> Position => new Vector2i(x, y);
+		public IReadOnlyTuple2<int> Position {
+			get => new Vector2i(x, y);
+			init {
+				X = value.X;
+				Y = value.Y;
+			}
+		}
 
-		public IReadOnlyTuple2<int> Size => new Vector2i(w, h);
+		public IReadOnlyTuple2<int> Size {
+			get => new Vector2i(w, h);
+			init {
+				W = value.X;
+				H = value.Y;
+			}
+		}
 
 		public int Area => Empty ? 0 : w * h;
 

@@ -26,7 +26,7 @@ namespace Tesseract.ImGui {
 	}
 
 	/// <summary>
-	/// Storage used by <see cref="ImGui.IsKeyDown(ImGuiKey)"/>, <see cref="ImGui.IsKeyPressed(ImGuiKey, bool)"/> etc functions.
+	/// Storage used by <see cref="GImGui.IsKeyDown(ImGuiKey)"/>, <see cref="GImGui.IsKeyPressed(ImGuiKey, bool)"/> etc functions.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct ImGuiKeyData {
@@ -90,7 +90,7 @@ namespace Tesseract.ImGui {
 		}
 
 		public void SetHSV(float h, float s, float v, float a = 1) {
-			ImGui.ColorConvertHSVToRGB(h, s, v, out Value.X, out Value.Y, out Value.Z);
+			GImGui.ColorConvertHSVToRGB(h, s, v, out Value.X, out Value.Y, out Value.Z);
 			Value.W = a;
 		}
 

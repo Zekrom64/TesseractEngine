@@ -20,7 +20,7 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public ImGuiBackendFlags BackendFlags { get; set; }
 		/// <summary>
-		/// Main display size, in pixels (generally == <see cref="ImGui.MainViewport"/>.Size). May change every frame.
+		/// Main display size, in pixels (generally == <see cref="GImGui.MainViewport"/>.Size). May change every frame.
 		/// </summary>
 		public Vector2 DisplaySize { get; set; }
 		/// <summary>
@@ -73,9 +73,9 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public bool FontAllowUserScaling { get; set; }
 		/// <summary>
-		/// Font to use on <see cref="ImGui.NewFrame"/>. Use null to uses <see cref="Fonts"/>.Fonts[0].
+		/// Font to use on <see cref="GImGui.NewFrame"/>. Use null to uses <see cref="Fonts"/>.Fonts[0].
 		/// </summary>
-		public IImFont? FontDefault { get; }
+		public IImFont? FontDefault { get; set; }
 		/// <summary>
 		/// For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in <see cref="ImDrawData.FramebufferScale"/>.
 		/// </summary>
@@ -227,7 +227,7 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public bool WantSetMousePos { get; }
 		/// <summary>
-		/// When manual .ini load/save is active (<see cref="IniFilename"/> == null), this will be set to notify your application that you can call <see cref="ImGui.SaveIniSettingsToMemory"/> and save yourself. Important: clear <see cref="WantSaveIniSettings"/> yourself after saving!
+		/// When manual .ini load/save is active (<see cref="IniFilename"/> == null), this will be set to notify your application that you can call <see cref="GImGui.SaveIniSettingsToMemory"/> and save yourself. Important: clear <see cref="WantSaveIniSettings"/> yourself after saving!
 		/// </summary>
 		public bool WantSaveIniSettings { get; set; }
 		/// <summary>
@@ -243,11 +243,11 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public float Framerate { get; }
 		/// <summary>
-		/// Vertices output during last call to <see cref="ImGui.Render"/>.
+		/// Vertices output during last call to <see cref="GImGui.Render"/>.
 		/// </summary>
 		public int MetricsRenderVertices { get; }
 		/// <summary>
-		/// Indices output during last call to <see cref="ImGui.Render"/> = number of triangles * 3.
+		/// Indices output during last call to <see cref="GImGui.Render"/> = number of triangles * 3.
 		/// </summary>
 		public int MetricsRenderIndices { get; }
 		/// <summary>

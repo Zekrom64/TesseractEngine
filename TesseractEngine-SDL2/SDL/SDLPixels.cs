@@ -209,13 +209,13 @@ namespace Tesseract.SDL {
 			(uint)((a & 0xFF) | ((b & 0xFF) << 8) | ((c & 0xFF) << 16) | ((d & 0xFF) << 23));
 
 		public static uint DefinePixelFormat(SDLPixelType type, SDLBitmapOrder order, uint bits, uint bytes) =>
-			(1 << 28) | ((uint)type << 25) | ((uint)order << 20) | (bits << 8) | bytes;
+			(1 << 28) | ((uint)type << 24) | ((uint)order << 20) | (bits << 8) | bytes;
 
 		public static uint DefinePixelFormat(SDLPixelType type, SDLPackedOrder order, SDLPackedLayout layout, uint bits, uint bytes) =>
-			(1 << 28) | ((uint)type << 25) | ((uint)order << 20) | ((uint)layout << 16) | (bits << 8) | bytes;
+			(1 << 28) | ((uint)type << 24) | ((uint)order << 20) | ((uint)layout << 16) | (bits << 8) | bytes;
 
 		public static uint DefinePixelFormat(SDLPixelType type, SDLArrayOrder order, uint bits, uint bytes) =>
-			(1 << 28) | ((uint)type << 25) | ((uint)order << 20) | (bits << 8) | bytes;
+			(1 << 28) | ((uint)type << 24) | ((uint)order << 20) | (bits << 8) | bytes;
 
 		/// <summary>
 		/// An unknown pixel format.
@@ -256,7 +256,7 @@ namespace Tesseract.SDL {
 		public static readonly SDLPixelFormatEnum BGRX8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.BGRX, SDLPackedLayout._8888, 24, 4);
 		public static readonly SDLPixelFormatEnum ARGB8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.ARGB, SDLPackedLayout._8888, 32, 4);
 		public static readonly SDLPixelFormatEnum RGBA8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.RGBA, SDLPackedLayout._8888, 32, 4);
-		public static readonly SDLPixelFormatEnum ABGR8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.ABGR, SDLPackedLayout._8888, 32, 3);
+		public static readonly SDLPixelFormatEnum ABGR8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.ABGR, SDLPackedLayout._8888, 32, 4);
 		public static readonly SDLPixelFormatEnum BGRA8888 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.BGRA, SDLPackedLayout._8888, 32, 4);
 		public static readonly SDLPixelFormatEnum ARGB2101010 = DefinePixelFormat(SDLPixelType.Packed32, SDLPackedOrder.ARGB, SDLPackedLayout._2101010, 32, 4);
 

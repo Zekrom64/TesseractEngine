@@ -7,7 +7,7 @@ using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Numerics;
 
-namespace TesseractEngine { namespace ImGui { namespace CLI {
+namespace Tesseract { namespace CLI { namespace ImGui {
 
 	ref class ImFontAtlasCLI;
 
@@ -284,7 +284,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 
 	public ref class ImDrawListCLI : public Tesseract::ImGui::IImDrawList {
 	internal:
-		ref class CmdBufferImpl : IList<Tesseract::ImGui::ImDrawCmd> {
+		ref class CmdBufferImpl : Tesseract::Core::Utilities::CLI::ListBase<Tesseract::ImGui::ImDrawCmd> {
 		internal:
 			ImDrawListCLI^ m_drawlist;
 			ImVector<ImDrawCmd>* m_vec;
@@ -302,68 +302,40 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImDrawCmd>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<Tesseract::ImGui::ImDrawCmd>((IReadOnlyList<Tesseract::ImGui::ImDrawCmd>^)this);
-			}
-
 			virtual property int Count {
-				virtual int get() {
+				virtual int get() override {
 					return m_vec->Size;
 				}
 			}
 
-			virtual property bool IsReadOnly {
-				virtual bool get() { return false; }
+			virtual Tesseract::ImGui::ImDrawCmd Get(int index) override {
+				return ConvertCmd(m_vec->operator[](index));
 			}
 
-			virtual void Add(Tesseract::ImGui::ImDrawCmd item) {
+			virtual void Set(int index, Tesseract::ImGui::ImDrawCmd value) override {
+				m_vec->operator[](index) = ConvertCmd(value);
+			}
+
+			virtual void Add(Tesseract::ImGui::ImDrawCmd item) override {
 				m_vec->push_back(ConvertCmd(item));
 			}
 
-			virtual void Clear() {
+			virtual void Clear() override {
 				m_vec->clear();
 			}
 
-			virtual bool Contains(Tesseract::ImGui::ImDrawCmd item) {
-				return Find(item) != m_vec->end();
-			}
-
-			virtual void CopyTo(array<Tesseract::ImGui::ImDrawCmd, 1>^ arr, int arrayIndex) {
-				for (int i = 0; i < Count; i++) arr[arrayIndex + i] = ConvertCmd(m_vec->operator[](i));
-			}
-
-			virtual bool Remove(Tesseract::ImGui::ImDrawCmd item) {
-				auto itr = Find(item);
-				if (itr == m_vec->end()) return false;
-				m_vec->erase(itr);
-				return true;
-			}
-
-			virtual int IndexOf(Tesseract::ImGui::ImDrawCmd item) {
+			virtual int IndexOf(Tesseract::ImGui::ImDrawCmd item) override {
 				auto itr = Find(item);
 				if (itr == m_vec->end()) return -1;
 				else return (int)(itr - m_vec->begin());
 			}
 
-			virtual void Insert(int index, Tesseract::ImGui::ImDrawCmd item) {
+			virtual void Insert(int index, Tesseract::ImGui::ImDrawCmd item) override {
 				m_vec->insert(m_vec->begin() + index, ConvertCmd(item));
 			}
 
-			virtual void RemoveAt(int index) {
+			virtual void RemoveAt(int index) override {
 				m_vec->erase(m_vec->begin() + index);
-			}
-
-			virtual property Tesseract::ImGui::ImDrawCmd default[int]{
-				virtual Tesseract::ImGui::ImDrawCmd get(int index) {
-					return ConvertCmd(m_vec->operator[](index));
-				}
-				virtual void set(int index, Tesseract::ImGui::ImDrawCmd value) {
-					m_vec->operator[](index) = ConvertCmd(value);
-				}
 			}
 
 		};
@@ -383,7 +355,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<unsigned short>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<unsigned short>((IReadOnlyList<unsigned short>^)this);
+				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<unsigned short>((IReadOnlyList<unsigned short>^)this);
 			}
 
 			virtual property int Count {
@@ -494,7 +466,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImDrawVert>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<Tesseract::ImGui::ImDrawVert>((IReadOnlyList<Tesseract::ImGui::ImDrawVert>^)this);
+				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImDrawVert>((IReadOnlyList<Tesseract::ImGui::ImDrawVert>^)this);
 			}
 
 			virtual property int Count {
@@ -586,7 +558,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			ncmd.IdxOffset = cmd.IdxOffset;
 			ncmd.ElemCount = cmd.ElemCount;
 			if (cmd.UserCallback) {
-				if (cmd.UserCallback == Tesseract::ImGui::ImGui::ResetRenderState) {
+				if (cmd.UserCallback == Tesseract::ImGui::GImGui::ResetRenderState) {
 					ncmd.UserCallback = ImDrawCallback_ResetRenderState;
 				} else {
 					ncmd.UserCallback = g_customDrawCallback;
@@ -607,7 +579,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 				if (cmd.UserCallback == g_customDrawCallback) {
 					mcmd.UserCallback = DrawCallbackHolder::Instance->Get(cmd.UserCallbackData);
 				} else if (cmd.UserCallback == ImDrawCallback_ResetRenderState) {
-					mcmd.UserCallback = Tesseract::ImGui::ImGui::ResetRenderState;
+					mcmd.UserCallback = Tesseract::ImGui::GImGui::ResetRenderState;
 				}
 			}
 			return mcmd;
@@ -881,8 +853,22 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 
 		ImDrawDataCLI(ImDrawData* drawdata) : m_drawdata(drawdata) {
 			m_drawlists = gcnew List<ImDrawListCLI^>();
-			for (int i = 0; i < drawdata->CmdListsCount; i++) {
-				m_drawlists->Add(gcnew ImDrawListCLI(drawdata->CmdLists[i], false));
+		}
+
+		void UpdateDrawLists() {
+			bool valid = m_drawlists->Count == m_drawdata->CmdListsCount;
+			if (valid) {
+				for (int i = 0; i < m_drawdata->CmdListsCount; i++) {
+					if (m_drawlists->default[i]->m_drawlist != m_drawdata->CmdLists[i]) {
+						valid = false;
+						break;
+					}
+				}
+			}
+			if (valid) return;
+			m_drawlists->Clear();
+			for (int i = 0; i < m_drawdata->CmdListsCount; i++) {
+				m_drawlists->Add(gcnew ImDrawListCLI(m_drawdata->CmdLists[i], false));
 			}
 		}
 
@@ -901,6 +887,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 		
 		virtual property System::Collections::Generic::IReadOnlyList<Tesseract::ImGui::IImDrawList^>^ CmdLists {
 			virtual IReadOnlyList<Tesseract::ImGui::IImDrawList^>^ get() {
+				UpdateDrawLists();
 				return (IReadOnlyList<Tesseract::ImGui::IImDrawList^>^)m_drawlists;
 			}
 		}
@@ -1023,7 +1010,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<float>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<float>(this);
+				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<float>(this);
 			}
 
 			virtual property int Count {
@@ -1047,7 +1034,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<wchar_t>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<wchar_t>(this);
+				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<wchar_t>(this);
 			}
 
 			virtual property int Count {
@@ -1071,7 +1058,7 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImFontGlyph>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::ListEnumerator<Tesseract::ImGui::ImFontGlyph>(this);
+				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImFontGlyph>(this);
 			}
 
 			virtual property int Count {
@@ -1541,7 +1528,6 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 
 		ImGuiIOCLI(ImGuiIO* io) : m_io(io) {
 			m_fonts = gcnew ImFontAtlasCLI(io->Fonts, false);
-			m_fontdefault = gcnew ImFontCLI(io->FontDefault);
 		}
 
 	public:
@@ -1640,7 +1626,12 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 
 		virtual property Tesseract::ImGui::IImFont^ FontDefault {
 			virtual Tesseract::ImGui::IImFont^ get() {
-				return m_fontdefault;
+				ImFont* font = m_io->FontDefault;
+				if (font) return gcnew ImFontCLI(font);
+				else return nullptr;
+			}
+			virtual void set(Tesseract::ImGui::IImFont^ value) {
+				m_io->FontDefault = m_fontdefault->m_font;
 			}
 		}
 

@@ -381,7 +381,7 @@ namespace Tesseract.ImGui {
 
 		public void ProgressBar(float fraction, Vector2 sizeArg, string? overlay = null);
 
-		public void ProgressBar(float fraction) => ProgressBar(fraction, new Vector2(ImGui.FltMin, 0));
+		public void ProgressBar(float fraction) => ProgressBar(fraction, new Vector2(GImGui.FltMin, 0));
 
 		public void Bullet();
 
@@ -438,10 +438,11 @@ namespace Tesseract.ImGui {
 		public bool DragIntRange2(string label, ref int vCurrentMin, ref int vCurrentMax, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", string? formatMax = null, ImGuiSliderFlags flags = default);
 
 		// See ImNullable for why there are shennanigans here
+		// Note: In practice T will be unmanaged, but again the C++/CLI compiler is retarded and only understands structs. We give the unmanaged restriction in GImGui.
 
-		public bool DragScalar<T>(string label, ref T data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged;
+		public bool DragScalar<T>(string label, ref T data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : struct;
 
-		public bool DragScalarN<T>(string label, Span<T> data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged;
+		public bool DragScalarN<T>(string label, Span<T> data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : struct;
 
 		// Widgets: Regular Sliders
 		// - CTRL+Click on any slider to turn them into an input box. Manually input values aren't clamped by default and can go off-bounds. Use ImGuiSliderFlags_AlwaysClamp to always clamp.
@@ -468,15 +469,15 @@ namespace Tesseract.ImGui {
 
 		public bool SliderInt4(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
 
-		public bool SliderScalar<T>(string label, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged;
+		public bool SliderScalar<T>(string label, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : struct;
 
-		public bool SliderScalarN<T>(string label, Span<T> data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged;
+		public bool SliderScalarN<T>(string label, Span<T> data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : struct;
 
 		public bool VSliderFloat(string label, Vector2 size, ref float v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
 
 		public bool VSliderInt(string label, Vector2 size, ref int v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
 
-		public bool VSliderScalar<T>(string label, Vector2 size, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = default) where T : unmanaged;
+		public bool VSliderScalar<T>(string label, Vector2 size, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = default) where T : struct;
 
 		// Widgets: Input with Keyboard
 		// - If you want to use InputText() with std::string or any custom dynamic string type, see misc/cpp/imgui_stdlib.h and comments in imgui_demo.cpp.
@@ -506,9 +507,9 @@ namespace Tesseract.ImGui {
 
 		public bool InputDouble(string label, ref double v, double step = 0, double stepFast = 0, string format = "%.6f", ImGuiInputTextFlags flags = default);
 
-		public bool InputScalar<T>(string label, ref T data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default);
+		public bool InputScalar<T>(string label, ref T data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default) where T : struct;
 
-		public bool InputScalarN<T>(string label, Span<T> data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default);
+		public bool InputScalarN<T>(string label, Span<T> data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default) where T : struct;
 
 		// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 		// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible.

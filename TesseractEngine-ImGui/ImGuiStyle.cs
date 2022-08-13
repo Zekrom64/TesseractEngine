@@ -4,9 +4,9 @@ using Tesseract.Core.Numerics;
 namespace Tesseract.ImGui {
 
 	/// <summary>
-	/// You may modify the <see cref="ImGui.Style"/> main instance during initialization and before <see cref="ImGui.NewFrame"/>.
-	/// During the frame, use <see cref="ImGui.PushStyleVar(ImGuiStyleVar, float)"/>/<see cref="ImGui.PopStyleVar(int)"/> to alter the main style values,
-	/// and <see cref="ImGui.PushStyleColor(ImGuiCol, uint)"/>/<see cref="ImGui.PopStyleColor(int)"/> for colors.
+	/// You may modify the <see cref="GImGui.Style"/> main instance during initialization and before <see cref="GImGui.NewFrame"/>.
+	/// During the frame, use <see cref="GImGui.PushStyleVar(ImGuiStyleVar, float)"/>/<see cref="GImGui.PopStyleVar(int)"/> to alter the main style values,
+	/// and <see cref="GImGui.PushStyleColor(ImGuiCol, uint)"/>/<see cref="GImGui.PopStyleColor(int)"/> for colors.
 	/// </summary>
 	public interface IImGuiStyle : IDisposable {
 
@@ -15,7 +15,7 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public float Alpha { get; set; }
 		/// <summary>
-		/// Additional alpha multiplier applied by <see cref="ImGui.BeginDisabled(bool)"/>. Multiply over current value of Alpha.
+		/// Additional alpha multiplier applied by <see cref="GImGui.BeginDisabled(bool)"/>. Multiply over current value of Alpha.
 		/// </summary>
 		public float DisabledAlpha { get; set; }
 		/// <summary>
@@ -31,7 +31,7 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		public float WindowBorderSize { get; set; }
 		/// <summary>
-		/// Minimum window size. This is a global setting. If you want to constraint individual windows, use <see cref="ImGui.SetNextWindowSizeConstraints(Vector2, Vector2, ImGuiSizeCallback?)"/>.
+		/// Minimum window size. This is a global setting. If you want to constraint individual windows, use <see cref="GImGui.SetNextWindowSizeConstraints(Vector2, Vector2, ImGuiSizeCallback?)"/>.
 		/// </summary>
 		public Vector2 WindowMinSize { get; set; }
 		/// <summary>

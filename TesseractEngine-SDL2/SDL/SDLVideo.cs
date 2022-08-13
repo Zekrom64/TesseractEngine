@@ -258,7 +258,7 @@ namespace Tesseract.SDL {
 
 		public SDLWindowFlags Flags => (SDLWindowFlags)SDL2.Functions.SDL_GetWindowFlags(Window.Ptr);
 
-		public string Name {
+		public string Title {
 			get => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetWindowTitle(Window.Ptr))!;
 			set => SDL2.Functions.SDL_SetWindowTitle(Window.Ptr, value);
 		}

@@ -117,7 +117,7 @@ namespace Tesseract.SDL.Services {
 		private readonly object lockGlcontext = new();
 		private SDLGLContext? glcontext = null;
 
-		public string Title { get => Window.Name; set => Window.Name = value; }
+		public string Title { get => Window.Title; set => Window.Title = value; }
 		public Vector2i Size { get => Window.Size; set => Window.Size = value; }
 		public Vector2i Position { get => Window.Position; set => Window.Position = value; }
 		public bool Minimized {

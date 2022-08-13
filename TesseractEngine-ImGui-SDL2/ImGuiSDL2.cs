@@ -135,7 +135,7 @@ namespace Tesseract.ImGui.SDL {
 		};
 
 		private static void UpdateKeyModifiers(SDLKeymod keyMods) {
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			io.AddKeyEvent(ImGuiKey.ModCtrl, (keyMods & SDLKeymod.Ctrl) != 0);
 			io.AddKeyEvent(ImGuiKey.ModShift, (keyMods & SDLKeymod.Shift) != 0);
 			io.AddKeyEvent(ImGuiKey.ModAlt, (keyMods & SDLKeymod.Alt) != 0);
@@ -143,7 +143,7 @@ namespace Tesseract.ImGui.SDL {
 		}
 
 		public static bool ProcessEvent(SDLEvent evt) {
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 
 			switch(evt.Type) {
 				case SDLEventType.MouseMotion:
@@ -196,7 +196,7 @@ namespace Tesseract.ImGui.SDL {
 		private static readonly string[] globalMouseWhitelist = new string[] { "windows", "cocoa", "x11", "DIVE", "WMAN" };
 
 		public static bool Init(SDLWindow window, SDLRenderer? renderer) {
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			io.BackendPlatformName = "imgui_impl_sdl (Managed)";
 			io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors | ImGuiBackendFlags.HasSetMousePos;
 
@@ -220,7 +220,7 @@ namespace Tesseract.ImGui.SDL {
 			if (Platform.CurrentPlatformType == PlatformType.Windows) {
 				SDLSysWMInfo? info;
 				if ((info = window.GetWindowWMInfo(SDL2.Version)) != null) {
-					var viewport = ImGui.MainViewport;
+					var viewport = GImGui.MainViewport;
 					Debug.Assert(info.Info != null);
 					viewport.PlatformHandleRaw = ((SDLSysWMInfoWin)info.Info).HWnd;
 				}
@@ -231,13 +231,13 @@ namespace Tesseract.ImGui.SDL {
 
 		public static void Shutdown() {
 			foreach (SDLCursor cursor in mouseCursors) cursor?.Dispose();
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			io.BackendPlatformName = null;
 		}
 
 		private static void UpdateMouseData() {
 			Debug.Assert(window != null);
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			SDL2.CaptureMouse = mouseButtonsDown != 0;
 			SDLWindow? focusedWindow = SDL2.GetKeyboardFocus();
 			bool isAppFocused = window == focusedWindow || (focusedWindow != null && window.Window.Ptr == focusedWindow.Window.Ptr);
@@ -252,9 +252,9 @@ namespace Tesseract.ImGui.SDL {
 		}
 
 		private static void UpdateMouseCursor() {
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
-			ImGuiMouseCursor imguiCursor = ImGui.MouseCursor;
+			ImGuiMouseCursor imguiCursor = GImGui.MouseCursor;
 			if (io.MouseDrawCursor || imguiCursor == ImGuiMouseCursor.None) {
 				SDL2.ShowCursor = false;
 			} else {
@@ -264,7 +264,7 @@ namespace Tesseract.ImGui.SDL {
 		}
 
 		private static void UpdateGamepads() {
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			if ((io.ConfigFlags & ImGuiConfigFlags.NavEnableGamepad) == 0) return;
 
 			io.BackendFlags &= ~ImGuiBackendFlags.HasGamepad;
@@ -314,7 +314,7 @@ namespace Tesseract.ImGui.SDL {
 
 		public static void NewFrame() {
 			Debug.Assert(window != null);
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			Vector2i size = window.Size, displaySize;
 			if ((window.Flags & SDLWindowFlags.Minimized) != 0) size = default;
 			if (renderer != null) displaySize = renderer.OutputSize;

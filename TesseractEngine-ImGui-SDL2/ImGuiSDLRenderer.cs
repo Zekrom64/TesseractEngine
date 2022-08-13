@@ -20,7 +20,7 @@ namespace Tesseract.ImGui.SDL {
 		public static bool Init(SDLRenderer renderer) {
 			ImGuiSDLRenderer.renderer = renderer;
 
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			io.BackendRendererName = "imgui_impl_sdlrenderer (Managed)";
 			io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
@@ -28,17 +28,16 @@ namespace Tesseract.ImGui.SDL {
 		}
 
 		public static void Shutdown() {
-			Debug.Assert(fontTexture != null);
-			IImGuiIO io = ImGui.IO;
+			IImGuiIO io = GImGui.IO;
 			io.BackendRendererName = null;
 			io.Fonts.SetTexID(0);
-			fontTexture.Dispose();
+			fontTexture?.Dispose();
 			fontTexture = null;
 		}
 
 		public static void NewFrame() {
 			if (fontTexture == null) {
-				IImGuiIO io = ImGui.IO;
+				IImGuiIO io = GImGui.IO;
 				ReadOnlySpan<byte> pixels = io.Fonts.GetTexDataAsRGBA32(out int width, out int height, out int _);
 				fontTexture = renderer.CreateTexture(SDLPixelFormatEnum.ABGR8888, SDLTextureAccess.Static, width, height);
 				fontTexture.UpdateTexture(null, pixels, 4 * width);
@@ -80,7 +79,7 @@ namespace Tesseract.ImGui.SDL {
 				ReadOnlySpan<ushort> idxBuffer = drawList.IdxBuffer.AsSpan();
 				foreach(ImDrawCmd cmd in drawList.CmdBuffer) {
 					if (cmd.UserCallback != null) {
-						if (cmd.UserCallback == ImGui.ResetRenderState) SetupRenderState();
+						if (cmd.UserCallback == GImGui.ResetRenderState) SetupRenderState();
 						else cmd.UserCallback(drawList, cmd);
 					} else {
 						Vector2 clipMin = (new Vector2(cmd.ClipRect.X, cmd.ClipRect.Y) - clipOffset) * clipScale;
