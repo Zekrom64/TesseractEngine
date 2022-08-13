@@ -9,22 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Tesseract.ImGui {
 
-	public readonly struct ImGuiPayload {
-
-		public IPointer<byte>? Data { get; init; } = null;
-		public int SourceId { get; init; } = default;
-		public int SourceParentId { get; init; } = default;
-		public int DataFrameCount { get; init; } = -1;
-		public string DataType { get; init; } = "";
-		public bool Preview { get; init; } = default;
-		public bool Delivery { get; init; } = default;
-
-		public ImGuiPayload() { }
-
-		public bool IsDataType(string type) => DataFrameCount != -1 && type == DataType;
-
-	}
-
+	[StructLayout(LayoutKind.Sequential)]
 	public struct ImGuiViewport {
 
 		public ImGuiViewportFlags Flags;
@@ -41,8 +26,9 @@ namespace Tesseract.ImGui {
 	}
 
 	/// <summary>
-	/// Storage used by <see cref="ImGui.IsKeyDown(ImGuiKey)"/>, <see cref="ImGui.IsKeyPressed(ImGuiKey, bool)"/> etc functions.
+	/// Storage used by <see cref="GImGui.IsKeyDown(ImGuiKey)"/>, <see cref="GImGui.IsKeyPressed(ImGuiKey, bool)"/> etc functions.
 	/// </summary>
+	[StructLayout(LayoutKind.Sequential)]
 	public struct ImGuiKeyData {
 
 		/// <summary>
@@ -66,6 +52,7 @@ namespace Tesseract.ImGui {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct ImGuiPlatformImeData {
 
 		public bool WantVisible;
@@ -74,6 +61,7 @@ namespace Tesseract.ImGui {
 
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
 	public struct ImColor {
 
 		public Vector4 Value;
@@ -102,30 +90,28 @@ namespace Tesseract.ImGui {
 		}
 
 		public void SetHSV(float h, float s, float v, float a = 1) {
-			Vector3 rgb = ImGui.ColorConvertHSVToRGB(new Vector3(h, s, v));
-			Value.X = rgb.X;
-			Value.Y = rgb.Y;
-			Value.Z = rgb.Z;
+			GImGui.ColorConvertHSVToRGB(h, s, v, out Value.X, out Value.Y, out Value.Z);
 			Value.W = a;
 		}
 
 		public static ImColor HSV(float h, float s, float v, float a = 1) {
-			Vector3 rgb = ImGui.ColorConvertHSVToRGB(new Vector3(h, s, v));
-			return new ImColor(rgb.X, rgb.Y, rgb.Z, a);
+			ImColor color = new();
+			color.SetHSV(h, s, v, a);
+			return color;
 		}
 
 	}
 
-	public delegate void ImDrawCallback(ImDrawList parentList, ImDrawCmd cmd);
+	public delegate void ImDrawCallback(IImDrawList parentList, in ImDrawCmd cmd);
 
 	public struct ImDrawCmd {
 
 		public Vector4 ClipRect;
-		public nuint TextureId;
+		public nuint TextureID;
 		public uint VtxOffset;
 		public uint IdxOffset;
 		public uint ElemCount;
-		public ImDrawCallback? UserCallback;
+		public ImDrawCallback UserCallback;
 
 	}
 
@@ -134,7 +120,16 @@ namespace Tesseract.ImGui {
 
 		public Vector2 Pos;
 		public Vector2 UV;
-		public Vector4 Col;
+		public uint Col;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct ImDrawCmdHeader {
+
+		public Vector4 ClipRect;
+		public nuint TextureID;
+		public uint VtxOffset;
 
 	}
 
@@ -146,8 +141,16 @@ namespace Tesseract.ImGui {
 		public float AdvanceX;
 		public Vector2 XY0;
 		public Vector2 XY1;
-		public Vector4 UV0;
-		public Vector4 UV1;
+		public Vector2 UV0;
+		public Vector2 UV1;
+
+	}
+
+	public interface IImVector<T> : IList<T> {
+
+		public Span<T> AsSpan();
+
+		public void Resize(int newSize);
 
 	}
 

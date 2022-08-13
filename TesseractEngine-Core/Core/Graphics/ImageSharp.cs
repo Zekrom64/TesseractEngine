@@ -19,6 +19,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using Tesseract.Core.Graphics.QOI;
+using System.Numerics;
 
 namespace Tesseract.Core.Graphics {
 
@@ -38,162 +39,6 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="img">Image to wrap</param>
 		/// <returns>Wrapped image</returns>
 		public static IImageSharpImage Create(Image img) => ImageSharpService.pixelTypeToFormat[img.GetType().GetGenericArguments()[0]].OutputConverter(img);
-
-		private static readonly Dictionary<Type, Func<IImage, Image>> imageConverters = new() {
-			{
-				typeof(A8),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, A8>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<A8>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Argb32),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Argb32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Argb32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Bgr24),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgr24>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgr24>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Bgr565),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgr565>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgr565>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Bgra32),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Bgra4444),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra4444>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra4444>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Bgra5551),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra5551>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra5551>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(L16),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, L16>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<L16>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(L8),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, L8>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<L8>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(La16),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, La16>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<La16>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(La32),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, La32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<La32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rg32),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rg32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rg32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rgb24),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgb24>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgb24>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rgb48),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgb48>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgb48>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rgba1010102),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba1010102>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba1010102>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rgba32),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			},
-			{
-				typeof(Rgba64),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba64>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba64>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				}
-			}
-		};
 
 		/// <summary>
 		/// Creates an ImageSharp image from the given generic image object.
@@ -330,8 +175,8 @@ namespace Tesseract.Core.Graphics {
 			}
 		}
 
-		public void Fill(IReadOnlyRect<int> dstArea, IReadOnlyColor color) => Image.Mutate(x => x.Fill(
-			new Color(color.Normalized), new RectangleF(dstArea.Position.X, dstArea.Position.Y, dstArea.Size.X, dstArea.Size.Y)));
+		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color) => Image.Mutate(x => x.Fill(
+			new Color(color), new RectangleF(dstArea.Position.X, dstArea.Position.Y, dstArea.Size.X, dstArea.Size.Y)));
 	}
 
 	/// <summary>

@@ -1,16 +1,29 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Tesseract.ImGui {
-	public class ImFontAtlasCustomRect {
 
-		public ushort Width = 0, Height = 0;
-		public ushort X = 0xFFFF, Y = 0xFFFF;
-		public uint GlyphID = 0;
-		public float GlyphAdvanceX = 0;
-		public Vector2 GlyphOffset = Vector2.Zero;
-		public ImFont? Font = null;
+	public interface IImFontAtlasCustomRect {
 
-		public ImFontAtlasCustomRect() { }
+		public ushort Width { get; set; }
+
+		public ushort Height { get; set; }
+
+		public ushort X { get; }
+
+		public ushort Y { get; }
+
+		public uint GlyphID { get; set; }
+
+		public float GlyphAdvanceX { get; set; }
+
+		public Vector2 GlyphOffset { get; set; }
+
+		public IImFont Font { get; set; }
 
 		public bool IsPacked => X != 0xFFFF;
 

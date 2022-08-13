@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using Tesseract.SDL.Native;
 
 namespace Tesseract.SDL {

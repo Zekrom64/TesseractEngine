@@ -266,12 +266,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The list of buffer bindings for vertex buffers with their associated
 		/// binding indices.
 		/// </summary>
-		public (BufferBinding, uint)[] VertexBuffers { get; init; } = Array.Empty<(BufferBinding, uint)>();
+		public (BufferBinding Binding, uint Index)[] VertexBuffers { get; init; } = Array.Empty<(BufferBinding, uint)>();
 
 		/// <summary>
 		/// The buffer binding for an index buffer.
 		/// </summary>
-		public (BufferBinding, IndexType)? IndexBuffer { get; init; }
+		public (BufferBinding Binding, IndexType Type)? IndexBuffer { get; init; }
 
 	}
 

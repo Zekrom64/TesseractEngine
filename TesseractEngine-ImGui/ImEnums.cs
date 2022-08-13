@@ -169,7 +169,7 @@ namespace Tesseract.ImGui {
 	}
 
 	[Flags]
-	public enum ImgGuiTabBarFlags : int {
+	public enum ImGuiTabBarFlags : int {
 		None = 0,
 		Reorderable = 1 << 0,
 		AutoSelectNewTabs = 1 << 1,
@@ -631,7 +631,7 @@ namespace Tesseract.ImGui {
 		Middle = 2
 	}
 
-	public enum ImGUiMouseCursor : int {
+	public enum ImGuiMouseCursor : int {
 		None = -1,
 		Arrow = 0,
 		TextInput,
@@ -641,7 +641,9 @@ namespace Tesseract.ImGui {
 		ResizeNESW,
 		ResizeNWSE,
 		Hand,
-		NotAllowed
+		NotAllowed,
+
+		Count
 	}
 
 	[Flags]

@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Native {
 

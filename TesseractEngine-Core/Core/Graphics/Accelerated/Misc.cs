@@ -20,7 +20,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The minimum and maximum depth bounds values.
 		/// </summary>
-		public (float, float) DepthBounds { get; set; }
+		public (float Min, float Max) DepthBounds { get; set; }
 
 	}
 

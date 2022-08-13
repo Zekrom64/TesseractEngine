@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -48,6 +49,15 @@ namespace Tesseract.Core.Numerics {
 			X = tuple.X;
 			Y = tuple.Y;
 		}
+
+		/// <summary>
+		/// Casts a tuple of another type to a vector type.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="tuple">Tuple to cast</param>
+		/// <returns>Vector from tuple value</returns>
+		public static Vector2d Cast<T>(IReadOnlyTuple2<T> tuple) where T : unmanaged =>
+			new(Convert.ToDouble(tuple.X), Convert.ToDouble(tuple.Y));
 
 		public bool Equals(IReadOnlyTuple2<double>? other) => other != null && X == other.X && Y == other.Y;
 
@@ -109,12 +119,22 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2d operator -(Vector2d value) => new(-value.X, -value.Y);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector2d operator +(Vector2d value) => new(+value.X, +value.Y);
+		public static Vector2d operator +(Vector2d value) => new(Math.Abs(value.X), Math.Abs(value.Y));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2d operator ++(Vector2d value) => new(value.X + 1, value.Y + 1);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2d operator --(Vector2d value) => new(value.X - 1, value.Y - 1);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector2d(Vector2 v) => new(v.X, v.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector2d(Vector2i v) => new(v.X, v.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector2d(Vector2ui v) => new(v.X, v.Y);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector2(Vector2d v) => new((float)v.X, (float)v.Y);
 
 	}
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using Tesseract.SDL.Native;
 
 namespace Tesseract.SDL {
@@ -576,9 +576,10 @@ namespace Tesseract.SDL {
 
 		public static SDLEvent? WaitEventTimeout(int timeout) {
 			// SDL doesn't actually tell us if WaitEventTimeout succeeds or timed out, so a sentry event type is used to detect this
-			SDLEvent evt = new() { Type = SDLEventType.FirstEvent };
+			// Note: Newer SDL versions will set the type to SDL_POLLSENTINEL, we initialize it anyway in case older SDL versions are used
+			SDLEvent evt = new() { Type = SDLEventType.PollSentinel };
 			if (Functions.SDL_WaitEventTimeout(ref evt, timeout) == 0) {
-				if (evt.Type == SDLEventType.FirstEvent) return null;
+				if (evt.Type == SDLEventType.PollSentinel) return null;
 				throw new SDLException(GetError());
 			}
 			return evt.Type == SDLEventType.FirstEvent ? null : evt;

@@ -1,6 +1,6 @@
 ﻿using System;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.OpenGL.Graphics {
 

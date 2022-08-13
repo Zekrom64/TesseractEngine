@@ -1,27 +1,20 @@
 ﻿namespace Tesseract.ImGui {
-	public class ImGuiListClipper {
 
-		public int DisplayStart;
-		public int DisplayEnd;
-		public int ItemsCount;
-		public float ItemsHeight;
-		public float StartPosY;
+	public interface IImGuiListClipper {
 
-		public void Begin(int itemsCount, float itemsHeight = -1) {
+		public int DisplayStart { get; }
+		public int DisplayEnd { get; }
+		public int ItemsCount { get; }
+		public float ItemsHeight { get; }
+		public float StartPosY { get; }
 
-		}
+		public void Begin(int itemsCount, float itemsHeight = -1);
 
-		public void End() {
+		public void End();
 
-		}
+		public bool Step();
 
-		public bool Step() {
-
-		}
-
-		public void ForceDisplayRangeByIndices(int itemMin, int itemMax) {
-
-		}
+		public void ForceDisplayRangeByIndices(int itemMin, int itemMax);
 
 	}
 

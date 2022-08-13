@@ -20,25 +20,29 @@ namespace Tesseract.Core.Native {
 
 		public static void LoadFunctions(Func<string, IntPtr> loader, object funcs) {
 			foreach (var field in funcs.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)) {
-				ExternFunctionAttribute? efa = field.GetCustomAttribute<ExternFunctionAttribute>();
-				if (efa != null) {
-					if (efa.Manual) continue;
-					if (efa.Platform != default && efa.Platform != Platform.CurrentPlatformType) continue;
-					if (efa.Subplatform != default && efa.Subplatform != Platform.CurrentSubplatformType) continue;
-				}
-				Type delegateType = field.FieldType;
 				string name = field.Name;
-				IntPtr pfn = loader(name);
-				if (pfn == IntPtr.Zero && efa?.AltNames != null) {
-					foreach (string altname in efa.AltNames) {
-						pfn = loader(altname);
-						if (pfn != IntPtr.Zero) break;
+				try {
+					ExternFunctionAttribute? efa = field.GetCustomAttribute<ExternFunctionAttribute>();
+					if (efa != null) {
+						if (efa.Manual) continue;
+						if (efa.Platform != default && efa.Platform != Platform.CurrentPlatformType) continue;
+						if (efa.Subplatform != default && efa.Subplatform != Platform.CurrentSubplatformType) continue;
 					}
+					Type delegateType = field.FieldType;
+					IntPtr pfn = loader(name);
+					if (pfn == IntPtr.Zero && efa?.AltNames != null) {
+						foreach (string altname in efa.AltNames) {
+							pfn = loader(altname);
+							if (pfn != IntPtr.Zero) break;
+						}
+					}
+					if (pfn == IntPtr.Zero && (efa == null || !efa.Relaxed)) throw new InvalidOperationException($"Could not load function \"{name}\"");
+					Delegate? del = null;
+					if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, delegateType);
+					field.SetValue(funcs, del);
+				} catch (Exception e) {
+					throw new MissingMethodException($"No valid export for function {name}", e);
 				}
-				if (pfn == IntPtr.Zero && (efa == null || !efa.Relaxed)) throw new InvalidOperationException($"Could not load function \"{name}\"");
-				Delegate? del = null;
-				if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, delegateType);
-				field.SetValue(funcs, del);
 			}
 		}
 

@@ -1736,6 +1736,8 @@ namespace Tesseract.SDL.Native {
 		public delegate int PFN_SDL_RenderFillRectsF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("const SDL_FRect*")] IntPtr rects, int count);
 		public delegate int PFN_SDL_RenderCopyF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_FRect*")] IntPtr dstrect);
 		public delegate int PFN_SDL_RenderCopyExF([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("SDL_Rect*")] IntPtr srcrect, [NativeType("SDL_FRect*")] IntPtr dstrect, double angle, in SDLFPoint center, SDLRendererFlip flip);
+		public delegate int PFN_SDL_RenderGeometry([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const SDL_Vertex*")] IntPtr vertices, int numVertices, [NativeType("const int*")] IntPtr indices, int numIndices);
+		public delegate int PFN_SDL_RenderGeometryRaw([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Texture*")] IntPtr texture, [NativeType("const float*")] IntPtr xy, int xyStride, [NativeType("const SDL_Color*")] IntPtr color, int colorStride, [NativeType("const float*")] IntPtr uv, int uvStride, int numVertices, [NativeType("const void*")] IntPtr indices, int numIndices, int sizeIndices);
 		public delegate int PFN_SDL_RenderReadPixels([NativeType("SDL_Renderer*")] IntPtr renderer, [NativeType("SDL_Rect*")] IntPtr rect, SDLPixelFormatEnum format, IntPtr pixels, int pitch);
 		public delegate void PFN_SDL_RenderPresent([NativeType("SDL_Renderer*")] IntPtr renderer);
 		public delegate void PFN_SDL_DestroyTexture([NativeType("SDL_Texture*")] IntPtr texture);
@@ -1809,6 +1811,8 @@ namespace Tesseract.SDL.Native {
 		public PFN_SDL_RenderFillRectsF SDL_RenderFillRectsF;
 		public PFN_SDL_RenderCopyF SDL_RenderCopyF;
 		public PFN_SDL_RenderCopyExF SDL_RenderCopyExF;
+		public PFN_SDL_RenderGeometry SDL_RenderGeometry;
+		public PFN_SDL_RenderGeometryRaw SDL_RenderGeometryRaw;
 		public PFN_SDL_RenderReadPixels SDL_RenderReadPixels;
 		public PFN_SDL_RenderPresent SDL_RenderPresent;
 		public PFN_SDL_DestroyTexture SDL_DestroyTexture;

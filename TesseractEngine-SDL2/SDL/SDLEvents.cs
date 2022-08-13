@@ -75,6 +75,8 @@ namespace Tesseract.SDL {
 		RenderTargetsReset = 0x2000,
 		RenderDeviceReset,
 
+		PollSentinel = 0x7F00,
+
 		UserEvent = 0x8000,
 
 		LastEvent = 0xFFFF

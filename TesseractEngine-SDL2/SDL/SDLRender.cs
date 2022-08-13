@@ -118,6 +118,15 @@ namespace Tesseract.SDL {
 		Vertical = 0x2
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDLVertex {
+
+		public SDLFPoint Position;
+		public SDLColor Color;
+		public SDLFPoint TexCoord;
+
+	}
+
 	public class SDLRenderer : IDisposable {
 
 		public IPointer<SDL_Renderer> Renderer { get; private set; }
@@ -194,11 +203,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public Color4b DrawColor {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetRenderDrawColor(Renderer.Ptr, value.R, value.G, value.B, value.A));
+		public Vector4b DrawColor {
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetRenderDrawColor(Renderer.Ptr, value.X, value.Y, value.Z, value.W));
 			get {
 				SDL2.CheckError(SDL2.Functions.SDL_GetRenderDrawColor(Renderer.Ptr, out byte r, out byte g, out byte b, out byte a));
-				return new Color4b() { R = r, G = g, B = b, A = a };
+				return new Vector4b() { X = r, Y = g, Z = b, W = a };
 			}
 		}
 
@@ -443,6 +452,34 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		public void RenderGeometry(SDLTexture texture, in ReadOnlySpan<SDLVertex> vertices, in ReadOnlySpan<int> indices) {
+			unsafe {
+				fixed(SDLVertex* pVertices = vertices) {
+					fixed(int* pIndices = indices) {
+						SDL2.CheckError(SDL2.Functions.SDL_RenderGeometry(Renderer.Ptr, texture.Texture.Ptr, (IntPtr)pVertices, vertices.Length, (IntPtr)pIndices, indices.Length));
+					}
+				}
+			}
+		}
+
+		public void RenderGeometryRaw<T>(SDLTexture texture, in ReadOnlySpan<float> xy, int xyStride, in ReadOnlySpan<SDLColor> color, int colorStride, in ReadOnlySpan<float> uv, int uvStride, in ReadOnlySpan<T> indices, int numVertices = -1, int numIndices = -1) where T : unmanaged {
+			unsafe {
+				fixed (float* pXY = xy) {
+					fixed (SDLColor* pColor = color) {
+						fixed (float* pUV = uv) {
+							int maxVertices = ExMath.Min(xy.Length / xyStride, color.Length / colorStride, uv.Length / uvStride);
+							if (numVertices > maxVertices || numVertices < 0) numVertices = maxVertices;
+							fixed(T* pIndices = indices) {
+								int maxIndices = indices.Length;
+								if (numIndices > maxIndices || numIndices < 0) numIndices = maxIndices;
+								SDL2.CheckError(SDL2.Functions.SDL_RenderGeometryRaw(Renderer.Ptr, texture.Texture.Ptr, (IntPtr)pXY, xyStride, (IntPtr)pColor, colorStride, (IntPtr)pUV, uvStride, numVertices, (IntPtr)pIndices, numIndices, Marshal.SizeOf<T>()));
+							}
+						}
+					}
+				}
+			}
+		}
+
 		public void ReadPixels(SDLPixelFormatEnum format, IPointer<byte> pixels, int pitch, SDLRect? rect = null) {
 			unsafe {
 				SDLRect r;
@@ -472,11 +509,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public Color3b ColorMod {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetTextureColorMod(Texture.Ptr, value.R, value.G, value.B));
+		public Vector3b ColorMod {
+			set => SDL2.CheckError(SDL2.Functions.SDL_SetTextureColorMod(Texture.Ptr, value.X, value.Y, value.Z));
 			get {
 				SDL2.CheckError(SDL2.Functions.SDL_GetTextureColorMod(Texture.Ptr, out byte r, out byte g, out byte b));
-				return new Color3b(r, g, b);
+				return new Vector3b(r, g, b);
 			}
 		}
 
@@ -521,6 +558,16 @@ namespace Tesseract.SDL {
 				SDLRect r;
 				if (rect.HasValue) r = rect.Value;
 				SDL2.CheckError(SDL2.Functions.SDL_UpdateTexture(Texture.Ptr, rect.HasValue ? (IntPtr)(&r) : IntPtr.Zero, pixels.Ptr, pitch));
+			}
+		}
+
+		public void UpdateTexture<T>(SDLRect? rect, in ReadOnlySpan<T> pixels, int pitch) where T : unmanaged {
+			unsafe {
+				SDLRect r;
+				if (rect.HasValue) r = rect.Value;
+				fixed(T* pPixels = pixels) {
+					SDL2.CheckError(SDL2.Functions.SDL_UpdateTexture(Texture.Ptr, rect.HasValue ? (IntPtr)(&r) : IntPtr.Zero, (IntPtr)pPixels, pitch));
+				}
 			}
 		}
 

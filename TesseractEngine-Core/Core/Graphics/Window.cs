@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Tesseract.Core.Input;
 using Tesseract.Core.Numerics;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics {
 

@@ -118,7 +118,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// a binding type is not described in this list it cannot be allocated
 		/// from this pool.
 		/// </summary>
-		public (BindType, float)[] BindTypeWeights { get; init; } = Array.Empty<(BindType, float)>();
+		public (BindType Type, float Weight)[] BindTypeWeights { get; init; } = Array.Empty<(BindType, float)>();
 
 		/// <summary>
 		/// The target size of the number of entries in the bind pool.

@@ -146,7 +146,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The range of values that level-of-detail values will be clamped between.
 		/// </summary>
-		public (float, float) LODRange { get; init; } = (0.0f, 1000.0f);
+		public (float Min, float Max) LODRange { get; init; } = (0.0f, 1000.0f);
 
 		/// <summary>
 		/// The border color to use for sampling operations.

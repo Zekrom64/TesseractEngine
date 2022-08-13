@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Tesseract.Core.Native;
 using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Tesseract.Vulkan.Graphics.Impl {

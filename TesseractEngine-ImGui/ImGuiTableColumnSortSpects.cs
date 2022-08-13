@@ -1,10 +1,26 @@
-﻿namespace Tesseract.ImGui {
-	public record ImGuiTableColumnSortSpects {
+﻿using System.Runtime.InteropServices;
 
-		public int ColumnUserID { get; init; }
-		public short ColumnIndex { get; init; }
-		public short ColumnOrder { get; init; }
-		public ImGuiSortDirection SortDirection { get; init; }
+namespace Tesseract.ImGui {
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct ImGuiTableColumnSortSpecs {
+
+		public int ColumnUserID;
+
+		public short ColumnIndex;
+
+		public short ColumnOrder;
+
+		private byte sortDirection;
+		public ImGuiSortDirection SortDirection { get => (ImGuiSortDirection)sortDirection; set => sortDirection = (byte)value; }
+
+	}
+
+	public interface IImGuiTableSortSpecs {
+
+		public ReadOnlySpan<ImGuiTableColumnSortSpecs> Specs { get; }
+
+		public bool SpecsDirty { get; }
 
 	}
 

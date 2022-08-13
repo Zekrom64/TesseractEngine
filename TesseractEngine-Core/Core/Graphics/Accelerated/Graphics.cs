@@ -1,5 +1,5 @@
 ﻿using System;
-using Tesseract.Core.Util;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 

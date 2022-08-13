@@ -68,6 +68,15 @@ namespace Tesseract.Core.Numerics {
 			W = tuple.W;
 		}
 
+		/// <summary>
+		/// Casts a tuple of another type to a vector type.
+		/// </summary>
+		/// <typeparam name="T">Tuple element type</typeparam>
+		/// <param name="tuple">Tuple to cast</param>
+		/// <returns>Vector from tuple value</returns>
+		public static Vector4ui Cast<T>(IReadOnlyTuple4<T> tuple) where T : unmanaged =>
+			new(Convert.ToUInt32(tuple.X), Convert.ToUInt32(tuple.Y), Convert.ToUInt32(tuple.Z), Convert.ToUInt32(tuple.W));
+
 		public bool Equals(IReadOnlyTuple4<uint>? other) => other != null && X == other.X && Y == other.Y && Z == other.Z && W == other.W;
 
 		public override bool Equals(object? obj) => obj is IReadOnlyTuple4<uint> other && Equals(other);
@@ -121,11 +130,6 @@ namespace Tesseract.Core.Numerics {
 		public static Vector4ui operator %(Vector4ui left, uint right) => new(left.X % right, left.Y % right, left.Z % right, left.W % right);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector4ui operator -(Vector4ui value) => new((uint)-value.X, (uint)-value.Y, (uint)-value.Z, (uint)-value.W);
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Vector4ui operator +(Vector4ui value) => new(+value.X, +value.Y, +value.Z, +value.W);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4ui operator ++(Vector4ui value) => new(value.X + 1, value.Y + 1, value.Z + 1, value.W + 1);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4ui operator --(Vector4ui value) => new(value.X - 1, value.Y - 1, value.Z - 1, value.W - 1);
@@ -151,8 +155,13 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector4ui operator ^(Vector4ui left, uint right) => new(left.X ^ right, left.Y ^ right, left.Z ^ right, left.W ^ right);
 
-		public static implicit operator Vector<uint>(Vector4ui v) => new(stackalloc[] { v.X, v.Y, v.Z, v.W });
-		public static implicit operator Vector4ui(Vector<uint> v) => new(v[0], v[1], v[2], v[3]);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector4ui(Vector4 v) => new((uint)v.X, (uint)v.Y, (uint)v.Z, (uint)v.W);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector4ui(Vector4i v) => new((uint)v.X, (uint)v.Y, (uint)v.Z, (uint)v.W);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector4(Vector4ui v) => new(v.X, v.Y, v.Z, v.W);
 
 	}
 
