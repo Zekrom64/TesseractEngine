@@ -2311,11 +2311,11 @@ namespace TesseractEngine { namespace ImGui { namespace CLI {
 		Tesseract::ImGui::ImGuiSizeCallback^ setNextWindowSizeConstraintsCallback;
 
 	public:
-		virtual void SetNextWindowSizeConstraints(System::Numerics::Vector2 sizeMin, System::Numerics::Vector2 sizeMax, Tesseract::ImGui::ImGuiSizeCallback^ customCallback, System::IntPtr customCallbackData) {
+		virtual void SetNextWindowSizeConstraints(System::Numerics::Vector2 sizeMin, System::Numerics::Vector2 sizeMax, Tesseract::ImGui::ImGuiSizeCallback^ customCallback) {
 			setNextWindowSizeConstraintsCallback = customCallback;
 			IntPtr pCustomCallback = IntPtr::Zero;
 			if (customCallback) pCustomCallback = Marshal::GetFunctionPointerForDelegate(customCallback);
-			::ImGui::SetNextWindowSizeConstraints({ sizeMin.X, sizeMin.Y }, { sizeMax.X, sizeMax.Y }, (ImGuiSizeCallback)(void*)pCustomCallback, (void*)customCallbackData);
+			::ImGui::SetNextWindowSizeConstraints({ sizeMin.X, sizeMin.Y }, { sizeMax.X, sizeMax.Y }, (ImGuiSizeCallback)(void*)pCustomCallback, nullptr);
 		}
 
 		virtual void SetNextWindowContentSize(System::Numerics::Vector2 size) {

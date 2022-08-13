@@ -6,14 +6,19 @@ namespace Tesseract.ImGui {
 
 	public static class ImGui {
 
-		public static readonly ImDrawCallback ResetRenderState = (IImDrawList parentList, in ImDrawCmd cmd) => { };
-
-
+		// Needed because C# doesn't have a standard field for FLT_MIN
 		internal const float FltMin = 1.175494351e-38f;
 
-
+		/// <summary>
+		/// The global ImGui implementation, set this before using any functions in this class.
+		/// </summary>
 		public static IImGui GImGui { get; set; } = default!;
 
+
+		// Context creation and access
+		// - Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between contexts.
+		// - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
+		//   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for details.
 
 		public static IImGuiContext CreateContext(IImFontAtlas? sharedFontAtlas = null) => GImGui.CreateContext(sharedFontAtlas);
 
@@ -22,11 +27,900 @@ namespace Tesseract.ImGui {
 		public static IImGuiContext CurrentContext { get => GImGui.CurrentContext; set => GImGui.CurrentContext = value; }
 
 
+		/// <summary>
+		/// Access the IO structure (mouse/keyboard/gamepad inputs, time, various configuration options/flags)
+		/// </summary>
 		public static IImGuiIO IO => GImGui.IO;
 
+		/// <summary>
+		/// Access the Style structure (colors, sizes). Always use <see cref="PushStyleColor(ImGuiCol, uint)"/>, <see cref="PushStyleVar(ImGuiStyleVar, float)"/> to modify style mid-frame!
+		/// </summary>
 		public static IImGuiStyle Style { get => GImGui.Style; set => GImGui.Style = value; }
 
+		/// <summary>
+		/// Start a new Dear ImGui frame, you can submit any command from this point until <see cref="Render"/>/<see cref="EndFrame"/>.
+		/// </summary>
+		public static void NewFrame() => GImGui.NewFrame();
 
+		/// <summary>
+		/// Ends the Dear ImGui frame. Automatically called by <see cref="Render"/>. If you don't need to render data (skipping rendering) you may call EndFrame() without Render()... but you'll have wasted CPU already! If you don't need to render, better to not create any windows and not call NewFrame() at all!
+		/// </summary>
+		public static void EndFrame() => GImGui.EndFrame();
+
+		/// <summary>
+		/// Ends the Dear ImGui frame, finalize the draw data. You can then get call <see cref="GetDrawData"/>.
+		/// </summary>
+		public static void Render() => GImGui.Render();
+
+		/// <summary>
+		/// Valid after <see cref="Render"/> and until the next call to <see cref="NewFrame"/>. This is what you have to render.
+		/// </summary>
+		/// <returns>Draw data for the current frame</returns>
+		public static IImDrawData GetDrawData() => GImGui.GetDrawData();
+
+
+		public static void ShowDemoWindow(ref bool open) => GImGui.ShowDemoWindow(ref open);
+
+		public static void ShowDemoWindow(bool? open = null) => GImGui.ShowDemoWindow(open);
+
+		public static void ShowMetricsWindow(ref bool open) => GImGui.ShowMetricsWindow(ref open);
+
+		public static void ShowMetricsWindow(bool? open = null) => GImGui.ShowMetricsWindow(open);
+
+		public static void ShowStackToolWindow(ref bool open) => GImGui.ShowStackToolWindow(ref open);
+
+		public static void ShowStackToolWindow(bool? open = null) => GImGui.ShowStackToolWindow(open);
+
+		public static void ShowAboutWindow(ref bool open) => GImGui.ShowAboutWindow(ref open);
+
+		public static void ShowAboutWindow(bool? open = null) => GImGui.ShowAboutWindow(open);
+
+		public static void ShowStyleEditor(IImGuiStyle? style = null) => GImGui.ShowStyleEditor(style);
+
+		public static void ShowStyleSelector(string label) => GImGui.ShowStyleSelector(label);
+
+		public static void ShowFontSelector(string label) => GImGui.ShowFontSelector(label);
+
+		public static void ShowUserGuide() => GImGui.ShowUserGuide();
+
+		public static string Version => GImGui.Version;
+
+
+		public static void StyleColorsDark(IImGuiStyle? dst = null) => GImGui.StyleColorsDark(dst);
+
+		public static void StyleColorsLight(IImGuiStyle? dst = null) => GImGui.StyleColorsLight(dst);
+
+		public static void StyleColorsClassic(IImGuiStyle? dst = null) => GImGui.StyleColorsClassic(dst);
+
+
+		public static void Begin(string name, ref bool open, ImGuiWindowFlags flags = default) => GImGui.Begin(name, ref open, flags);
+
+		public static void Begin(string name, bool? open = null, ImGuiWindowFlags flags = default) => GImGui.Begin(name, open, flags);
+
+		public static void End() => GImGui.End();
+
+
+		public static void BeginChild(string strID, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = default) => GImGui.BeginChild(strID, size, border, flags);
+
+		public static void BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = default) => GImGui.BeginChild(id, size, border, flags);
+
+		public static void EndChild() => GImGui.EndChild();
+
+
+		public static bool IsWindowAppearing => GImGui.IsWindowAppearing;
+
+		public static bool IsWindowCollapsed => GImGui.IsWindowCollapsed;
+
+		public static bool IsWindowFocused(ImGuiFocusedFlags flags = default) => GImGui.IsWindowFocused(flags);
+
+		public static bool IsWindowHovered(ImGuiHoveredFlags flags = default) => GImGui.IsWindowHovered(flags);
+
+		public static IImDrawList GetWindowDrawList() => GImGui.GetWindowDrawList();
+
+		public static Vector2 WindowPos => GImGui.WindowPos;
+
+		public static Vector2 WindowSize => GImGui.WindowSize;
+
+		public static float WindowWidth => GImGui.WindowWidth;
+
+		public static float WindowHeight => GImGui.WindowHeight;
+
+
+		public static void SetNextWindowPos(Vector2 pos, ImGuiCond cond = default, Vector2 pivot = default) => GImGui.SetNextWindowPos(pos, cond, pivot);
+
+		public static void SetNextWindowSize(Vector2 size, ImGuiCond cond = default) => GImGui.SetNextWindowSize(size, cond);
+
+		public static void SetNextWindowSizeConstraints(Vector2 sizeMin, Vector2 sizeMax, ImGuiSizeCallback? customCallback = null) => GImGui.SetNextWindowSizeConstraints(sizeMin, sizeMax, customCallback);
+
+		public static void SetNextWindowContentSize(Vector2 size) => GImGui.SetNextWindowContentSize(size);
+
+		public static void SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = default) => GImGui.SetNextWindowCollapsed(collapsed, cond);
+
+		public static void SetNextWindowFocus() => GImGui.SetNextWindowFocus();
+
+		public static void SetNextWindowBgAlpha(float alpha) => GImGui.SetNextWindowBgAlpha(alpha);
+
+		public static void SetWindowPos(Vector2 pos, ImGuiCond cond = default) => GImGui.SetWindowPos(pos, cond);
+
+		public static void SetWindowSize(Vector2 size, ImGuiCond cond = default) => GImGui.SetWindowSize(size, cond);
+
+		public static void SetWindowCollapsed(bool collapsed, ImGuiCond cond = default) => GImGui.SetWindowCollapsed(collapsed, cond);
+
+		public static void SetWindowFocus() => GImGui.SetWindowFocus();
+
+		public static void SetWindowFontScale(float scale) => GImGui.SetWindowFontScale(scale);
+
+		public static void SetWindowPos(string name, Vector2 pos, ImGuiCond cond = default) => GImGui.SetWindowPos(name, pos, cond);
+
+		public static void SetWindowSize(string name, Vector2 size, ImGuiCond cond = default) => GImGui.SetWindowSize(name, size, cond);
+
+		public static void SetWindowCollapsed(string name, bool collapsed, ImGuiCond cond = default) => GImGui.SetWindowCollapsed(name, collapsed, cond);
+
+		public static void SetWindowFocus(string name) => GImGui.SetWindowFocus(name);
+
+
+		public static Vector2 ContentRegionAvail => GImGui.ContentRegionAvail;
+
+		public static Vector2 ContentRegionMax => GImGui.ContentRegionMax;
+
+		public static Vector2 WindowContentRegionMax => GImGui.WindowContentRegionMax;
+
+		public static Vector2 WindowContentRegionMin => GImGui.WindowContentRegionMin;
+
+
+		public static float ScrollX => GImGui.ScrollX;
+
+		public static float ScrollY => GImGui.ScrollY;
+
+		public static float ScrollMaxX => GImGui.ScrollMaxX;
+
+		public static float ScrollMaxY => GImGui.ScrollMaxY;
+
+		public static void SetScrollHereX(float centerXRatio = 0.5f) => GImGui.SetScrollHereX(centerXRatio);
+
+		public static void SetScrollHereY(float centerYRatio = 0.5f) => GImGui.SetScrollHereY(centerYRatio);
+
+		public static void SetScrollFromPosX(float localX, float centerXRatio = 0.5f) => GImGui.SetScrollFromPosX(localX, centerXRatio);
+
+		public static void SetScrollFromPosY(float localY, float centerYRatio = 0.5f) => GImGui.SetScrollFromPosY(localY, centerYRatio);
+
+
+		public static void PushFont(IImFont font) => GImGui.PushFont(font);
+
+		public static void PopFont() => GImGui.PopFont();
+
+		public static void PushStyleColor(ImGuiCol idx, uint col) => GImGui.PushStyleColor(idx, col);
+
+		public static void PushStyleColor(ImGuiCol idx, Vector4 col) => GImGui.PushStyleColor(idx, col);
+
+		public static void PopStyleColor(int count = 1) => GImGui.PopStyleColor(count);
+
+		public static void PushStyleVar(ImGuiStyleVar idx, float val) => GImGui.PushStyleVar(idx, val);
+
+		public static void PushStyleVar(ImGuiStyleVar idx, Vector2 val) => GImGui.PushStyleVar(idx, val);
+
+		public static void PopStyleVar(int count = 1) => GImGui.PopStyleVar(count);
+
+		public static void PushAllowKeyboardFocus(bool allowKeyboardFocus) => GImGui.PushAllowKeyboardFocus(allowKeyboardFocus);
+
+		public static void PopAllowKeyboardFocus() => GImGui.PopAllowKeyboardFocus();
+
+		public static void PushButtonRepeat(bool repeat) => GImGui.PushButtonRepeat(repeat);
+
+		public static void PopButtonRepeat() => GImGui.PopButtonRepeat();
+
+
+		public static void PushItemWidth(float itemWidth) => GImGui.PushItemWidth(itemWidth);
+
+		public static void PopItemWidth() => GImGui.PopItemWidth();
+
+		public static void SetNextItemWidth(float itemWidth) => GImGui.SetNextItemWidth(itemWidth);
+
+		public static float CalcItemWidth() => GImGui.CalcItemWidth();
+
+		public static void PushTextWrapPos(float wrapLocalPosX = 0) => GImGui.PushTextWrapPos(wrapLocalPosX);
+
+		public static void PopTextWrapPos() => GImGui.PopTextWrapPos();
+
+
+		public static IImFont Font => GImGui.Font;
+
+		public static float FontSize => GImGui.FontSize;
+
+		public static Vector2 FontTexUvWhitePixel => GImGui.FontTexUvWhitePixel;
+
+		public static uint GetColorU32(ImGuiCol idx, float alphaMul = 1) => GImGui.GetColorU32(idx, alphaMul);
+
+		public static uint GetColorU32(Vector4 col) => GImGui.GetColorU32(col);
+
+		public static uint GetColorU32(uint col) => GImGui.GetColorU32(col);
+
+		public static Vector4 GetStyleColorVec4(ImGuiCol idx) => GImGui.GetStyleColorVec4(idx);
+
+
+		public static void Separator() => GImGui.Separator();
+
+		public static void SameLine(float offsetFromStartX = 0, float spacing = -1) => GImGui.SameLine(offsetFromStartX, spacing);
+
+		public static void NewLine() => GImGui.NewLine();
+
+		public static void Spacing() => GImGui.Spacing();
+
+		public static void Dummy(Vector2 size) => GImGui.Dummy(size);
+
+		public static void Indent(float indentW = 0) => GImGui.Indent(indentW);
+
+		public static void Unindent(float indentW = 0) => GImGui.Unindent(indentW);
+
+		public static void BeginGroup() => GImGui.BeginGroup();
+
+		public static void EndGroup() => GImGui.EndGroup();
+
+
+		public static Vector2 CursorPos {
+			get => GImGui.CursorPos;
+			set => GImGui.CursorPos = value;
+		}
+
+		public static float CursorPosX {
+			get => GImGui.CursorPosX;
+			set => GImGui.CursorPosX = value;
+		}
+
+		public static float CursorPosY {
+			get => GImGui.CursorPosY;
+			set => GImGui.CursorPosY = value;
+		}
+
+		public static Vector2 CursorStartPos => GImGui.CursorStartPos;
+
+		public static Vector2 CursorScreenPos {
+			get => GImGui.CursorScreenPos;
+			set => GImGui.CursorScreenPos = value;
+		}
+
+		public static void AlignTextToFramePadding() => GImGui.AlignTextToFramePadding();
+
+		public static float TextLineHeight => GImGui.TextLineHeight;
+
+		public static float TextLineHeightWithSpacing => GImGui.TextLineHeightWithSpacing;
+
+		public static float FrameHeight => GImGui.FrameHeight;
+
+		public static float FrameHeightWithSpacing => GImGui.FrameHeightWithSpacing;
+
+
+		public static void PushID(string strID) => GImGui.PushID(strID);
+
+		public static void PushID(nint ptrID) => GImGui.PushID(ptrID);
+
+		public static void PushID(int id) => GImGui.PushID(id);
+
+		public static void PopID() => GImGui.PopID();
+
+		public static uint GetID(string strID) => GImGui.GetID(strID);
+
+		public static uint GetID(nint ptrID) => GImGui.GetID(ptrID);
+
+
+		public static void Text(string fmt) => GImGui.Text(fmt);
+
+		public static void TextColored(Vector4 col, string fmt) => GImGui.TextColored(col, fmt);
+
+		public static void TextDisabled(string fmt) => GImGui.TextDisabled(fmt);
+
+		public static void TextWrapped(string fmt) => GImGui.TextWrapped(fmt);
+
+		public static void LabelText(string label, string fmt) => GImGui.LabelText(label, fmt);
+
+		public static void BulletText(string fmt) => GImGui.BulletText(fmt);
+
+
+		public static bool Button(string label, Vector2 size = default) => GImGui.Button(label, size);
+
+		public static bool SmallButton(string label) => GImGui.SmallButton(label);
+
+		public static bool InvisibleButton(string strID, Vector2 size, ImGuiButtonFlags flags = default) => GImGui.InvisibleButton(strID, size, flags);
+
+		public static bool ArrowButton(string strID, ImGuiDir dir) => GImGui.ArrowButton(strID, dir);
+
+		public static void Image(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 tintCol, Vector4 borderCol = default) =>
+			GImGui.Image(userTextureID, size, uv0, uv1, tintCol, borderCol);
+
+		public static void Image(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1) => Image(userTextureID, size, uv0, uv1, Vector4.One);
+
+		public static void Image(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => Image(userTextureID, size, uv0, Vector2.One);
+
+		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding, Vector4 bgCol, Vector4 tintCol) =>
+			GImGui.ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, tintCol);
+
+		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding = -1, Vector4 bgCol = default) => ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, Vector4.One);
+
+		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(userTextureID, size, uv0, Vector2.One);
+
+		public static bool Checkbox(string label, ref bool v) => GImGui.Checkbox(label, ref v);
+
+		public static bool CheckboxFlags(string label, ref int flags, int flagsValue) => GImGui.CheckboxFlags(label, ref flags, flagsValue);
+
+		public static bool CheckboxFlags(string label, ref uint flags, uint flagsValue) => GImGui.CheckboxFlags(label, ref flags, flagsValue);
+
+		public static bool RadioButton(string label, bool active) => GImGui.RadioButton(label, active);
+
+		public static bool RadioButton(string label, ref int v, int vButton) => GImGui.RadioButton(label, ref v, vButton);
+
+		public static void ProgressBar(float fraction, Vector2 sizeArg, string? overlay = null) => GImGui.ProgressBar(fraction, sizeArg, overlay);
+
+		public static void ProgressBar(float fraction) => ProgressBar(fraction, new Vector2(ImGui.FltMin, 0));
+
+		public static void Bullet() => GImGui.Bullet();
+
+
+		public static bool BeginCombo(string label, string previewValue, ImGuiComboFlags flags = default) => GImGui.BeginCombo(label, previewValue, flags);
+
+		public static void EndCombo() => GImGui.EndCombo();
+
+		public static bool Combo(string label, ref int currentItem, IEnumerable<string> items, int popupMaxHeightInItems = -1) => GImGui.Combo(label, ref currentItem, items, popupMaxHeightInItems);
+
+		public static bool Combo(string label, ref int currentItem, string itemsSeparatedByZeros, int popupMaxHeightInItems = -1) => GImGui.Combo(label, ref currentItem, itemsSeparatedByZeros, popupMaxHeightInItems);
+
+		public static bool Combo(string label, ref int currentItem, IImGui.ComboItemsGetter itemsGetter, int itemsCount, int popupMaxHeightInItems = -1) => GImGui.Combo(label, ref currentItem, itemsGetter, itemsCount, popupMaxHeightInItems);
+
+
+		public static bool DragFloat(string label, ref float v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.DragFloat(label, ref v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragFloat2(string label, ref Vector2 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.DragFloat2(label, ref v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragFloat3(string label, ref Vector3 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.DragFloat3(label, ref v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragFloat4(string label, ref Vector4 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.DragFloat4(label, ref v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragFloatRange2(string label, ref float vCurrentMin, ref float vCurrentMax, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", string? formatMax = null, ImGuiSliderFlags flags = default) =>
+			GImGui.DragFloatRange2(label, ref vCurrentMin, ref vCurrentMax, vSpeed, vMin, vMax, format, formatMax, flags);
+
+		public static bool DragInt(string label, ref int v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.DragInt(label, ref v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragInt2(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.DragInt2(label, v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragInt3(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.DragInt3(label, v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragInt4(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.DragInt4(label, v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragIntRange2(string label, ref int vCurrentMin, ref int vCurrentMax, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", string? formatMax = null, ImGuiSliderFlags flags = default) =>
+			GImGui.DragIntRange2(label, ref vCurrentMin, ref vCurrentMax, vSpeed, vMin, vMax, format, formatMax, flags);
+
+		public static bool DragScalar<T>(string label, ref T data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged =>
+			GImGui.DragScalar<T>(label, ref data, vSpeed, min, max, format, flags);
+
+		public static bool DragScalarN<T>(string label, Span<T> data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged =>
+			GImGui.DragScalarN<T>(label, data, vSpeed, min, max, format, flags);
+
+
+		public static bool SliderFloat(string label, ref float v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderFloat(label, ref v, vMin, vMax, format, flags);
+
+		public static bool SliderFloat2(string label, ref Vector2 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderFloat2(label, ref v, vMin, vMax, format, flags);
+
+		public static bool SliderFloat3(string label, ref Vector3 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderFloat3(label, ref v, vMin, vMax, format, flags);
+
+		public static bool SliderFloat4(string label, ref Vector4 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderFloat4(label, ref v, vMin, vMax, format, flags);
+
+		public static bool SliderAngle(string label, ref float vRad, float vDegreesMin = -360, float vDegreesMax = 360, string format = "%.0f deg", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderAngle(label, ref vRad, vDegreesMin, vDegreesMax, format, flags);
+
+		public static bool SliderInt(string label, ref int v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderInt(label, ref v, vMin, vMax, format, flags);
+
+		public static bool SliderInt2(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderInt2(label, v, vMin, vMax, format, flags);
+
+		public static bool SliderInt3(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderInt3(label, v, vMin, vMax, format, flags);
+
+		public static bool SliderInt4(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.SliderInt4(label, v, vMin, vMax, format, flags);
+
+		public static bool SliderScalar<T>(string label, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged =>
+			GImGui.SliderScalar<T>(label, ref data, min, max, format, flags);
+
+		public static bool SliderScalarN<T>(string label, Span<T> data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged =>
+			GImGui.SliderScalarN<T>(label, data, min, max, format, flags);
+
+		public static bool VSliderFloat(string label, Vector2 size, ref float v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default) =>
+			GImGui.VSliderFloat(label, size, ref v, vMin, vMax, format, flags);
+
+		public static bool VSliderInt(string label, Vector2 size, ref int v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			GImGui.VSliderInt(label, size, ref v, vMin, vMax, format, flags);
+
+		public static bool VSliderScalar<T>(string label, Vector2 size, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = default) where T : unmanaged =>
+			GImGui.VSliderScalar<T>(label, size, ref data, min, max, format, flags);
+
+
+		public static bool InputText(string label, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
+			GImGui.InputText(label, buf, flags, callback);
+
+		public static bool InputTextMultiline(string label, ImGuiTextBuffer buf, Vector2 size = default, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
+			GImGui.InputTextMultiline(label, buf, size, flags, callback);
+
+		public static bool InputTextWithHint(string label, string hint, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
+			GImGui.InputTextWithHint(label, hint, buf, flags, callback);
+
+		public static bool InputFloat(string label, ref float v, float step = 0, float stepFast = 0, string format = "%.3f", ImGuiInputTextFlags flags = default) =>
+			GImGui.InputFloat(label, ref v, step, stepFast, format, flags);
+
+		public static bool InputFloat2(string label, ref Vector2 v, string format = "%.3f", ImGuiInputTextFlags flags = default) =>
+			GImGui.InputFloat2(label, ref v, format, flags);
+
+		public static bool InputFloat3(string label, ref Vector3 v, string format = "%.3f", ImGuiInputTextFlags flags = default) =>
+			GImGui.InputFloat3(label, ref v, format, flags);
+
+		public static bool InputFloat4(string label, ref Vector4 v, string format = "%.3f", ImGuiInputTextFlags flags = default) =>
+			GImGui.InputFloat4(label, ref v, format, flags);
+
+		public static bool InputInt(string label, ref int v, int step = 0, int stepFast = 0, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputInt(label, ref v, step, stepFast, flags);
+
+		public static bool InputInt2(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputInt2(label, v, flags);
+
+		public static bool InputInt3(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputInt3(label, v, flags);
+
+		public static bool InputInt4(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputInt4(label, v, flags);
+
+		public static bool InputDouble(string label, ref double v, double step = 0, double stepFast = 0, string format = "%.6f", ImGuiInputTextFlags flags = default) =>
+			GImGui.InputDouble(label, ref v, step, stepFast, format, flags);
+
+		public static bool InputScalar<T>(string label, ref T data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputScalar<T>(label, ref data, pStep, pStepFast, format, flags);
+
+		public static bool InputScalarN<T>(string label, Span<T> data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default) =>
+			GImGui.InputScalarN<T>(label, data, pStep, pStepFast, format, flags);
+
+
+		public static bool ColorEdit3(string label, ref Vector3 col, ImGuiColorEditFlags flags = default) => GImGui.ColorEdit3(label, ref col, flags);
+
+		public static bool ColorEdit4(string label, ref Vector4 col, ImGuiColorEditFlags flags = default) => GImGui.ColorEdit4(label, ref col, flags);
+
+		public static bool ColorPicker3(string label, ref Vector3 col, ImGuiColorEditFlags flags = default) => GImGui.ColorPicker3(label, ref col, flags);
+
+		public static bool ColorPicker4(string label, ref Vector4 col, ImGuiColorEditFlags flags = default, Vector4? refCol = null)
+			 => GImGui.ColorPicker4(label, ref col, flags, refCol);
+
+		public static bool ColorButton(string descId, Vector4 col, ImGuiColorEditFlags flags = default, Vector2 size = default) => GImGui.ColorButton(descId, col, flags, size);
+
+		public static void SetColorEditOptions(ImGuiColorEditFlags flags) => GImGui.SetColorEditOptions(flags);
+
+
+		public static bool TreeNode(string label) => GImGui.TreeNode(label);
+
+		public static bool TreeNode(string strID, string fmt) => GImGui.TreeNode(strID, fmt);
+
+		public static bool TreeNode(nint ptrID, string fmt) => GImGui.TreeNode(ptrID, fmt);
+
+		public static bool TreeNodeEx(string label, ImGuiTreeNodeFlags flags = default) => GImGui.TreeNodeEx(label, flags);
+
+		public static bool TreeNodeEx(string strID, ImGuiTreeNodeFlags flags, string fmt) => GImGui.TreeNodeEx(strID, flags, fmt);
+
+		public static bool TreeNodeEx(nint ptrID, ImGuiTreeNodeFlags flags, string fmt) => GImGui.TreeNodeEx(ptrID, flags, fmt);
+
+		public static void TreePush(string strID) => GImGui.TreePush(strID);
+
+		public static void TreePush(nint ptrID = 0) => GImGui.TreePush(ptrID);
+
+		public static void TreePop() => GImGui.TreePop();
+
+		public static float TreeNodeToLabelSpacing => GImGui.TreeNodeToLabelSpacing;
+
+		public static bool CollapsingHeader(string label, ImGuiTreeNodeFlags flags = default) => GImGui.CollapsingHeader(label, flags);
+
+		public static bool CollapsingHeader(string label, ref bool pVisible, ImGuiTreeNodeFlags flags = default) => GImGui.CollapsingHeader(label, ref pVisible, flags);
+
+		public static void SetNextItemOpen(bool isOpen, ImGuiCond cond = default) => GImGui.SetNextItemOpen(isOpen, cond);
+
+
+		public static bool Selectable(string label, bool selected = false, ImGuiSelectableFlags flags = default, Vector2 size = default) => GImGui.Selectable(label, selected, flags, size);
+
+		public static bool Selectable(string label, ref bool selected, ImGuiSelectableFlags flags = default, Vector2 size = default) => GImGui.Selectable(label, ref selected, flags, size);
+
+
+		public static bool BeginListBox(string label, Vector2 size = default) => GImGui.BeginListBox(label, size);
+
+		public static void EndListBox() => GImGui.EndListBox();
+
+		public static bool ListBox(string label, ref int currentItem, IEnumerable<string> items, int heightInItems = -1) => GImGui.ListBox(label, ref currentItem, items, heightInItems);
+
+		public static bool ListBox(string label, ref int currentItem, IImGui.ListBoxItemsGetter itemsGetter, int itemsCount, int heightInItems = -1) => GImGui.ListBox(label, ref currentItem, itemsGetter, itemsCount, heightInItems);
+
+
+		public static void PlotLines(string label, ReadOnlySpan<float> values, int valuesCount = -1, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default, int stride = 1) =>
+			GImGui.PlotLines(label, values, valuesCount, overlayText, scaleMin, scaleMax, graphSize, stride);
+
+		public static void PlotLines(string label, Func<int, float> valuesGetter, int valuesCount, int valuesOffset = 0, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default) =>
+			GImGui.PlotLines(label, valuesGetter, valuesCount, valuesOffset, overlayText, scaleMin, scaleMax, graphSize);
+
+		public static void PlotHistogram(string label, ReadOnlySpan<float> values, int valuesCount = -1, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default, int stride = 1) =>
+			GImGui.PlotHistogram(label, values, valuesCount, overlayText, scaleMin, scaleMax, graphSize, stride);
+
+		public static void PlotHistogram(string label, Func<int, float> valuesGetter, int valuesCount, int valuesOffset = 0, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default) =>
+			GImGui.PlotHistogram(label, valuesGetter, valuesCount, valuesOffset, overlayText, scaleMin, scaleMax, graphSize);
+
+
+		public static void Value(string prefix, bool b) => GImGui.Value(prefix, b);
+
+		public static void Value(string prefix, int v) => GImGui.Value(prefix, v);
+
+		public static void Value(string prefix, uint v) => GImGui.Value(prefix, v);
+
+		public static void Value(string prefix, float v, string? floatFormat = null) => GImGui.Value(prefix, v, floatFormat);
+
+
+		public static bool BeginMenuBar() => GImGui.BeginMenuBar();
+
+		public static void EndMenuBar() => GImGui.EndMenuBar();
+
+		public static bool BeginMainMenuBar() => GImGui.BeginMainMenuBar();
+
+		public static void EndMainMenuBar() => GImGui.EndMainMenuBar();
+
+		public static bool BeginMenu(string label, bool enabled = true) => GImGui.BeginMenu(label, enabled);
+
+		public static void EndMenu() => GImGui.EndMenu();
+
+		public static bool MenuItem(string label, string? shortcut = null, bool selected = false, bool enabled = true) => GImGui.MenuItem(label, shortcut, selected, enabled);
+
+		public static bool MenuItem(string label, string? shortcut, ref bool selected, bool enabled = true) => GImGui.MenuItem(label, shortcut, ref selected, enabled);
+
+
+		public static void BeginTooltip() => GImGui.BeginTooltip();
+
+		public static void EndTooltip() => GImGui.EndTooltip();
+
+		public static void SetTooltip(string fmt) => GImGui.SetTooltip(fmt);
+
+
+		public static bool BeginPopup(string strID, ImGuiWindowFlags flags = default) => GImGui.BeginPopup(strID, flags);
+
+		public static bool BeginPopupModal(string name, ref bool pOpen, ImGuiWindowFlags flags = default) => GImGui.BeginPopupModal(name, ref pOpen, flags);
+
+		public static bool BeginPopupModal(string name, bool? open = null, ImGuiWindowFlags flags = default) => GImGui.BeginPopupModal(name, open, flags);
+
+		public static void EndPopup() => GImGui.EndPopup();
+
+
+		public static void OpenPopup(string strID, ImGuiPopupFlags popupFlags = default) => GImGui.OpenPopup(strID, popupFlags);
+
+		public static void OpenPopup(uint id, ImGuiPopupFlags popupFlags = default) => GImGui.OpenPopup(id, popupFlags);
+
+		public static void OpenPopupOnItemClick(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight) => GImGui.OpenPopupOnItemClick(strID, popupFlags);
+
+		public static void CloseCurrentPopup() => GImGui.CloseCurrentPopup();
+
+
+		public static bool BeginPopupContextItem(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight) => GImGui.BeginPopupContextItem(strID, popupFlags);
+
+		public static bool BeginPopupContextWindow(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight) => GImGui.BeginPopupContextWindow(strID, popupFlags);
+
+		public static bool BeginPopupContextVoid(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight) => GImGui.BeginPopupContextVoid(strID, popupFlags);
+
+		// Popups: query functions
+		//  - IsPopupOpen(): return true if the popup is open at the current BeginPopup() level of the popup stack.
+		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
+		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel: return true if any popup is open.
+
+		public static bool IsPopupOpen(string strID, ImGuiPopupFlags flags = default) => GImGui.IsPopupOpen(strID, flags);
+
+		// Tables
+		// - Full-featured replacement for old Columns API.
+		// - See Demo->Tables for demo code.
+		// - See top of imgui_tables.cpp for general commentary.
+		// - See ImGuiTableFlags_ and ImGuiTableColumnFlags_ enums for a description of available flags.
+		// The typical call flow is:
+		// - 1. Call BeginTable().
+		// - 2. Optionally call TableSetupColumn() to submit column name/flags/defaults.
+		// - 3. Optionally call TableSetupScrollFreeze() to request scroll freezing of columns/rows.
+		// - 4. Optionally call TableHeadersRow() to submit a header row. Names are pulled from TableSetupColumn() data.
+		// - 5. Populate contents:
+		//    - In most situations you can use TableNextRow() + TableSetColumnIndex(N) to start appending into a column.
+		//    - If you are using tables as a sort of grid, where every columns is holding the same type of contents,
+		//      you may prefer using TableNextColumn() instead of TableNextRow() + TableSetColumnIndex().
+		//      TableNextColumn() will automatically wrap-around into the next row if needed.
+		//    - IMPORTANT: Comparatively to the old Columns() API, we need to call TableNextColumn() for the first column!
+		//    - Summary of possible call flow:
+		//        --------------------------------------------------------------------------------------------------------
+		//        TableNextRow() -> TableSetColumnIndex(0) -> Text("Hello 0") -> TableSetColumnIndex(1) -> Text("Hello 1")  // OK
+		//        TableNextRow() -> TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK
+		//                          TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK: TableNextColumn() automatically gets to next row!
+		//        TableNextRow()                           -> Text("Hello 0")                                               // Not OK! Missing TableSetColumnIndex() or TableNextColumn()! Text will not appear!
+		//        --------------------------------------------------------------------------------------------------------
+		// - 5. Call EndTable()
+
+		public static bool BeginTable(string strID, int column, ImGuiTableFlags flags = default, Vector2 outerSize = default, float innerWidth = 0) => GImGui.BeginTable(strID, column, flags, outerSize, innerWidth);
+
+		public static void EndTable() => GImGui.EndTable();
+
+		public static void TableNextRow(ImGuiTableRowFlags rowFlags = default, float minRowHeight = 0) => GImGui.TableNextRow(rowFlags, minRowHeight);
+
+		public static bool TableNextColumn() => GImGui.TableNextColumn();
+
+		public static bool TableSetColumnIndex(int columnN) => GImGui.TableSetColumnIndex(columnN);
+
+		// Tables: Headers & Columns declaration
+		// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+		// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
+		//   Headers are required to perform: reordering, sorting, and opening the context menu.
+		//   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
+		// - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
+		//   some advanced use cases (e.g. adding custom widgets in header row).
+		// - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
+
+		public static void TableSetupColumn(string label, ImGuiTableColumnFlags flags = 0, float initWidthOrWeight = 0, uint userID = 0) => GImGui.TableSetupColumn(label, flags, initWidthOrWeight, userID);
+
+		public static void TableSetupScrollFreeze(int cols, int rows) => GImGui.TableSetupScrollFreeze(cols, rows);
+
+		public static void TableHeadersRow() => GImGui.TableHeadersRow();
+
+		public static void TableHeader(string label) => GImGui.TableHeader(label);
+
+		// Tables: Sorting
+		// - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
+		// - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
+		//   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
+		//   wastefully sort your data every frame!
+		// - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
+
+		public static IImGuiTableSortSpecs TableSortSpecs => GImGui.TableSortSpecs;
+
+		// Tables: Miscellaneous functions
+		// - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
+
+		public static int TableColumnCount => GImGui.TableColumnCount;
+
+		public static int TableColumnIndex => GImGui.TableColumnIndex;
+
+		public static int TableRowIndex => GImGui.TableRowIndex;
+
+		public static string TableGetColumnName(int columnN = -1) => GImGui.TableGetColumnName(columnN);
+
+		public static ImGuiTableColumnFlags TableGetColumnFlags(int columnN = -1) => GImGui.TableGetColumnFlags(columnN);
+
+		public static void TableSetColumnEnabled(int columnN, bool v) => GImGui.TableSetColumnEnabled(columnN, v);
+
+		public static void TableSetBgColor(ImGuiTableBgTarget target, uint color, int columnN = -1) => GImGui.TableSetBgColor(target, color, columnN);
+
+		// Legacy Columns API (prefer using Tables!)
+		// - You can also use SameLine(pos_x) to mimic simplified columns.
+
+		public static void Columns(int count = 1, string? id = null, bool border = true) => GImGui.Columns(count, id, border);
+
+		public static void NextColumn() => GImGui.NextColumn();
+
+		public static int ColumnIndex => GImGui.ColumnIndex;
+
+		public static float GetColumnWidth(int columnIndex = -1) => GImGui.GetColumnWidth(columnIndex);
+
+		public static void SetColumnWidth(int columnIndex, float width) => GImGui.SetColumnWidth(columnIndex, width);
+
+		public static float GetColumnOffset(int columnIndex = -1) => GImGui.GetColumnWidth(columnIndex);
+
+		public static void SetColumnOffset(int columnIndex, float width) => GImGui.SetColumnOffset(columnIndex, width);
+
+		public static int ColumnsCount => GImGui.ColumnsCount;
+
+		// Tab Bars, Tabs
+
+		public static bool BeginTabBar(string strID, ImGuiTabBarFlags flags = default) => GImGui.BeginTabBar(strID, flags);
+
+		public static void EndTabBar() => GImGui.EndTabBar();
+
+		public static bool BeginTabItem(string label, ref bool open, ImGuiTabItemFlags flags = default) => GImGui.BeginTabItem(label, ref open, flags);
+
+		public static bool BeginTabItem(string label, bool? open, ImGuiTabItemFlags flags = default) => GImGui.BeginTabItem(label, open, flags);
+
+		public static void EndTabItem() => GImGui.EndTabItem();
+
+		public static bool TabItemButton(string label, ImGuiTabItemFlags flags = default) => GImGui.TabItemButton(label, flags);
+
+		public static void SetTabItemClosed(string tabOrDockedWindowLabel) => GImGui.SetTabItemClosed(tabOrDockedWindowLabel);
+
+		// Logging/Capture
+		// - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
+
+		public static void LogToTTY(int autoOpenDepth = -1) => GImGui.LogToTTY(autoOpenDepth);
+
+		public static void LogToFile(int autoOpenDepth = -1, string? filename = null) => GImGui.LogToFile(autoOpenDepth, filename);
+
+		public static void LogToClipboard(int autoOpenDepth = -1) => GImGui.LogToClipboard(autoOpenDepth);
+
+		public static void LogFinish() => GImGui.LogFinish();
+
+		public static void LogButtons() => GImGui.LogButtons();
+
+		public static void LogText(string fmt) => GImGui.LogText(fmt);
+
+		// Drag and Drop
+		// - On source items, call BeginDragDropSource(), if it returns true also call SetDragDropPayload() + EndDragDropSource().
+		// - On target candidates, call BeginDragDropTarget(), if it returns true also call AcceptDragDropPayload() + EndDragDropTarget().
+		// - If you stop calling BeginDragDropSource() the payload is preserved however it won't have a preview tooltip (we currently display a fallback "..." tooltip, see #1725)
+		// - An item can be both drag source and drop target.
+
+		public static bool BeginDragDropSource(ImGuiDragDropFlags flags = 0) => GImGui.BeginDragDropSource(flags);
+
+		public static bool SetDragDropPayload(string type, ReadOnlySpan<byte> data, ImGuiCond cond = default) => GImGui.SetDragDropPayload(type, data, cond);
+
+		public static void EndDragDropSource() => GImGui.EndDragDropSource();
+
+		public static bool BeginDragDropTarget() => GImGui.BeginDragDropTarget();
+
+		public static IImGuiPayload? AcceptDragDropPayload(string type, ImGuiDragDropFlags flags = default) => GImGui.AcceptDragDropPayload(type, flags);
+
+		public static void EndDragDropTarget() => GImGui.EndDragDropTarget();
+
+		public static IImGuiPayload? DragDropPayload => GImGui.DragDropPayload;
+
+
+		public static void BeginDisabled(bool disabled = true) => GImGui.BeginDisabled(disabled);
+
+		public static void EndDisabled() => GImGui.EndDisabled();
+
+
+		public static void PushClipRect(Vector2 clipRectMin, Vector2 clipRectMax, bool intersectWithCurrentClipRect) => GImGui.PushClipRect(clipRectMin, clipRectMax, intersectWithCurrentClipRect);
+
+		public static void PopClipRect() => GImGui.PopClipRect();
+
+
+		public static void SetItemDefaultFocus() => GImGui.SetItemDefaultFocus();
+
+		public static void SetKeyboardFocusHere(int offset = default) => GImGui.SetKeyboardFocusHere(offset);
+
+
+		public static bool IsItemHovered(ImGuiHoveredFlags flags = default) => GImGui.IsItemHovered(flags);
+
+		public static bool IsItemActive => GImGui.IsItemActive;
+
+		public static bool IsItemFocused => GImGui.IsItemFocused;
+
+		public static bool IsItemClicked(ImGuiMouseButton mouseButton = default) => GImGui.IsItemClicked(mouseButton);
+
+		public static bool IsItemVisible => GImGui.IsItemVisible;
+
+		public static bool IsItemEdited => GImGui.IsItemEdited;
+
+		public static bool IsItemActivated => GImGui.IsItemActivated;
+
+		public static bool IsItemDeactivated => GImGui.IsItemDeactivated;
+
+		public static bool IsItemDeactivatedAfterEdit => GImGui.IsItemDeactivatedAfterEdit;
+
+		public static bool IsItemToggledOpen => GImGui.IsItemToggledOpen;
+
+		public static bool IsAnyItemHovered => GImGui.IsAnyItemHovered;
+
+		public static bool IsAnyItemActive => GImGui.IsAnyItemActive;
+
+		public static bool IsAnyItemFocused => GImGui.IsAnyItemFocused;
+
+		public static Vector2 ItemRectMin => GImGui.ItemRectMin;
+
+		public static Vector2 ItemRectMax => GImGui.ItemRectMax;
+
+		public static Vector2 ItemRectSize => GImGui.ItemRectSize;
+
+		public static void SetItemAllowOverlap() => GImGui.SetItemAllowOverlap();
+
+
+		public static ImGuiViewport MainViewport {
+			get => GImGui.MainViewport;
+			set => GImGui.MainViewport = value;
+		}
+
+
+		public static bool IsRectVisible(Vector2 size) => GImGui.IsRectVisible(size);
+
+		public static bool IsRectVisible(Vector2 rectMin, Vector2 rectMax) => GImGui.IsRectVisible(rectMin, rectMax);
+
+		public static double Time => GImGui.Time;
+
+		public static int FrameCount => GImGui.FrameCount;
+
+		public static IImDrawList BackgroundDrawList => GImGui.BackgroundDrawList;
+
+		public static IImDrawList ForegroundDrawList => GImGui.ForegroundDrawList;
+
+		public static IImDrawListSharedData DrawListSharedData => GImGui.DrawListSharedData;
+
+		public static string GetStyleColorName(ImGuiCol idx) => GImGui.GetStyleColorName(idx);
+
+		public static IImGuiStorage StateStorage {
+			get => GImGui.StateStorage;
+			set => GImGui.StateStorage = value;
+		}
+
+		public static bool BeginChildFrame(uint id, Vector2 size, ImGuiWindowFlags flags = default) => GImGui.BeginChildFrame(id, size, flags);
+
+
+		public static Vector2 CalcTextSize(string text, bool hideTextAfterDoubleHash = false, float wrapWidth = -1) => GImGui.CalcTextSize(text, hideTextAfterDoubleHash, wrapWidth);
+
+
+		public static bool IsKeyDown(ImGuiKey key) => GImGui.IsKeyDown(key);
+
+		public static bool IsKeyPressed(ImGuiKey key, bool repeat = true) => GImGui.IsKeyPressed(key, repeat);
+
+		public static bool IsKeyReleased(ImGuiKey key) => GImGui.IsKeyReleased(key);
+
+		public static int GetKeyPressedAmount(ImGuiKey key, float repeatDelay, float rate) => GImGui.GetKeyPressedAmount(key, repeatDelay, rate);
+
+		public static string GetKeyName(ImGuiKey key) => GImGui.GetKeyName(key);
+
+		public static void CaptureKeyboardFromApp(bool wantCaptureKeyboardValue = true) => GImGui.CaptureKeyboardFromApp(wantCaptureKeyboardValue);
+
+
+		public static bool IsMouseDown(ImGuiMouseButton button) => GImGui.IsMouseDown(button);
+
+		public static bool IsMouseClicked(ImGuiMouseButton button) => GImGui.IsMouseClicked(button);
+
+		public static bool IsMouseReleased(ImGuiMouseButton button) => GImGui.IsMouseReleased(button);
+
+		public static bool IsMouseDoubleClicked(ImGuiMouseButton button) => GImGui.IsMouseDoubleClicked(button);
+
+		public static int GetMouseClickedAmount(ImGuiMouseButton button) => GImGui.GetMouseClickedAmount(button);
+
+		public static bool IsMouseHoveringRect(Vector2 rMin, Vector2 rMax, bool clip = true) => GImGui.IsMouseHoveringRect(rMin, rMax, clip);
+
+		public static bool IsMousePosValid(Vector2? mousePos = null) => GImGui.IsMousePosValid(mousePos);
+
+		public static bool IsAnyMouseDown => GImGui.IsAnyMouseDown;
+
+		public static Vector2 MousePos => GImGui.MousePos;
+
+		public static Vector2 MousePosOnOpeningCurrentPopup => GImGui.MousePosOnOpeningCurrentPopup;
+
+		public static bool IsMouseDragging(ImGuiMouseButton button, float lockThreshold = -1) => GImGui.IsMouseDragging(button, lockThreshold);
+
+		public static Vector2 GetMouseDragDelta(ImGuiMouseButton button = ImGuiMouseButton.Left, float lockThreshold = -1) => GImGui.GetMouseDragDelta(button, lockThreshold);
+
+		public static void ResetMouseDragDelta(ImGuiMouseButton button = ImGuiMouseButton.Left) => GImGui.ResetMouseDragDelta(button);
+
+		public static ImGuiMouseCursor MouseCursor => GImGui.MouseCursor;
+
+		public static void CaptureMouseFromApp(bool wantCaptureMouseValue = true) => GImGui.CaptureMouseFromApp(wantCaptureMouseValue);
+
+
+		public static string ClipboardText {
+			get => GImGui.ClipboardText;
+			set => GImGui.ClipboardText = value;
+		}
+
+
+		public static void LoadIniSettingsFromDisk(string iniFilename) => GImGui.LoadIniSettingsFromDisk(iniFilename);
+
+		public static void LoadIniSettingsFromMemory(in ReadOnlySpan<byte> iniData) => GImGui.LoadIniSettingsFromMemory(iniData);
+
+		public static void SaveIniSettingsToDisk(string iniFilename) => GImGui.SaveIniSettingsToDisk(iniFilename);
+
+		public static ReadOnlySpan<byte> SaveIniSettingsToMemory() => GImGui.SaveIniSettingsToMemory();
+
+
+		/// <summary>
+		/// Special Draw callback value to request renderer backend to reset the graphics/render state.
+		/// The renderer backend needs to handle this special value, otherwise it will crash trying to call a function at this address.
+		/// This is useful for example if you submitted callbacks which you know have altered the render state and you want it to be restored.
+		/// It is not done by default because they are many perfectly useful way of altering render state for imgui contents (e.g. changing shader/blending settings before an Image call).
+		/// </summary>
+		public static readonly ImDrawCallback ResetRenderState = (IImDrawList parentList, in ImDrawCmd cmd) => { };
+
+		// Color Utilities
 
 		public const int Col32RShift = 0;
 		public const int Col32GShift = 8;
@@ -120,1017 +1014,6 @@ namespace Tesseract.ImGui {
 		internal static float Saturate(float f) => f < 0 ? 0 : (f > 1) ? 1 : f;
 
 		internal static int F32ToInt8Sat(float f) => (int)(Saturate(f) * 255.0f + 0.5f);
-
-	}
-
-	public interface IImGui {
-
-		// Type constructors
-
-		public IImGuiStyle NewStyle();
-
-		public IImFontAtlas NewFontAtlas();
-
-		public IImGuiStorage NewStorage();
-
-		// Context creation and access
-		// - Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between contexts.
-		// - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
-		//   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for details.
-
-		public IImGuiContext CreateContext(IImFontAtlas? sharedFontAtlas = null);
-
-		public void DestroyContext(IImGuiContext? ctx = null);
-
-		public IImGuiContext CurrentContext { get; set; }
-		
-
-		public IImGuiIO IO { get; }
-
-		public IImGuiStyle Style { get; set; }
-
-		public void NewFrame();
-
-		public void EndFrame();
-
-		public void Render();
-
-		public IImDrawData GetDrawData();
-
-
-		public void ShowDemoWindow(ref bool open);
-
-		public void ShowDemoWindow(bool? open = null) {
-			bool pOpen = open ?? true;
-			ShowDemoWindow(ref pOpen);
-		}
-
-		public void ShowMetricsWindow(ref bool open);
-
-		public void ShowMetricsWindow(bool? open = null) {
-			bool pOpen = open ?? true;
-			ShowMetricsWindow(ref pOpen);
-		}
-
-		public void ShowStackToolWindow(ref bool open);
-
-		public void ShowStackToolWindow(bool? open = null) {
-			bool pOpen = open ?? true;
-			ShowStackToolWindow(ref pOpen);
-		}
-
-		public void ShowAboutWindow(ref bool open);
-
-		public void ShowAboutWindow(bool? open = null) {
-			bool pOpen = open ?? true;
-			ShowAboutWindow(ref pOpen);
-		}
-
-		public void ShowStyleEditor(IImGuiStyle? style = null);
-
-		public void ShowStyleSelector(string label);
-
-		public void ShowFontSelector(string label);
-
-		public void ShowUserGuide();
-
-		public string Version { get; }
-
-
-		public void StyleColorsDark(IImGuiStyle? dst = null);
-
-		public void StyleColorsLight(IImGuiStyle? dst = null);
-
-		public void StyleColorsClassic(IImGuiStyle? dst = null);
-
-		// Windows
-		// - Begin() = push window to the stack and start appending to it. End() = pop window from the stack.
-		// - Passing 'bool* p_open != NULL' shows a window-closing widget in the upper-right corner of the window,
-		//   which clicking will set the boolean to false when clicked.
-		// - You may append multiple times to the same window during the same frame by calling Begin()/End() pairs multiple times.
-		//   Some information such as 'flags' or 'p_open' will only be considered by the first call to Begin().
-		// - Begin() return false to indicate the window is collapsed or fully clipped, so you may early out and omit submitting
-		//   anything to the window. Always call a matching End() for each Begin() call, regardless of its return value!
-		//   [Important: due to legacy reason, this is inconsistent with most other functions such as BeginMenu/EndMenu,
-		//    BeginPopup/EndPopup, etc. where the EndXXX call should only be called if the corresponding BeginXXX function
-		//    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
-		// - Note that the bottom of window stack always contains a window called "Debug".
-
-		public void Begin(string name, ref bool open, ImGuiWindowFlags flags = default);
-
-		public void Begin(string name, bool? open = null, ImGuiWindowFlags flags = default) {
-			bool pOpen = open ?? true;
-			Begin(name, ref pOpen, flags);
-		}
-
-		public void End();
-
-		// Child Windows
-		// - Use child windows to begin into a self-contained independent scrolling/clipping regions within a host window. Child windows can embed their own child.
-		// - For each independent axis of 'size': ==0.0f: use remaining host window size / >0.0f: fixed size / <0.0f: use remaining window size minus abs(size) / Each axis can use a different mode, e.g. ImVec2(0,400).
-		// - BeginChild() returns false to indicate the window is collapsed or fully clipped, so you may early out and omit submitting anything to the window.
-		//   Always call a matching EndChild() for each BeginChild() call, regardless of its return value.
-		//   [Important: due to legacy reason, this is inconsistent with most other functions such as BeginMenu/EndMenu,
-		//    BeginPopup/EndPopup, etc. where the EndXXX call should only be called if the corresponding BeginXXX function
-		//    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
-
-		public void BeginChild(string strId, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
-
-		public void BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
-
-		public void EndChild();
-
-		// Windows Utilities
-		// - 'current window' = the window we are appending into while inside a Begin()/End() block. 'next window' = next window we will Begin() into.
-
-		public bool IsWindowAppearing { get; }
-
-		public bool IsWindowCollapsed { get; }
-
-		public bool IsWindowFocused(ImGuiFocusedFlags flags = default);
-
-		public bool IsWindowHovered(ImGuiHoveredFlags flags = default);
-
-		public IImDrawList GetWindowDrawList();
-
-		public Vector2 WindowPos { get; }
-
-		public Vector2 WindowSize { get; }
-
-		public float WindowWidth { get; }
-
-		public float WindowHeight { get; }
-
-		// Window manipulation
-		// - Prefer using SetNextXXX functions (before Begin) rather that SetXXX functions (after Begin).
-
-		public void SetNextWindowPos(Vector2 pos, ImGuiCond cond = default, Vector2 pivot = default);
-
-		public void SetNextWindowSize(Vector2 size, ImGuiCond cond = default);
-
-		public void SetNextWindowSizeConstraints(Vector2 sizeMin, Vector2 sizeMax, ImGuiSizeCallback? customCallback = null, IntPtr customCallbackData = default);
-
-		public void SetNextWindowContentSize(Vector2 size);
-
-		public void SetNextWindowCollapsed(bool collapsed, ImGuiCond cond = default);
-
-		public void SetNextWindowFocus();
-
-		public void SetNextWindowBgAlpha(float alpha);
-
-		public void SetWindowPos(Vector2 pos, ImGuiCond cond = default);
-
-		public void SetWindowSize(Vector2 size, ImGuiCond cond = default);
-
-		public void SetWindowCollapsed(bool collapsed, ImGuiCond cond = default);
-
-		public void SetWindowFocus();
-
-		public void SetWindowFontScale(float scale);
-
-		public void SetWindowPos(string name, Vector2 pos, ImGuiCond cond = default);
-
-		public void SetWindowSize(string name, Vector2 size, ImGuiCond cond = default);
-
-		public void SetWindowCollapsed(string name, bool collapsed, ImGuiCond cond = default);
-
-		public void SetWindowFocus(string name);
-
-		// Content region
-		// - Retrieve available space from a given point. GetContentRegionAvail() is frequently useful.
-		// - Those functions are bound to be redesigned (they are confusing, incomplete and the Min/Max return values are in local window coordinates which increases confusion)
-
-		public Vector2 ContentRegionAvail { get; }
-
-		public Vector2 ContentRegionMax { get; }
-
-		public Vector2 WindowContentRegionMax { get; }
-
-		public Vector2 WindowContentRegionMin { get; }
-
-		// Windows Scrolling
-
-		public float ScrollX { get; set; }
-
-		public float ScrollY { get; set; }
-
-		public float ScrollMaxX { get; }
-
-		public float ScrollMaxY { get; }
-
-		public void SetScrollHereX(float centerXRatio = 0.5f);
-
-		public void SetScrollHereY(float centerYRatio = 0.5f);
-
-		public void SetScrollFromPosX(float localX, float centerXRatio = 0.5f);
-
-		public void SetScrollFromPosY(float localY, float centerYRatio = 0.5f);
-
-		// Parameters stacks (shared)
-
-		public void PushFont(IImFont font);
-
-		public void PopFont();
-
-		public void PushStyleColor(ImGuiCol idx, uint col);
-
-		public void PushStyleColor(ImGuiCol idx, Vector4 col);
-
-		public void PopStyleColor(int count = 1);
-
-		public void PushStyleVar(ImGuiStyleVar idx, float val);
-
-		public void PushStyleVar(ImGuiStyleVar idx, Vector2 val);
-
-		public void PopStyleVar(int count = 1);
-
-		public void PushAllowKeyboardFocus(bool allowKeyboardFocus);
-
-		public void PopAllowKeyboardFocus();
-
-		public void PushButtonRepeat(bool repeat);
-
-		public void PopButtonRepeat();
-
-		// Parameters stacks (current window)
-
-		public void PushItemWidth(float itemWidth);
-
-		public void PopItemWidth();
-
-		public void SetNextItemWidth(float itemWidth);
-
-		public float CalcItemWidth();
-
-		public void PushTextWrapPos(float wrapLocalPosX = 0);
-
-		public void PopTextWrapPos();
-
-		// Style read access
-		// - Use the style editor (ShowStyleEditor() function) to interactively see what the colors are)
-
-		public IImFont Font { get; }
-
-		public float FontSize { get; }
-
-		public Vector2 FontTexUvWhitePixel { get; }
-
-		public uint GetColorU32(ImGuiCol idx, float alphaMul = 1);
-
-		public uint GetColorU32(Vector4 col);
-
-		public uint GetColorU32(uint col);
-
-		public Vector4 GetStyleColorVec4(ImGuiCol idx);
-
-		// Cursor / Layout
-		// - By "cursor" we mean the current output position.
-		// - The typical widget behavior is to output themselves at the current cursor position, then move the cursor one line down.
-		// - You can call SameLine() between widgets to undo the last carriage return and output at the right of the preceding widget.
-		// - Attention! We currently have inconsistencies between window-local and absolute positions we will aim to fix with future API:
-		//    Window-local coordinates:   SameLine(), GetCursorPos(), SetCursorPos(), GetCursorStartPos(), GetContentRegionMax(), GetWindowContentRegion*(), PushTextWrapPos()
-		//    Absolute coordinate:        GetCursorScreenPos(), SetCursorScreenPos(), all ImDrawList:: functions.
-
-		public void Separator();
-
-		public void SameLine(float offsetFromStartX = 0, float spacing = -1);
-
-		public void NewLine();
-
-		public void Spacing();
-
-		public void Dummy(Vector2 size);
-
-		public void Indent(float indentW = 0);
-
-		public void Unindent(float indentW = 0);
-
-		public void BeginGroup();
-
-		public void EndGroup();
-
-		public Vector2 CursorPos { get; set; }
-
-		public float CursorPosX { get; set; }
-		
-		public float CursorPosY { get; set; }
-
-		public Vector2 CursorStartPos { get; }
-
-		public Vector2 CursorScreenPos { get; set; }
-
-		public void AlignTextToFramePadding();
-
-		public float TextLineHeight { get; }
-
-		public float TextLineHeightWithSpacing { get; }
-
-		public float FrameHeight { get; }
-
-		public float FrameHeightWithSpacing { get; }
-
-		// ID stack/scopes
-		// Read the FAQ (docs/FAQ.md or http://dearimgui.org/faq) for more details about how ID are handled in dear imgui.
-		// - Those questions are answered and impacted by understanding of the ID stack system:
-		//   - "Q: Why is my widget not reacting when I click on it?"
-		//   - "Q: How can I have widgets with an empty label?"
-		//   - "Q: How can I have multiple widgets with the same label?"
-		// - Short version: ID are hashes of the entire ID stack. If you are creating widgets in a loop you most likely
-		//   want to push a unique identifier (e.g. object pointer, loop index) to uniquely differentiate them.
-		// - You can also use the "Label##foobar" syntax within widget label to distinguish them from each others.
-		// - In this header file we use the "label"/"name" terminology to denote a string that will be displayed + used as an ID,
-		//   whereas "str_id" denote a string that is only used as an ID and not normally displayed.
-
-		public void PushID(string strID);
-
-		public void PushID(nint ptrID);
-
-		public void PushID(int id);
-
-		public void PopID();
-
-		public uint GetID(string strID);
-
-		public uint GetID(nint ptrID);
-
-		// Widgets: Text
-
-		public void Text(string fmt);
-
-		public void TextColored(Vector4 col, string fmt);
-
-		public void TextDisabled(string fmt);
-
-		public void TextWrapped(string fmt);
-
-		public void LabelText(string label, string fmt);
-
-		public void BulletText(string fmt);
-
-		// Widgets: Main
-		// - Most widgets return true when the value has been changed or when pressed/selected
-		// - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
-
-		public bool Button(string label, Vector2 size = default);
-
-		public bool SmallButton(string label);
-
-		public bool InvisibleButton(string strID, Vector2 size, ImGuiButtonFlags flags = default);
-
-		public bool ArrowButton(string strID, ImGuiDir dir);
-
-		public void Image(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 tintCol, Vector4 borderCol = default);
-
-		public void Image(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1) => Image(userTextureID, size, uv0, uv1, Vector4.One);
-
-		public void Image(nuint userTextureID, Vector2 size, Vector2 uv0) => Image(userTextureID, size, uv0, Vector2.One);
-
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding, Vector4 bgCol, Vector4 tintCol);
-
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding = -1, Vector4 bgCol = default) => ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, Vector4.One);
-
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(userTextureID, size, uv0, Vector2.One);
-
-		public bool Checkbox(string label, ref bool v);
-
-		public bool CheckboxFlags(string label, ref int flags, int flagsValue);
-
-		public bool CheckboxFlags(string label, ref uint flags, uint flagsValue);
-
-		public bool RadioButton(string label, bool active);
-
-		public bool RadioButton(string label, ref int v, int vButton);
-
-		public void ProgressBar(float fraction, Vector2 sizeArg, string? overlay = null);
-
-		public void ProgressBar(float fraction) => ProgressBar(fraction, new Vector2(ImGui.FltMin, 0));
-
-		public void Bullet();
-
-		// Widgets: Combo Box
-		// - The BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() items.
-		// - The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose. This is analogous to how ListBox are created.
-
-		public bool BeginCombo(string label, string previewValue, ImGuiComboFlags flags = 0);
-
-		public void EndCombo();
-
-		public bool Combo(string label, ref int currentItem, IEnumerable<string> items, int popupMaxHeightInItems = -1);
-
-		public bool Combo(string label, ref int currentItem, string itemsSeparatedByZeros, int popupMaxHeightInItems = -1);
-
-		public delegate bool ComboItemsGetter(int idx, out string text);
-
-		public bool Combo(string label, ref int currentItem, ComboItemsGetter itemsGetter, int itemscount, int popupMaxHeightInItems = -1);
-
-		// Widgets: Drag Sliders
-		// - CTRL+Click on any drag box to turn them into an input box. Manually input values aren't clamped by default and can go off-bounds. Use ImGuiSliderFlags_AlwaysClamp to always clamp.
-		// - For all the Float2/Float3/Float4/Int2/Int3/Int4 versions of every functions, note that a 'float v[X]' function argument is the same as 'float* v',
-		//   the array syntax is just a way to document the number of elements that are expected to be accessible. You can pass address of your first element out of a contiguous set, e.g. &myvector.x
-		// - Adjust format string to decorate the value with a prefix, a suffix, or adapt the editing and display precision e.g. "%.3f" -> 1.234; "%5.2f secs" -> 01.23 secs; "Biscuit: %.0f" -> Biscuit: 1; etc.
-		// - Format string may also be set to NULL or use the default format ("%f" or "%d").
-		// - Speed are per-pixel of mouse movement (v_speed=0.2f: mouse needs to move by 5 pixels to increase value by 1). For gamepad/keyboard navigation, minimum speed is Max(v_speed, minimum_step_at_given_precision).
-		// - Use v_min < v_max to clamp edits to given limits. Note that CTRL+Click manual input can override those limits if ImGuiSliderFlags_AlwaysClamp is not used.
-		// - Use v_max = FLT_MAX / INT_MAX etc to avoid clamping to a maximum, same with v_min = -FLT_MAX / INT_MIN to avoid clamping to a minimum.
-		// - We use the same sets of flags for DragXXX() and SliderXXX() functions as the features are the same and it makes it easier to swap them.
-		// - Legacy: Pre-1.78 there are DragXXX() function signatures that takes a final `float power=1.0f' argument instead of the `ImGuiSliderFlags flags=0' argument.
-		//   If you get a warning converting a float to ImGuiSliderFlags, read https://github.com/ocornut/imgui/issues/3361
-
-		public bool DragFloat(string label, ref float v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool DragFloat2(string label, ref Vector2 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool DragFloat3(string label, ref Vector3 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool DragFloat4(string label, ref Vector4 v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool DragFloatRange2(string label, ref float vCurrentMin, ref float vCurrentMax, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", string? formatMax = null, ImGuiSliderFlags flags = default);
-
-		public bool DragInt(string label, ref int v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default);
-
-		// You may ask "why not just pass VectorXi by ref?" and the answer is because the C++/CLI compiler is retarded and has an aneurysim trying to import the type
-		// To keep the C++/CLI compiler from exploding a workaround is to use spans and the .AsSpan property for passing to the function
-
-		public bool DragInt2(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool DragInt3(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool DragInt4(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool DragIntRange2(string label, ref int vCurrentMin, ref int vCurrentMax, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", string? formatMax = null, ImGuiSliderFlags flags = default);
-
-		// See ImNullable for why there are shennanigans here
-
-		public bool DragScalar<T>(string label, ref T data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged;
-
-		public bool DragScalarN<T>(string label, Span<T> data, float vSpeed = 1, ImNullable<T> min = default, ImNullable<T> max = default, string? format = default, ImGuiSliderFlags flags = default) where T : unmanaged;
-
-		// Widgets: Regular Sliders
-		// - CTRL+Click on any slider to turn them into an input box. Manually input values aren't clamped by default and can go off-bounds. Use ImGuiSliderFlags_AlwaysClamp to always clamp.
-		// - Adjust format string to decorate the value with a prefix, a suffix, or adapt the editing and display precision e.g. "%.3f" -> 1.234; "%5.2f secs" -> 01.23 secs; "Biscuit: %.0f" -> Biscuit: 1; etc.
-		// - Format string may also be set to NULL or use the default format ("%f" or "%d").
-		// - Legacy: Pre-1.78 there are SliderXXX() function signatures that takes a final `float power=1.0f' argument instead of the `ImGuiSliderFlags flags=0' argument.
-		//   If you get a warning converting a float to ImGuiSliderFlags, read https://github.com/ocornut/imgui/issues/3361
-
-		public bool SliderFloat(string label, ref float v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool SliderFloat2(string label, ref Vector2 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool SliderFloat3(string label, ref Vector3 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool SliderFloat4(string label, ref Vector4 v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool SliderAngle(string label, ref float vRad, float vDegreesMin = -360, float vDegreesMax = 360, string format = "%.0f deg", ImGuiSliderFlags flags = default);
-
-		public bool SliderInt(string label, ref int v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool SliderInt2(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool SliderInt3(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool SliderInt4(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool SliderScalar<T>(string label, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged;
-
-		public bool SliderScalarN<T>(string label, Span<T> data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged;
-
-		public bool VSliderFloat(string label, Vector2 size, ref float v, float vMin, float vMax, string format = "%.3f", ImGuiSliderFlags flags = default);
-
-		public bool VSliderInt(string label, Vector2 size, ref int v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default);
-
-		public bool VSliderScalar<T>(string label, Vector2 size, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = default) where T : unmanaged;
-
-		// Widgets: Input with Keyboard
-		// - If you want to use InputText() with std::string or any custom dynamic string type, see misc/cpp/imgui_stdlib.h and comments in imgui_demo.cpp.
-		// - Most of the ImGuiInputTextFlags flags are only useful for InputText() and not for InputFloatX, InputIntX, InputDouble etc.
-
-		public bool InputText(string label, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null);
-
-		public bool InputTextMultiline(string label, ImGuiTextBuffer buf, Vector2 size = default, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null);
-
-		public bool InputTextWithHint(string label, string hint, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null);
-
-		public bool InputFloat(string label, ref float v, float step = 0, float stepFast = 0, string format = "%.3f", ImGuiInputTextFlags flags = default);
-
-		public bool InputFloat2(string label, ref Vector2 v, string format = "%.3f", ImGuiInputTextFlags flags = default);
-
-		public bool InputFloat3(string label, ref Vector3 v, string format = "%.3f", ImGuiInputTextFlags flags = default);
-
-		public bool InputFloat4(string label, ref Vector4 v, string format = "%.3f", ImGuiInputTextFlags flags = default);
-
-		public bool InputInt(string label, ref int v, int step = 0, int stepFast = 0, ImGuiInputTextFlags flags = default);
-
-		public bool InputInt2(string label, Span<int> v, ImGuiInputTextFlags flags = default);
-
-		public bool InputInt3(string label, Span<int> v, ImGuiInputTextFlags flags = default);
-
-		public bool InputInt4(string label, Span<int> v, ImGuiInputTextFlags flags = default);
-
-		public bool InputDouble(string label, ref double v, double step = 0, double stepFast = 0, string format = "%.6f", ImGuiInputTextFlags flags = default);
-
-		public bool InputScalar<T>(string label, ref T data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default);
-
-		public bool InputScalarN<T>(string label, Span<T> data, ImNullable<T> pStep = default, ImNullable<T> pStepFast = default, string? format = null, ImGuiInputTextFlags flags = default);
-
-		// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
-		// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible.
-		// - You can pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
-
-		public bool ColorEdit3(string label, ref Vector3 col, ImGuiColorEditFlags flags = default);
-
-		public bool ColorEdit4(string label, ref Vector4 col, ImGuiColorEditFlags flags = default);
-
-		public bool ColorPicker3(string label, ref Vector3 col, ImGuiColorEditFlags flags = default);
-
-		public bool ColorPicker4(string label, ref Vector4 col, ImGuiColorEditFlags flags = default, Vector4? refCol = null);
-
-		public bool ColorButton(string descId, Vector4 col, ImGuiColorEditFlags flags = default, Vector2 size = default);
-
-		public void SetColorEditOptions(ImGuiColorEditFlags flags);
-
-		// Widgets: Trees
-		// - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you are finished displaying the tree node contents.
-
-		public bool TreeNode(string label);
-
-		public bool TreeNode(string strID, string fmt);
-
-		public bool TreeNode(nint ptrID, string fmt);
-
-		public bool TreeNodeEx(string label, ImGuiTreeNodeFlags flags = default);
-
-		public bool TreeNodeEx(string strID, ImGuiTreeNodeFlags flags, string fmt);
-
-		public bool TreeNodeEx(nint ptrID, ImGuiTreeNodeFlags flags, string fmt);
-
-		public void TreePush(string strID);
-
-		public void TreePush(nint ptrID = 0);
-
-		public void TreePop();
-
-		public float TreeNodeToLabelSpacing { get; }
-
-		public bool CollapsingHeader(string label, ImGuiTreeNodeFlags flags = default);
-
-		public bool CollapsingHeader(string label, ref bool pVisible, ImGuiTreeNodeFlags flags = default);
-
-		public void SetNextItemOpen(bool isOpen, ImGuiCond cond = default);
-
-		// Widgets: Selectables
-		// - A selectable highlights when hovered, and can display another color when selected.
-		// - Neighbors selectable extend their highlight bounds in order to leave no gap between them. This is so a series of selected Selectable appear contiguous.
-
-		public bool Selectable(string label, bool selected = false, ImGuiSelectableFlags flags = default, Vector2 size = default);
-
-		public bool Selectable(string label, ref bool selected, ImGuiSelectableFlags flags = default, Vector2 size = default);
-
-		// Widgets: List Boxes
-		// - This is essentially a thin wrapper to using BeginChild/EndChild with some stylistic changes.
-		// - The BeginListBox()/EndListBox() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() or any items.
-		// - The simplified/old ListBox() api are helpers over BeginListBox()/EndListBox() which are kept available for convenience purpose. This is analoguous to how Combos are created.
-		// - Choose frame width:   size.x > 0.0f: custom  /  size.x < 0.0f or -FLT_MIN: right-align   /  size.x = 0.0f (default): use current ItemWidth
-		// - Choose frame height:  size.y > 0.0f: custom  /  size.y < 0.0f or -FLT_MIN: bottom-align  /  size.y = 0.0f (default): arbitrary default height which can fit ~7 items
-
-		public bool BeginListBox(string label, Vector2 size = default);
-
-		public void EndListBox();
-
-		public bool ListBox(string label, ref int currentItem, IEnumerable<string> items, int heightInItems = -1);
-
-		public delegate bool ListBoxItemsGetter(int idx, out string text);
-
-		public bool ListBox(string label, ref int currentItem, ListBoxItemsGetter itemsGetter, int itemsCount, int heightInItems = -1);
-
-		// Widgets: Data Plotting
-		// - Consider using ImPlot (https://github.com/epezent/implot) which is much better!
-
-		public void PlotLines(string label, ReadOnlySpan<float> values, int valuesCount = -1, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default, int stride = 1);
-
-		public void PlotLines(string label, Func<int, float> valuesGetter, int valuesCount, int valuesOffset = 0, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default);
-
-		public void PlotHistogram(string label, ReadOnlySpan<float> values, int valuesCount = -1, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default, int stride = 1);
-
-		public void PlotHistogram(string label, Func<int, float> valuesGetter, int valuesCount, int valuesOffset = 0, string? overlayText = null, float scaleMin = float.MaxValue, float scaleMax = float.MaxValue, Vector2 graphSize = default);
-
-		// Widgets: Value() Helpers.
-		// - Those are merely shortcut to calling Text() with a format string. Output single value in "name: value" format (tip: freely declare more in your code to handle your types. you can add functions to the ImGui namespace)
-
-		public void Value(string prefix, bool b);
-
-		public void Value(string prefix, int v);
-
-		public void Value(string prefix, uint v);
-
-		public void Value(string prefix, float v, string? floatFormat = null);
-
-		// Widgets: Menus
-		// - Use BeginMenuBar() on a window ImGuiWindowFlags_MenuBar to append to its menu bar.
-		// - Use BeginMainMenuBar() to create a menu bar at the top of the screen and append to it.
-		// - Use BeginMenu() to create a menu. You can call BeginMenu() multiple time with the same identifier to append more items to it.
-		// - Not that MenuItem() keyboardshortcuts are displayed as a convenience but _not processed_ by Dear ImGui at the moment.
-
-		public bool BeginMenuBar();
-
-		public void EndMenuBar();
-
-		public bool BeginMainMenuBar();
-
-		public void EndMainMenuBar();
-
-		public bool BeginMenu(string label, bool enabled = true);
-
-		public void EndMenu();
-
-		public bool MenuItem(string label, string? shortcut = null, bool selected = false, bool enabled = true);
-
-		public bool MenuItem(string label, string? shortcut, ref bool selected, bool enabled = true);
-
-		// Tooltips
-		// - Tooltip are windows following the mouse. They do not take focus away.
-
-		public void BeginTooltip();
-
-		public void EndTooltip();
-
-		public void SetTooltip(string fmt);
-
-		// Popups, Modals
-		//  - They block normal mouse hovering detection (and therefore most mouse interactions) behind them.
-		//  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
-		//  - Their visibility state (~bool) is held internally instead of being held by the programmer as we are used to with regular Begin*() calls.
-		//  - The 3 properties above are related: we need to retain popup visibility state in the library because popups may be closed as any time.
-		//  - You can bypass the hovering restriction by using ImGuiHoveredFlags_AllowWhenBlockedByPopup when calling IsItemHovered() or IsWindowHovered().
-		//  - IMPORTANT: Popup identifiers are relative to the current ID stack, so OpenPopup and BeginPopup generally needs to be at the same level of the stack.
-		//    This is sometimes leading to confusing mistakes. May rework this in the future.
-
-		// Popups: begin/end functions
-		//  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
-		//  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
-
-		public bool BeginPopup(string strID, ImGuiWindowFlags flags = default);
-
-		public bool BeginPopupModal(string name, ref bool pOpen, ImGuiWindowFlags flags = default);
-
-		public bool BeginPopupModal(string name, bool? open = null, ImGuiWindowFlags flags = default) {
-			bool pOpen = open ?? true;
-			return BeginPopupModal(name, ref pOpen, flags);
-		}
-
-		public void EndPopup();
-
-		// Popups: open/close functions
-		//  - OpenPopup(): set popup state to open. ImGuiPopupFlags are available for opening options.
-		//  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
-		//  - CloseCurrentPopup(): use inside the BeginPopup()/EndPopup() scope to close manually.
-		//  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (FIXME: need some options).
-		//  - Use ImGuiPopupFlags_NoOpenOverExistingPopup to avoid opening a popup if there's already one at the same level. This is equivalent to e.g. testing for !IsAnyPopupOpen() prior to OpenPopup().
-		//  - Use IsWindowAppearing() after BeginPopup() to tell if a window just opened.
-		//  - IMPORTANT: Notice that for OpenPopupOnItemClick() we exceptionally default flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter
-
-		public void OpenPopup(string strID, ImGuiPopupFlags popupFlags = default);
-
-		public void OpenPopup(uint id, ImGuiPopupFlags popupFlags = default);
-
-		public void OpenPopupOnItemClick(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight);
-
-		public void CloseCurrentPopup();
-
-		// Popups: open+begin combined functions helpers
-		//  - Helpers to do OpenPopup+BeginPopup where the Open action is triggered by e.g. hovering an item and right-clicking.
-		//  - They are convenient to easily create context menus, hence the name.
-		//  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
-		//  - IMPORTANT: Notice that we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
-
-		public bool BeginPopupContextItem(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight);
-
-		public bool BeginPopupContextWindow(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight);
-
-		public bool BeginPopupContextVoid(string? strID = null, ImGuiPopupFlags popupFlags = ImGuiPopupFlags.MouseButtonRight);
-
-		// Popups: query functions
-		//  - IsPopupOpen(): return true if the popup is open at the current BeginPopup() level of the popup stack.
-		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
-		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel: return true if any popup is open.
-
-		public bool IsPopupOpen(string strID, ImGuiPopupFlags flags = default);
-
-		// Tables
-		// - Full-featured replacement for old Columns API.
-		// - See Demo->Tables for demo code.
-		// - See top of imgui_tables.cpp for general commentary.
-		// - See ImGuiTableFlags_ and ImGuiTableColumnFlags_ enums for a description of available flags.
-		// The typical call flow is:
-		// - 1. Call BeginTable().
-		// - 2. Optionally call TableSetupColumn() to submit column name/flags/defaults.
-		// - 3. Optionally call TableSetupScrollFreeze() to request scroll freezing of columns/rows.
-		// - 4. Optionally call TableHeadersRow() to submit a header row. Names are pulled from TableSetupColumn() data.
-		// - 5. Populate contents:
-		//    - In most situations you can use TableNextRow() + TableSetColumnIndex(N) to start appending into a column.
-		//    - If you are using tables as a sort of grid, where every columns is holding the same type of contents,
-		//      you may prefer using TableNextColumn() instead of TableNextRow() + TableSetColumnIndex().
-		//      TableNextColumn() will automatically wrap-around into the next row if needed.
-		//    - IMPORTANT: Comparatively to the old Columns() API, we need to call TableNextColumn() for the first column!
-		//    - Summary of possible call flow:
-		//        --------------------------------------------------------------------------------------------------------
-		//        TableNextRow() -> TableSetColumnIndex(0) -> Text("Hello 0") -> TableSetColumnIndex(1) -> Text("Hello 1")  // OK
-		//        TableNextRow() -> TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK
-		//                          TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK: TableNextColumn() automatically gets to next row!
-		//        TableNextRow()                           -> Text("Hello 0")                                               // Not OK! Missing TableSetColumnIndex() or TableNextColumn()! Text will not appear!
-		//        --------------------------------------------------------------------------------------------------------
-		// - 5. Call EndTable()
-
-		public bool BeginTable(string strID, int column, ImGuiTableFlags flags = default, Vector2 outerSize = default, float innerWidth = 0);
-
-		public void EndTable();
-
-		public void TableNextRow(ImGuiTableRowFlags rowFlags = default, float minRowHeight = 0);
-
-		public bool TableNextColumn();
-
-		public bool TableSetColumnIndex(int columnN);
-
-		// Tables: Headers & Columns declaration
-		// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
-		// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
-		//   Headers are required to perform: reordering, sorting, and opening the context menu.
-		//   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
-		// - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
-		//   some advanced use cases (e.g. adding custom widgets in header row).
-		// - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
-
-		public void TableSetupColumn(string label, ImGuiTableColumnFlags flags = 0, float initWidthOrWeight = 0, uint userID = 0);
-
-		public void TableSetupScrollFreeze(int cols, int rows);
-
-		public void TableHeadersRow();
-
-		public void TableHeader(string label);
-
-		// Tables: Sorting
-		// - Call TableGetSortSpecs() to retrieve latest sort specs for the table. NULL when not sorting.
-		// - When 'SpecsDirty == true' you should sort your data. It will be true when sorting specs have changed
-		//   since last call, or the first time. Make sure to set 'SpecsDirty = false' after sorting, else you may
-		//   wastefully sort your data every frame!
-		// - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
-
-		public IImGuiTableSortSpecs TableSortSpecs { get; }
-
-		// Tables: Miscellaneous functions
-		// - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
-
-		public int TableColumnCount { get; }
-
-		public int TableColumnIndex { get; }
-
-		public int TableRowIndex { get; }
-
-		public string TableGetColumnName(int columnN = -1);
-
-		public ImGuiTableColumnFlags TableGetColumnFlags(int columnN = -1);
-
-		public void TableSetColumnEnabled(int columnN, bool v);
-
-		public void TableSetBgColor(ImGuiTableBgTarget target, uint color, int columnN = -1);
-
-		// Legacy Columns API (prefer using Tables!)
-		// - You can also use SameLine(pos_x) to mimic simplified columns.
-
-		public void Columns(int count = 1, string? id = null, bool border = true);
-
-		public void NextColumn();
-
-		public int ColumnIndex { get; }
-
-		public float GetColumnWidth(int columnIndex = -1);
-
-		public void SetColumnWidth(int columnIndex, float width);
-
-		public float GetColumnOffset(int columnIndex = -1);
-
-		public void SetColumnOffset(int columnIndex, float width);
-
-		public int ColumnsCount { get; }
-
-		// Tab Bars, Tabs
-
-		public bool BeginTabBar(string strID, ImGuiTabBarFlags flags = default);
-
-		public void EndTabBar();
-
-		public bool BeginTabItem(string label, ref bool open, ImGuiTabItemFlags flags = default);
-
-		public bool BeginTabItem(string label, bool? open, ImGuiTabItemFlags flags = default) {
-			bool pOpen = open ?? true;
-			return BeginTabItem(label, ref pOpen, flags);
-		}
-
-		public void EndTabItem();
-
-		public bool TabItemButton(string label, ImGuiTabItemFlags flags = default);
-
-		public void SetTabItemClosed(string tabOrDockedWindowLabel);
-
-		// Logging/Capture
-		// - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
-
-		public void LogToTTY(int autoOpenDepth = -1);
-
-		public void LogToFile(int autoOpenDepth = -1, string? filename = null);
-
-		public void LogToClipboard(int autoOpenDepth = -1);
-
-		public void LogFinish();
-
-		public void LogButtons();
-
-		public void LogText(string fmt);
-
-		// Drag and Drop
-		// - On source items, call BeginDragDropSource(), if it returns true also call SetDragDropPayload() + EndDragDropSource().
-		// - On target candidates, call BeginDragDropTarget(), if it returns true also call AcceptDragDropPayload() + EndDragDropTarget().
-		// - If you stop calling BeginDragDropSource() the payload is preserved however it won't have a preview tooltip (we currently display a fallback "..." tooltip, see #1725)
-		// - An item can be both drag source and drop target.
-
-		public bool BeginDragDropSource(ImGuiDragDropFlags flags = 0);
-
-		public bool SetDragDropPayload(string type, ReadOnlySpan<byte> data, ImGuiCond cond = default);
-
-		public void EndDragDropSource();
-
-		public bool BeginDragDropTarget();
-
-		public IImGuiPayload? AcceptDragDropPayload(string type, ImGuiDragDropFlags flags = default);
-
-		public void EndDragDropTarget();
-
-		public IImGuiPayload? DragDropPayload { get; }
-
-		// Disabling [BETA API]
-		// - Disable all user interactions and dim items visuals (applying style.DisabledAlpha over current colors)
-		// - Those can be nested but it cannot be used to enable an already disabled section (a single BeginDisabled(true) in the stack is enough to keep everything disabled)
-		// - BeginDisabled(false) essentially does nothing useful but is provided to facilitate use of boolean expressions. If you can avoid calling BeginDisabled(False)/EndDisabled() best to avoid it.
-
-		public void BeginDisabled(bool disabled = true);
-
-		public void EndDisabled();
-
-		// Clipping
-		// - Mouse hovering is affected by ImGui::PushClipRect() calls, unlike direct calls to ImDrawList::PushClipRect() which are render only.
-
-		public void PushClipRect(Vector2 clipRectMin, Vector2 clipRectMax, bool intersectWithCurrentClipRect);
-
-		public void PopClipRect();
-
-		// Focus, Activation
-		// - Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHereY()" when applicable to signify "this is the default item"
-
-		public void SetItemDefaultFocus();
-
-		public void SetKeyboardFocusHere(int offset = default);
-
-		// Item/Widgets Utilities and Query Functions
-		// - Most of the functions are referring to the previous Item that has been submitted.
-		// - See Demo Window under "Widgets->Querying Status" for an interactive visualization of most of those functions.
-
-		public bool IsItemHovered(ImGuiHoveredFlags flags = default);
-
-		public bool IsItemActive { get; }
-
-		public bool IsItemFocused { get; }
-
-		public bool IsItemClicked(ImGuiMouseButton mouseButton = default);
-
-		public bool IsItemVisible { get; }
-
-		public bool IsItemEdited { get; }
-
-		public bool IsItemActivated { get; }
-
-		public bool IsItemDeactivated { get; }
-
-		public bool IsItemDeactivatedAfterEdit { get; }
-
-		public bool IsItemToggledOpen { get; }
-
-		public bool IsAnyItemHovered { get; }
-
-		public bool IsAnyItemActive { get; }
-
-		public bool IsAnyItemFocused { get; }
-
-		public Vector2 ItemRectMin { get; }
-
-		public Vector2 ItemRectMax { get; }
-
-		public Vector2 ItemRectSize { get; }
-
-		public void SetItemAllowOverlap();
-
-		// Viewports
-		// - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
-		// - In 'docking' branch with multi-viewport enabled, we extend this concept to have multiple active viewports.
-		// - In the future we will extend this concept further to also represent Platform Monitor and support a "no main platform window" operation mode.
-
-		public ImGuiViewport MainViewport { get; set; }
-
-		// Miscellaneous Utilities
-
-		public bool IsRectVisible(Vector2 size);
-
-		public bool IsRectVisible(Vector2 rectMin, Vector2 rectMax);
-
-		public double Time { get; }
-
-		public int FrameCount { get; }
-
-		public IImDrawList BackgroundDrawList { get; }
-
-		public IImDrawList ForegroundDrawList { get; }
-
-		public IImDrawListSharedData DrawListSharedData { get; }
-
-		public string GetStyleColorName(ImGuiCol idx);
-
-		public IImGuiStorage StateStorage { get; set; }
-
-		public bool BeginChildFrame(uint id, Vector2 size, ImGuiWindowFlags flags = default);
-
-		// Text Utilities
-
-		public Vector2 CalcTextSize(string text, bool hideTextAfterDoubleHash = false, float wrapWidth = -1);
-
-		// Inputs Utilities: Keyboard
-		// Without IMGUI_DISABLE_OBSOLETE_KEYIO: (legacy support)
-		//   - For 'ImGuiKey key' you can still use your legacy native/user indices according to how your backend/engine stored them in io.KeysDown[].
-		// With IMGUI_DISABLE_OBSOLETE_KEYIO: (this is the way forward)
-		//   - Any use of 'ImGuiKey' will assert when key < 512 will be passed, previously reserved as native/user keys indices
-		//   - GetKeyIndex() is pass-through and therefore deprecated (gone if IMGUI_DISABLE_OBSOLETE_KEYIO is defined)
-
-		public bool IsKeyDown(ImGuiKey key);
-
-		public bool IsKeyPressed(ImGuiKey key, bool repeat = true);
-
-		public bool IsKeyReleased(ImGuiKey key);
-
-		public int GetKeyPressedAmount(ImGuiKey key, float repeatDelay, float rate);
-
-		public string GetKeyName(ImGuiKey key);
-
-		public void CaptureKeyboardFromApp(bool wantCaptureKeyboardValue = true);
-
-		// Inputs Utilities: Mouse
-		// - To refer to a mouse button, you may use named enums in your code e.g. ImGuiMouseButton_Left, ImGuiMouseButton_Right.
-		// - You can also use regular integer: it is forever guaranteed that 0=Left, 1=Right, 2=Middle.
-		// - Dragging operations are only reported after mouse has moved a certain distance away from the initial clicking position (see 'lock_threshold' and 'io.MouseDraggingThreshold')
-
-		public bool IsMouseDown(ImGuiMouseButton button);
-
-		public bool IsMouseClicked(ImGuiMouseButton button, bool repeat = false);
-
-		public bool IsMouseReleased(ImGuiMouseButton button);
-
-		public bool IsMouseDoubleClicked(ImGuiMouseButton button);
-
-		public int GetMouseClickedAmount(ImGuiMouseButton button);
-
-		public bool IsMouseHoveringRect(Vector2 rMin, Vector2 rMax, bool clip = true);
-
-		public bool IsMousePosValid(Vector2? mousePos = null);
-
-		public bool IsAnyMouseDown { get; }
-
-		public Vector2 MousePos { get; }
-
-		public Vector2 MousePosOnOpeningCurrentPopup { get; }
-
-		public bool IsMouseDragging(ImGuiMouseButton button, float lockThreshold = -1);
-
-		public Vector2 GetMouseDragDelta(ImGuiMouseButton button = ImGuiMouseButton.Left, float lockThreshold = -1);
-
-		public void ResetMouseDragDelta(ImGuiMouseButton button = ImGuiMouseButton.Left);
-
-		public ImGuiMouseCursor MouseCursor { get; set; }
-
-		public void CaptureMouseFromApp(bool wantCaptureMouseValue = true);
-
-		// Clipboard Utilities
-		// - Also see the LogToClipboard() function to capture GUI into clipboard, or easily output text data to the clipboard.
-
-		public string ClipboardText { get; set; }
-
-		// Settings/.Ini Utilities
-		// - The disk functions are automatically called if io.IniFilename != NULL (default is "imgui.ini").
-		// - Set io.IniFilename to NULL to load/save manually. Read io.WantSaveIniSettings description about handling .ini saving manually.
-		// - Important: default value "imgui.ini" is relative to current working dir! Most apps will want to lock this to an absolute path (e.g. same path as executables).
-
-		public void LoadIniSettingsFromDisk(string iniFilename);
-
-		public void LoadIniSettingsFromMemory(ReadOnlySpan<byte> iniData);
-
-		public void SaveIniSettingsToDisk(string iniFilename);
-
-		public ReadOnlySpan<byte> SaveIniSettingsToMemory();
 
 	}
 

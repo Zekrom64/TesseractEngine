@@ -11,7 +11,7 @@ namespace Tesseract.ImGui {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct ImGuiSizeCallbackData {
 
-		public IntPtr UserData;
+		private readonly IntPtr userData;
 
 		public Vector2 Pos;
 

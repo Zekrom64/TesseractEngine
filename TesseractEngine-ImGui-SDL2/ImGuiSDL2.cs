@@ -219,8 +219,11 @@ namespace Tesseract.ImGui.SDL {
 			
 			if (Platform.CurrentPlatformType == PlatformType.Windows) {
 				SDLSysWMInfo? info;
-				if ((info = window.GetWindowWMInfo(SDL2.Version)) != null) ;
-					// TODO ImGui::GetMainViewport()->PlatformHandleRaw = (void*)info.info.win.window
+				if ((info = window.GetWindowWMInfo(SDL2.Version)) != null) {
+					var viewport = ImGui.MainViewport;
+					Debug.Assert(info.Info != null);
+					viewport.PlatformHandleRaw = ((SDLSysWMInfoWin)info.Info).HWnd;
+				}
 			}
 
 			return true;
