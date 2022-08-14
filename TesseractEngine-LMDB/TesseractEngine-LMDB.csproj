@@ -4,9 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Tesseract</RootNamespace>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

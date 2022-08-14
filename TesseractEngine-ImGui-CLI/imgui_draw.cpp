@@ -3980,7 +3980,11 @@ static void stb__match(const unsigned char *data, unsigned int length)
     IM_ASSERT(stb__dout + length <= stb__barrier_out_e);
     if (stb__dout + length > stb__barrier_out_e) { stb__dout += length; return; }
     if (data < stb__barrier_out_b) { stb__dout = stb__barrier_out_e+1; return; }
-    while (length--) *stb__dout++ = *data++;
+	// NOTE: The C++/CLI compiler generates incorrect assembly when optimizations are enabled for this, fixed with code below
+    //while (length--) *stb__dout++ = *data++;
+	for (size_t i = 0; i < length; i++)
+		stb__dout[i] = data[i];
+	stb__dout += length;
 }
 
 static void stb__lit(const unsigned char *data, unsigned int length)

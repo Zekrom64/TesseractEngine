@@ -127,10 +127,10 @@ namespace Tesseract.ImGui.OpenGL {
 
 		private static void CreateFontTexture() {
 			IImGuiIO io = GImGui.IO;
-			textureHandle = gl.CreateTextures(GLTextureTarget.Texture2D);
 			ReadOnlySpan<byte> pixels = io.Fonts.GetTexDataAsRGBA32(out int w, out int h, out int _);
-			gl.TextureStorage2D(textureHandle, 1, GLInternalFormat.RGBA, w, h);
-			gl.TextureSubImage2D(textureHandle, 0, 0, 0, w, h, GLFormat.RGBA, GLTextureType.Byte, pixels);
+			textureHandle = gl.CreateTextures(GLTextureTarget.Texture2D);
+			gl.TextureStorage2D(textureHandle, 1, GLInternalFormat.RGBA8, w, h);
+			gl.TextureSubImage2D(textureHandle, 0, 0, 0, w, h, GLFormat.RGBA, GLTextureType.UnsignedByte, pixels);
 			gl.TextureParameter(textureHandle, GLTexParamter.MinifyFilter, GLEnums.GL_LINEAR);
 			gl.TextureParameter(textureHandle, GLTexParamter.MagnifyFilter, GLEnums.GL_LINEAR);
 			io.Fonts.SetTexID(textureHandle);
@@ -177,7 +177,7 @@ in vec2 inUV;
 out vec4 fragColor;
 out vec2 fragUV;
 
-layout(location = 0)
+layout(binding = 0)
 uniform UGlobals {
 	mat4 mProj;
 } uGlobals;
@@ -185,7 +185,7 @@ uniform UGlobals {
 void main() {
 	fragUV = inUV;
 	fragColor = inColor;
-	gl_Position = uGlobals.mProj * vec4(inPosition, 0, 1);
+	gl_Position = vec4(inPosition, 0, 1) * uGlobals.mProj;
 }
 "
 				);
@@ -204,7 +204,7 @@ in vec2 fragUV;
 layout(location = 0)
 out vec4 outColor;
 
-layout(location = 0)
+layout(binding = 0)
 uniform sampler2D uTexture;
 
 void main() {
@@ -242,16 +242,16 @@ void main() {
 			// Setup viewport
 			gl.Viewport = new Recti(fbSize.X, fbSize.Y);
 			float L = drawData.DisplayPos.X;
-			float R = drawData.DisplayPos.X + drawData.DisplaySize.Y;
+			float R = drawData.DisplayPos.X + drawData.DisplaySize.X;
 			float T = drawData.DisplayPos.Y;
 			float B = drawData.DisplayPos.Y + drawData.DisplaySize.Y;
-			bool clipOriginLowerLeft = gl.GetInteger(GLEnums.GL_CLIP_ORIGIN) == GLEnums.GL_UPPER_LEFT;
+			bool clipOriginLowerLeft = gl.GetInteger(GLEnums.GL_CLIP_ORIGIN) != GLEnums.GL_UPPER_LEFT;
 			if (!clipOriginLowerLeft) (T, B) = (B, T);
 
 			// Setup orthographic projection
 			Matrix4x4 orthoProjection = new(
-				(R-L)*0.5f,  0,            0, 0,
-				0,           (T-B)*0.5f,   0, 0,
+				2.0f/(R-L),  0,            0, 0,
+				0,           2.0f/(T-B),   0, 0,
 				0,           0,           -1, 0,
 				(R+L)/(L-R), (T+B)/(B-T),  0, 1
 			);
@@ -261,7 +261,7 @@ void main() {
 			// Set texture uniform to use unit 0
 			gl.Uniform(LocationTexture, 0);
 			// Update projection matrix uniform and bind
-			gl.NamedBufferSubData(uniformBuffer, 0, orthoProjection);
+			gl.NamedBufferSubData(uniformBuffer, 0, Matrix4x4.Transpose(orthoProjection));
 			gl.BindBufferBase(GLBufferRangeTarget.Uniform, LocationUBO, uniformBuffer);
 
 			// Use default sampler for texture
@@ -317,6 +317,8 @@ void main() {
 			int indexBufferOffset = 0;
 			UnmanagedPointer<ImDrawVert> pVertices = new(vertexBufferPtr);
 			UnmanagedPointer<ushort> pIndices = new(indexBufferPtr);
+
+			SetupRenderState(drawData, fbSize);
 
 			foreach (IImDrawList drawList in drawData.CmdLists) {
 				// Upload vertices and indices

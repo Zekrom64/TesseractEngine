@@ -259,11 +259,7 @@ namespace Tesseract.SDL.Services {
 
 		public IGLContext CreateContext() {
 			lock (lockGlcontext) {
-				if (glcontext == null) {
-					IntPtr pContext = SDL2.Functions.SDL_GL_CreateContext(Window.Window.Ptr);
-					if (pContext == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-					glcontext = new SDLGLContext(Window.Window.Ptr, pContext);
-				}
+				if (glcontext == null) glcontext = new SDLGLContext(Window);
 				return glcontext;
 			}
 		}

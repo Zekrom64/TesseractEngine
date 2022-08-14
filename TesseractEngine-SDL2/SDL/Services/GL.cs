@@ -41,6 +41,13 @@ namespace Tesseract.SDL.Services {
 			Context = context;
 		}
 
+		public SDLGLContext(SDLWindow window) {
+			Window = window.Window.Ptr;
+			IntPtr pContext = SDL2.Functions.SDL_GL_CreateContext(Window);
+			if (pContext == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+			Context = pContext;
+		}
+
 		public IntPtr GetGLProcAddress(string procName) {
 			MakeGLCurrent();
 			return SDL2.Functions.SDL_GL_GetProcAddress(procName);
@@ -64,6 +71,11 @@ namespace Tesseract.SDL.Services {
 		public void SwapGLBuffers() {
 			MakeGLCurrent();
 			SDL2.Functions.SDL_GL_SwapWindow(Window);
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			SDL2.Functions.SDL_GL_DeleteContext(Context);
 		}
 
 	}

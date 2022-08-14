@@ -42,6 +42,11 @@ namespace Tesseract.GLFW.Services {
 
 		public void SwapGLBuffers() => Window.SwapBuffers();
 
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			// No-op, context gets destroyed with window
+		}
+
 	}
 
 }

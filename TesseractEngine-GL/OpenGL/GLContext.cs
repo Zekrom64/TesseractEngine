@@ -10,7 +10,7 @@ namespace Tesseract.OpenGL {
 	/// An OpenGL context manages state for an instance of the OpenGL API. To be used with other OpenGL commands
 	/// a context must be bound to the current thread. An OpenGL context may only be bound to one thread at a time.
 	/// </summary>
-	public interface IGLContext {
+	public interface IGLContext : IDisposable {
 
 		/// <summary>
 		/// The major version number of the supported OpenGL API.
