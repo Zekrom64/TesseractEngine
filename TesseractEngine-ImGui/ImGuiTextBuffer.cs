@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Native;
 
 namespace Tesseract.ImGui {
 
@@ -33,6 +34,8 @@ namespace Tesseract.ImGui {
 			size = 0;
 		}
 
+		public void ClearText() => Buf.Fill(0);
+
 		public void Reserve(int capacity) {
 			if (buf.Length < capacity) Array.Resize(ref buf, capacity);
 		}
@@ -45,7 +48,11 @@ namespace Tesseract.ImGui {
 			buf[size] = 0;
 		}
 
-		public static implicit operator string(ImGuiTextBuffer buf) => Encoding.UTF8.GetString(buf.buf, 0, buf.size);
+		public static implicit operator string(ImGuiTextBuffer buf) {
+			int strlen = MemoryUtil.FindFirst<byte>(buf.buf, 0);
+			if (strlen < 0) strlen = buf.buf.Length;
+			return Encoding.UTF8.GetString(buf.buf, 0, strlen);
+		}
 
 	}
 

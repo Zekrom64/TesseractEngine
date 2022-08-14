@@ -29,6 +29,10 @@ namespace Tesseract.ImGui {
 
 		public Span<byte> Buf { get; }
 
+		public int BufSize { get; }
+
+		public int BufTextLen { get; }
+
 		public bool BufDirty { get; set; }
 
 		public int CursorPos { get; set; }

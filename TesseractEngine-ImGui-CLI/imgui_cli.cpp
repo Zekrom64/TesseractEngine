@@ -946,6 +946,18 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 		}
 
+		virtual property int BufSize {
+			virtual int get() {
+				return m_data->BufSize;
+			}
+		}
+
+		virtual property int BufTextLen {
+			virtual int get() {
+				return m_data->BufTextLen;
+			}
+		}
+
 		virtual property bool BufDirty {
 			virtual bool get() { return m_data->BufDirty; }
 			virtual void set(bool value) { m_data->BufDirty = true; }
