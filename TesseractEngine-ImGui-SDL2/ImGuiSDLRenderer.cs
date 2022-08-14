@@ -51,9 +51,9 @@ namespace Tesseract.ImGui.SDL {
 			renderer.ResetClipRect();
 		}
 
-		private static readonly int PosOffset = (int)Marshal.OffsetOf<ImDrawVert>("Pos");
-		private static readonly int UVOffset = (int)Marshal.OffsetOf<ImDrawVert>("UV");
-		private static readonly int ColOffset = (int)Marshal.OffsetOf<ImDrawVert>("Col");
+		private static readonly int PosOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Pos));
+		private static readonly int UVOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.UV));
+		private static readonly int ColOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Col));
 		private static readonly int Stride = Marshal.SizeOf<ImDrawVert>();
 
 		public static void RenderDrawData(IImDrawData drawData) {

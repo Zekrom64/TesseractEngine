@@ -118,6 +118,8 @@ namespace Tesseract.ImGui {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct ImDrawVert {
 
+		public static readonly int SizeOf = Marshal.SizeOf<ImDrawVert>();
+
 		public Vector2 Pos;
 		public Vector2 UV;
 		public uint Col;

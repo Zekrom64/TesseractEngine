@@ -368,13 +368,20 @@ namespace Tesseract.OpenGL {
 			return values;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsEnabled(GLCapability cap) => FunctionsGL11.glIsEnabled((uint)cap) != 0;
+
 		public float LineWidth {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set => FunctionsGL11.glLineWidth(value);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => GetFloat(GLEnums.GL_LINE_WIDTH);
 		}
 
 		public GLLogicOp LogicOp {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set => FunctionsGL11.glLogicOp((uint)value);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => (GLLogicOp)GetInteger(GLEnums.GL_LOGIC_OP_MODE);
 		}
 

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Tesseract.ImGui.OpenGL</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine-GL\TesseractEngine-GL.csproj" />
+    <ProjectReference Include="..\TesseractEngine-ImGui\TesseractEngine-ImGui.csproj" />
+  </ItemGroup>
+
+</Project>
