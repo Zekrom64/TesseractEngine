@@ -9,22 +9,46 @@ using Tesseract.Core.Numerics;
 
 namespace Tesseract.Engine2D.Physics {
 	
-	internal struct TreeNode<T> {
+	public struct TreeNode<T> {
 
+		/// <summary>
+		/// If the node is a leaf (ie. has no children).
+		/// </summary>
 		public bool IsLeaf => Child1 == Box2D.NullNode;
 
+		/// <summary>
+		/// The bounding box encompassing this node and its children.
+		/// </summary>
 		public AABB AABB;
 
+		/// <summary>
+		/// The userdata associated with this node.
+		/// </summary>
 		public T UserData;
 
+		/// <summary>
+		/// The index of the parent node if allocated, or the index of the next free node.
+		/// </summary>
 		public int ParentOrNext;
 
+		/// <summary>
+		/// The index of the first child node.
+		/// </summary>
 		public int Child1;
 
+		/// <summary>
+		/// The index of the second child node.
+		/// </summary>
 		public int Child2;
 
+		/// <summary>
+		/// The height of this node in the tree.
+		/// </summary>
 		public int Height;
 
+		/// <summary>
+		/// Flag indicating if the node has been moved in the tree.
+		/// </summary>
 		public bool Moved;
 
 	}
@@ -38,7 +62,6 @@ namespace Tesseract.Engine2D.Physics {
 			for (int i = 0; i < nodes.Length - 1; i++) nodes[i] = new TreeNode<T>() { ParentOrNext = i + 1, Height = -1 };
 			nodes[^1] = new TreeNode<T>() { ParentOrNext = Box2D.NullNode, Height = -1 };
 			freeList = 0;
-			insertionCount = 0;
 		}
 
 		public int CreateProxy(AABB aabb, T userData) {
@@ -222,11 +245,66 @@ namespace Tesseract.Engine2D.Physics {
 		}
 
 		public void RebuildBottomUp() {
+			int[] nodes = new int[nodeCount];
+			int count = 0;
 
+			for(int i = 0; i < this.nodes.Length; i++) {
+				if (this.nodes[i].Height < 0) continue;
+				if (this.nodes[i].IsLeaf) {
+					this.nodes[i].ParentOrNext = Box2D.NullNode;
+					nodes[i] = count++;
+				} else FreeNode(i);
+			}
+
+			while(count > 1) {
+				float minCost = Box2D.MaxFloat;
+				int iMin = -1, jMin = -1;
+				for(int i = 0; i < count; i++) {
+					AABB aabbi = this.nodes[nodes[i]].AABB;
+					for(int j = 0; j < count; j++) {
+						AABB aabbj = this.nodes[nodes[j]].AABB;
+						AABB b = new();
+						b.Combine(aabbi, aabbj);
+						float cost = b.Perimeter;
+						if (cost < minCost) {
+							iMin = i;
+							jMin = j;
+							minCost = cost;
+						}
+					}
+				}
+
+				int index1 = nodes[iMin];
+				int index2 = nodes[jMin];
+				ref TreeNode<T> child1 = ref this.nodes[index1];
+				ref TreeNode<T> child2 = ref this.nodes[index2];
+				
+				int parentIndex = AllocateNode();
+				ref TreeNode<T> parent = ref this.nodes[parentIndex];
+				parent.Child1 = index1;
+				parent.Child2 = index2;
+				parent.Height = 1 + Math.Max(child1.Height, child2.Height);
+				parent.AABB.Combine(child1.AABB, child2.AABB);
+				parent.ParentOrNext = Box2D.NullNode;
+
+				child1.ParentOrNext = parentIndex;
+				child2.ParentOrNext = parentIndex;
+
+				nodes[jMin] = nodes[^1];
+				nodes[iMin] = parentIndex;
+				count--;
+			}
+
+			root = nodes[0];
+			Validate();
 		}
 
 		public void ShiftOrigin(Vector2 newOrigin) {
-
+			for(int i = 0; i < nodes.Length; i++) {
+				ref AABB aabb = ref nodes[i].AABB;
+				aabb.LowerBound -= newOrigin;
+				aabb.UpperBound -= newOrigin;
+			}
 		}
 
 		private int AllocateNode() {
@@ -257,7 +335,6 @@ namespace Tesseract.Engine2D.Physics {
 		}
 
 		private void InsertLeaf(int leaf) {
-			insertionCount++;
 			if (root == Box2D.NullNode) {
 				root = leaf;
 				nodes[root].ParentOrNext = Box2D.NullNode;
@@ -347,12 +424,149 @@ namespace Tesseract.Engine2D.Physics {
 			}
 		}
 
-		private void RemoveLeaf(int node) {
+		private void RemoveLeaf(int leaf) {
+			if (leaf == root) {
+				root = Box2D.NullNode;
+				return;
+			}
 
+			int parent = nodes[leaf].ParentOrNext;
+			int grandParent = nodes[parent].ParentOrNext;
+			int sibling;
+			if (nodes[parent].Child1 == leaf) sibling = nodes[parent].Child2;
+			else sibling = nodes[parent].Child1;
+
+			if (grandParent != Box2D.NullNode) {
+				if (nodes[grandParent].Child1 == parent) nodes[grandParent].Child1 = sibling;
+				else nodes[grandParent].Child2 = sibling;
+				nodes[sibling].ParentOrNext = grandParent;
+				FreeNode(parent);
+
+				int index = grandParent;
+				while(index != Box2D.NullNode) {
+					index = Balance(index);
+
+					int child1 = nodes[index].Child1;
+					int child2 = nodes[index].Child2;
+
+					nodes[index].AABB.Combine(nodes[child1].AABB, nodes[child2].AABB);
+					nodes[index].Height = 1 + Math.Max(nodes[child1].Height, nodes[child2].Height);
+
+					index = nodes[index].ParentOrNext;
+				}
+			} else {
+				root = sibling;
+				nodes[sibling].ParentOrNext = Box2D.NullNode;
+				FreeNode(parent);
+			}
 		}
 
-		private int Balance(int index) {
+		private int Balance(int iA) {
+			Debug.Assert(iA != Box2D.NullNode);
 
+			ref TreeNode<T> A = ref nodes[iA];
+			if (A.IsLeaf || A.Height < 2) return iA;
+
+			int iB = A.Child1;
+			int iC = A.Child2;
+			Debug.Assert(0 <= iB && iB < nodes.Length);
+			Debug.Assert(0 <= iC && iC < nodes.Length);
+			ref TreeNode<T> B = ref nodes[iB];
+			ref TreeNode<T> C = ref nodes[iC];
+
+			int balance = C.Height - B.Height;
+
+			if (balance > 1) {
+				int iF = C.Child1;
+				int iG = C.Child2;
+				Debug.Assert(0 <= iF && iF < nodes.Length);
+				Debug.Assert(0 <= iG && iG < nodes.Length);
+				ref TreeNode<T> F = ref nodes[iF];
+				ref TreeNode<T> G = ref nodes[iG];
+
+				C.Child1 = iA;
+				C.ParentOrNext = A.ParentOrNext;
+				A.ParentOrNext = iC;
+
+				if (C.ParentOrNext != Box2D.NullNode) {
+					if (nodes[C.ParentOrNext].Child1 == iA) {
+						nodes[C.ParentOrNext].Child1 = iC;
+					} else {
+						Debug.Assert(nodes[C.ParentOrNext].Child2 == iA);
+						nodes[C.ParentOrNext].Child2 = iC;
+					}
+				} else {
+					root = iC;
+				}
+
+				if (F.Height > G.Height) {
+					C.Child2 = iF;
+					A.Child2 = iG;
+					G.ParentOrNext = iA;
+					A.AABB.Combine(B.AABB, G.AABB);
+					C.AABB.Combine(A.AABB, F.AABB);
+					A.Height = 1 + Math.Max(B.Height, G.Height);
+					C.Height = 1 + Math.Max(A.Height, F.Height);
+				} else {
+					C.Child2 = iG;
+					A.Child2 = iF;
+					F.ParentOrNext = iA;
+					A.AABB.Combine(B.AABB, F.AABB);
+					C.AABB.Combine(A.AABB, G.AABB);
+					A.Height = 1 + Math.Max(B.Height, F.Height);
+					C.Height = 1 + Math.Max(A.Height, G.Height);
+				}
+
+				return iC;
+			}
+
+			if (balance < -1) {
+				int iD = B.Child1;
+				int iE = B.Child2;
+				Debug.Assert(0 <= iD && iD <= nodes.Length);
+				Debug.Assert(0 <= iE && iE <= nodes.Length);
+				ref TreeNode<T> D = ref nodes[iD];
+				ref TreeNode<T> E = ref nodes[iE];
+
+				B.Child1 = iA;
+				B.ParentOrNext = A.ParentOrNext;
+				A.ParentOrNext = iB;
+
+				if (B.ParentOrNext != Box2D.NullNode) {
+					if (nodes[B.ParentOrNext].Child1 == iA) {
+
+					} else {
+						Debug.Assert(nodes[B.ParentOrNext].Child2 == iA);
+						nodes[B.ParentOrNext].Child2 = iB;
+					}
+				} else {
+					root = iB;
+				}
+
+				if (D.Height > E.Height) {
+					B.Child2 = iD;
+					A.Child1 = iE;
+					E.ParentOrNext = iA;
+					A.AABB.Combine(C.AABB, E.AABB);
+					B.AABB.Combine(A.AABB, D.AABB);
+
+					A.Height = 1 + Math.Max(C.Height, E.Height);
+					B.Height = 1 + Math.Max(A.Height, D.Height);
+				} else {
+					B.Child2 = iE;
+					A.Child1 = iD;
+					D.ParentOrNext = iA;
+					A.AABB.Combine(C.AABB, D.AABB);
+					B.AABB.Combine(A.AABB, E.AABB);
+
+					A.Height = 1 + Math.Max(C.Height, D.Height);
+					B.Height = 1 + Math.Max(A.Height, E.Height);
+				}
+
+				return iB;
+			}
+
+			return iA;
 		}
 
 		private int ComputeHeight() => ComputeHeight(root);
@@ -393,21 +607,53 @@ namespace Tesseract.Engine2D.Physics {
 		}
 
 		private void ValidateMetrics(int index) {
+			if (index == Box2D.NullNode) return;
 
+			TreeNode<T> node = nodes[index];
+
+			int child1 = node.Child1;
+			int child2 = node.Child2;
+
+			if (node.IsLeaf) {
+				Debug.Assert(child1 == Box2D.NullNode);
+				Debug.Assert(child2 == Box2D.NullNode);
+				Debug.Assert(node.Height == 0);
+				return;
+			}
+
+			Debug.Assert(0 <= child1 && child1 < nodes.Length);
+			Debug.Assert(0 <= child2 && child2 < nodes.Length);
+
+			Debug.Assert(Height == 1 + Math.Max(nodes[child1].Height, nodes[child2].Height));
+
+			AABB aabb = new();
+			aabb.Combine(nodes[child1].AABB, nodes[child2].AABB);
+
+			Debug.Assert(aabb.LowerBound == node.AABB.LowerBound);
+			Debug.Assert(aabb.UpperBound == node.AABB.UpperBound);
+
+			ValidateMetrics(child1);
+			ValidateMetrics(child2);
 		}
 
+		// The index of the root node
 		private int root;
 		
+		// Array of all nodes in the tree
 		private TreeNode<T>[] nodes = Array.Empty<TreeNode<T>>();
+		// The number of active nodes in the tree
 		private int nodeCount;
 
+		// Index pointing to the first free node in the node array
 		private int freeList;
-		private int insertionCount;
 
 	}
 
 	public static partial class Box2D {
 
+		/// <summary>
+		/// Index value used for a null node in a <see cref="DynamicTree{T}"/>.
+		/// </summary>
 		public const int NullNode = -1;
 
 	}

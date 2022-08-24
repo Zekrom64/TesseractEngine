@@ -986,7 +986,7 @@ namespace Tesseract.Engine2D.Physics {
 
 		}
 
-		internal static bool TestOverlap(IShape shapeA, int indexA, IShape shapeB, int indexB, in Transform xfA, in Transform xfB) {
+		public static bool TestOverlap(IShape shapeA, int indexA, IShape shapeB, int indexB, in Transform xfA, in Transform xfB) {
 			DistanceInput input = new() {
 				ProxyA = new(shapeA, indexA),
 				ProxyB = new(shapeB, indexB),
@@ -1002,7 +1002,7 @@ namespace Tesseract.Engine2D.Physics {
 			return output.Distance < 10.0f * Epsilon;
 		}
 
-		internal static bool TestOverlap(AABB a, AABB b) {
+		public static bool TestOverlap(AABB a, AABB b) {
 			Vector2 d1, d2;
 			d1 = b.LowerBound - a.UpperBound;
 			d2 = a.LowerBound - b.UpperBound;

@@ -23,6 +23,13 @@ namespace Tesseract.Engine2D.Physics {
 			Radius = 0;
 		}
 
+		public DistanceProxy(IShape shape, int index) {
+			Vertices = Span<Vector2>.Empty;
+			Count = 0;
+			Radius = 0;
+			Set(shape, index);
+		}
+
 		public void Set(IShape shape, int index) {
 			switch(shape.Type) {
 				case ShapeType.Circle:
@@ -378,10 +385,11 @@ namespace Tesseract.Engine2D.Physics {
 
 	public static partial class Box2D {
 
+		private static object lockGJKMaxIters = new();
 		internal static int GJKCalls, GJKIters, GJKMaxIters;
 
 		internal static DistanceOutput Distance(ref SimplexCache cache, in DistanceInput input) {
-			GJKCalls++;
+			Interlocked.Increment(ref GJKCalls);
 
 			DistanceProxy proxyA = input.ProxyA;
 			DistanceProxy proxyB = input.ProxyB;
@@ -432,7 +440,7 @@ namespace Tesseract.Engine2D.Physics {
 					vertex.W = vertex.WB - vertex.WA;
 
 					iter++;
-					GJKIters++;
+					Interlocked.Increment(ref GJKIters);
 
 					bool duplicate = false;
 					for(int i = 0; i < saveCount; i++) {
@@ -448,7 +456,9 @@ namespace Tesseract.Engine2D.Physics {
 				}
 			}
 
-			GJKMaxIters = Math.Max(GJKMaxIters, iter);
+			lock (lockGJKMaxIters) {
+				GJKMaxIters = Math.Max(GJKMaxIters, iter);
+			}
 
 			DistanceOutput output = new();
 			(output.PointA, output.PointB) = simplex.GetWitnessPoints();
