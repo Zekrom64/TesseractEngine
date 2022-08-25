@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Numerics;
 
-namespace Tesseract.Engine2D.Physics {
+namespace Tesseract.Box2D.NET {
 	
 	public enum ContactFeatureType : byte {
 		Vertex,

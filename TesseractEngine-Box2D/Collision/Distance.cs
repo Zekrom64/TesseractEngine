@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Utilities;
 
-namespace Tesseract.Engine2D.Physics {
+namespace Tesseract.Box2D.NET {
 	
 	public ref struct DistanceProxy {
 

@@ -40,7 +40,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TesseractEngine-ImGui-CLI",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-SDL2", "TesseractEngine-ImGui-SDL2\TesseractEngine-ImGui-SDL2.csproj", "{13EAB341-B99F-41E7-A8A1-2C74C47F9C17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-ImGui-OpenGL", "TesseractEngine-ImGui-OpenGL\TesseractEngine-ImGui-OpenGL.csproj", "{53C72575-1218-4752-888D-95C820AF1F27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-OpenGL", "TesseractEngine-ImGui-OpenGL\TesseractEngine-ImGui-OpenGL.csproj", "{53C72575-1218-4752-888D-95C820AF1F27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Box2D", "TesseractEngine-Box2D\TesseractEngine-Box2D.csproj", "{1D45081E-9278-4D8B-BC0A-E932D8820D39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -208,6 +210,18 @@ Global
 		{53C72575-1218-4752-888D-95C820AF1F27}.Release|x64.Build.0 = Release|Any CPU
 		{53C72575-1218-4752-888D-95C820AF1F27}.Release|x86.ActiveCfg = Release|Any CPU
 		{53C72575-1218-4752-888D-95C820AF1F27}.Release|x86.Build.0 = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|x64.Build.0 = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|x64.Build.0 = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D45081E-9278-4D8B-BC0A-E932D8820D39}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

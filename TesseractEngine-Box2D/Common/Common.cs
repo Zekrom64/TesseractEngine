@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Engine2D.Physics {
+namespace Tesseract.Box2D.NET {
 	
 	public static partial class Box2D {
 
