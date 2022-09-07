@@ -180,6 +180,7 @@ namespace Tesseract.Core.Resource {
 			{ "png", PNG },
 			{ "mtl", MTL },
 			{ "obj", OBJ },
+			{ "qoi", QOI },
 			{ "stl", STL },
 			{ "css", CSS },
 			{ "csv", CSV },

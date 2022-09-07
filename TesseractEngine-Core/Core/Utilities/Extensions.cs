@@ -379,6 +379,7 @@ namespace Tesseract.Core.Utilities {
 			do {
 				int readn = stream.Read(dst[offset..]);
 				if (readn == 0) throw new IOException("Unexpected end of stream");
+				offset += readn;
 			} while (offset < dst.Length);
 			return dst;
 		}

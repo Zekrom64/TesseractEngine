@@ -100,7 +100,7 @@ namespace Tesseract.Core.Native {
 		public static bool IsUnmanaged<T>() {
 			Type t = typeof(T);
 			if (t.IsGenericType) return false; // Generic types are managed
-			if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>()) return false; // Anything with references is managed
+			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) return false; // Anything with references is managed
 			if (!t.IsValueType) return false; // Reference types are managed
 			return true;
 		}

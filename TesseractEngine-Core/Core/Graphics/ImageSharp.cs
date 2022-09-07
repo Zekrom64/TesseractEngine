@@ -466,7 +466,7 @@ namespace Tesseract.Core.Graphics {
 
 		internal static readonly Dictionary<PixelFormat, FormatInfo> pixelFormatToType = pixelTypeToFormat.ToDictionary(item => item.Value.Format, item => item.Value);
 
-		internal static readonly ImageFormatManager formatManager = new();
+		internal static readonly Configuration Config = Configuration.Default.Clone();
 
 		/// <summary>
 		/// Adds an image format for use by ImageSharp services.
@@ -476,6 +476,7 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="decode">A decoder for the format, or null</param>
 		/// <param name="detector">A format detector for the format, or null</param>
 		public static void AddFormat(IImageFormat format, IImageEncoder? encode, IImageDecoder? decode, IImageFormatDetector? detector) {
+			var formatManager = Config.ImageFormatsManager;
 			formatManager.AddImageFormat(format);
 			if (encode != null) formatManager.SetEncoder(format, encode);
 			if (decode != null) formatManager.SetDecoder(format, decode);
@@ -483,28 +484,19 @@ namespace Tesseract.Core.Graphics {
 		}
 
 		static ImageSharpService() {
-			AddFormat(BmpFormat.Instance, new BmpEncoder(), new BmpDecoder(), new BmpImageFormatDetector());
-			AddFormat(GifFormat.Instance, new GifEncoder(), new GifDecoder(), new GifImageFormatDetector());
-			AddFormat(JpegFormat.Instance, new JpegEncoder(), new JpegDecoder(), new JpegImageFormatDetector());
-			AddFormat(PbmFormat.Instance, new PbmEncoder(), new PbmDecoder(), new PbmImageFormatDetector());
-			AddFormat(PngFormat.Instance, new PngEncoder(), new PngDecoder(), new PngImageFormatDetector());
-			AddFormat(TiffFormat.Instance, new TiffEncoder(), new TiffDecoder(), new TiffImageFormatDetector());
-			AddFormat(TgaFormat.Instance, new TgaEncoder(), new TgaDecoder(), new TgaImageFormatDetector());
-			AddFormat(WebpFormat.Instance, new WebpEncoder(), new WebpDecoder(), new WebpImageFormatDetector());
-
 			AddFormat(QOIImageFormat.Instance, new QOIEncoder(), new QOIDecoder(), new QOIImageFormatDetector());
 		}
 
-		public bool CanLoad(string mimeType) => formatManager.FindFormatByMimeType(mimeType) != null;
+		public bool CanLoad(string mimeType) => Config.ImageFormatsManager.FindFormatByMimeType(mimeType) != null;
 
-		public bool CanSave(string mimeType) => formatManager.FindFormatByMimeType(mimeType) != null;
+		public bool CanSave(string mimeType) => Config.ImageFormatsManager.FindFormatByMimeType(mimeType) != null;
 
 		public IImage Load(ResourceLocation location) {
 			using var stream = location.OpenStream();
-			return IImageSharpImage.Create(Image.Load(location.OpenStream()));
+			return IImageSharpImage.Create(Image.Load(Config, location.OpenStream()));
 		}
 
-		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(binary));
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(Config, binary));
 
 		public void Save(IImage image, string mimeType, Stream stream) {
 			Image img;
@@ -515,7 +507,7 @@ namespace Tesseract.Core.Graphics {
 				dispose = true;
 			}
 			try {
-				IImageFormat? format = formatManager.FindFormatByMimeType(mimeType);
+				IImageFormat? format = Config.ImageFormatsManager.FindFormatByMimeType(mimeType);
 				if (format == null) throw new ArgumentException($"Cannot encode image in unsupported mime type {mimeType}");
 				img.Save(stream, format);
 			} finally {

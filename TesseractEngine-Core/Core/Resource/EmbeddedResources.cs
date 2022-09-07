@@ -81,7 +81,7 @@ namespace Tesseract.Core.Resource {
 			}
 
 			fileTree.Iterate((IReadOnlyList<string> path, KeyedTree<string, string>.Branch branch) => {
-				string respath = path.Aggregate((string scur, string snew) => scur + '/' + snew)[..^1];
+				string respath = path.Aggregate((string scur, string snew) => scur + '/' + snew);
 				List<string> subpaths = new();
 				if (branch.Leaf != null) subpaths.Add(respath + '/' + branch.Leaf);
 				foreach (var subbranch in branch.Branches) subpaths.Add(respath + '/' + subbranch.Key);
