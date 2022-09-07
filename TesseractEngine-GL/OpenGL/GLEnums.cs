@@ -48,7 +48,8 @@ namespace Tesseract.OpenGL {
 		UnsignedShort = GLEnums.GL_UNSIGNED_SHORT,
 		Int = GLEnums.GL_INT,
 		UnsignedInt = GLEnums.GL_UNSIGNED_INT,
-		Float = GLEnums.GL_FLOAT
+		Float = GLEnums.GL_FLOAT,
+		Double = GLEnums.GL_DOUBLE
 	}
 
 	public enum GLIndexType : uint {

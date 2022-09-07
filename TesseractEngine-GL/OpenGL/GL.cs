@@ -374,6 +374,8 @@ namespace Tesseract.OpenGL {
 		public bool EXTTextureCompressionS3TC { get; }
 		// ARB_gpu_shader_int64 - Note: While an ARB extension, it is not in any OpenGL version
 		public ARBGPUShaderInt64? ARBGPUShaderInt64 { get; }
+		// ARB_bindless_texture - Note: This has been around formally since 2013 and is *very* useful for side-stepping texture unit nonsense
+		public ARBBindlessTexture? ARBBindlessTexture { get; }
 
 		// AMD Extensions
 		public bool AMDGPUShaderInt16 { get; }
@@ -894,6 +896,7 @@ namespace Tesseract.OpenGL {
 			KHRTextureCompressionASTC_LDR = Extensions.Contains("GL_KHR_texture_compression_astc_ldr");
 			EXTTextureCompressionS3TC = Extensions.Contains("GL_EXT_texture_compression_s3tc");
 			if (Extensions.Contains("GL_ARB_gpu_shader_int64")) ARBGPUShaderInt64 = new(this, context);
+			if (Extensions.Contains("GL_ARB_bindless_texture")) ARBBindlessTexture = new(this, context);
 
 			AMDGPUShaderInt16 = Extensions.Contains("GL_AMD_gpu_shader_int16");
 
