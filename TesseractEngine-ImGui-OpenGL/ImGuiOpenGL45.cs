@@ -78,7 +78,7 @@ namespace Tesseract.ImGui.OpenGL {
 		private static void CheckFence() {
 			if (fence != 0) {
 				Debug.Assert(arbSync != null);
-				arbSync.ClientWaitSync(fence, GLSyncFlags.FlushCommands, 0);
+				arbSync.ClientWaitSync(fence, GLSyncFlags.FlushCommands, int.MaxValue);
 				arbSync.DeleteSync(fence);
 				fence = 0;
 			} else gl.Finish();
@@ -102,7 +102,7 @@ namespace Tesseract.ImGui.OpenGL {
 				gl.NamedBufferStorage(vertexBuffer, size, GLBufferStorageFlags.MapWrite | GLBufferStorageFlags.MapPersistent);
 				vertexBufferSize = nVertices;
 				// Map persistent pointer to the buffer
-				vertexBufferPtr = gl.MapNamedBufferRange(vertexBuffer, 0, size, GLMapAccessFlags.Write | GLMapAccessFlags.Persistent);
+				vertexBufferPtr = gl.MapNamedBufferRange(vertexBuffer, 0, size, GLMapAccessFlags.Write | GLMapAccessFlags.Persistent | GLMapAccessFlags.FlushExplicit);
 				// Update the vertex array to use the buffer
 				gl.VertexArrayVertexBuffer(vertexArray, 0, vertexBuffer, 0, Marshal.SizeOf<ImDrawVert>());
 			}
@@ -120,7 +120,7 @@ namespace Tesseract.ImGui.OpenGL {
 				nint size = nIndices * sizeof(ushort);
 				gl.NamedBufferStorage(indexBuffer, size, GLBufferStorageFlags.MapWrite | GLBufferStorageFlags.MapPersistent);
 				indexBufferSize = nIndices;
-				indexBufferPtr = gl.MapNamedBufferRange(indexBuffer, 0, size, GLMapAccessFlags.Write | GLMapAccessFlags.Persistent);
+				indexBufferPtr = gl.MapNamedBufferRange(indexBuffer, 0, size, GLMapAccessFlags.Write | GLMapAccessFlags.Persistent | GLMapAccessFlags.FlushExplicit);
 				gl.VertexArrayElementBuffer(vertexArray, indexBuffer);
 			}
 		}
