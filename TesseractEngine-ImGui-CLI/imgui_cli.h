@@ -11,7 +11,7 @@ using namespace System::Runtime::InteropServices;
 class StringParam {
 private:
 	union {
-		char m_buffer[32 - sizeof(size_t)];
+		char m_buffer[128 - sizeof(size_t)];
 		char* m_pointer;
 	};
 	size_t m_length;
@@ -21,8 +21,10 @@ public:
 		m_pointer = nullptr;
 	}
 
-	StringParam(String^ mstr) {
+	StringParam(String^ mstr, bool escapeFmt = false) {
 		if (mstr) { // If non-null allocate string
+			// If ImGui treats this as a 'format' string and it contains a percentage, escape the percentage to prevent crashing
+			if (escapeFmt && mstr->Contains('%')) mstr = mstr->Replace("%", "%%");
 			auto utf8 = Encoding::UTF8;
 			m_length = utf8->GetByteCount(mstr);
 			if (is_allocd()) { // If requires allocation create via marshal

@@ -2701,27 +2701,27 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 		virtual void TextColored(System::Numerics::Vector4 col, System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::TextColored({ col.X, col.Y, col.Z, col.W }, pFmt.c_str());
 		}
 
 		virtual void TextDisabled(System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::TextDisabled(pFmt.c_str());
 		}
 
 		virtual void TextWrapped(System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::TextWrapped(pFmt.c_str());
 		}
 
 		virtual void LabelText(System::String^ label, System::String^ fmt) {
-			StringParam pLabel(label), pFmt(fmt);
+			StringParam pLabel(label), pFmt(fmt, true);
 			::ImGui::LabelText(pLabel.c_str(), pFmt.c_str());
 		}
 
 		virtual void BulletText(System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::BulletText(pFmt.c_str());
 		}
 
@@ -3266,12 +3266,12 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 		virtual bool TreeNode(System::String^ strID, System::String^ fmt) {
-			StringParam pStrID(strID), pFmt(fmt);
+			StringParam pStrID(strID), pFmt(fmt, true);
 			return ::ImGui::TreeNode(pStrID.c_str(), pFmt.c_str());
 		}
 
 		virtual bool TreeNode(System::IntPtr ptrID, System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			return ::ImGui::TreeNode((void*)ptrID, pFmt.c_str());
 		}
 
@@ -3281,12 +3281,12 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 		virtual bool TreeNodeEx(System::String^ strID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, System::String^ fmt) {
-			StringParam pStrID(strID), pFmt(fmt);
+			StringParam pStrID(strID), pFmt(fmt, true);
 			return ::ImGui::TreeNodeEx(pStrID.c_str(), (ImGuiTreeNodeFlags)flags, pFmt.c_str());
 		}
 
 		virtual bool TreeNodeEx(System::IntPtr ptrID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			return ::ImGui::TreeNodeEx((void*)ptrID, (ImGuiTreeNodeFlags)flags, pFmt.c_str());
 		}
 
@@ -3492,7 +3492,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 		virtual void SetTooltip(System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::SetTooltip(pFmt.c_str());
 		}
 
@@ -3813,7 +3813,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 		
 		virtual void LogText(System::String^ fmt) {
-			StringParam pFmt(fmt);
+			StringParam pFmt(fmt, true);
 			::ImGui::LogText(pFmt.c_str());
 		}
 
