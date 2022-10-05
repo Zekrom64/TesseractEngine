@@ -286,7 +286,7 @@ void main() {
 				lastProgram = (uint)gl.GetInteger(GLEnums.GL_CURRENT_PROGRAM);
 				lastTexture = (uint)gl.GetInteger(GLEnums.GL_TEXTURE_BINDING_2D, 0);
 				lastSampler = (uint)gl.GetInteger(GLEnums.GL_SAMPLER_BINDING, 0);
-				lastVAO = (uint)gl.GetInteger(GLEnums.GL_VERTEX_ARRAY);
+				lastVAO = (uint)gl.GetInteger(GLEnums.GL_VERTEX_ARRAY_BINDING);
 				gl.GetInteger(GLEnums.GL_POLYGON_MODE, lastPolygonMode);
 				gl.GetInteger(GLEnums.GL_VIEWPORT, lastViewport);
 				gl.GetInteger(GLEnums.GL_SCISSOR_BOX, lastScissorBox);
@@ -327,7 +327,7 @@ void main() {
 				MemoryUtil.Copy(pVertices, vertices, (ulong)(vertices.Length * ImDrawVert.SizeOf));
 				MemoryUtil.Copy(pIndices, indices, (ulong)(indices.Length * sizeof(ushort)));
 				gl.FlushMappedNamedBufferRange(vertexBuffer, vertexBufferOffset * ImDrawVert.SizeOf, vertices.Length * ImDrawVert.SizeOf);
-				gl.FlushMappedNamedBufferRange(indexBuffer, indexBufferOffset * ImDrawVert.SizeOf, indices.Length * ImDrawVert.SizeOf);
+				gl.FlushMappedNamedBufferRange(indexBuffer, indexBufferOffset * sizeof(ushort), indices.Length * sizeof(ushort));
 
 				// For each drawing command
 				foreach (ImDrawCmd drawCmd in drawList.CmdBuffer) {
@@ -372,7 +372,9 @@ void main() {
 				gl.BindVertexArray(lastVAO);
 				gl.BlendEquationSeparate(lastBlendEquationRGB, lastBlendEquationAlpha);
 				gl.BlendFuncSeparate(lastBlendSrcRGB, lastBlendDstRGB, lastBlendSrcAlpha, lastBlendDstAlpha);
-				gl.PolygonMode((GLFace)lastPolygonMode[0], (GLPolygonMode)lastPolygonMode[1]);
+				// FOR SOME REASON, OpenGL returns these values in reverse order the function specifys them...
+				// It also likes to return invalid values if not set previously so double-check the implementation isn't stupid
+				if (lastPolygonMode[1] != 0) gl.PolygonMode((GLFace)lastPolygonMode[1], (GLPolygonMode)lastPolygonMode[0]);
 				gl.Viewport = new(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
 				gl.Scissor(lastScissorBox[0], lastScissorBox[1], lastScissorBox[2], lastScissorBox[3]);
 				if (lastEnableBlend) gl.Enable(GLCapability.Blend);

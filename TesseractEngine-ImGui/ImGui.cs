@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Tesseract.Core.Numerics;
 
@@ -390,11 +391,20 @@ namespace Tesseract.ImGui {
 		public static bool DragInt2(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.DragInt2(label, v, vSpeed, vMin, vMax, format, flags);
 
+		public static bool DragInt2(string label, ref Vector2i v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			DragInt2(label, MemoryMarshal.CreateSpan(ref v.X, 2), vSpeed, vMin, vMax, format, flags);
+
 		public static bool DragInt3(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.DragInt3(label, v, vSpeed, vMin, vMax, format, flags);
 
+		public static bool DragInt3(string label, ref Vector3i v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			DragInt3(label, MemoryMarshal.CreateSpan(ref v.X, 3), vSpeed, vMin, vMax, format, flags);
+
 		public static bool DragInt4(string label, Span<int> v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.DragInt4(label, v, vSpeed, vMin, vMax, format, flags);
+
+		public static bool DragInt4(string label, ref Vector4i v, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", ImGuiSliderFlags flags = default) =>
+			DragInt4(label, MemoryMarshal.CreateSpan(ref v.X, 4), vSpeed, vMin, vMax, format, flags);
 
 		public static bool DragIntRange2(string label, ref int vCurrentMin, ref int vCurrentMax, float vSpeed = 1, int vMin = 0, int vMax = 0, string format = "%d", string? formatMax = null, ImGuiSliderFlags flags = default) =>
 			Instance.DragIntRange2(label, ref vCurrentMin, ref vCurrentMax, vSpeed, vMin, vMax, format, formatMax, flags);
@@ -427,11 +437,20 @@ namespace Tesseract.ImGui {
 		public static bool SliderInt2(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.SliderInt2(label, v, vMin, vMax, format, flags);
 
+		public static bool SliderInt2(string label, ref Vector2i v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			SliderInt2(label, MemoryMarshal.CreateSpan(ref v.X, 2), vMin, vMax, format, flags);
+
 		public static bool SliderInt3(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.SliderInt3(label, v, vMin, vMax, format, flags);
 
+		public static bool SliderInt3(string label, ref Vector3i v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			SliderInt3(label, MemoryMarshal.CreateSpan(ref v.X, 3), vMin, vMax, format, flags);
+
 		public static bool SliderInt4(string label, Span<int> v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
 			Instance.SliderInt4(label, v, vMin, vMax, format, flags);
+
+		public static bool SliderInt4(string label, ref Vector4i v, int vMin, int vMax, string format = "%d", ImGuiSliderFlags flags = default) =>
+			SliderInt4(label, MemoryMarshal.CreateSpan(ref v.X, 4), vMin, vMax, format, flags);
 
 		public static bool SliderScalar<T>(string label, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = 0) where T : unmanaged =>
 			Instance.SliderScalar<T>(label, ref data, min, max, format, flags);
@@ -476,11 +495,20 @@ namespace Tesseract.ImGui {
 		public static bool InputInt2(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
 			Instance.InputInt2(label, v, flags);
 
+		public static bool InputInt2(string label, ref Vector2i v, ImGuiInputTextFlags flags = default) =>
+			InputInt2(label, MemoryMarshal.CreateSpan(ref v.X, 2), flags);
+
 		public static bool InputInt3(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
 			Instance.InputInt3(label, v, flags);
 
+		public static bool InputInt3(string label, ref Vector3i v, ImGuiInputTextFlags flags = default) =>
+			InputInt3(label, MemoryMarshal.CreateSpan(ref v.X, 3), flags);
+
 		public static bool InputInt4(string label, Span<int> v, ImGuiInputTextFlags flags = default) =>
 			Instance.InputInt4(label, v, flags);
+
+		public static bool InputInt4(string label, ref Vector4i v, ImGuiInputTextFlags flags = default) =>
+			InputInt4(label, MemoryMarshal.CreateSpan(ref v.X, 4), flags);
 
 		public static bool InputDouble(string label, ref double v, double step = 0, double stepFast = 0, string format = "%.6f", ImGuiInputTextFlags flags = default) =>
 			Instance.InputDouble(label, ref v, step, stepFast, format, flags);

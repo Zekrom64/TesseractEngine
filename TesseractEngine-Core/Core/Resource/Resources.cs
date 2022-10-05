@@ -268,5 +268,7 @@ namespace Tesseract.Core.Resource {
 
 		public override string ToString() => Domain.ToString() + ":" + Path;
 
+		public static implicit operator ResourceLocation(string str) => new(str);
+
 	}
 }

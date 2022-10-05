@@ -65,6 +65,11 @@ namespace Tesseract.Core.Graphics {
 		private MemoryHandle? pixelHandle;
 
 		/// <summary>
+		/// A span containing the raw bytes of the pixel data.
+		/// </summary>
+		public Span<byte> Pixels => pixels.Span;
+
+		/// <summary>
 		/// Creates a new array image.
 		/// </summary>
 		/// <param name="w">Width in pixels</param>
@@ -97,7 +102,7 @@ namespace Tesseract.Core.Graphics {
 
 		public IPointer<byte> MapPixels(MapMode mode) {
 			if (!pixelHandle.HasValue) pixelHandle = pixels.Pin();
-			unsafe { return new UnmanagedPointer<byte>((IntPtr)pixelHandle.Value.Pointer); }
+			unsafe { return new UnmanagedPointer<byte>((IntPtr)pixelHandle.Value.Pointer, pixels.Length); }
 		}
 
 		public void UnmapPixels() {
