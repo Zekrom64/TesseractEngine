@@ -43,9 +43,9 @@ namespace Tesseract.SDL.Services {
 				new	PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm}
 			) },
 			{ SDLPixelFormatEnum.XBGR1555, PixelFormat.DefinePackedFormat(
-				new PixelChannel() { Type = ChannelType.Red, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
+				new PixelChannel() { Type = ChannelType.Blue, Offset = 10, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
 				new PixelChannel() { Type = ChannelType.Green, Offset = 5, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm },
-				new PixelChannel() { Type = ChannelType.Blue, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
+				new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 5, NumberFormat = ChannelNumberFormat.UnsignedNorm }
 			) },
 			{ SDLPixelFormatEnum.ARGB4444, PixelFormat.DefinePackedFormat(
 				new PixelChannel() { Type = ChannelType.Alpha, Offset = 12, Size = 4, NumberFormat = ChannelNumberFormat.UnsignedNorm },
