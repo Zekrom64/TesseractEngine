@@ -21,16 +21,23 @@ namespace Tesseract.Core.Resource {
 	/// </summary>
 	public abstract class ResourceDomain {
 
-		private static readonly ThreadLocal<ResourceDomain> contextualDomain = new(() => NullResourceDomain.Instance);
+		private static readonly ThreadLocal<ResourceDomain?> contextualDomain = new(() => null);
 		private static readonly Dictionary<string, ResourceDomain> allDomains = new();
 
 		/// <summary>
 		/// The current contextual resource domain.
 		/// </summary>
 		public static ResourceDomain Current {
-			get => contextualDomain.Value!;
+			get {
+				var value = contextualDomain.Value;
+				if (value == null) {
+					value = Default;
+					contextualDomain.Value = value;
+				}
+				return value;
+			}
 			set {
-				if (value != null) contextualDomain.Value = value;
+				contextualDomain.Value = value;
 			}
 		}
 
@@ -260,6 +267,8 @@ namespace Tesseract.Core.Resource {
 		}
 
 		public override string ToString() => Domain.ToString() + ":" + Path;
+
+		public static implicit operator ResourceLocation(string str) => new(str);
 
 	}
 }

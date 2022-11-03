@@ -8,9 +8,19 @@ using System.IO;
 using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Resource {
-	
+
 	/// <summary>
+	/// <para>
 	/// An assembly resource domain will reflect manifest resources from an assembly as resources.
+	/// </para>
+	/// <para>
+	/// Note: This resource domain attempts to determine the directory structure via reflection of
+	/// the assembly using <see cref="Assembly.GetManifestResourceNames"/>. However, this uses periods
+	/// ('.') as directory separators making it impossible to determine the original directory structure.
+	/// This loader assumes that all file names are composed of a proper name and extension separated by a
+	/// period. Files with more or less than one period in their complete name may not be mapped properly
+	/// by the domain.
+	/// </para>
 	/// </summary>
 	public class AssemblyResourceDomain : ResourceDomain {
 
@@ -81,7 +91,7 @@ namespace Tesseract.Core.Resource {
 			}
 
 			fileTree.Iterate((IReadOnlyList<string> path, KeyedTree<string, string>.Branch branch) => {
-				string respath = path.Aggregate((string scur, string snew) => scur + '/' + snew)[..^1];
+				string respath = path.Aggregate((string scur, string snew) => scur + '/' + snew);
 				List<string> subpaths = new();
 				if (branch.Leaf != null) subpaths.Add(respath + '/' + branch.Leaf);
 				foreach (var subbranch in branch.Branches) subpaths.Add(respath + '/' + subbranch.Key);

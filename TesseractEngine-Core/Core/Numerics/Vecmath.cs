@@ -9,6 +9,14 @@ namespace Tesseract.Core.Numerics {
 	/// </summary>
 	public static class Vecmath {
 
+		public const int X = 0;
+
+		public const int Y = 1;
+
+		public const int Z = 2;
+
+		public const int W = 3;
+
 		/// <summary>
 		/// Converts a Structure-of-Arrays data structure to an Array-of-Structures data structure.
 		/// </summary>
@@ -578,6 +586,24 @@ namespace Tesseract.Core.Numerics {
 			3 => new Vector4(m.M14, m.M24, m.M34, m.M44),
 			_ => throw new ArgumentException("Invalid column index", nameof(row)),
 		};
+
+		public static Vector2 Swizzle(this Vector2 v, int x, int y) => new(v.Get(x), v.Get(y));
+
+		public static Vector3 Swizzle(this Vector2 v, int x, int y, int z) => new(v.Get(x), v.Get(y), v.Get(z));
+
+		public static Vector4 Swizzle(this Vector2 v, int x, int y, int z, int w) => new(v.Get(x), v.Get(y), v.Get(z), v.Get(w));
+
+		public static Vector2 Swizzle(this Vector3 v, int x, int y) => new(v.Get(x), v.Get(y));
+
+		public static Vector3 Swizzle(this Vector3 v, int x, int y, int z) => new(v.Get(x), v.Get(y), v.Get(z));
+
+		public static Vector4 Swizzle(this Vector3 v, int x, int y, int z, int w) => new(v.Get(x), v.Get(y), v.Get(z), v.Get(w));
+
+		public static Vector2 Swizzle(this Vector4 v, int x, int y) => new(v.Get(x), v.Get(y));
+
+		public static Vector3 Swizzle(this Vector4 v, int x, int y, int z) => new(v.Get(x), v.Get(y), v.Get(z));
+
+		public static Vector4 Swizzle(this Vector4 v, int x, int y, int z, int w) => new(v.Get(x), v.Get(y), v.Get(z), v.Get(w));
 
 	}
 

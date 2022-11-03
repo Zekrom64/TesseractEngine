@@ -347,7 +347,7 @@ namespace Tesseract.SDL {
 		/// <param name="dstRect">Destination blit area, or null to use whole area</param>
 		/// <param name="src">Source surface</param>
 		/// <param name="srcRect">Source blit area, or null to use whole area</param>
-		public void SoftStretch(SDLRect? dstRect, SDLSurface src, SDLRect? srcRect) {
+		public void BlitScaled(SDLRect? dstRect, SDLSurface src, SDLRect? srcRect) {
 			unsafe {
 				SDLRect dstr, srcr;
 				if (dstRect.HasValue) dstr = dstRect.Value;

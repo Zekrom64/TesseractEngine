@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Utilities;
@@ -17,10 +18,12 @@ namespace Tesseract.Core.Numerics {
 
 		public byte W;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector4b(byte s) {
 			X = Y = Z = W = s;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector4b(byte x, byte y, byte z, byte w) {
 			X = x;
 			Y = y;
@@ -29,6 +32,7 @@ namespace Tesseract.Core.Numerics {
 		}
 
 		public byte this[int key] {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => key switch {
 				0 => X,
 				1 => Y,
@@ -36,6 +40,7 @@ namespace Tesseract.Core.Numerics {
 				3 => W,
 				_ => default
 			};
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
 				switch(key) {
 					case 0:
@@ -61,7 +66,38 @@ namespace Tesseract.Core.Numerics {
 		byte ITuple<byte, byte, byte>.Z { get => Z; set => Z = value; }
 		byte ITuple<byte, byte, byte, byte>.W { get => W; set => W = value; }
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool Equals(IReadOnlyTuple4<byte>? other) => other != null && other.X == X && other.Y == Y && other.Z == Z && other.W == W;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector3b Swizzle(int x, int y, int z) => new(this[x], this[y], this[z]);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector4b Swizzle(int x, int y, int z, int w) => new(this[x], this[y], this[z], this[w]);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Unswizzle(Vector3b v, int x, int y, int z) {
+			this[x] = v.X;
+			this[y] = v.Y;
+			this[z] = v.Z;
+		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void Unswizzle(Vector4b v, int x, int y, int z, int w) {
+			this[x] = v.X;
+			this[y] = v.Y;
+			this[z] = v.Z;
+			this[w] = v.W;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector4ui(Vector4b v) => new(v.X, v.Y, v.Z, v.W);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector4i(Vector4b v) => new(v.X, v.Y, v.Z, v.W);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector4b(Vector4ui v) => new((byte)v.X, (byte)v.Y, (byte)v.Z, (byte)v.W);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector4b(Vector4i v) => new((byte)v.X, (byte)v.Y, (byte)v.Z, (byte)v.W);
+
 	}
 
 }

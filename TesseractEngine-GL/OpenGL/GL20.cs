@@ -189,5 +189,8 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void VertexAttribPointer(uint index, int size, GLType type, bool normalized, int stride, nint offset) => FunctionsGL20.glVertexAttribPointer(index, size, (uint)type, (byte)(normalized ? 1 : 0), stride, offset);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ValidateProgram(uint program) => FunctionsGL20.glValidateProgram(program);
+
 	}
 }
