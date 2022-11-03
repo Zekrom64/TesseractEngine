@@ -9,6 +9,7 @@ using Tesseract.Core.Resource;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Core.Graphics {
 
@@ -48,6 +49,29 @@ namespace Tesseract.Core.Graphics {
 		/// Unmaps any mapped pixel data.
 		/// </summary>
 		public void UnmapPixels();
+
+		/// <summary>
+		/// <para>
+		/// Gets or sets an individual pixel in the image's memory.
+		/// </para>
+		/// <para>
+		/// This will read values based on the image's pixel format and convert to floating-point as
+		/// defined by the number format of each component. The order of elements returned in this
+		/// vector is independent of the ordering in memory and is based on the type of format:
+		/// <list type="bullet">
+		/// <item>
+		/// Color - Red, Green, Blue, Alpha, with unused components initialized to 0 except alpha which instead is 1. If
+		/// a luminance format is used red, green, and blue will be initialized to the same value when reading and an
+		/// implementation-defined RGB to luminance formula is used when writing.
+		/// </item>
+		/// <item>Depth/Stencil - Depth, Stencil, with the same placement regardless of which components are present, default to 0</item>
+		/// </list>
+		/// </para>
+		/// </summary>
+		/// <param name="x">Pixel X coordinate</param>
+		/// <param name="y">Pixel Y coordinate</param>
+		/// <returns>Value of pixel at the given coordinates</returns>
+		public Vector4 this[int x, int y] { get; set; }
 
 	}
 
@@ -115,6 +139,63 @@ namespace Tesseract.Core.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			UnmapPixels();
+		}
+
+		public Vector4 this[int x, int y] {
+			get {
+				int offset = (y * Size.X + x) * Format.SizeOf;
+				Vector4 val = default;
+				Span<byte> pixel = Pixels[offset..(offset + Format.SizeOf)];
+				switch(Format.Type) {
+					case PixelFormatType.Color:
+						val.W = 1;
+						if (Format.HasChannel(ChannelType.Luminance)) {
+							val.X = val.Y = val.Z = (float)Format.ReadChannel(ChannelType.Luminance, pixel);
+						} else {
+							val.X = (float)Format.ReadChannel(ChannelType.Red, pixel);
+							if (Format.HasChannel(ChannelType.Green))
+								val.Y = (float)Format.ReadChannel(ChannelType.Green, pixel);
+							if (Format.HasChannel(ChannelType.Blue))
+								val.Y = (float)Format.ReadChannel(ChannelType.Blue, pixel);
+						}
+						if (Format.HasChannel(ChannelType.Alpha))
+							val.W = (float)Format.ReadChannel(ChannelType.Alpha, pixel);
+						break;
+					case PixelFormatType.Depth:
+					case PixelFormatType.Stencil:
+					case PixelFormatType.DepthStencil:
+						if (Format.HasChannel(ChannelType.Depth)) val.X = (float)Format.ReadChannel(ChannelType.Depth, pixel);
+						if (Format.HasChannel(ChannelType.Stencil)) val.Y = (float)Format.ReadChannel(ChannelType.Stencil, pixel);
+						break;
+				}
+				return val;
+			}
+			set {
+				int offset = (y * Size.X + x) * Format.SizeOf;
+				Span<byte> pixel = Pixels[offset..(offset + Format.SizeOf)];
+				switch (Format.Type) {
+					case PixelFormatType.Color:
+						if (Format.HasChannel(ChannelType.Luminance)) {
+							byte luma = (byte)(0.299f * value.X + 0.587f * value.Y + 0.114f * value.Z);
+							Format.WriteChannel(ChannelType.Luminance, pixel, (decimal)luma);
+						} else {
+							Format.WriteChannel(ChannelType.Red, pixel, (decimal)value.X);
+							if (Format.HasChannel(ChannelType.Green))
+								Format.WriteChannel(ChannelType.Green, pixel, (decimal)value.Y);
+							if (Format.HasChannel(ChannelType.Blue))
+								Format.WriteChannel(ChannelType.Blue, pixel, (decimal)value.Z);
+						}
+						if (Format.HasChannel(ChannelType.Alpha))
+							Format.WriteChannel(ChannelType.Alpha, pixel, (decimal)value.W);
+						break;
+					case PixelFormatType.Depth:
+					case PixelFormatType.Stencil:
+					case PixelFormatType.DepthStencil:
+						if (Format.HasChannel(ChannelType.Depth)) Format.WriteChannel(ChannelType.Depth, pixel, (decimal)value.X);
+						if (Format.HasChannel(ChannelType.Stencil)) Format.WriteChannel(ChannelType.Stencil, pixel, (decimal)value.Y);
+						break;
+				}
+			}
 		}
 	}
 
@@ -186,7 +267,7 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="format">New pixel format</param>
 		/// <returns>Converted image</returns>
-		public IImage Convert(PixelFormat format);
+		public IProcessableImage Convert(PixelFormat format);
 
 		/// <summary>
 		/// Performs a copy of a region of pixels ("blit") from a source image to this image.
@@ -195,6 +276,13 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="src">Source image to copy from</param>
 		/// <param name="srcPos">Position within source image to copy from</param>
 		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos);
+
+		/// <summary>
+		/// Creates a resized version of this image using nearest-neighbor sampling.
+		/// </summary>
+		/// <param name="newSize">The size of the resized image</param>
+		/// <returns>The resized image</returns>
+		public IProcessableImage Resize(IReadOnlyTuple2<int> newSize);
 
 		/// <summary>
 		/// Fills a region in this image with a constant color.

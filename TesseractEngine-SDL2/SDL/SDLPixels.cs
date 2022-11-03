@@ -493,6 +493,22 @@ namespace Tesseract.SDL {
 			PixelFormat = new UnmanagedPointer<SDL_PixelFormat>(SDL2.Functions.SDL_AllocFormat(format));
 		}
 
+		public byte BitsPerPixel {
+			get {
+				unsafe {
+					return ((SDL_PixelFormat*)PixelFormat.Ptr)->BitsPerPixel;
+				}
+			}
+		}
+
+		public byte BytesPerPixel {
+			get {
+				unsafe {
+					return ((SDL_PixelFormat*)PixelFormat.Ptr)->BytesPerPixel;
+				}
+			}
+		}
+
 		public uint Format {
 			get {
 				unsafe {

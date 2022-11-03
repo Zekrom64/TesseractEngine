@@ -129,6 +129,7 @@ namespace Tesseract.Core.Graphics {
 		public static bool operator !=(PixelChannel left, PixelChannel right) => !(left == right);
 
 		public override int GetHashCode() => Offset ^ Size ^ ((int)Type << 8) ^ ((int)NumberFormat << 12);
+
 	}
 
 	/// <summary>
@@ -173,6 +174,11 @@ namespace Tesseract.Core.Graphics {
 		public bool Packed { get; init; }
 
 		/// <summary>
+		/// If the format is "opaque", meaning that the actual order in memory is not visible to the programmer.
+		/// </summary>
+		public bool IsOpaque { get; init; }
+
+		/// <summary>
 		/// The channels defined in the format.
 		/// </summary>
 		public IReadOnlyList<PixelChannel> Channels { get; init; } = Collections<PixelChannel>.EmptyList;
@@ -202,6 +208,22 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		public bool IsNumberFormatNormalized => NumberFormat == ChannelNumberFormat.UnsignedNorm || NumberFormat == ChannelNumberFormat.SignedNorm;
 
+		private const int MaxChannels = 8;
+
+		private int[]? channelTypeMap = null;
+
+		private int[] GetChannelTypeMap() {
+			if (channelTypeMap == null) {
+				channelTypeMap = new int[MaxChannels];
+				Array.Fill(channelTypeMap, -1);
+				for(int i = 0; i < Channels.Count; i++) {
+					var channel = Channels[i];
+					channelTypeMap[(int)channel.Type] = i;
+				}
+			}
+			return channelTypeMap;
+		}
+
 		private PixelFormat() { }
 
 		/// <summary>
@@ -209,9 +231,195 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="type">Channel type to test for</param>
 		/// <returns>If the format contains the channel</returns>
-		public bool HasChannel(ChannelType type) {
-			foreach (PixelChannel channel in Channels) if (channel.Type == type) return true;
-			return false;
+		public bool HasChannel(ChannelType type) => GetChannelTypeMap()[(int)type] != -1;
+
+		/// <summary>
+		/// Gets the channel information for the given channel type.
+		/// </summary>
+		/// <param name="type">Channel type to get information for</param>
+		/// <returns>Information for the given channel or null if none exists in this format</returns>
+		public PixelChannel? GetChannel(ChannelType type) {
+			int i = GetChannelTypeMap()[(int)type];
+			if (i == -1) return null;
+			else return Channels[i];
+		}
+
+		private long ReadWord(PixelChannel channel, in ReadOnlySpan<byte> pixel) {
+			int sz = channel.Size;
+			int offset = channel.Offset;
+			if (Packed) {
+				sz = SizeOf;
+				offset = 0;
+			}
+
+			static uint ReadUInt24(in ReadOnlySpan<byte> data) {
+				uint u;
+				if (BitConverter.IsLittleEndian) {
+					u = data[0];
+					u |= (uint)data[1] << 8;
+					u |= (uint)data[2] << 16;
+				} else {
+					u = data[2];
+					u |= (uint)data[1] << 8;
+					u |= (uint)data[0] << 16;
+				}
+				return u;
+			}
+
+			return sz switch {
+				1 => pixel[offset],
+				2 => BitConverter.ToUInt16(pixel[offset..]),
+				3 => ReadUInt24(pixel[offset..]),
+				4 => BitConverter.ToUInt32(pixel[offset..]),
+				8 => BitConverter.ToInt64(pixel[offset..]),
+				_ => throw new InvalidOperationException("Invalid component word size"),
+			};
+		}
+
+		private void WriteWord(PixelChannel channel, Span<byte> pixel, long value) {
+			int sz = channel.Size;
+			int offset = channel.Offset;
+			if (Packed) {
+				sz = SizeOf;
+				offset = 0;
+			}
+			switch (sz) {
+				case 1:
+					pixel[offset] = (byte)value;
+					break;
+				case 2:
+					if (!BitConverter.TryWriteBytes(pixel[offset..], (ushort)value))
+						throw new InvalidOperationException("Failed to write component word to memory");
+					break;
+				case 3:
+					if (BitConverter.IsLittleEndian) {
+						pixel[0] = (byte)value;
+						pixel[1] = (byte)(value >> 8);
+						pixel[2] = (byte)(value >> 16);
+					} else {
+						pixel[0] = (byte)(value >> 16);
+						pixel[1] = (byte)(value >> 8);
+						pixel[2] = (byte)value;
+					}
+					break;
+				case 4:
+					if (!BitConverter.TryWriteBytes(pixel[offset..], (uint)value))
+						throw new InvalidOperationException("Failed to write component word to memory");
+					break;
+				case 8:
+					if (!BitConverter.TryWriteBytes(pixel[offset..], value))
+						throw new InvalidOperationException("Failed to write component word to memory");
+					break;
+				default:
+					throw new InvalidOperationException("Invalid component word size");
+			}
+		}
+
+		/// <summary>
+		/// Reads a channel value from the given pixel, performing number format conversion appropriately.
+		/// </summary>
+		/// <param name="type">The type of channel to read</param>
+		/// <param name="pixel">The pixel value to read from</param>
+		/// <returns>The value of the given channel in the pixel</returns>
+		/// <exception cref="InvalidOperationException">If an invalid operation occurs reading the pixel</exception>
+		/// <exception cref="ArgumentException">If no such channel exists inside the pixel</exception>
+		public decimal ReadChannel(ChannelType type, in ReadOnlySpan<byte> pixel) {
+			if (IsOpaque) throw new InvalidOperationException("Cannot read channel from opaque format");
+			var channel = GetChannel(type) ?? throw new ArgumentException("No such channel in format", nameof(type));
+
+			int bits = channel.Size;
+			if (!Packed) bits *= 8;
+
+			long mask = (1L << bits) - 1;
+
+			long word = ReadWord(channel, pixel);
+			if (Packed) {
+				word >>= channel.Offset;
+				word &= mask;
+			}
+
+			long signed = word;
+			if ((word >> (bits - 1)) != 0) signed |= ~mask;
+
+			decimal val;
+			switch (channel.NumberFormat) {
+				case ChannelNumberFormat.SRGB:
+				case ChannelNumberFormat.UnsignedNorm:
+					return (decimal)word / mask;
+				case ChannelNumberFormat.SignedNorm:
+					return Math.Max((decimal)signed / (mask / 2), -1);
+				case ChannelNumberFormat.UnsignedScaled:
+				case ChannelNumberFormat.UnsignedInt:
+					return word;
+				case ChannelNumberFormat.SignedScaled:
+				case ChannelNumberFormat.SignedInt:
+					return signed;
+				case ChannelNumberFormat.UnsignedFloat:
+				case ChannelNumberFormat.SignedFloat:
+					val = bits switch {
+						16 => (decimal)(double)BitConverter.Int16BitsToHalf((short)word),
+						32 => (decimal)BitConverter.Int32BitsToSingle((int)word),
+						64 => (decimal)BitConverter.Int64BitsToDouble(word),
+						_ => throw new InvalidOperationException("Unsupported floating point type in channel"),
+					};
+					if (channel.NumberFormat == ChannelNumberFormat.UnsignedFloat && val < 0) val = -val; 
+					return val;
+				default:
+					throw new InvalidOperationException("Unknown channel number format");
+			}
+		}
+
+		/// <summary>
+		/// Writes a channel value to a given pixel, performing number format conversion appropriately.
+		/// </summary>
+		/// <param name="type">The type of channel to write</param>
+		/// <param name="pixel">The pixel value to write to</param>
+		/// <param name="value">The value to write to the given channel</param>
+		/// <exception cref="InvalidOperationException">If an invalid operation occurs writing the pixel</exception>
+		/// <exception cref="ArgumentException">If no such channel exists inside the pixel</exception>
+		public void WriteChannel(ChannelType type, Span<byte> pixel, decimal value) {
+			if (IsOpaque) throw new InvalidOperationException("Cannot read channel from opaque format");
+			var channel = GetChannel(type) ?? throw new ArgumentException("No such channel in format", nameof(type));
+
+			int bits = channel.Size;
+			if (!Packed) bits *= 8;
+
+			long mask = (1L << bits) - 1;
+
+			long word = ReadWord(channel, pixel);
+			if (Packed) {
+				word &= ~(mask << channel.Offset);
+			}
+
+			switch (channel.NumberFormat) {
+				case ChannelNumberFormat.SRGB:
+				case ChannelNumberFormat.UnsignedNorm:
+					word |= ((long)(value * mask) & mask) << channel.Offset;
+					break;
+				case ChannelNumberFormat.SignedNorm:
+					word |= ((long)(value * mask / 2) & mask) << channel.Offset;
+					break;
+				case ChannelNumberFormat.UnsignedScaled:
+				case ChannelNumberFormat.UnsignedInt:
+				case ChannelNumberFormat.SignedScaled:
+				case ChannelNumberFormat.SignedInt:
+					word |= ((long)value & mask) << channel.Offset;
+					break;
+				case ChannelNumberFormat.UnsignedFloat:
+				case ChannelNumberFormat.SignedFloat:
+					if (channel.NumberFormat == ChannelNumberFormat.UnsignedFloat && value < 0) value = -value;
+					word |= (bits switch {
+						16 => BitConverter.HalfToUInt16Bits((Half)(double)value),
+						32 => BitConverter.SingleToUInt32Bits((float)value),
+						64 => BitConverter.DoubleToInt64Bits((double)value),
+						_ => throw new InvalidOperationException("Unsupported floating point type in channel"),
+					}) << channel.Offset;
+					break;
+				default:
+					throw new InvalidOperationException("Unknown channel number format");
+			}
+
+			WriteWord(channel, pixel, word);
 		}
 
 		public bool Equals(PixelFormat? other) {
@@ -261,7 +469,8 @@ namespace Tesseract.Core.Graphics {
 		}
 
 		// Deduces other pixel format properties from the given set of pixel channels
-		private static void DeducePropertiesFromChannels(PixelChannel[] channels, bool packed, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash) {
+		private static void DeducePropertiesFromChannels(PixelChannel[] channels, bool packed, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash, out bool opaque) {
+			opaque = false;
 			channelHash = 0;
 			// If packed format channel size values are in bits else in bytes
 			int channelWidth = packed ? 1 : 8;
@@ -269,6 +478,7 @@ namespace Tesseract.Core.Graphics {
 			numberFormat = channels[0].NumberFormat;
 			formatType = PixelFormatType.Color;
 			foreach (PixelChannel channel in channels) {
+				if (channel.Offset == -1) opaque = true;
 				channelHash = (channelHash << 6) ^ channel.GetHashCode();
 				// Deduce common number format or default to undefined
 				if (numberFormat != ChannelNumberFormat.Undefined && channel.NumberFormat != numberFormat) numberFormat = ChannelNumberFormat.Undefined;
@@ -300,9 +510,10 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="channels">Pixel format channels</param>
 		/// <returns>Unpacked pixel format</returns>
 		public static PixelFormat DefineUnpackedFormat(params PixelChannel[] channels) {
-			DeducePropertiesFromChannels(channels, false, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash);
+			DeducePropertiesFromChannels(channels, false, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash, out bool opaque);
 			return new PixelFormat() {
 				Packed = false,
+				IsOpaque = opaque,
 				Channels = new List<PixelChannel>(channels),
 				SizeOf = byteSize,
 				Type = formatType,
@@ -318,9 +529,10 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="channels">Pixel format channels</param>
 		/// <returns>Packed pixel format</returns>
 		public static PixelFormat DefinePackedFormat(params PixelChannel[] channels) {
-			DeducePropertiesFromChannels(channels, true, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash);
+			DeducePropertiesFromChannels(channels, true, out int byteSize, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash, out bool opaque);
 			return new PixelFormat() {
 				Packed = true,
+				IsOpaque = opaque,
 				Channels = new List<PixelChannel>(channels),
 				SizeOf = byteSize,
 				Type = formatType,
@@ -337,9 +549,10 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="channels">Pixel format channels</param>
 		/// <returns>Packed pixel format</returns>
 		public static PixelFormat DefinePackedFormat(int byteSize, params PixelChannel[] channels) {
-			DeducePropertiesFromChannels(channels, true, out int _, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash);
+			DeducePropertiesFromChannels(channels, true, out int _, out PixelFormatType formatType, out ChannelNumberFormat numberFormat, out int channelHash, out bool opaque);
 			return new PixelFormat() {
 				Packed = true,
+				IsOpaque = opaque,
 				Channels = new List<PixelChannel>(channels),
 				SizeOf = byteSize,
 				Type = formatType,

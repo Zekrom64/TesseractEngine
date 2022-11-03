@@ -61,6 +61,8 @@ namespace Tesseract.Core.Graphics {
 	/// <typeparam name="TPixel">Pixel type</typeparam>
 	public class ImageSharpImage<TPixel> : IImageSharpImage where TPixel : unmanaged, IPixel<TPixel> {
 
+		private readonly ImageSharpService.FormatInfo formatInfo;
+
 		/// <summary>
 		/// The underlying image object.
 		/// </summary>
@@ -76,13 +78,13 @@ namespace Tesseract.Core.Graphics {
 		public ImageSharpImage(Image<TPixel> img) {
 			if (!ImageSharpService.pixelTypeToFormat.TryGetValue(typeof(TPixel), out ImageSharpService.FormatInfo? format))
 				throw new ArgumentException($"Unsupported ImageSharp pixel type '{typeof(TPixel).Name}'", nameof(img));
-			Format = format.Format;
+			formatInfo = format;
 			Image = img;
 		}
 
 		public IReadOnlyTuple2<int> Size => new Vector2i(Image.Width, Image.Height);
 
-		public PixelFormat Format { get; }
+		public PixelFormat Format => formatInfo.Format;
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
@@ -144,7 +146,7 @@ namespace Tesseract.Core.Graphics {
 
 		public IImage Duplicate() => new ImageSharpImage<TPixel>(Image.Clone());
 
-		public IImage Convert(PixelFormat format) => IImageSharpImage.Create(this); // TODO: Pixel format selection
+		public IProcessableImage Convert(PixelFormat format) => IImageSharpImage.Create(this); // TODO: Pixel format selection
 
 		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
 			IImageSharpImage isi;
@@ -175,8 +177,16 @@ namespace Tesseract.Core.Graphics {
 			}
 		}
 
+		public IProcessableImage Resize(IReadOnlyTuple2<int> newSize) =>
+			new ImageSharpImage<TPixel>(Image.Clone(x => x.Resize(newSize.X, newSize.Y, KnownResamplers.NearestNeighbor)));
+
 		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color) => Image.Mutate(x => x.Fill(
 			new Color(color), new RectangleF(dstArea.Position.X, dstArea.Position.Y, dstArea.Size.X, dstArea.Size.Y)));
+
+		public Vector4 this[int x, int y] {
+			get => formatInfo.PixelReader(Image, new Vector2i(x, y));
+			set => formatInfo.PixelWriter(Image, new Vector2i(x, y), value);
+		}
 	}
 
 	/// <summary>
@@ -184,285 +194,385 @@ namespace Tesseract.Core.Graphics {
 	/// </summary>
 	public class ImageSharpService : IImageIO {
 
+#nullable disable
 		internal class FormatInfo {
 
-			public Type PixelType { get; }
+			public Type PixelType { get; init; }
 
-			public PixelFormat Format { get; }
+			public PixelFormat Format { get; init; }
 
-			public Func<Image, IImageSharpImage> OutputConverter { get; }
+			public Func<Image, IImageSharpImage> OutputConverter { get; init; }
 
-			public Func<IImage, Image> InputConverter { get; }
+			public Func<IImage, Image> InputConverter { get; init; }
 
-			public Func<int, int, Image> AbstractConstructor { get; }
+			public Func<int, int, Image> AbstractConstructor { get; init; }
 
-			public FormatInfo(Type pixelType, PixelFormat format, Func<Image, IImageSharpImage> outConverter, Func<IImage, Image> inConverter, Func<int, int, Image> constructor) {
-				PixelType = pixelType;
-				Format = format;
-				OutputConverter = outConverter;
-				InputConverter = inConverter;
-				AbstractConstructor = constructor;
-			}
+			public Func<Image, Vector2i, Vector4> PixelReader { get; init; }
+
+			public Action<Image, Vector2i, Vector4> PixelWriter { get; init; }
 
 		}
 
 		internal static readonly Dictionary<Type, FormatInfo> pixelTypeToFormat = new() {
-			{ 
+			{
 				typeof(A8),
-				new FormatInfo(
-				typeof(A8),
-				PixelFormat.A8UNorm,
-				img => new ImageSharpImage<A8>((Image<A8>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, A8>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<A8>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<A8>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(A8),
+					Format = PixelFormat.A8UNorm,
+					OutputConverter = img => new ImageSharpImage<A8>((Image<A8>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, A8>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<A8>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<A8>(w, h),
+					PixelReader = (img, pos) => ((Image<A8>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						A8 pixel = new();
+						pixel.FromVector4(val);
+						((Image<A8>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Argb32),
-				new FormatInfo(
-				typeof(Argb32),
-				PixelFormat.A8B8G8R8UNorm,
-				img => new ImageSharpImage<Abgr32>((Image<Abgr32>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Abgr32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Abgr32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Abgr32>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Argb32),
+					Format = PixelFormat.A8B8G8R8UNorm,
+					OutputConverter = img => new ImageSharpImage<Abgr32>((Image<Abgr32>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Abgr32>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Abgr32>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Abgr32>(w, h),
+					PixelReader = (img, pos) => ((Image<Argb32>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Argb32 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Argb32>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Bgr24),
-				new FormatInfo(
-				typeof(Bgr24),
-				PixelFormat.B8G8R8UNorm,
-				img => new ImageSharpImage<Bgr24>((Image<Bgr24>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgr24>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgr24>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Bgr24>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Bgr24),
+					Format = PixelFormat.B8G8R8UNorm,
+					OutputConverter = img => new ImageSharpImage<Bgr24>((Image<Bgr24>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Bgr24>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Bgr24>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Bgr24>(w, h),
+					PixelReader = (img, pos) => ((Image<Bgr24>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Bgr24 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Bgr24>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Bgr565),
-				new FormatInfo(
-				typeof(Bgr565),
-				PixelFormat.B5G6R5UNormPack16,
-				img => new ImageSharpImage<Bgr565>((Image<Bgr565>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgr565>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgr565>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Bgr565>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Bgr565),
+					Format = PixelFormat.B5G6R5UNormPack16,
+					OutputConverter = img => new ImageSharpImage<Bgr565>((Image<Bgr565>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Bgr565>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Bgr565>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor= (int w, int h) => new Image<Bgr565>(w, h),
+					PixelReader = (img, pos) => ((Image<Bgr565>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Bgr565 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Bgr565>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Bgra32),
-				new FormatInfo(
-				typeof(Bgra32),
-				PixelFormat.B8G8R8A8UNorm,
-				img => new ImageSharpImage<Bgra32>((Image<Bgra32>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Bgra32>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Bgra32),
+					Format = PixelFormat.B8G8R8A8UNorm,
+					OutputConverter = img => new ImageSharpImage<Bgra32>((Image<Bgra32>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Bgra32>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Bgra32>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Bgra32>(w, h),
+					PixelReader = (img, pos) => ((Image<Bgra32>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Bgra32 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Bgra32>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Bgra4444),
-				new FormatInfo(
-				typeof(Bgra4444),
-				PixelFormat.A4R4G4B4UNormPack16,
-				img => new ImageSharpImage<Bgra4444>((Image<Bgra4444>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra4444>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra4444>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Bgra4444>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Bgra4444),
+					Format = PixelFormat.A4R4G4B4UNormPack16,
+					OutputConverter = img => new ImageSharpImage<Bgra4444>((Image<Bgra4444>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Bgra4444>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Bgra4444>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Bgra4444>(w, h),
+					PixelReader = (img, pos) => ((Image<Bgra4444>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Bgra4444 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Bgra4444>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Bgra5551),
-				new FormatInfo(
-				typeof(Bgra5551),
-				PixelFormat.A1R5G5B5UNormPack16,
-				img => new ImageSharpImage<Bgra5551>((Image<Bgra5551>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Bgra5551>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Bgra5551>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Bgra5551>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Bgra5551),
+					Format = PixelFormat.A1R5G5B5UNormPack16,
+					OutputConverter = img => new ImageSharpImage<Bgra5551>((Image<Bgra5551>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Bgra5551>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Bgra5551>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Bgra5551>(w, h),
+					PixelReader = (img, pos) => ((Image<Bgra5551>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Bgra5551 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Bgra5551>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(L16),
-				new FormatInfo(
-				typeof(L16),
-				PixelFormat.L16UNorm,
-				img => new ImageSharpImage<L16>((Image<L16>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, L16>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<L16>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<L16>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(L16),
+					Format = PixelFormat.L16UNorm,
+					OutputConverter = img => new ImageSharpImage<L16>((Image<L16>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, L16>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<L16>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<L16>(w, h),
+					PixelReader = (img, pos) => ((Image<L16>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						L16 pixel = new();
+						pixel.FromVector4(val);
+						((Image<L16>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(L8),
-				new FormatInfo(
-				typeof(L8),
-				PixelFormat.L8UNorm,
-				img => new ImageSharpImage<L8>((Image<L8>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, L8>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<L8>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<L8>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(L8),
+					Format = PixelFormat.L8UNorm,
+					OutputConverter = img => new ImageSharpImage<L8>((Image<L8>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, L8>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<L8>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<L8>(w, h),
+					PixelReader = (img, pos) => ((Image<L8>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						L8 pixel = new();
+						pixel.FromVector4(val);
+						((Image<L8>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(La16),
-				new FormatInfo(
-				typeof(La16),
-				PixelFormat.L8A8UNorm,
-				img => new ImageSharpImage<La16>((Image<La16>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, La16>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<La16>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<La16>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(La16),
+					Format = PixelFormat.L8A8UNorm,
+					OutputConverter = img => new ImageSharpImage<La16>((Image<La16>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, La16>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<La16>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<La16>(w, h),
+					PixelReader = (img, pos) => ((Image<La16>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						La16 pixel = new();
+						pixel.FromVector4(val);
+						((Image<La16>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(La32),
-				new FormatInfo(
-				typeof(La32),
-				PixelFormat.L16A16UNorm,
-				img => new ImageSharpImage<La32>((Image<La32>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, La32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<La32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<La32>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(La32),
+					Format = PixelFormat.L16A16UNorm,
+					OutputConverter = img => new ImageSharpImage<La32>((Image<La32>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, La32>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<La32>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<La32>(w, h),
+					PixelReader = (img, pos) => ((Image<La32>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						La32 pixel = new();
+						pixel.FromVector4(val);
+						((Image<La32>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rg32),
-				new FormatInfo(
-				typeof(Rg32),
-				PixelFormat.R16G16UNorm,
-				img => new ImageSharpImage<Rg32>((Image<Rg32>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rg32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rg32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rg32>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rg32),
+					Format = PixelFormat.R16G16UNorm,
+					OutputConverter = img => new ImageSharpImage<Rg32>((Image<Rg32>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rg32>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rg32>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rg32>(w, h),
+					PixelReader = (img, pos) => ((Image<Rg32>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rg32 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rg32>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rgb24),
-				new FormatInfo(
-				typeof(Rgb24),
-				PixelFormat.R8G8B8UNorm,
-				img => new ImageSharpImage<Rgb24>((Image<Rgb24>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgb24>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgb24>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rgb24>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rgb24),
+					Format = PixelFormat.R8G8B8UNorm,
+					OutputConverter = img => new ImageSharpImage<Rgb24>((Image<Rgb24>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rgb24>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rgb24>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rgb24>(w, h),
+					PixelReader = (img, pos) => ((Image<Rgb24>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rgb24 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rgb24>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rgb48),
-				new FormatInfo(
-				typeof(Rgb48),
-				PixelFormat.R16G16B16UNorm,
-				img => new ImageSharpImage<Rgb48>((Image<Rgb48>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgb48>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgb48>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rgb48>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rgb48),
+					Format = PixelFormat.R16G16B16UNorm,
+					OutputConverter = img => new ImageSharpImage<Rgb48>((Image<Rgb48>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rgb48>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rgb48>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rgb48>(w, h),
+					PixelReader = (img, pos) => ((Image<Rgb48>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rgb48 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rgb48>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rgba1010102),
-				new FormatInfo(
-				typeof(Rgba1010102),
-				PixelFormat.A2B10G10R10UNormPack32,
-				img => new ImageSharpImage<Rgba1010102>((Image<Rgba1010102>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba1010102>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba1010102>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rgba1010102>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rgba1010102),
+					Format = PixelFormat.A2B10G10R10UNormPack32,
+					OutputConverter = img => new ImageSharpImage<Rgba1010102>((Image<Rgba1010102>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rgba1010102>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rgba1010102>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rgba1010102>(w, h),
+					PixelReader = (img, pos) => ((Image<Rgba1010102>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rgba1010102 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rgba1010102>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rgba32),
-				new FormatInfo(
-				typeof(Rgba32),
-				PixelFormat.R8G8B8A8UNorm,
-				img => new ImageSharpImage<Rgba32>((Image<Rgba32>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba32>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba32>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rgba32>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rgba32),
+					Format = PixelFormat.R8G8B8A8UNorm,
+					OutputConverter = img => new ImageSharpImage<Rgba32>((Image<Rgba32>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rgba32>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rgba32>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rgba32>(w, h),
+					PixelReader = (img, pos) => ((Image<Rgba32>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rgba32 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rgba32>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 			{
 				typeof(Rgba64),
-				new FormatInfo(
-				typeof(Rgba64),
-				PixelFormat.R16G16B16A16UNorm,
-				img => new ImageSharpImage<Rgba64>((Image<Rgba64>)img),
-				img => {
-					var ptr = MemoryUtil.RecastAs<byte, Rgba64>(img.MapPixels(MapMode.ReadOnly));
-					var img2 = Image.LoadPixelData<Rgba64>(ptr.Span, img.Size.X, img.Size.Y);
-					img.UnmapPixels();
-					return img2;
-				},
-				(int w, int h) => new Image<Rgba64>(w, h)
-			)
+				new FormatInfo() {
+					PixelType = typeof(Rgba64),
+					Format = PixelFormat.R16G16B16A16UNorm,
+					OutputConverter = img => new ImageSharpImage<Rgba64>((Image<Rgba64>)img),
+					InputConverter = img => {
+						var ptr = MemoryUtil.RecastAs<byte, Rgba64>(img.MapPixels(MapMode.ReadOnly));
+						var img2 = Image.LoadPixelData<Rgba64>(ptr.Span, img.Size.X, img.Size.Y);
+						img.UnmapPixels();
+						return img2;
+					},
+					AbstractConstructor = (int w, int h) => new Image<Rgba64>(w, h),
+					PixelReader = (img, pos) => ((Image<Rgba64>)img)[pos.X, pos.Y].ToVector4(),
+					PixelWriter = (img, pos, val) => {
+						Rgba64 pixel = new();
+						pixel.FromVector4(val);
+						((Image<Rgba64>)img)[pos.X, pos.Y] = pixel;
+					}
+				}
 			},
 		};
+#nullable restore
 
 		internal static readonly Dictionary<PixelFormat, FormatInfo> pixelFormatToType = pixelTypeToFormat.ToDictionary(item => item.Value.Format, item => item.Value);
 
