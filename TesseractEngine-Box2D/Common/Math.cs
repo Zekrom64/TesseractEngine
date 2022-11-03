@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Tesseract.Box2D.NET {
 	
-	public readonly record struct Rotation {
+	public readonly struct Rotation {
 
 		public static readonly Rotation Identity = new(0);
 
@@ -54,13 +54,15 @@ namespace Tesseract.Box2D.NET {
 			-Sine * v.X + Cosine * v.Y
 		);
 
+		public override string ToString() => $"{Angle}°";
+
 	}
 
-	public readonly record struct Transform {
+	public struct Transform {
 
-		public readonly Vector2 Position { get; init; } = Vector2.Zero;
+		public Vector2 Position = Vector2.Zero;
 
-		public Rotation Rotation { get; init; } = default;
+		public Rotation Rotation = default;
 
 		public Transform() { }
 
@@ -69,19 +71,21 @@ namespace Tesseract.Box2D.NET {
 			Rotation = angle;
 		}
 
-		public static Transform operator *(in Transform xf1, in Transform xf2) => new() {
+		public static Transform operator *(Transform xf1, Transform xf2) => new() {
 			Rotation = xf1.Rotation * xf2.Rotation,
 			Position = xf1.Rotation * xf1.Position + xf1.Position
 		};
 
-		public Transform MulT(in Transform xf2) => new() {
+		public Transform MulT(Transform xf2) => new() {
 			Rotation = Rotation.MulT(xf2.Rotation),
 			Position = Rotation.MulT(xf2.Position - Position)
 		};
 
-		public static Vector2 operator *(in Transform xf, Vector2 v) => xf.Rotation * v + xf.Position;
+		public static Vector2 operator *(Transform xf, Vector2 v) => xf.Rotation * v + xf.Position;
 
 		public Vector2 MulT(Vector2 v) => Rotation.MulT(v - Position);
+
+		public override string ToString() => $"{{Position:{Position}, Rotation:{Rotation}}}";
 
 	}
 

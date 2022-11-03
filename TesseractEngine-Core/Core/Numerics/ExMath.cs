@@ -1136,11 +1136,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref byte min, ref byte max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1150,11 +1146,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref sbyte min, ref sbyte max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1164,11 +1156,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref short min, ref short max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1178,11 +1166,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref ushort min, ref ushort max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1192,11 +1176,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref int min, ref int max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1206,11 +1186,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref uint min, ref uint max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1220,11 +1196,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref long min, ref long max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1234,11 +1206,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref ulong min, ref ulong max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1248,11 +1216,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref float min, ref float max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1262,11 +1226,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref double min, ref double max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1276,11 +1236,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref decimal min, ref decimal max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>
@@ -1290,11 +1246,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="min">Value to store the minimum in</param>
 		/// <param name="max">Value to store the maximum in</param>
 		public static void MinMax(ref Half min, ref Half max) {
-			if (min > max) {
-				var tmp = min;
-				min = max;
-				max = tmp;
-			}
+			if (min > max) (max, min) = (min, max);
 		}
 
 		/// <summary>

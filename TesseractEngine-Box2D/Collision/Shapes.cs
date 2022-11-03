@@ -12,7 +12,9 @@ namespace Tesseract.Box2D.NET {
 		Circle,
 		Edge,
 		Polygon,
-		Chain
+		Chain,
+
+		Count
 	}
 
 	public struct MassData {

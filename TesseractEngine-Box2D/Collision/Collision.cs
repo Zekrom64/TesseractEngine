@@ -33,15 +33,15 @@ namespace Tesseract.Box2D.NET {
 
 	}
 
-	public readonly record struct ManifoldPoint {
+	public struct ManifoldPoint {
 
-		public Vector2 LocalPoint { get; init; }
+		public Vector2 LocalPoint;
 
-		public float NormalImpulse { get; init; }
+		public float NormalImpulse;
 
-		public float TangentImpulse { get; init; }
+		public float TangentImpulse;
 
-		public ContactID ID { get; init; }
+		public ContactID ID;
 
 	}
 
@@ -51,17 +51,24 @@ namespace Tesseract.Box2D.NET {
 		FaceB
 	}
 
-	public readonly record struct Manifold {
+	public struct Manifold {
 
-		public ManifoldPoint[] Points { get; init; } = new ManifoldPoint[Box2D.MaxManifoldPoints];
+		private readonly ManifoldPoint[] points = new ManifoldPoint[Box2D.MaxManifoldPoints];
+		public Span<ManifoldPoint> Points {
+			get => points.AsSpan()[..PointCount];
+			set {
+				value.CopyTo(points);
+				PointCount = value.Length;
+			}
+		}
 
-		public Vector2 LocalNormal { get; init; } = default;
+		public Vector2 LocalNormal = default;
 
-		public Vector2 LocalPoint { get; init; } = default;
+		public Vector2 LocalPoint = default;
 
-		public ManifoldType Type { get; init; } = default;
+		public ManifoldType Type = default;
 
-		public int PointCount { get; init; } = default;
+		public int PointCount = default;
 
 		public Manifold() { }
 

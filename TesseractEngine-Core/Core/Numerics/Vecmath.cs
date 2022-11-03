@@ -561,6 +561,24 @@ namespace Tesseract.Core.Numerics {
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 GetRow(this Matrix4x4 m, int row) => row switch {
+			0 => new Vector4(m.M11, m.M12, m.M13, m.M14),
+			1 => new Vector4(m.M21, m.M22, m.M23, m.M24),
+			2 => new Vector4(m.M31, m.M32, m.M33, m.M34),
+			3 => new Vector4(m.M41, m.M42, m.M43, m.M44),
+			_ => throw new ArgumentException("Invalid row index", nameof(row)),
+		};
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 GetColumn(this Matrix4x4 m, int row) => row switch {
+			0 => new Vector4(m.M11, m.M21, m.M31, m.M41),
+			1 => new Vector4(m.M12, m.M22, m.M32, m.M42),
+			2 => new Vector4(m.M13, m.M23, m.M33, m.M43),
+			3 => new Vector4(m.M14, m.M24, m.M34, m.M44),
+			_ => throw new ArgumentException("Invalid column index", nameof(row)),
+		};
+
 	}
 
 }
