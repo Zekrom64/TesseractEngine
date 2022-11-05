@@ -78,6 +78,8 @@ namespace Tesseract.Core.Numerics {
 		/// </summary>
 		public int Y1 => Position.Y + Size.Y;
 
+		public Recti(IReadOnlyTuple2<int> size) : this(size.X, size.Y) { }
+
 		public Recti(int width, int height) {
 			Position = new Vector2i(0, 0);
 			Size = new Vector2i(width, height);

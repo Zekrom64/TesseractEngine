@@ -61,6 +61,9 @@ namespace Tesseract.Core.Graphics {
 	/// <typeparam name="TPixel">Pixel type</typeparam>
 	public class ImageSharpImage<TPixel> : IImageSharpImage where TPixel : unmanaged, IPixel<TPixel> {
 
+		public static ImageSharpImage<TPixel> Create(int width, int height) =>
+			new ImageSharpImage<TPixel>(new Image<TPixel>(width, height));
+
 		private readonly ImageSharpService.FormatInfo formatInfo;
 
 		/// <summary>
