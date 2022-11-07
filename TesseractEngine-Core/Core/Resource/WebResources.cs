@@ -28,7 +28,7 @@ namespace Tesseract.Core.Resource {
 		/// <summary>
 		/// The URL prefix to apply to paths within this domain.
 		/// </summary>
-		public string Prefix { get; }
+		public string URLPrefix { get; }
 
 		/// <summary>
 		/// Creates a new HTTP resource domain.
@@ -39,7 +39,7 @@ namespace Tesseract.Core.Resource {
 		/// <exception cref="ArgumentException">If an invalid argument was passed</exception>
 		public HTTPResourceDomain(string name, string prefix, TimeSpan timeout) : base(name) {
 			Timeout = timeout;
-			Prefix = prefix;
+			URLPrefix = prefix;
 			if (!prefix.StartsWith("http://") || !prefix.StartsWith("https://")) throw new ArgumentException($"Invalid URL prefix for HTTP resource domain: \"{prefix}\"", nameof(prefix));
 		}
 
@@ -58,7 +58,7 @@ namespace Tesseract.Core.Resource {
 
 		public override Stream OpenStream(ResourceLocation file) {
 			if (file.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(file));
-			var areq = HttpClient.GetAsync(Prefix + file.Path);
+			var areq = HttpClient.GetAsync(URLPrefix + PathPrefix + file.Path);
 			if (!areq.Wait(Timeout)) throw new IOException("Timeout waiting for HTTP request");
 			var request = areq.Result;
 			if (request.StatusCode != HttpStatusCode.OK) throw new IOException($"URL resource returned non-ok status code {request.StatusCode}");

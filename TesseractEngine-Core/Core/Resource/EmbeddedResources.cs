@@ -100,7 +100,7 @@ namespace Tesseract.Core.Resource {
 		}
 
 		public override Stream OpenStream(ResourceLocation file) {
-			if (resourceCache.TryGetValue(file.Path, out EmbeddedResource resource)) {
+			if (resourceCache.TryGetValue(PathPrefix + file.Path, out EmbeddedResource resource)) {
 				Stream? stream = Assembly.GetManifestResourceStream(resource.Name);
 				if (stream == null) throw new IOException($"Failed to open resource \"{file.Name}\" from assembly {Assembly.FullName}");
 				return stream;
@@ -108,13 +108,13 @@ namespace Tesseract.Core.Resource {
 		}
 
 		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) {
-			if (directoryCache.TryGetValue(dir.Path, out List<string>? subpaths)) {
+			if (directoryCache.TryGetValue(PathPrefix + dir.Path, out List<string>? subpaths)) {
 				foreach (string subpath in subpaths) yield return new ResourceLocation(this, subpath);
 			}
 		}
 
 		public override ResourceMetadata GetMetadata(ResourceLocation file) {
-			if (resourceCache.TryGetValue(file.Path, out EmbeddedResource resource)) return resource.Metadata;
+			if (resourceCache.TryGetValue(PathPrefix + file.Path, out EmbeddedResource resource)) return resource.Metadata;
 			else return default;
 		}
 

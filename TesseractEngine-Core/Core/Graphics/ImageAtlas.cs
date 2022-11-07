@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Tesseract.Core.Graphics {
 		// The list of pixel offsets of subimages
 		private Vector2i[] offsets = Array.Empty<Vector2i>();
 		// The list of entries in the atlas
-		private readonly List<(IImage Image, Recti Area)> entries = new();
+		private readonly List<(IImage Image, Recti Area, int ID)> entries = new();
 
 		/// <summary>
 		/// Adds an image to the atlas, returning the ID associated with it.
@@ -27,7 +28,7 @@ namespace Tesseract.Core.Graphics {
 		/// <returns>The subimage's ID</returns>
 		public int AddImage(IImage image, Recti? srcArea = null) {
 			int id = entries.Count;
-			entries.Add((image, srcArea ?? new Recti(image.Size)));
+			entries.Add((image, srcArea ?? new Recti(image.Size), id));
 			return id;
 		}
 
@@ -83,16 +84,38 @@ namespace Tesseract.Core.Graphics {
 							// If free space is larger in width than height
 							if (space.X > space.Y) {
 								// Create free area to the right of the sprite
-								freeAreas.Add(new Recti(area.Position.X + spriteSize.X, area.Position.Y, spriteSize.X - area.Size.X, area.Size.Y));
+								freeAreas.Add(new Recti(
+									area.Position.X + spriteSize.X,
+									area.Position.Y,
+									area.Size.X - spriteSize.X,
+									area.Size.Y
+								));
 								// If sprite does not fill the whole height, add another free area below it
-								if (space.Y > 0)
-									freeAreas.Add(new Recti(area.Position.X, area.Position.Y + spriteSize.Y, spriteSize.X, area.Size.Y - spriteSize.Y));
+								if (space.Y > 0) {
+									freeAreas.Add(new Recti(
+										area.Position.X,
+										area.Position.Y + spriteSize.Y,
+										spriteSize.X,
+										area.Size.Y - spriteSize.Y
+									));
+								}
 							} else {
 								// Create free area below the sprite
-								freeAreas.Add(new Recti(area.Position.X, area.Position.Y + spriteSize.Y, area.Size.X, area.Size.Y - spriteSize.Y));
+								freeAreas.Add(new Recti(
+									area.Position.X,
+									area.Position.Y + spriteSize.Y,
+									area.Size.X,
+									area.Size.Y - spriteSize.Y
+								));
 								// If sprite does not fill the whole width, add another free area to its right
-								if (space.X > 0)
-									freeAreas.Add(new Recti(area.Position.X + spriteSize.X, area.Position.Y, spriteSize.X - area.Size.X, area.Size.Y));
+								if (space.X > 0) {
+									freeAreas.Add(new Recti(
+										area.Position.X + spriteSize.X,
+										area.Position.Y,
+										spriteSize.X - area.Size.X,
+										area.Size.Y
+									));
+								}
 							}
 							SortFreeAreas();
 						}
@@ -105,41 +128,62 @@ namespace Tesseract.Core.Graphics {
 				if (size.Y >= size.X) {
 					// Expand in the X axis primarily
 					spritePosition = new Vector2i(size.X, 0);
-					size.X += spriteSize.X;
-					size.Y = Math.Max(size.Y, spriteSize.Y);
 					// Add any free area created by expansion
 					if (spriteSize.Y < size.Y) {
-						freeAreas.Add(new Recti(size.X, spriteSize.Y, spriteSize.X, size.Y - spriteSize.Y));
+						freeAreas.Add(new Recti(
+							size.X,
+							spriteSize.Y,
+							spriteSize.X,
+							size.Y - spriteSize.Y
+						));
 						SortFreeAreas();
 					} else if (spriteSize.Y > size.Y) {
-						freeAreas.Add(new Recti(0, size.Y, size.X, spriteSize.Y - size.Y));
+						freeAreas.Add(new Recti(
+							0,
+							size.Y,
+							size.X,
+							spriteSize.Y - size.Y
+						));
 						SortFreeAreas();
 					}
+					size.X += spriteSize.X;
+					size.Y = Math.Max(size.Y, spriteSize.Y);
 				} else {
 					// Expand in the Y axis primarily
 					spritePosition = new Vector2i(0, size.Y);
-					size.X = Math.Max(size.X, spriteSize.X);
-					size.Y += spriteSize.Y;
 					// Add any free area created by expansion
 					if (spriteSize.X < size.X) {
-						freeAreas.Add(new Recti(spriteSize.X, size.Y, size.X - spriteSize.X, spriteSize.Y));
+						freeAreas.Add(new Recti(
+							spriteSize.X,
+							size.Y,
+							size.X - spriteSize.X,
+							spriteSize.Y
+						));
 						SortFreeAreas();
 					} else if (spriteSize.X > size.X) {
-						freeAreas.Add(new Recti(size.X, 0, spriteSize.X - size.X, size.Y));
+						freeAreas.Add(new Recti(
+							size.X,
+							0,
+							spriteSize.X - size.X,
+							size.Y
+						));
 						SortFreeAreas();
 					}
+					size.X = Math.Max(size.X, spriteSize.X);
+					size.Y += spriteSize.Y;
 				}
 			}
 
 			// Create the atlas and add all entries to it
 			var atlasImage = ImageSharpImage<Rgba32>.Create(size.X, size.Y);
 			for(int i = 0; i < entries.Count; i++) {
-				var (image, area) = entries[i];
+				var (image, area, id) = entries[i];
 				var spriteSize = area.Size;
-				var offset = offsets[i];
+				var offset = offsets[id];
 				atlasImage.Blit(new Recti(offset, spriteSize), image, area.Position);
 			}
 
+			entries.Clear();
 			return atlasImage;
 		}
 

@@ -38,7 +38,7 @@ namespace Tesseract.Core.Resource {
 		}
 
 		// Converts a resource location to an absolute path to the file
-		private string ToFilePath(ResourceLocation location) => directory + Path.DirectorySeparatorChar + location.Path.Replace('/', Path.DirectorySeparatorChar);
+		private string ToFilePath(ResourceLocation location) => directory + Path.DirectorySeparatorChar + (PathPrefix + location.Path).Replace('/', Path.DirectorySeparatorChar);
 
 		// Converts an absolute path within the root directory of the domain to a resource location
 		private ResourceLocation FromFilePath(string path) => new(this, path[(directory.Length + 1)..]);
@@ -92,7 +92,7 @@ namespace Tesseract.Core.Resource {
 		}
 
 		// Gets the zip archive entry for a given resource location within this domain
-		private ZipArchiveEntry? ToEntry(ResourceLocation location) => archive.GetEntry(location.Path);
+		private ZipArchiveEntry? ToEntry(ResourceLocation location) => archive.GetEntry(PathPrefix + location.Path);
 
 		// Gets the resource location for a given zip archive entry
 		private ResourceLocation FromEntry(ZipArchiveEntry entry) => new(this, entry.FullName);

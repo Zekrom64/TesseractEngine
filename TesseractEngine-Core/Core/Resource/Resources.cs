@@ -101,6 +101,11 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		public string Name { get; }
 
+		/// <summary>
+		/// A prefix to add to all paths passed through this domain.
+		/// </summary>
+		public string PathPrefix { get; init; } = string.Empty;
+
 		protected ResourceDomain(string name) {
 			Name = name;
 		}
