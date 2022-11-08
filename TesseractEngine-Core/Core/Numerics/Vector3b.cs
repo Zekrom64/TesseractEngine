@@ -80,6 +80,9 @@ namespace Tesseract.Core.Numerics {
 			this[w] = v.W;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static explicit operator Vector3b(Vector4b v) => new(v.X, v.Y, v.Z);
+
 	}
 
 }

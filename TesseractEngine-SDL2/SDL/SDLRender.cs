@@ -452,11 +452,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public void RenderGeometry(SDLTexture texture, in ReadOnlySpan<SDLVertex> vertices, in ReadOnlySpan<int> indices) {
+		public void RenderGeometry(SDLTexture? texture, in ReadOnlySpan<SDLVertex> vertices, in ReadOnlySpan<int> indices) {
 			unsafe {
 				fixed(SDLVertex* pVertices = vertices) {
 					fixed(int* pIndices = indices) {
-						SDL2.CheckError(SDL2.Functions.SDL_RenderGeometry(Renderer.Ptr, texture.Texture.Ptr, (IntPtr)pVertices, vertices.Length, (IntPtr)pIndices, indices.Length));
+						SDL2.CheckError(SDL2.Functions.SDL_RenderGeometry(Renderer.Ptr, texture?.Texture?.Ptr ?? IntPtr.Zero, (IntPtr)pVertices, vertices.Length, (IntPtr)pIndices, indices.Length));
 					}
 				}
 			}

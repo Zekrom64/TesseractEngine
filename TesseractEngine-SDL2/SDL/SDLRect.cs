@@ -41,6 +41,21 @@ namespace Tesseract.SDL {
 			_ => 0
 		};
 
+		public SDLFPoint() {
+			x = 0;
+			y = 0;
+		}
+
+		public SDLFPoint(float x, float y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public SDLFPoint(Vector2 v) {
+			x = v.X;
+			y = v.Y;
+		}
+
 		public bool InRect(SDLFRect r) => X >= r.X && X < (r.X + r.W) && Y >= r.Y && Y < (r.Y + r.H);
 	}
 
