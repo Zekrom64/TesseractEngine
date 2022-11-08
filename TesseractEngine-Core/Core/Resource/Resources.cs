@@ -254,6 +254,16 @@ namespace Tesseract.Core.Resource {
 		}
 
 		/// <summary>
+		/// Reads the text of the resource fully and returns the text.
+		/// </summary>
+		/// <returns>Resource text</returns>
+		public string ReadTextFully() {
+			using Stream stream = OpenStream();
+			using StreamReader reader = new(stream);
+			return reader.ReadToEnd();
+		}
+
+		/// <summary>
 		/// Enumerates this resource location as a directory.
 		/// </summary>
 		/// <returns>Enumerable object of the child resources in this directory</returns>
