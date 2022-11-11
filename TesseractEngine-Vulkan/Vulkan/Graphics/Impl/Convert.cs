@@ -1003,8 +1003,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			return vkmode;
 		}
 
-		public static VKRenderingAttachmentInfoKHR Convert(in ICommandSink.RenderingAttachmentInfo info) {
-			return new VKRenderingAttachmentInfoKHR() {
+		public static VKRenderingAttachmentInfo Convert(in ICommandSink.RenderingAttachmentInfo info) {
+			return new VKRenderingAttachmentInfo() {
 				Type = VKStructureType.RenderingAttachmentInfo,
 				ImageView = ((VulkanTextureView)info.TextureView).ImageView.ImageView,
 				ImageLayout = Convert(info.TextureLayout),

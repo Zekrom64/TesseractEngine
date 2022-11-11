@@ -9,6 +9,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKDescriptorUpdateTemplate : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.DescriptorUpdateTemplate;
+
 		public VKDevice Device { get; }
 
 		public VulkanAllocationCallbacks? Allocator { get; }

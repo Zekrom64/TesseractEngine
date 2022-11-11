@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Tesseract.Vulkan {
 
-	// Vulkan 1.0
+	using VKFlags = UInt32;
+	using VKFlags64 = UInt64;
 
-	using VkFlags = UInt32;
+	// Vulkan 1.0
 
 	/// <summary>
 	/// Encoded pipeline cache header version.
@@ -709,7 +710,6 @@ namespace Tesseract.Vulkan {
 		PhysicalDeviceImageViewImageFormatInfoEXT = 1000170000,
 		// VK_EXT_filter_cubic
 		FilterCubicImageViewFormatPropertiesEXT = 1000170001,
-		DeviceQueueGlobalPriorityCreateInfoEXT = 1000174000,
 		// VK_EXT_external_memory_host
 		ImportMemoryHostPointerInfoEXT = 1000178000,
 		MemoryHostPointerPropertiesEXT = 1000178001,
@@ -1031,6 +1031,7 @@ namespace Tesseract.Vulkan {
 	}
 
 	public enum VKFormat : int {
+		// Vulkan 1.0
 		Undefined = 0,
 		R4G4UnormPack8 = 1,
 		R4G4B4A4UNormPack16 = 2,
@@ -1216,6 +1217,7 @@ namespace Tesseract.Vulkan {
 		ASTC12x10SRGBBlock = 182,
 		ASTC12x12UNormBlock = 183,
 		ASTC12x12SRGBBlock = 184,
+		// Vulkan 1.1
 		G8B8G8R8_422UNorm = 1000156000,
 		B8G8R8G8_422UNorm = 1000156001,
 		G8_B8_R8_3Plane420UNorm = 1000156002,
@@ -1250,6 +1252,28 @@ namespace Tesseract.Vulkan {
 		G16_B16_R16_3Plane422UNorm = 1000156031,
 		G16_B16R16_2Plane422UNorm = 1000156032,
 		G16_B16_R16_3Plane444UNorm = 1000156033,
+		// Vulkan 1.3
+		G8_B8R8_2Plane444UNorm = 1000330000,
+		G10X6_B10X6R10X6_2Plane444UNorm3Pack16 = 1000330001,
+		G12X4_B12X4R12X4_2Plane444UNorm3Pack16 = 1000330002,
+		G16_B16R16_2Plane444UNorm = 1000330003,
+		A4R4G4B4UNormPack16 = 1000340000,
+		A4B4G4R4UNormPack16 = 1000340001,
+		ASTC4x4SFloatBlock = 1000066000,
+		ASTC5x4SFloatBlock = 1000066001,
+		ASTC5x5SFloatBlock = 1000066002,
+		ASTC6x5SFloatBlock = 1000066003,
+		ASTC6x6SFloatBlock = 1000066004,
+		ASTC8x5SFloatBlock = 1000066005,
+		ASTC8x6SFloatBlock = 1000066006,
+		ASTC8x8SFloatBlock = 1000066007,
+		ASTC10x5SFloatBlock = 1000066008,
+		ASTC10x6SFloatBlock = 1000066009,
+		ASTC10x8SFloatBlock = 1000066010,
+		ASTC10x10SFloatBlock = 1000066011,
+		ASTC12x10SFloatBlock = 1000066012,
+		ASTC12x12SFloatBlock = 1000066013,
+		// VK_IMG_format_pvrtc
 		PVRTC1_2BPPUNormBlockIMG = 1000054000,
 		PVRTC1_4BPPUNormBlockIMG = 1000054001,
 		PVRTC2_2BPPUNormBlockIMG = 1000054002,
@@ -1258,20 +1282,66 @@ namespace Tesseract.Vulkan {
 		PVRTC1_4BPPSRGBBlockIMG = 1000054005,
 		PVRTC2_2BPPSRGBBlockIMG = 1000054006,
 		PVRTC2_4BPPSRGBBlockIMG = 1000054007,
-		ASTC4x4SFloatBlockEXT = 1000066000,
-		ASTC5x4SFloatBlockEXT = 1000066001,
-		ASTC5x5SFloatBlockEXT = 1000066002,
-		ASTC6x5SFloatBlockEXT = 1000066003,
-		ASTC6x6SFloatBlockEXT = 1000066004,
-		ASTC8x5SFloatBlockEXT = 1000066005,
-		ASTC8x6SFloatBlockEXT = 1000066006,
-		ASTC8x8SFloatBlockEXT = 1000066007,
-		ASTC10x5SFloatBlockEXT = 1000066008,
-		ASTC10x6SFloatBlockEXT = 1000066009,
-		ASTC10x8SFloatBlockEXT = 1000066010,
-		ASTC10x10SFloatBlockEXT = 1000066011,
-		ASTC12x10SFloatBlockEXT = 1000066012,
-		ASTC12x12SFloatBlockEXT = 1000066013
+		// VK_NV_optical_flow
+		R16G16S10_5NV = 1000464000,
+		// VK_EXT_texture_compression_astc_hdr
+		ASTC4x4SFloatBlockEXT = ASTC4x4SFloatBlock,
+		ASTC5x4SFloatBlockEXT = ASTC5x4SFloatBlock,
+		ASTC5x5SFloatBlockEXT = ASTC5x5SFloatBlock,
+		ASTC6x5SFloatBlockEXT = ASTC6x5SFloatBlock,
+		ASTC6x6SFloatBlockEXT = ASTC6x6SFloatBlock,
+		ASTC8x5SFloatBlockEXT = ASTC8x5SFloatBlock,
+		ASTC8x6SFloatBlockEXT = ASTC8x6SFloatBlock,
+		ASTC8x8SFloatBlockEXT = ASTC8x8SFloatBlock,
+		ASTC10x5SFloatBlockEXT = ASTC10x5SFloatBlock,
+		ASTC10x6SFloatBlockEXT = ASTC10x6SFloatBlock,
+		ASTC10x8SFloatBlockEXT = ASTC10x8SFloatBlock,
+		ASTC10x10SFloatBlockEXT = ASTC10x10SFloatBlock,
+		ASTC12x10SFloatBlockEXT = ASTC12x10SFloatBlock,
+		ASTC12x12SFloatBlockEXT = ASTC12x12SFloatBlock,
+		// VK_KHR_sampler_ycbcr_conversion
+		G8B8G8R8_422UNormKHR = G8B8G8R8_422UNorm,
+		B8G8R8G8_422UNormKHR = B8G8R8G8_422UNorm,
+		G8_B8_R8_3Plane420UNormKHR = G8_B8_R8_3Plane420UNorm,
+		G8_B8R8_2Plane420UNormKHR = G8_B8R8_2Plane420UNorm,
+		G8_B8_R8_3Plane422UNormKHR = G8_B8_R8_3Plane422UNorm,
+		G8_B8R8_2Plane422UNormKHR = G8_B8R8_2Plane422UNorm,
+		G8_B8_R8_3Plane444UNormKHR = G8_B8_R8_3Plane444UNorm,
+		R10X6UNormPack16KHR = R10X6UNormPack16,
+		R10X6G10X6UNorm_2Pack16KHR = R10X6G10X6UNorm_2Pack16,
+		R10X6G10X6B10X6A10X6UNorm_4Pack16KHR = R10X6G10X6B10X6A10X6UNorm_4Pack16,
+		G10X6B10X6G10X6R10X6_422UNorm_4Pack16KHR = G10X6B10X6G10X6R10X6_422UNorm_4Pack16,
+		B10X6G10X6R10X6G10X6_422UNorm_4Pack16KHR = B10X6G10X6R10X6G10X6_422UNorm_4Pack16,
+		G10X6_B10X6_R10X6_3Plane420UNorm_3Pack16KHR = G10X6_B10X6_R10X6_3Plane420UNorm_3Pack16,
+		G10X6_B10X6R10X6_2Plane420UNorm_3Pack16KHR = G10X6_B10X6R10X6_2Plane420UNorm_3Pack16,
+		G10X6_B10X6_R10X6_3Plane422UNorm_3Pack16KHR = G10X6_B10X6_R10X6_3Plane422UNorm_3Pack16,
+		G10X6_B10X6R10X6_2Plane422UNorm_3Pack16KHR = G10X6_B10X6R10X6_2Plane422UNorm_3Pack16,
+		G10X6_B10X6_R10X6_3Plane444UNorm_3Pack16KHR = G10X6_B10X6_R10X6_3Plane444UNorm_3Pack16,
+		R12X4UNormPack16KHR = R12X4UNormPack16,
+		R12X4G12X4UNorm_2Pack16KHR = R12X4G12X4UNorm_2Pack16,
+		R12X4G12X4B12X4A12X4UNorm_4Pack16KHR = R12X4G12X4B12X4A12X4UNorm_4Pack16,
+		G12X4B12X4G12X4R12X4_422UNorm_4Pack16KHR = G12X4B12X4G12X4R12X4_422UNorm_4Pack16,
+		B12X4G12X4R12X4G12X4_422UNorm_4Pack16KHR = B12X4G12X4R12X4G12X4_422UNorm_4Pack16,
+		G12X4_B12X4_R12X4_3Plane420UNorm_3Pack16KHR = G12X4_B12X4_R12X4_3Plane420UNorm_3Pack16,
+		G12X4_B12X4R12X4_2Plane420UNorm_3Pack16KHR = G12X4_B12X4R12X4_2Plane420UNorm_3Pack16,
+		G12X4_B12X4_R12X4_3Plane422UNorm_3Pack16KHR = G12X4_B12X4_R12X4_3Plane422UNorm_3Pack16,
+		G12X4_B12X4R12X4_2Plane422UNorm_3Pack16KHR = G12X4_B12X4R12X4_2Plane422UNorm_3Pack16,
+		G12X4_B12X4_R12X4_3Plane444UNorm_3Pack16KHR = G12X4_B12X4_R12X4_3Plane444UNorm_3Pack16,
+		G16B16G16R16_422UNormKHR = G16B16G16R16_422UNorm,
+		B16G16R16G16_422UNormKHR = B16G16R16G16_422UNorm,
+		G16_B16_R16_3Plane420UNormKHR = G16_B16_R16_3Plane420UNorm,
+		G16_B16R16_2Plane420UNormKHR = G16_B16R16_2Plane420UNorm,
+		G16_B16_R16_3Plane422UNormKHR = G16_B16_R16_3Plane422UNorm,
+		G16_B16R16_2Plane422UNormKHR = G16_B16R16_2Plane422UNorm,
+		G16_B16_R16_3Plane444UNormKHR = G16_B16_R16_3Plane444UNorm,
+		// VK_EXT_ycbcr_2plane_444_formats
+		G8_B8R8_2Plane444UNorm_3Pack16EXT = G8_B8R8_2Plane444UNorm,
+		G10X6_B10X6R10X6_2Plane444UNorm_3Pack16EXT = G10X6_B10X6R10X6_2Plane444UNorm3Pack16,
+		G12X4_B12X4R12X4_2Plane444UNorm3Pack16EXT = G12X4_B12X4R12X4_2Plane444UNorm3Pack16,
+		G16_B16R16_2Plane444UNormEXT = G16_B16R16_2Plane444UNorm,
+		// VK_EXT_4444_formats
+		A4R4G4B4UNormPack16EXT = A4R4G4B4UNormPack16,
+		A4B4G4R4UNormPack16EXT = A4B4G4R4UNormPack16,
 	}
 
 	public enum VKImageType : int {
@@ -1690,9 +1760,11 @@ namespace Tesseract.Vulkan {
 		Mesa = 0x10005
 	}
 
-	public enum VKInstanceCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKInstanceCreateFlagBits : VKFlags { }
 
-	public enum VKFormatFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKFormatFeatureFlagBits : VKFlags {
 		SampledImage = 0x00000001,
 		StorageImage = 0x00000002,
 		StorageImageAtomic = 0x00000004,
@@ -1721,7 +1793,8 @@ namespace Tesseract.Vulkan {
 		FragmentDensityMapEXT = 0x01000000
 	}
 
-	public enum VKImageUsageFlagBits : VkFlags {
+	[Flags]
+	public enum VKImageUsageFlagBits : VKFlags {
 		TransferSrc = 0x00000001,
 		TransferDst = 0x00000002,
 		Sampled = 0x00000004,
@@ -1734,7 +1807,8 @@ namespace Tesseract.Vulkan {
 		FragmentDensityMapEXT = 0x00000200
 	}
 
-	public enum VKImageCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKImageCreateFlagBits : VKFlags {
 		SparseBinding = 0x00000001,
 		SparseResidency = 0x00000002,
 		SparseAliased = 0x00000004,
@@ -1752,7 +1826,8 @@ namespace Tesseract.Vulkan {
 		SubsampledEXT = 0x00004000
 	}
 
-	public enum VKSampleCountFlagBits : VkFlags {
+	[Flags]
+	public enum VKSampleCountFlagBits : VKFlags {
 		Count1Bit = 0x00000001,
 		Count2Bit = 0x00000002,
 		Count4Bit = 0x00000004,
@@ -1762,7 +1837,8 @@ namespace Tesseract.Vulkan {
 		Count64Bit = 0x00000040
 	}
 
-	public enum VKQueueFlagBits : VkFlags {
+	[Flags]
+	public enum VKQueueFlagBits : VKFlags {
 		Graphics = 0x00000001,
 		Compute = 0x00000002,
 		Transfer = 0x00000004,
@@ -1770,7 +1846,8 @@ namespace Tesseract.Vulkan {
 		Protected = 0x00000010
 	}
 
-	public enum VKMemoryPropertyFlagBits : VkFlags {
+	[Flags]
+	public enum VKMemoryPropertyFlagBits : VKFlags {
 		DeviceLocal = 0x00000001,
 		HostVisible = 0x00000002,
 		HostCoherent = 0x00000004,
@@ -1781,18 +1858,22 @@ namespace Tesseract.Vulkan {
 		DeviceUncachedAMD = 0x00000080
 	}
 
-	public enum VKMemoryHeapFlagBits : VkFlags {
+	[Flags]
+	public enum VKMemoryHeapFlagBits : VKFlags {
 		DeviceLocal = 0x00000001,
 		MultiInstance = 0x00000002
 	}
 
-	public enum VKDeviceCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKDeviceCreateFlagBits : VKFlags { }
 
-	public enum VKDeviceQueueCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKDeviceQueueCreateFlagBits : VKFlags {
 		Protected = 0x00000001
 	}
 
-	public enum VKPipelineStageFlagBits : VkFlags {
+	[Flags]
+	public enum VKPipelineStageFlagBits : VKFlags {
 		TopOfPipe = 0x00000001,
 		DrawIndirect = 0x00000002,
 		VertexInput = 0x00000004,
@@ -1821,9 +1902,11 @@ namespace Tesseract.Vulkan {
 		CommandPreProcessNV = 0x00020000
 	}
 
-	public enum VKMemoryMapFlagBits : VkFlags { }
+	[Flags]
+	public enum VKMemoryMapFlagBits : VKFlags { }
 
-	public enum VKImageAspectFlagBits : VkFlags {
+	[Flags]
+	public enum VKImageAspectFlagBits : VKFlags {
 		Color = 0x00000001,
 		Depth = 0x00000002,
 		Stencil = 0x00000004,
@@ -1837,27 +1920,34 @@ namespace Tesseract.Vulkan {
 		MemoryPlane3EXT = 0x00000400
 	}
 
-	public enum VKSparseImageFormatFlagBits : VkFlags {
+	[Flags]
+	public enum VKSparseImageFormatFlagBits : VKFlags {
 		SingleMipTail = 0x00000001,
 		AlignedMipSize = 0x00000002,
 		NonStandardBlockSize = 0x00000004
 	}
 
-	public enum VKSparseMemoryBindFlagBits : VkFlags {
+	[Flags]
+	public enum VKSparseMemoryBindFlagBits : VKFlags {
 		Metadata = 0x00000001
 	}
 
-	public enum VKFenceCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKFenceCreateFlagBits : VKFlags {
 		Signaled = 0x00000001
 	}
 
-	public enum VKSemaphoreCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKSemaphoreCreateFlagBits : VKFlags { }
 
-	public enum VKEventCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKEventCreateFlagBits : VKFlags { }
 
-	public enum VKQueryPoolCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKQueryPoolCreateFlagBits : VKFlags { }
 
-	public enum VKQueryPipelineStatisticFlagBits : VkFlags {
+	[Flags]
+	public enum VKQueryPipelineStatisticFlagBits : VKFlags {
 		InputAssemblyVertices = 0x00000001,
 		InputAssemblyPrimitives = 0x000000002,
 		VertexShaderInvocations = 0x000000004,
@@ -1871,14 +1961,16 @@ namespace Tesseract.Vulkan {
 		ComputeShaderInvocations = 0x00000400
 	}
 
-	public enum VKQueryResultFlagBits : VkFlags {
+	[Flags]
+	public enum VKQueryResultFlagBits : VKFlags {
 		Result64Bit = 0x00000001,
 		Wait = 0x00000002,
 		WithAvailability = 0x00000004,
 		Partial = 0x00000008
 	}
 
-	public enum VKBufferCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKBufferCreateFlagBits : VKFlags {
 		SparseBinding = 0x00000001,
 		SparseResidency = 0x00000002,
 		SparseAliased = 0x00000004,
@@ -1886,7 +1978,8 @@ namespace Tesseract.Vulkan {
 		DeviceAddressCaptureReplay = 0x00000010
 	}
 
-	public enum VKBufferUsageFlagBits : VkFlags {
+	[Flags]
+	public enum VKBufferUsageFlagBits : VKFlags {
 		TransferSrc = 0x00000001,
 		TransferDst = 0x00000002,
 		UniformTexelBuffer = 0x00000004,
@@ -1903,19 +1996,24 @@ namespace Tesseract.Vulkan {
 		RayTracingKHR = 0x00000400
 	}
 
-	public enum VKBufferViewCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKBufferViewCreateFlagBits : VKFlags { }
 
-	public enum VKImageViewCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKImageViewCreateFlagBits : VKFlags {
 		FragmentDensityMapDynamicEXT = 0x00000001
 	}
 
-	public enum VKShaderModuleCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKShaderModuleCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineCacheCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKPipelineCacheCreateFlagBits : VKFlags {
 		ExternallySynchronizedEXT = 0x00000001
 	}
 
-	public enum VKPipelineCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKPipelineCreateFlagBits : VKFlags {
 		DisableOptimization = 0x00000001,
 		AllowDerivatives = 0x00000002,
 		Derivative = 0x00000004,
@@ -1936,12 +2034,14 @@ namespace Tesseract.Vulkan {
 		EarlyReturnOnFailureEXT = 0x00000200
 	}
 
-	public enum VKPipelineSHaderStageCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKPipelineShaderStageCreateFlagBits : VKFlags {
 		AllowVaryingSubgroupSizeEXT = 0x00000001,
 		RequireFullSubgroupsEXT = 0x00000002
 	}
 
-	public enum VKShaderStageFlagBits : VkFlags {
+	[Flags]
+	public enum VKShaderStageFlagBits : VKFlags {
 		Vertex = 0x00000001,
 		TessellationControl = 0x00000002,
 		TessellationEvaluation = 0x00000004,
@@ -1960,77 +2060,98 @@ namespace Tesseract.Vulkan {
 		MeshNV = 0x00000080
 	}
 
-	public enum VKPipelineVertexInputStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineVertexInputStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineInputAssemblyStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineInputAssemblyStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineTessellationStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineTessellationStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineViewportStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineViewportStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineRasterizationStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineRasterizationStateCreateFlagBits : VKFlags { }
 
-	public enum VKCullModeFlagBits : VkFlags {
+	[Flags]
+	public enum VKCullModeFlagBits : VKFlags {
 		None = 0,
 		Front = 0x00000001,
 		Back = 0x00000002,
 		FrontAndBack = 0x00000003
 	}
 
-	public enum VKPipelineMultisampleStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineMultisampleStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineDepthStencilStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineDepthStencilStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineColorBlendStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineColorBlendStateCreateFlagBits : VKFlags { }
 
-	public enum VKColorComponentFlagBits : VkFlags {
+	[Flags]
+	public enum VKColorComponentFlagBits : VKFlags {
 		R = 0x00000001,
 		G = 0x00000002,
 		B = 0x00000004,
 		A = 0x00000008
 	}
 
-	public enum VKPipelineDynamicStateCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineDynamicStateCreateFlagBits : VKFlags { }
 
-	public enum VKPipelineLayoutCreateFlagBits : VkFlags { }
+	[Flags]
+	public enum VKPipelineLayoutCreateFlagBits : VKFlags { }
 
-	public enum VKSamplerCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKSamplerCreateFlagBits : VKFlags {
 		SubsampledEXT = 0x00000001,
 		SubsampledCoarseReconstructionEXT = 0x00000002
 	}
 
-	public enum VKDescriptorSetLayoutCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKDescriptorSetLayoutCreateFlagBits : VKFlags {
 		UpdateAfterBindPool = 0x00000002,
 		PushDescriptorKHR = 0x00000001
 	}
 
-	public enum VKDescriptorPoolCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKDescriptorPoolCreateFlagBits : VKFlags {
 		FreeDescriptorSet = 0x00000001,
 		UpdateAfterBind = 0x00000002
 	}
 
-	public enum VKDescriptorPoolResetFlagBits : VkFlags { }
+	[Flags]
+	public enum VKDescriptorPoolResetFlagBits : VKFlags { }
 
-	public enum VKFramebufferCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKFramebufferCreateFlagBits : VKFlags {
 		Imageless = 0x00000001
 	}
 
-	public enum VKRenderPassCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKRenderPassCreateFlagBits : VKFlags {
 		TransformQCOM = 0x00000002
 	}
 
-	public enum VKAttachmentDescriptionFlagBits : VkFlags {
+	[Flags]
+	public enum VKAttachmentDescriptionFlagBits : VKFlags {
 		MayAlias = 0x00000001
 	}
 
-	public enum VKSubpassDescriptionFlagBits : VkFlags {
+	[Flags]
+	public enum VKSubpassDescriptionFlagBits : VKFlags {
 		PerViewAttributesNVX = 0x00000001,
 		PerViewPositionXOnlyNVX = 0x00000002,
 		FragmentRegionQCOM = 0x00000004,
 		ShaderResolveQCOM = 0x00000008
 	}
 
-	public enum VKAccessFlagBits : VkFlags {
+	[Flags]
+	public enum VKAccessFlagBits : VKFlags {
 		IndirectCommandRead = 0x00000001,
 		IndexRead = 0x00000002,
 		VertexAttributeRead = 0x00000004,
@@ -2061,37 +2182,44 @@ namespace Tesseract.Vulkan {
 		CommandPreProcessWriteNV = 0x00040000
 	}
 
-	public enum VKDependencyFlagBits : VkFlags {
+	[Flags]
+	public enum VKDependencyFlagBits : VKFlags {
 		ByRegion = 0x00000001,
 		DeviceGroup = 0x0000004,
 		ViewLocal = 0x00000002
 	}
 
-	public enum VKCommandPoolCreateFlagBits : VkFlags {
+	[Flags]
+	public enum VKCommandPoolCreateFlagBits : VKFlags {
 		Transient = 0x00000001,
 		ResetCommandBuffer = 0x00000002,
 		Protected = 0x00000004
 	}
 
-	public enum VKCommandPoolResetFlagBits : VkFlags {
+	[Flags]
+	public enum VKCommandPoolResetFlagBits : VKFlags {
 		ReleaseResources = 0x00000001
 	}
 
-	public enum VKCommandBufferUsageFlagBits : VkFlags {
+	[Flags]
+	public enum VKCommandBufferUsageFlagBits : VKFlags {
 		OneTimeSubmit = 0x00000001,
 		RenderPassContinue = 0x00000002,
 		SimultaneousUse = 0x00000004
 	}
 
-	public enum VKQueryControlFlagBits : VkFlags {
+	[Flags]
+	public enum VKQueryControlFlagBits : VKFlags {
 		Precise = 0x00000001
 	}
 
-	public enum VKCommandBufferResetFlagBits : VkFlags {
+	[Flags]
+	public enum VKCommandBufferResetFlagBits : VKFlags {
 		ReleaseResources = 0x00000001
 	}
 
-	public enum VKStencilFaceFlagBits : VkFlags {
+	[Flags]
+	public enum VKStencilFaceFlagBits : VKFlags {
 		Front = 0x00000001,
 		Back = 0x00000002,
 		FrontAndBack = 0x00000003
@@ -2132,7 +2260,8 @@ namespace Tesseract.Vulkan {
 		PushDescriptorsKHR = 1
 	}
 
-	public enum VKSubgroupFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKSubgroupFeatureFlagBits : VKFlags {
 		Basic = 0x00000001,
 		Vote = 0x00000002,
 		Arithmetic = 0x00000004,
@@ -2144,24 +2273,29 @@ namespace Tesseract.Vulkan {
 		PartitionedNV = 0x00000100
 	}
 
-	public enum VKPeerMemoryFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKPeerMemoryFeatureFlagBits : VKFlags {
 		CopySrc = 0x00000001,
 		CopyDst = 0x00000002,
 		GenericSrc = 0x00000004,
 		GenericDst = 0x00000008
 	}
 
-	public enum VKMemoryAllocateFlagBits : VkFlags {
+	[Flags]
+	public enum VKMemoryAllocateFlagBits : VKFlags {
 		DeviceMask = 0x00000001,
 		DeviceAddress = 0x00000002,
 		DeviceAddressCaptureReplay = 0x00000004
 	}
 
-	public enum VKCommandPoolTrimFlags : VkFlags { }
+	[Flags]
+	public enum VKCommandPoolTrimFlags : VKFlags { }
 
-	public enum VKDescriptorUpdateTemplateCreateFlags : VkFlags { }
+	[Flags]
+	public enum VKDescriptorUpdateTemplateCreateFlags : VKFlags { }
 
-	public enum VKExternalMemoryHandleTypeFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalMemoryHandleTypeFlagBits : VKFlags {
 		OpaqueFD = 0x00000001,
 		OpaqueWin32 = 0x00000002,
 		OpaqueWin32KMT = 0x00000004,
@@ -2175,33 +2309,39 @@ namespace Tesseract.Vulkan {
 		HostMappedForeignMemoryEXT = 0x00000100
 	}
 
-	public enum VKExternalMemoryFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalMemoryFeatureFlagBits : VKFlags {
 		DedicatedOnly = 0x00000001,
 		Exportable = 0x00000002,
 		Importable = 0x00000004
 	}
 
-	public enum VKExternalFenceHandleTypeFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalFenceHandleTypeFlagBits : VKFlags {
 		OpaqueFD = 0x00000001,
 		OpaqueWin32 = 0x00000002,
 		OpaqueWin32KMT = 0x00000004,
 		SyncFD = 0x00000008
 	}
 
-	public enum VKExternalFenceFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalFenceFeatureFlagBits : VKFlags {
 		Exportable = 0x00000001,
 		Importable = 0x00000002
 	}
 
-	public enum VKFenceImportFlagBits : VkFlags {
+	[Flags]
+	public enum VKFenceImportFlagBits : VKFlags {
 		Temporary = 0x00000001
 	}
 
-	public enum VKSemaphoreImportFlagBits : VkFlags {
+	[Flags]
+	public enum VKSemaphoreImportFlagBits : VKFlags {
 		Temporary = 0x00000001
 	}
 
-	public enum VKExternalSemaphoreHandleTypeFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalSemaphoreHandleTypeFlagBits : VKFlags {
 		OpaqueFD = 0x00000001,
 		OpaqueWin32 = 0x00000002,
 		OpaqueWin32KMT = 0x00000004,
@@ -2209,7 +2349,8 @@ namespace Tesseract.Vulkan {
 		SyncFD = 0x00000010
 	}
 
-	public enum VKExternalSemaphoreFeatureFlagBits : VkFlags {
+	[Flags]
+	public enum VKExternalSemaphoreFeatureFlagBits : VKFlags {
 		Exportable = 0x00000001,
 		Importable = 0x00000002
 	}
@@ -2249,7 +2390,8 @@ namespace Tesseract.Vulkan {
 		Timeline = 1
 	}
 
-	public enum VKResolveModeFlagBits : VkFlags {
+	[Flags]
+	public enum VKResolveModeFlagBits : VKFlags {
 		None = 0,
 		SampleZero = 0x00000001,
 		Average = 0x00000002,
@@ -2257,15 +2399,249 @@ namespace Tesseract.Vulkan {
 		Max = 0x00000008
 	}
 
-	public enum VKDescriptorBindingFlagBits : VkFlags {
+	[Flags]
+	public enum VKDescriptorBindingFlagBits : VKFlags {
 		UpdateAfterBind = 0x00000001,
 		UpdateUnusedWhilePending = 0x00000002,
 		PartiallyBound = 0x00000004,
 		VariableDescriptorCount = 0x00000008
 	}
 
-	public enum VKSemaphoreWaitFlagBits {
+	[Flags]
+	public enum VKSemaphoreWaitFlagBits : VKFlags {
 		Any = 0x00000001
+	}
+
+	// Vulkan 1.3
+
+	// VK_EXT_pipeline_creation_feedback
+
+	[Flags]
+	public enum VKPipelineCreationFeedbackFlagBits : VKFlags {
+		Valid = 0x00000001,
+		ApplicationPipelineCacheHit = 0x00000002,
+		BasePipelineAcceleration = 0x00000004
+	}
+
+	// VK_EXT_tooling_info
+
+	[Flags]
+	public enum VKToolPurposeFlagBits : VKFlags {
+		Validation = 0x00000001,
+		Profiling = 0x00000002,
+		Tracing = 0x00000004,
+		AdditionalFeatures = 0x00000008,
+		ModifyingFeatures = 0x00000010,
+		DebugReporting = 0x00000020,
+		DebugMarkers = 0x00000040
+	}
+
+	// VK_EXT_private_data
+
+	[Flags]
+	public enum VKPrivateDataSlotCreateFlagBits : VKFlags { }
+
+	// VK_KHR_synchronization2
+
+	[Flags]
+	public enum VKPipelineStageFlagBits2 : VKFlags64 {
+		None = 0,
+		TopOfPipe = 0x000000001,
+		DrawIndirect = 0x00000002,
+		VertexInput = 0x00000004,
+		VertexShader = 0x00000008,
+		TessellationControlShader = 0x00000010,
+		TessellationEvaluationShader = 0x00000020,
+		GeometryShader = 0x00000040,
+		FragmentShader = 0x00000080,
+		EarlyFragmentTests = 0x00000100,
+		LateFragmentTests = 0x00000200,
+		ColorAttachmentOutput = 0x00000400,
+		ComputeShader = 0x00000800,
+		AllTransfer = 0x00001000,
+		Transfer = AllTransfer,
+		BottomOfPipe = 0x00002000,
+		Host = 0x00004000,
+		AllGraphics = 0x00008000,
+		AllCommands = 0x00010000,
+		Copy = 0x100000000,
+		Resolve = 0x200000000,
+		Blit = 0x400000000,
+		Clear = 0x800000000,
+		IndexInput = 0x1000000000,
+		VertexAttributeInput = 0x2000000000,
+		PreRasterizationShaders = 0x4000000000,
+		// VK_KHR_video_decode_queue
+		VideoDecodeBitKHR = 0x04000000,
+		// VK_KHR_video_encode_queue
+		VideoEncodeBitKHR = 0x08000000,
+		// VK_KHR_synchronization2 + VK_EXT_transform_feedback
+		TransformFeedbackEXT = 0x01000000,
+		// VK_KHR_synchronization2 + VK_EXT_conditional_rendering
+		ConditionalRenderingEXT = 0x00040000,
+		// VK_KHR_synchronization2 + VK_NV_device_generated_commands
+		CommandPreprocessNV = 0x00020000,
+		// VK_KHR_fragment_shading_rate + VK_KHR_synchronization2
+		FragmentShadingRateAttachmentKHR = 0x00400000,
+		// VK_KHR_synchronization2 + VK_NV_shading_rate_image
+		ShadingRateImageNV = FragmentShadingRateAttachmentKHR,
+		// VK_KHR_acceleration_structure + VK_KHR_synchronization2
+		AccelerationStructureBuildKHR = 0x02000000,
+		// VK_KHR_ray_tracing_pipeline + VK_KHR_synchronization2
+		RayTracingShaderKHR = 0x00200000,
+		// VK_KHR_synchronization2 + VK_NV_ray_tracing
+		RayTracingShaderNV = RayTracingShaderKHR,
+		AccelerationStructureBuildNV = AccelerationStructureBuildKHR,
+		// VK_KHR_synchronization2 + VK_EXT_fragment_density_map
+		FragmentDensityProcessEXT = 0x00800000,
+		// VK_KHR_synchronization2 + VK_EXT_mesh_shader
+		TaskShaderEXT = 0x00080000,
+		MeshShaderEXT = 0x00100000,
+		// VK_KHR_synchronization2 + VK_NV_mesh_shader
+		TaskShaderNV = TaskShaderEXT,
+		MeshShaderNV = MeshShaderEXT,
+		// VK_HUAWEI_subpass_shading
+		SubpassShadingHUAWEI = 0x8000000000,
+		// VK_HUAWEI_invocation_mask
+		InvocationMaskHUAWEI = 0x10000000000,
+		// VK_KHR_ray_tracing_maintenance1 + VK_KHR_synchronization2
+		AccelerationStructureCopyKHR = 0x10000000,
+		// VK_EXT_opacity_micromap
+		MicromapBuildEXT = 0x40000000,
+		// VK_NV_optical_flow
+		OpticalFlow = 0x20000000
+	}
+
+	[Flags]
+	public enum VKAccessFlagBits2 : VKFlags64 {
+		None = 0,
+		IndirectCommandRead = 0x00000001,
+		IndexRead = 0x00000002,
+		VertexAttributeRead = 0x00000004,
+		UniformRead = 0x00000008,
+		InputAttachmentRead = 0x00000010,
+		ShaderRead = 0x00000020,
+		ShaderWrite = 0x00000040,
+		ColorAttachmentRead = 0x00000080,
+		ColorAttachmentWrite = 0x00000100,
+		DepthStencilAttachmentRead = 0x00000200,
+		DepthStencilAttachmentWrite = 0x00000400,
+		TransferRead = 0x00000800,
+		TransferWrite = 0x00001000,
+		HostRead = 0x00002000,
+		HostWrite = 0x00004000,
+		MemoryRead = 0x00008000,
+		MemoryWrite = 0x00010000,
+		ShaderSampledRead = 0x100000000,
+		ShaderStorageRead = 0x200000000,
+		ShaderStorageWrite = 0x400000000,
+		// VK_KHR_video_decode_queue
+		VideoDecodeReadKHR = 0x800000000,
+		VideoDecodeWriteKHR = 0x1000000000,
+		// VK_KHR_video_encode_queue
+		VideoEncodeReadKHR = 0x2000000000,
+		VideoEncodeWriteKHR = 0x4000000000,
+		// VK_KHR_synchronization2 + VK_EXT_transform_feedback
+		TransformFeedbackWriteEXT = 0x02000000,
+		TransformFeedbackCounterReadEXT = 0x04000000,
+		TransformFeedbackCounterWriteEXT = 0x08000000,
+		// VK_KHR_synchronization2 + VK_EXT_conditional_rendering
+		ConditionalRenderingReadEXT = 0x00100000,
+		// VK_KHR_synchronization2 + VK_NV_device_generated_commands
+		CommandPreprocessReadNV = 0x00020000,
+		CommandPreprocessWriteNV = 0x00040000,
+		// VK_KHR_fragment_shading_rate + VK_KHR_synchronization2
+		FragmentShadingRateAttachmentReadKHR = 0x00800000,
+		// VK_KHR_synchronization2 + VK_NV_shading_rate_image
+		ShadingRateImageReadNV = FragmentShadingRateAttachmentReadKHR,
+		// VK_KHR_acceleration_structure + VK_KHR_synchronization2
+		AccelerationStructureReadKHR = 0x00200000,
+		AccelerationStructureWriteKHR = 0x00400000,
+		// VK_KHR_synchronization2 + VK_NV_ray_tracing
+		AccelerationStructureReadNV = AccelerationStructureReadKHR,
+		AccelerationStructureWriteNV = AccelerationStructureWriteKHR,
+		// VK_KHR_synchronization2 + VK_EXT_fragment_density_map
+		FragmentDensityMapReadEXT = 0x01000000,
+		// VK_KHR_synchronization2 + VK_EXT_blend_operation_advanced
+		ColorAttachmentReadNoncoherentEXT = 0x00080000,
+		// VK_HUAWEI_invocation_mask
+		InvocationMaskReadHUAWEI = 0x8000000000,
+		// VK_KHR_ray_tracing_maintenance1 + VK_KHR_synchronization2 + VK_KHR_ray_tracing_pipeline
+		ShaderBindingTableReadKHR = 0x10000000000,
+		// VK_EXT_opacity_micromap
+		MicromapReadEXT = 0x100000000000,
+		MicromapWriteEXT = 0x200000000000,
+		// VK_NV_optical_flow
+		OpticalFlowReadNV = 0x40000000000,
+		OpticalFlowWriteNV = 0x80000000000
+	}
+
+	[Flags]
+	public enum VKSubmitFlagBits : VKFlags {
+		Protected = 0x00000001
+	}
+
+	// VK_KHR_dynamic_rendering
+	
+	[Flags]
+	public enum VKRenderingFlagBits : VKFlags {
+		ContentsSecondaryCommandBuffers = 0x00000001,
+		Suspending = 0x00000002,
+		Resuming = 0x00000004
+	}
+
+	// VK_KHR_format_feature_flags2
+
+	[Flags]
+	public enum VKFormatFeatureFlagBits2 : VKFlags64 {
+		SampledImage = 0x00000001,
+		StorageImage = 0x00000002,
+		StorageImageAtomic = 0x00000004,
+		UniformTexelBuffer = 0x00000008,
+		StorageTexelBuffer = 0x00000010,
+		StorageTexelBufferAtomic = 0x00000020,
+		VertexBuffer = 0x00000040,
+		ColorAttachment = 0x00000080,
+		ColorAttachmentBlend = 0x00000100,
+		DepthStencilAttachment = 0x00000200,
+		BlitSrc = 0x00000400,
+		BlitDst = 0x00000800,
+		SampledImageFilterLinear = 0x00001000,
+		SampledImageFilterCubic = 0x00002000,
+		TransferSrc = 0x00004000,
+		TransferDst = 0x00008000,
+		SampledImageFilterMinmax = 0x00010000,
+		MidpointChromaSamples = 0x00020000,
+		SampledImageYCbCrConversionLinearFilter = 0x00040000,
+		SampledImageYCbCrConversionSeparateReconstructionFilter = 0x00080000,
+		SampledImageYCbCrConversionChromaReconstructionExplicit = 0x00100000,
+		SampledImageYCbCrConversionChromaReconstructionExplicitForceable = 0x00200000,
+		Disjoint = 0x00400000,
+		CositedChromaSamples = 0x00800000,
+		StorageReadWithoutFormat = 0x80000000,
+		StorageWriteWithoutFormat = 0x100000000,
+		SampledImageDepthComparison = 0x200000000,
+		// VK_KHR_format_feature_flags2 + VK_KHR_video_decode_queue
+		VideoDecodeOutputKHR = 0x02000000,
+		VideoDecodeDPBKHR = 0x04000000,
+		// VK_KHR_format_feature_flags2 + VK_KHR_acceleration_structure
+		AccelerationStructureVertexBufferKHR = 0x20000000,
+		// VK_KHR_format_feature_flags2 + VK_EXT_fragment_density_map
+		FragmentDensityMapEXT = 0x01000000,
+		// VK_KHR_format_feature_flags2 + VK_KHR_video_encode_queue
+		VideoEncodeInputKHR = 0x08000000,
+		VideoEncodeDPBKHR = 0x10000000,
+		// VK_KHR_format_feature_flags2 + VK_NV_linear_color_attachment
+		LinearColorAttachmentNV = 0x4000000000,
+		// VK_KHR_format_feature_flags2 + VK_QCOM_image_processing
+		WeightImageQCOM = 0x400000000,
+		WeightSampledImageQCOM = 0x800000000,
+		BlockMatchingQCOM = 0x1000000000,
+		BoxFilterSampledQCOM = 0x2000000000,
+		// VK_NV_optical_flow
+		OpticalFlowImageNV = 0x10000000000,
+		OpticalFlowVectorNV = 0x20000000000,
+		OpticalFlowCostNV = 0x40000000000
 	}
 
 	// Miscellaneous

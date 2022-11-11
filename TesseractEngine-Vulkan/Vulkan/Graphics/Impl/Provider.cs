@@ -106,7 +106,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// The version of the application to pass to <see cref="VKApplicationInfo"/>.
 		/// </summary>
-		public uint ApplicationVersion { get; init; } = VK10.MakeVersion(0, 1, 0);
+		public uint ApplicationVersion { get; init; } = VK10.MakeApiVersion(0, 1, 0, 0);
 
 		/// <summary>
 		/// The name of the engine to pass to <see cref="VKApplicationInfo"/>.
@@ -116,7 +116,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// THe version of the engine to pass to <see cref="VKApplicationInfo"/>.
 		/// </summary>
-		public uint EngineVersion { get; init; } = VK10.MakeVersion(0, 1, 0);
+		public uint EngineVersion { get; init; } = VK10.MakeApiVersion(0, 1, 0, 0);
 
 		/// <summary>
 		/// A loader for Vulkan functions to use when creating objects. If null, <see cref="VulkanPlatformLoader"/> is used.
@@ -210,9 +210,9 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					Type = VKStructureType.ApplicationInfo,
 					APIVersion = VK.MaxInstanceVersion,
 					ApplicationName = "Tesseract",
-					ApplicationVersion = VK10.MakeVersion(0, 1, 0),
+					ApplicationVersion = VK10.MakeApiVersion(0, 1, 0, 0),
 					EngineName = "Tesseract",
-					EngineVersion = VK10.MakeVersion(0, 1, 0)
+					EngineVersion = VK10.MakeApiVersion(0, 1, 0, 0)
 				};
 				if (exInfo != null) {
 					if (exInfo.ApplicationName != null) appInfo.ApplicationName = exInfo.ApplicationName;

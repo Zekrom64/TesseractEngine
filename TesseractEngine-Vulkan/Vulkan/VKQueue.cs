@@ -10,12 +10,16 @@ namespace Tesseract.Vulkan {
 
 	public class VKQueue : IVKDeviceObject, IPrimitiveHandle<IntPtr> {
 
+		public VKObjectType ObjectType => VKObjectType.Queue;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkQueue")]
 		public IntPtr Queue { get; }
 
 		public IntPtr PrimitiveHandle => Queue;
+
+		ulong IPrimitiveHandle<ulong>.PrimitiveHandle => (ulong)PrimitiveHandle;
 
 		public VKQueue(IntPtr queue, VKDevice device) {
 			Queue = queue;
@@ -59,6 +63,13 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
+		public void BindSparse(IReadOnlyCollection<VKBindSparseInfo> infos, VKFence? fence = null) {
+			Span<VKBindSparseInfo> sInfos = stackalloc VKBindSparseInfo[infos.Count];
+			int i = 0;
+			foreach (VKBindSparseInfo info in infos) sInfos[i++] = info;
+			BindSparse(sInfos, fence);
+		}
+
 		// VK_KHR_swapchain
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,6 +84,32 @@ namespace Tesseract.Vulkan {
 
 		public void InsertDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkQueueInsertDebugUtilsLabelEXT(Queue, labelInfo);
 
+		// VK_KHR_synchronization2
+
+		public void Submit2(VKSubmitInfo2 submit, VKFence? fence = null) {
+			unsafe {
+				Device.KHRSynchronization2!.vkQueueSubmit2(Queue, 1, (IntPtr)(&submit), fence);
+			}
+		}
+
+		public void Submit2(in ReadOnlySpan<VKSubmitInfo2> submits, VKFence? fence = null) {
+			unsafe {
+				fixed(VKSubmitInfo2* pSubmits = submits) {
+					Device.KHRSynchronization2!.vkQueueSubmit2(Queue, (uint)submits.Length, (IntPtr)pSubmits, fence);
+				}
+			}
+		}
+
+		public void Submit2(IReadOnlyCollection<VKSubmitInfo2> submits, VKFence? fence = null) {
+			Span<VKSubmitInfo2> sSubmits = stackalloc VKSubmitInfo2[submits.Count];
+			int i = 0;
+			foreach (VKSubmitInfo2 submit in submits) sSubmits[i++] = submit;
+			Submit2(sSubmits, fence);
+		}
+
+		public void WritePrimitiveHandle(IntPtr ptr) {
+			throw new NotImplementedException();
+		}
 	}
 
 }

@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKBufferView : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.BufferView;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkBufferView")]

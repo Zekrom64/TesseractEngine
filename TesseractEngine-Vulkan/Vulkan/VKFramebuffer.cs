@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKFramebuffer : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Framebuffer;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkFramebuffer")]

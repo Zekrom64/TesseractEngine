@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKImage : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Image;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkImage")]

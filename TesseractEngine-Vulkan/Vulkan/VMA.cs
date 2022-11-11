@@ -568,7 +568,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public class VMAAllocator : IDisposable, IVKDeviceObject, IVKAllocatedObject {
+	public class VMAAllocator : IDisposable, IVKAllocatedObject {
 
 		[NativeType("VmaAllocator")]
 		public IntPtr Allocator;

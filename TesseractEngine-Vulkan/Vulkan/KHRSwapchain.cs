@@ -203,6 +203,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKSwapchainKHR : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.SwapchainKHR;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkSwapchainKHR")]

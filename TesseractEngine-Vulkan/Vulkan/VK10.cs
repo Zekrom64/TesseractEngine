@@ -11,12 +11,22 @@ namespace Tesseract.Vulkan {
 
 	public class VK10 {
 
+		[Obsolete("Deprecated in the Vulkan spec, use MakeApiVersion instead")]
 		public static uint MakeVersion(uint major, uint minor, uint patch) => (major << 22) | (minor << 12) | patch;
+		[Obsolete("Deprecated in the Vulkan spec, use ApiVersionMajor instead")]
 		public static uint VersionMajor(uint version) => version >> 22;
+		[Obsolete("Deprecated in the Vulkan spec, use ApiVersionMinor instead")]
 		public static uint VersionMinor(uint version) => (version >> 12) & 0x3FF;
+		[Obsolete("Deprecated in the Vulkan spec, use ApiVersionPatch instead")]
 		public static uint VersionPatch(uint version) => version & 0xFFF;
 
-		public static readonly uint ApiVersion = MakeVersion(1, 0, 0);
+		public static uint MakeApiVersion(uint variant, uint major, uint minor, uint patch) => (variant << 29) | (major << 22) | (minor << 12) | patch;
+		public static uint ApiVersionVariant(uint version) => version >> 29;
+		public static uint ApiVersionMajor(uint version) => (version >> 22) & 0x7F;
+		public static uint ApiVersionMinor(uint version) => (version >> 12) & 0x3FF;
+		public static uint ApiVersionPatch(uint version) => version & 0xFFF;
+
+		public static readonly uint ApiVersion = MakeApiVersion(0, 1, 0, 0);
 
 		public const float LodClampNone = 1000.0f;
 		public const uint RemainingMipLevels = ~0U;

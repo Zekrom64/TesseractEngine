@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Vulkan.Native;
+using Microsoft.VisualBasic;
 
 namespace Tesseract.Vulkan {
 
@@ -68,9 +69,15 @@ namespace Tesseract.Vulkan {
 		public bool KHRUniformBufferStandardLayout { get; }
 		public bool KHRVulkanMemoryModel { get; }
 		// Vulkan 1.3
-		public EXTExtendedDynamicStateDeviceFunctions? EXTExtendedDynamicState { get; }
-		public EXTExtendedDynamicStateDeviceFunctions2? EXTExtendedDynamicState2 { get; }
+		public KHRCopyCommands2Functions? KHRCopyCommands2 { get; }
 		public KHRDynamicRenderingDeviceFunctions? KHRDynamicRendering { get; }
+		public bool KHRFormatFeatureFlags2 { get; }
+		public KHRMaintenance4Functions? KHRMaintenance4 { get; }
+		public bool KHRShaderIntegerDotProduct { get; }
+		public bool KHRShaderNonSemanticInfo { get; }
+		public bool KHRShaderTerminateInvocation { get; }
+		public KHRSynchronization2Functions? KHRSynchronization2 { get; }
+		public bool KHRZeroInitializeWorkgroupMemory { get; }
 		// Miscellaneous
 		public KHRSwapchainDeviceFunctions? KHRSwapchain { get; }
 
@@ -82,20 +89,37 @@ namespace Tesseract.Vulkan {
 		public bool EXTScalarBlockLayout { get; }
 		public bool EXTSeparateStencilUsage { get; }
 		public bool EXTShaderViewportIndexLayer { get; }
+		// Vulkan 1.3
+		public EXTExtendedDynamicStateDeviceFunctions? EXTExtendedDynamicState { get; }
+		public EXTExtendedDynamicStateDeviceFunctions2? EXTExtendedDynamicState2 { get; }
 		// Miscellaneous
 		public bool EXTCustomBorderColor { get; }
 		public EXTLineRasterizationDeviceFunctions? EXTLineRasterization { get; }
 		public EXTVertexInputDynamicStateDeviceFunctions? EXTVertexInputDynamicState { get; }
 		public EXTColorWriteEnableDeviceFunctions? EXTColorWriteEnable { get; }
+		public bool EXT4444Formats { get; }
+		public bool EXTImageRobustness { get; }
+		public bool EXTInlineUniformBlock { get; }
+		public bool EXTPipelineCreationCacheControl { get; }
+		public bool EXTPipelineCreationFeedback { get; }
+		public EXTPrivateDataFunctions? EXTPrivateData { get; }
+		public bool EXTShaderDemoteToHelperInvocation { get; }
+		public bool EXTSubgroupSizeControl { get; }
+		public bool EXTTexelBufferAlignment { get; }
+		public bool EXTTextureCompressionASTCHDR { get; }
+		public EXTToolingInfoFunctions? EXTToolingInfo { get; }
 
 		public VKGetDeviceProcAddr DeviceGetProcAddress;
 
 		public IntPtr GetProcAddr(string name) => DeviceGetProcAddress(Device, name);
 
-		public VKDevice(VKInstance instance, IntPtr device, in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks? allocator) {
+		public VKPhysicalDevice? PhysicalDevice { get; }
+
+		public VKDevice(VKInstance instance, IntPtr device, in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks? allocator, VKPhysicalDevice? physicalDevice) {
 			Instance = instance;
 			Device = device;
 			Allocator = allocator;
+			PhysicalDevice = physicalDevice;
 
 			IntPtr pDevFunc = Instance.VK.InstanceGetProcAddr(Instance, "vkGetDeviceProcAddr");
 			if (pDevFunc != IntPtr.Zero) DeviceGetProcAddress = Marshal.GetDelegateForFunctionPointer<VKGetDeviceProcAddr>(pDevFunc);
@@ -156,9 +180,28 @@ namespace Tesseract.Vulkan {
 			EXTSeparateStencilUsage = exts.Contains(Vulkan.EXTSeparateStencilUsage.ExtensionName);
 			EXTShaderViewportIndexLayer = exts.Contains(Vulkan.EXTShaderViewportIndexLayer.ExtensionName);
 			// Vulkan 1.3
+			if (exts.Contains(Vulkan.KHRDynamicRendering.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDynamicRendering = new());
+			KHRFormatFeatureFlags2 = exts.Contains(Vulkan.KHRFormatFeatureFlags2.ExtensionName);
+			if (exts.Contains(Vulkan.KHRCopyCommands2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRCopyCommands2 = new());
+			if (exts.Contains(Vulkan.KHRMaintenance4.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRMaintenance4 = new());
+			KHRShaderIntegerDotProduct = exts.Contains(Vulkan.KHRShaderIntegerDotProduct.ExtensionName);
+			KHRShaderNonSemanticInfo = exts.Contains(Vulkan.KHRShaderNonSemanticInfo.ExtensionName);
+			KHRShaderTerminateInvocation = exts.Contains(Vulkan.KHRShaderTerminateInvocation.ExtensionName);
+			if (exts.Contains(Vulkan.KHRSynchronization2.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSynchronization2 = new());
+			KHRZeroInitializeWorkgroupMemory = exts.Contains(Vulkan.KHRZeroInitializeWorkgroupMemory.ExtensionName);
 			if (exts.Contains(Vulkan.EXTExtendedDynamicState.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTExtendedDynamicState = new());
 			if (exts.Contains(Vulkan.EXTExtendedDynamicState2.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTExtendedDynamicState2 = new());
-			if (exts.Contains(Vulkan.KHRDynamicRendering.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDynamicRendering = new());
+			EXT4444Formats = exts.Contains(Vulkan.EXT4444Formats.ExtensionName);
+			EXTImageRobustness = exts.Contains(Vulkan.EXTImageRobustness.ExtensionName);
+			EXTInlineUniformBlock = exts.Contains(Vulkan.EXTInlineUniformBlock.ExtensionName);
+			EXTPipelineCreationCacheControl = exts.Contains(Vulkan.EXTPipelineCreationCacheControl.ExtensionName);
+			EXTPipelineCreationFeedback = exts.Contains(Vulkan.EXTPipelineCreationFeedback.ExtensionName);
+			if (exts.Contains(Vulkan.EXTPrivateData.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTPrivateData = new());
+			EXTShaderDemoteToHelperInvocation = exts.Contains(Vulkan.EXTShaderDemoteToHelperInvocation.ExtensionName);
+			EXTSubgroupSizeControl = exts.Contains(Vulkan.EXTSubgroupSizeControl.ExtensionName);
+			EXTTexelBufferAlignment = exts.Contains(Vulkan.EXTTexelBufferAlignment.ExtensionName);
+			EXTTextureCompressionASTCHDR = exts.Contains(Vulkan.EXTTextureCompressionASTCHDR.ExtensionName);
+			if (exts.Contains(Vulkan.EXTToolingInfo.ExtensionName)) Library.LoadFunctions(GetProcAddr, EXTToolingInfo = new());
 
 			// KHR Extensions
 			if (exts.Contains(Vulkan.KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchain = new());
@@ -421,16 +464,14 @@ namespace Tesseract.Vulkan {
 		// VK_KHR_bind_memory2
 
 		public void BindBufferMemory2(VKBindBufferMemoryInfo bindInfo) {
-			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
-			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2!.vkBindBufferMemory2KHR);
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2 ?? new(KHRBindMemory2!.vkBindBufferMemory2KHR);
 			unsafe {
 				VK.CheckError(vkBindBufferMemory2(Device, 1, (IntPtr)(&bindInfo)));
 			}
 		}
 
 		public void BindBufferMemory2(params VKBindBufferMemoryInfo[] bindInfos) {
-			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
-			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2!.vkBindBufferMemory2KHR);
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2 ?? new(KHRBindMemory2!.vkBindBufferMemory2KHR);
 			unsafe {
 				fixed (VKBindBufferMemoryInfo* pBindInfos = bindInfos) {
 					VK.CheckError(vkBindBufferMemory2(Device, (uint)bindInfos.Length, (IntPtr)pBindInfos));
@@ -439,8 +480,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		public void BindBufferMemory2(ReadOnlySpan<VKBindBufferMemoryInfo> bindInfos) {
-			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2;
-			if (vkBindBufferMemory2 == null) vkBindBufferMemory2 = new(KHRBindMemory2!.vkBindBufferMemory2KHR);
+			var vkBindBufferMemory2 = VK11Functions?.vkBindBufferMemory2 ?? new(KHRBindMemory2!.vkBindBufferMemory2KHR);
 			unsafe {
 				fixed (VKBindBufferMemoryInfo* pBindInfos = bindInfos) {
 					VK.CheckError(vkBindBufferMemory2(Device, (uint)bindInfos.Length, (IntPtr)pBindInfos));
@@ -449,16 +489,14 @@ namespace Tesseract.Vulkan {
 		}
 
 		public void BindImageMemory2(VKBindImageMemoryInfo bindInfo) {
-			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
-			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2!.vkBindImageMemory2KHR);
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2 ?? new(KHRBindMemory2!.vkBindImageMemory2KHR);
 			unsafe {
 				VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)(&bindInfo)));
 			}
 		}
 
 		public void BindImageMemory2(params VKBindImageMemoryInfo[] bindInfos) {
-			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
-			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2!.vkBindImageMemory2KHR);
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2 ?? new(KHRBindMemory2!.vkBindImageMemory2KHR);
 			unsafe {
 				fixed(VKBindImageMemoryInfo* pBindInfos = bindInfos) {
 					VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)pBindInfos));
@@ -467,8 +505,7 @@ namespace Tesseract.Vulkan {
 		}
 
 		public void BindImageMemory2(ReadOnlySpan<VKBindImageMemoryInfo> bindInfos) {
-			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2;
-			if (vkBindImageMemory2 == null) vkBindImageMemory2 = new(KHRBindMemory2!.vkBindImageMemory2KHR);
+			var vkBindImageMemory2 = VK11Functions?.vkBindImageMemory2 ?? new(KHRBindMemory2!.vkBindImageMemory2KHR);
 			unsafe {
 				fixed (VKBindImageMemoryInfo* pBindInfos = bindInfos) {
 					VK.CheckError(vkBindImageMemory2(Device, 1, (IntPtr)pBindInfos));
@@ -555,6 +592,71 @@ namespace Tesseract.Vulkan {
 		public void SetDebugUtilsObjectNameEXT(in VKDebugUtilsObjectNameInfoEXT nameInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions!.vkSetDebugUtilsObjectNameEXT(Device, nameInfo));
 
 		public void SetDebugUtilsObjectTagEXT(in VKDebugUtilsObjectTagInfoEXT tagInfo) => VK.CheckError(Instance.EXTDebugUtilsFunctions!.vkSetDebugUtilsObjectTagEXT(Device, tagInfo));
+
+		// Vulkan 1.3
+		// VK_KHR_maintenance4
+
+		public void GetDeviceBufferMemoryRequirements(in VKDeviceBufferMemoryRequirements info, ref VKMemoryRequirements2 memoryRequirements) => KHRMaintenance4!.vkGetDeviceBufferMemoryRequirementsKHR(Device, info, ref memoryRequirements);
+
+		public void GetDeviceImageMemoryRequirements(in VKDeviceImageMemoryRequirements info, ref VKMemoryRequirements2 memoryRequirements) => KHRMaintenance4!.vkGetDeviceImageMemoryRequirementsKHR(Device, info, ref memoryRequirements);
+
+		public void GetDeviceSparseImageMemoryRequirements(in VKDeviceImageMemoryRequirements info, out uint sparseMemoryRequirementCount) {
+			uint count = 0;
+			KHRMaintenance4!.vkGetDeviceImageSparseMemoryRequirementsKHR(Device, info, ref count, IntPtr.Zero);
+			sparseMemoryRequirementCount = count;
+		}
+
+		public void GetDeviceSparseImageMemoryRequirements(in VKDeviceImageMemoryRequirements info, IPointer<VKSparseImageMemoryRequirements2> sparseMemoryRequirements) {
+			if (sparseMemoryRequirements.ArraySize < 0) throw new ArgumentException("Cannot pass pointer with undefined array size", nameof(sparseMemoryRequirements));
+			uint count = (uint)sparseMemoryRequirements.ArraySize;
+			unsafe {
+				KHRMaintenance4!.vkGetDeviceImageSparseMemoryRequirementsKHR(Device, info, ref count, sparseMemoryRequirements.Ptr);
+			}
+		}
+
+		public void GetDeviceSparseImageMemoryRequirements(in VKDeviceImageMemoryRequirements info, Span<VKSparseImageMemoryRequirements2> sparseMemoryRequirements) {
+			uint count = (uint)sparseMemoryRequirements.Length;
+			unsafe {
+				fixed (VKSparseImageMemoryRequirements2* pSparseMemoryRequirements = sparseMemoryRequirements) {
+					KHRMaintenance4!.vkGetDeviceImageSparseMemoryRequirementsKHR(Device, info, ref count, (IntPtr)pSparseMemoryRequirements);
+				}
+			}
+		}
+
+		// Vulkan 1.3
+		// VK_EXT_private_data
+
+		public ulong CreatePrivateDataSlot(in VKPrivateDataSlotCreateInfo createInfo, VulkanAllocationCallbacks? allocationCallbacks = null) {
+			VK.CheckError(EXTPrivateData!.vkCreatePrivateDataSlotEXT(Device, createInfo, allocationCallbacks, out ulong privateDataSlot));
+			return privateDataSlot;
+		}
+
+		public void DestroyPrivateDataSlot(ulong privateDataSlot, VulkanAllocationCallbacks? allocationCallbacks = null) =>
+			EXTPrivateData!.vkDestroyPrivateDataSlotEXT(Device, privateDataSlot, allocationCallbacks);
+
+		public ulong GetPrivateData(VKObjectType objectType, ulong objectHandle, ulong privateDataSlot) {
+			EXTPrivateData!.vkGetPrivateDataEXT(Device, objectType, objectHandle, privateDataSlot, out ulong data);
+			return data;
+		}
+
+		public void SetPrivateData(VKObjectType objectType, ulong objectHandle, ulong privateDataSlot, ulong data) =>
+			EXTPrivateData!.vkSetPrivateDataEXT(Device, objectType, objectHandle, privateDataSlot, data);
+
+		// Vulkan 1.3
+		// VK_EXT_tooling_info
+
+		public VKPhysicalDeviceToolProperties[] GetPhysicalDeviceToolProperties(VKPhysicalDevice? physicalDevice = null) {
+			IntPtr vkPhysicalDevice = (physicalDevice ?? PhysicalDevice ?? throw new NullReferenceException("Could not determine physical device to use")).PhysicalDevice;
+			uint count = 0;
+			VK.CheckError(EXTToolingInfo!.vkGetPhysicalDeviceToolPropertiesEXT(vkPhysicalDevice, ref count, IntPtr.Zero));
+			VKPhysicalDeviceToolProperties[] toolProperties = new VKPhysicalDeviceToolProperties[count];
+			unsafe {
+				fixed(VKPhysicalDeviceToolProperties* pToolProperties = toolProperties) {
+					EXTToolingInfo!.vkGetPhysicalDeviceToolPropertiesEXT(vkPhysicalDevice, ref count, (IntPtr)pToolProperties);
+				}
+			}
+			return toolProperties;
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator IntPtr(VKDevice device) => device != null ? device.Device : IntPtr.Zero;

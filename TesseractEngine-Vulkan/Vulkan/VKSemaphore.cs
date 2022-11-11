@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKSemaphore : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Semaphore;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkSemaphore")]

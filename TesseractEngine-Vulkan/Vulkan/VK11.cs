@@ -9,7 +9,7 @@ using Tesseract.Vulkan.Native;
 namespace Tesseract.Vulkan {
 	public class VK11 {
 
-		public static readonly uint ApiVersion = VK10.MakeVersion(1, 1, 0);
+		public static readonly uint ApiVersion = VK10.MakeApiVersion(0, 1, 1, 0);
 
 		public const int MaxDeviceGroupSize = 32;
 		public const int LUIDSize = 8;

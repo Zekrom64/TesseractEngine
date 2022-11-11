@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Native;
 using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan {
@@ -48,12 +49,31 @@ namespace Tesseract.Vulkan {
 	/// <summary>
 	/// A device object stores a reference to the device it is associated with.
 	/// </summary>
-	public interface IVKDeviceObject {
+	public interface IVKDeviceObject : IPrimitiveHandle<ulong> {
+
+		/// <summary>
+		/// The type of the object.
+		/// </summary>
+		public VKObjectType ObjectType { get; }
 
 		/// <summary>
 		/// The device associated with this object.
 		/// </summary>
 		public VKDevice Device { get; }
+
+		/// <summary>
+		/// Shortcut for <see cref="VKDevice.GetPrivateData(VKObjectType, ulong, ulong)"/>.
+		/// </summary>
+		/// <param name="privateDataSlot">The private data slot to get</param>
+		/// <returns>The private data in the slot</returns>
+		public ulong GetPrivateData(ulong privateDataSlot) => Device.GetPrivateData(ObjectType, PrimitiveHandle, privateDataSlot);
+
+		/// <summary>
+		/// Shortcut for <see cref="VKDevice.SetPrivateData(VKObjectType, ulong, ulong, ulong)"/>.
+		/// </summary>
+		/// <param name="privateDataSlot">The private data slot to set</param>
+		/// <param name="data">The private data to set</param>
+		public void SetPrivateData(ulong privateDataSlot, ulong data) => Device.SetPrivateData(ObjectType, PrimitiveHandle, privateDataSlot, data);
 
 	}
 

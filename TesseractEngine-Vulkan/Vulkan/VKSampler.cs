@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKSampler : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Sampler;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkSampler")]

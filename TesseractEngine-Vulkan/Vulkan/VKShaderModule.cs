@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKShaderModule : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.ShaderModule;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkShaderModule")]

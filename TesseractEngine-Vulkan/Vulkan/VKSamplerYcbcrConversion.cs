@@ -9,6 +9,8 @@ namespace Tesseract.Vulkan {
 	
 	public class VKSamplerYcbcrConversion : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.SamplerYCbCrConversion;
+
 		public VKDevice Device { get; }
 
 		public VulkanAllocationCallbacks? Allocator { get; }

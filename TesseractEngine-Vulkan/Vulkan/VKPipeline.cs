@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKPipeline : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Pipeline;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkPipeline")]

@@ -12,6 +12,7 @@ using Tesseract.Core.Utilities;
 
 namespace Tesseract.Vulkan {
 
+	#region Type alias declarations
 	using VkDeviceSize = UInt64;
 	using VkSampleMask = UInt32;
 	using VkInstance = IntPtr;
@@ -51,6 +52,7 @@ namespace Tesseract.Vulkan {
 		public static implicit operator bool(VKBool32 b) => b.Value != 0;
 
 	}
+	#endregion
 
 	/* Notes:
 	 * 
@@ -59,7 +61,7 @@ namespace Tesseract.Vulkan {
 	 *   readonly fields in the correct order and public accessors for get and init.
 	 */
 
-	// Vulkan 1.0
+	#region Vulkan 1.0
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKApplicationInfo {
@@ -432,12 +434,26 @@ namespace Tesseract.Vulkan {
 		public VKVendorID VendorID;
 		public uint DeviceID;
 		public VKPhysicalDeviceType DeviceType;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxPhysicalDeviceNameSize)]
-		private readonly byte[] deviceName;
-		public string DeviceName => MemoryUtil.GetUTF8(deviceName);
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
-		private readonly byte[] pipelineCacheUUID;
-		public ReadOnlySpan<byte> PipelineCacheUUID => new(pipelineCacheUUID);
+		private unsafe fixed byte deviceName[VK10.MaxPhysicalDeviceNameSize];
+		public string DeviceName {
+			get {
+				unsafe {
+					fixed (byte* pDeviceName = deviceName) {
+						return MemoryUtil.GetUTF8((IntPtr)pDeviceName)!;
+					}
+				}
+			}
+		}
+		private unsafe fixed byte pipelineCacheUUID[VK10.UUIDSize];
+		public Guid PipelineCacheUUID {
+			get {
+				unsafe {
+					fixed(byte* pPipelineCacheUUID = pipelineCacheUUID) {
+						return new Guid(new ReadOnlySpan<byte>(pPipelineCacheUUID, VK10.UUIDSize));
+					}
+				}
+			}
+		}
 		public VKPhysicalDeviceLimits Limits;
 		public VKPhysicalDeviceSparseProperties SparseProperties;
 
@@ -472,14 +488,16 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMemoryProperties {
 
-		public uint MemoryTypeCount;
+		public uint MemoryTypeCount = 0;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryTypes)]
-		private readonly VKMemoryType[] memoryTypes;
+		private readonly VKMemoryType[] memoryTypes = new VKMemoryType[VK10.MaxMemoryTypes];
 		public ReadOnlySpan<VKMemoryType> MemoryTypes => new(memoryTypes);
-		public uint MemoryHeapCount;
+		public uint MemoryHeapCount = 0;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryHeaps)]
-		private readonly VKMemoryHeap[] memoryHeaps;
+		private readonly VKMemoryHeap[] memoryHeaps = new VKMemoryHeap[VK10.MaxMemoryHeaps];
 		public ReadOnlySpan<VKMemoryHeap> MemoryHeaps => new(memoryHeaps);
+
+		public VKPhysicalDeviceMemoryProperties() { }
 
 	}
 
@@ -529,9 +547,16 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKExtensionProperties {
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
-		private readonly byte[] extensionName;
-		public string ExtensionName => MemoryUtil.GetUTF8(extensionName);
+		private unsafe fixed byte extensionName[VK10.MaxExtensionNameSize];
+		public string ExtensionName {
+			get {
+				unsafe {
+					fixed (byte* pExtensionName = extensionName) {
+						return MemoryUtil.GetUTF8((IntPtr)pExtensionName, VK10.MaxExtensionNameSize)!;
+					}
+				}
+			}
+		}
 		public uint SpecVersion;
 
 	}
@@ -539,14 +564,28 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKLayerProperties {
 
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxExtensionNameSize)]
-		private readonly byte[] layerName;
-		public string LayerName => MemoryUtil.GetUTF8(layerName);
+		private unsafe fixed byte layerName[VK10.MaxExtensionNameSize];
+		public string LayerName {
+			get {
+				unsafe {
+					fixed (byte* pLayerName = layerName) {
+						return MemoryUtil.GetUTF8((IntPtr)pLayerName, VK10.MaxExtensionNameSize)!;
+					}
+				}
+			}
+		}
 		public uint SpecVersion;
 		public uint ImplementationVersion;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxDescriptionSize)]
-		private readonly byte[] description;
-		public string Description => MemoryUtil.GetUTF8(description);
+		private unsafe fixed byte description[VK10.MaxDescriptionSize];
+		public string Description {
+			get {
+				unsafe {
+					fixed (byte* pDescription = description) {
+						return MemoryUtil.GetUTF8((IntPtr)pDescription, VK10.MaxDescriptionSize)!;
+					}
+				}
+			}
+		}
 
 	}
 
@@ -1008,7 +1047,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
-		public VKPipelineSHaderStageCreateFlagBits Flags;
+		public VKPipelineShaderStageCreateFlagBits Flags;
 		public VKShaderStageFlagBits Stage;
 		public VkShaderModule Module;
 		[MarshalAs(UnmanagedType.LPUTF8Str)]
@@ -1088,8 +1127,8 @@ namespace Tesseract.Vulkan {
 			Y = v.Area.Position.Y,
 			Width = v.Area.Size.X,
 			Height = v.Area.Size.Y,
-			MinDepth = v.DepthBounds.Item1,
-			MaxDepth = v.DepthBounds.Item2
+			MinDepth = v.DepthBounds.Min,
+			MaxDepth = v.DepthBounds.Max
 		};
 		public static implicit operator Viewport(VKViewport v) => new() {
 			Area = new() {
@@ -1999,7 +2038,9 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	// Vulkan 1.1
+	#endregion
+
+	#region Vulkan 1.1
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceSubgroupProperties {
@@ -2153,12 +2194,15 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceGroupProperties {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		public uint PhysicalDeviceCount;
+		public VKStructureType Type = default;
+		public IntPtr Next = default;
+		public uint PhysicalDeviceCount = 0;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.MaxDeviceGroupSize)]
-		public VkPhysicalDevice[] PhysicalDevices;
-		public VKBool32 SubsetAllocation;
+		private readonly VkPhysicalDevice[] physicalDevices = new VkPhysicalDevice[VK11.MaxDeviceGroupSize];
+		public Span<VkPhysicalDevice> PhysicalDevices => physicalDevices;
+		public VKBool32 SubsetAllocation = default;
+
+		public VKPhysicalDeviceGroupProperties() { }
 
 	}
 
@@ -2579,16 +2623,34 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceIDProperties {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
-		public byte[] DeviceUUID;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
-		public byte[] DriverUUID;
+		public VKStructureType Type = default;
+		public IntPtr Next = default;
+		private unsafe fixed byte deviceUUID[VK10.UUIDSize];
+		public Guid DeviceUUID {
+			get {
+				unsafe {
+					fixed (byte* pDeviceUUID = deviceUUID) {
+						return new Guid(new ReadOnlySpan<byte>(pDeviceUUID, VK10.UUIDSize));
+					}
+				}
+			}
+		}
+		private unsafe fixed byte driverUUID[VK10.UUIDSize];
+		public Guid DriverUUID {
+			get {
+				unsafe {
+					fixed (byte* pDriverUUID = driverUUID) {
+						return new Guid(new ReadOnlySpan<byte>(pDriverUUID, VK10.UUIDSize));
+					}
+				}
+			}
+		}
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.LUIDSize)]
-		public byte[] DeviceLUID;
-		public uint DeviceNodeMask;
-		public VKBool32 DeviceLUIDValid;
+		public readonly byte[] DeviceLUID = new byte[VK11.LUIDSize];
+		public uint DeviceNodeMask = 0;
+		public VKBool32 DeviceLUIDValid = default;
+
+		public VKPhysicalDeviceIDProperties() { }
 
 	}
 
@@ -2705,7 +2767,9 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	// Vulkan 1.2
+	#endregion
+
+	#region Vulkan 1.2
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan11Features {
@@ -2730,26 +2794,44 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceVulkan11Properties {
 
-		public VKStructureType Type;
-		public IntPtr Next;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
-		public byte[] DeviceUUID;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.UUIDSize)]
-		public byte[] DriverUUID;
+		public VKStructureType Type = default;
+		public IntPtr Next = default;
+		private unsafe fixed byte deviceUUID[VK10.UUIDSize];
+		public Guid DeviceUUID {
+			get {
+				unsafe {
+					fixed(byte* pDeviceUUID = deviceUUID) {
+						return new Guid(new ReadOnlySpan<byte>(pDeviceUUID, VK10.UUIDSize));
+					}
+				}
+			}
+		}
+		private unsafe fixed byte driverUUID[VK10.UUIDSize];
+		public Guid DriverUUID {
+			get {
+				unsafe {
+					fixed (byte* pDeviceUUID = driverUUID) {
+						return new Guid(new ReadOnlySpan<byte>(pDeviceUUID, VK10.UUIDSize));
+					}
+				}
+			}
+		}
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.LUIDSize)]
-		public byte[] DeviceLUID;
-		public uint DeviceNodeMask;
-		public VKBool32 DeviceLUIDValid;
-		public uint SubgroupSize;
-		public VKShaderStageFlagBits SubgroupSupportedStages;
-		public VKSubgroupFeatureFlagBits SubgroupSupportedOperations;
-		public VKBool32 SubgroupQuadOperationsInAllStages;
-		public VKPointClippingBehavior PointClippingBehavior;
-		public uint MaxMultiviewViewCount;
-		public uint MAxMultiviewInstanceIndex;
-		public VKBool32 ProtectedNoFault;
-		public uint MaxPerSetDescriptors;
-		public VkDeviceSize MaxMemoryAllocationSize;
+		public readonly byte[] DeviceLUID = new byte[VK11.LUIDSize];
+		public uint DeviceNodeMask = 0;
+		public VKBool32 DeviceLUIDValid = default;
+		public uint SubgroupSize = 0;
+		public VKShaderStageFlagBits SubgroupSupportedStages = default;
+		public VKSubgroupFeatureFlagBits SubgroupSupportedOperations = default;
+		public VKBool32 SubgroupQuadOperationsInAllStages = default;
+		public VKPointClippingBehavior PointClippingBehavior = default;
+		public uint MaxMultiviewViewCount = 0;
+		public uint MAxMultiviewInstanceIndex = 0;
+		public VKBool32 ProtectedNoFault = default;
+		public uint MaxPerSetDescriptors = 0;
+		public VkDeviceSize MaxMemoryAllocationSize = default;
+
+		public VKPhysicalDeviceVulkan11Properties() { }
 
 	}
 
@@ -2824,12 +2906,26 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public VKDriverId DriverID;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverNameSize)]
-		private readonly byte[] driverName;
-		public string DriverName => MemoryUtil.GetUTF8(driverName);
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverInfoSize)]
-		private readonly byte[] driverInfo;
-		public string DriverInfo => MemoryUtil.GetUTF8(driverInfo);
+		private unsafe fixed byte driverName[VK12.MaxDriverNameSize];
+		public string DriverName {
+			get {
+				unsafe {
+					fixed (byte* pDriverName = driverName) {
+						return MemoryUtil.GetUTF8((IntPtr)pDriverName)!;
+					}
+				}
+			}
+		}
+		private unsafe fixed byte driverInfo[VK12.MaxDriverInfoSize];
+		public string DriverInfo {
+			get {
+				unsafe {
+					fixed (byte* pDriverInfo = driverInfo) {
+						return MemoryUtil.GetUTF8((IntPtr)pDriverInfo)!;
+					}
+				}
+			}
+		}
 		public VKConformanceVersion ConformanceVersion;
 		public VKShaderFloatControlsIndependence DenormBehaviorIndependence;
 		public VKShaderFloatControlsIndependence RoundingModeIndependence;
@@ -3015,12 +3111,26 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type;
 		public IntPtr Next;
 		public VKDriverId DriverID;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverNameSize)]
-		private readonly byte[] driverName;
-		public string DriverName => MemoryUtil.GetUTF8(driverName);
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK12.MaxDriverInfoSize)]
-		private readonly byte[] driverInfo;
-		public string DriverInfo => MemoryUtil.GetUTF8(driverInfo);
+		private unsafe fixed byte driverName[VK12.MaxDriverNameSize];
+		public string DriverName {
+			get {
+				unsafe {
+					fixed(byte* pDriverName = driverName) {
+						return MemoryUtil.GetUTF8((IntPtr)pDriverName)!;
+					}
+				}
+			}
+		}
+		private unsafe fixed byte driverInfo[VK12.MaxDriverInfoSize];
+		public string DriverInfo {
+			get {
+				unsafe {
+					fixed (byte* pDriverInfo = driverInfo) {
+						return MemoryUtil.GetUTF8((IntPtr)pDriverInfo)!;
+					}
+				}
+			}
+		}
 		public VKConformanceVersion ConformanceVersion;
 
 	}
@@ -3445,5 +3555,799 @@ namespace Tesseract.Vulkan {
 		public VkDeviceMemory Memory;
 
 	}
+
+	#endregion
+
+	#region Vulkan 1.3
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceVulkan13Features {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 RobustImageAccess;
+		public VKBool32 InlineUniformBlock;
+		public VKBool32 DescriptorBindingInlineUniformBlockUpdateAfterBind;
+		public VKBool32 PipelineCreationCacheControl;
+		public VKBool32 PrivateData;
+		public VKBool32 ShaderDemoteToHelperInvocation;
+		public VKBool32 ShaderTerminateInvocation;
+		public VKBool32 SubgroupSizeControl;
+		public VKBool32 ComputeFullSubgroups;
+		public VKBool32 Synchronization2;
+		public VKBool32 TextureCompressionASTC_HDR;
+		public VKBool32 ShaderZeroInitializeWorkgroupMemory;
+		public VKBool32 DynamicRendering;
+		public VKBool32 ShaderIntegerDotProduct;
+		public VKBool32 Maintenance4;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceVulkan13Properties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint MinSubgroupSize;
+		public uint MaxSubgroupSize;
+		public uint MaxComputeWorkgroupSubgroups;
+		public VKShaderStageFlagBits RequiredSubgroupSizeStages;
+		public uint MaxInlineUniformBlockSize;
+		public uint MaxPerStageDescriptorInlineUniformBlocks;
+		public uint MaxPerStageDescriptorUpdateAfterBindInlineUniformBlocks;
+		public uint MaxInlineUniformTotalSize;
+		public VKBool32 IntegerDotProduct8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct8BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitPackedUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitPackedSignedAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitPackedMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct16BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct16BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct16BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct32BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct32BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct32BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct64BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct64BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct64BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitPackedUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitPackedSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitPackedMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated;
+		public VkDeviceSize StorageTexelBufferOffsetAlignmentBytes;
+		public VKBool32 StorageTexelBufferOffsetSingleTexelAlignment;
+		public VkDeviceSize UniformTexelBufferOffsetAlignmentBytes;
+		public VKBool32 UniformTexelBufferOffsetSingleTexelAlignment;
+		public VkDeviceSize MaxBufferSize;
+
+	}
+
+	// VK_EXT_pipeline_creation_feedback
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPipelineCreationFeedback {
+
+		public VKPipelineCreationFeedbackFlagBits Flags;
+		public ulong Duration;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPipelineCreationFeedbackCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		[NativeType("VkPipelineCreationFeedback*")]
+		public IntPtr PipelineCreationFeedback;
+		public uint PipelineStageCreationFeedbackCount;
+		[NativeType("VkPipelineCreationFeedback*")]
+		public IntPtr PipelineStageCreationFeedbacks;
+
+	}
+
+	// VK_KHR_shader_terminate_invocation
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceShaderTerminateInvocationFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 ShaderTerminateInvocation;
+
+	}
+
+	// VK_EXT_tooling_info
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceToolProperties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		private unsafe fixed byte name[VK10.MaxExtensionNameSize];
+		public string Name {
+			get {
+				unsafe {
+					fixed(byte* pName = name) {
+						return MemoryUtil.GetUTF8((IntPtr)pName)!;
+					}
+				}
+			}
+		}
+		private unsafe fixed byte version[VK10.MaxExtensionNameSize];
+		public string Version {
+			get {
+				unsafe {
+					fixed(byte* pVersion = version) {
+						return MemoryUtil.GetUTF8((IntPtr)pVersion)!;
+					}
+				}
+			}
+		}
+		public VKToolPurposeFlagBits Purposes;
+		private unsafe fixed byte description[VK10.MaxDescriptionSize];
+		public string Description {
+			get {
+				unsafe {
+					fixed (byte* pDescription = description) {
+						return MemoryUtil.GetUTF8((IntPtr)pDescription)!;
+					}
+				}
+			}
+		}
+		private unsafe fixed byte layer[VK10.MaxExtensionNameSize];
+		public string Layer {
+			get {
+				unsafe {
+					fixed(byte* pLayer = layer) {
+						return MemoryUtil.GetUTF8((IntPtr)pLayer)!;
+					}
+				}
+			}
+		}
+
+	}
+
+	// VK_EXT_shader_demote_to_helper_invocation
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceShaderDemoteToHelperInvocationFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 ShaderDemoteToHelperInvocation;
+
+	}
+
+	// VK_EXT_private_data
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDevicePrivateDataFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 PrivateData;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKDevicePrivateDataCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint PrivateDataSlotRequestCount;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPrivateDataSlotCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKPrivateDataSlotCreateFlagBits Flags;
+
+	}
+
+	// VK_EXT_pipeline_creation_cache_control
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDevicePipelineCreationCacheControlFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 PipelineCreationCacheControl;
+
+	}
+
+	// VK_KHR_synchronization2
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKMemoryBarrier2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKPipelineStageFlagBits2 SrcStageMask;
+		public VKAccessFlagBits2 SrcAccessMask;
+		public VKPipelineStageFlagBits2 DstStageMask;
+		public VKAccessFlagBits2 DstAccessMask;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKBufferMemoryBarrier2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKPipelineStageFlagBits2 SrcStageMask;
+		public VKAccessFlagBits2 SrcAccessMask;
+		public VKPipelineStageFlagBits2 DstStageMask;
+		public VKAccessFlagBits2 DstAccessMask;
+		public uint SrcQueueFamilyIndex;
+		public uint DstQueueFamilyIndex;
+		public VkBuffer Buffer;
+		public VkDeviceSize Offset;
+		public VkDeviceSize Size;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKImageMemoryBarrier2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKPipelineStageFlagBits2 SrcStageMask;
+		public VKAccessFlagBits2 SrcAccessMask;
+		public VKPipelineStageFlagBits2 DstStageMask;
+		public VKAccessFlagBits2 DstAccessMask;
+		public uint SrcQueueFamilyIndex;
+		public uint DstQueueFamilyIndex;
+		public VkImage Image;
+		public VKImageSubresourceRange SubresourceRange;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKDependencyInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKDependencyFlagBits Flags;
+		public uint MemoryBarrierCount;
+		[NativeType("const VkMemoryBarrier2*")]
+		public IntPtr MemoryBarriers;
+		[NativeType("const VkBufferMemoryBarrier2*")]
+		public IntPtr BufferMemoryBarriers;
+		[NativeType("const VkImageMemoryBarrier2*")]
+		public IntPtr ImageMemoryBarriers;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKSemaphoreSubmitInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkSemaphore Semaphore;
+		public ulong Value;
+		public VKPipelineStageFlagBits2 StageMask;
+		public uint DeviceIndex;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCommandBufferSubmitInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkCommandBuffer CommandBuffer;
+		public uint DeviceMask;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKSubmitInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKSubmitFlagBits Flags;
+		public uint WaitSemaphoreInfoCount;
+		[NativeType("const VkSemaphoreSubmitInfo*")]
+		public IntPtr WaitSemaphoreInfos;
+		public uint CommandBufferInfoCount;
+		[NativeType("const VkCommandBufferSubmitInfo*")]
+		public IntPtr CommandBufferInfos;
+		public uint SignalSemaphoreInfoCount;
+		[NativeType("const VkSemaphoreSubmitInfo*")]
+		public IntPtr SignalSemaphoreInfos;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VkPhysicalDeviceSynchronization2Features {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 Synchronization2;
+
+	}
+
+	// VK_KHR_zero_initialize_workgroup_memory
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 ShaderZeroInitializeWorkgroupMemory;
+
+	}
+
+	// VK_EXT_image_robustness
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceImageRobustnessFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 RobustImageAccess;
+
+	}
+
+	// VK_KHR_copy_commands2
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKBufferCopy2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkDeviceSize SrcOffset;
+		public VkDeviceSize DstOffset;
+		public VkDeviceSize Size;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCopyBufferInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkBuffer SrcBuffer;
+		public VkBuffer DstBuffer;
+		public uint RegionCount;
+		[NativeType("const VkBufferCopy2*")]
+		public IntPtr Regions;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKImageCopy2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKImageSubresourceLayers SrcSubresource;
+		public VKOffset3D SrcOffset;
+		public VKImageSubresourceLayers DstSubresource;
+		public VKOffset3D DstOffset;
+		public VKExtent3D Extent;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCopyImageInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkImage SrcImage;
+		public VKImageLayout SrcImageLayout;
+		public VkImage DstImage;
+		public VKImageLayout DstImageLayout;
+		public uint RegionCount;
+		[NativeType("const VkImageCopy2*")]
+		public IntPtr Regions;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKBufferImageCopy2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkDeviceSize BufferOffset;
+		public uint BufferRowLength;
+		public uint BufferImageHeight;
+		public VKImageSubresourceLayers ImageSubresource;
+		public VKOffset3D ImageOffset;
+		public VKExtent3D ImageExtent;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCopyBufferToImageInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkBuffer SrcBuffer;
+		public VkImage DstImage;
+		public VKImageLayout DstImageLayout;
+		public uint RegionCount;
+		[NativeType("const VkBufferImageCopy2*")]
+		public IntPtr Regions;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCopyImageToBufferInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkImage SrcImage;
+		public VKImageLayout SrcImageLayout;
+		public VkBuffer DstBuffer;
+		public uint RegionCount;
+		[NativeType("const VkBufferImageCopy2*")]
+		public IntPtr Regions;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKImageBlit2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKImageSubresourceLayers SrcSubresource;
+		public VKOffset3D SrcOffsets0;
+		public VKOffset3D SrcOffsets1;
+		public VKImageSubresourceLayers DstSubresource;
+		public VKOffset3D DstOffsets0;
+		public VKOffset3D DstOffsets1;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKBlitImageInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkImage SrcImage;
+		public VKImageLayout SrcImageLayout;
+		public VkImage DstImage;
+		public VKImageLayout DstImageLayout;
+		public uint RegionCount;
+		[NativeType("const VkImageBlit2*")]
+		public IntPtr Regions;
+		public VKFilter Filter;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKImageResolve2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKImageSubresourceLayers SrcSubresource;
+		public VKOffset3D SrcOffset;
+		public VKImageSubresourceLayers DstSubresource;
+		public VKOffset3D DstOffset;
+		public VKExtent3D Extent;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKResolveImageInfo2 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkImage SrcImage;
+		public VKImageLayout SrcImageLayout;
+		public VkImage DstImage;
+		public VKImageLayout DstImageLayout;
+		public uint RegionCount;
+		[NativeType("const VkImageResolve2*")]
+		public IntPtr Regions;
+
+	}
+
+	// VK_EXT_subgroup_size_control
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceSubgroupSizeControlFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 SubgroupSizeControl;
+		public VKBool32 ComputeFullSubgroups;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceSubgroupSizeControlProperties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint MinSubgroupSize;
+		public uint MaxSubgroupSize;
+		public uint MaxCOmputeWorkgroupSubgroups;
+		public VKShaderStageFlagBits RequiredSubgroupSizeStages;
+		
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPipelineShaderStageRequiredSubgroupSizeCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint RequiredSubgroupSize;
+
+	}
+
+	// VK_EXT_inline_uniform_block
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceInlineUniformBlockFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 InlineUniformBlock;
+		public VKBool32 DescriptorBindingInlineUniformBlockUpdateAfterBind;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceInlineUniformBlockProperties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint MaxInlineUniformBlockSize;
+		public uint MaxPerStageDescriptorInlineUniformBlocks;
+		public uint MaxPerStageDescriptorUpdateAfterBindInlineUniformBlocks;
+		public uint MaxDescriptorSetInlineUniformBlocks;
+		public uint MaxDescriptorSetUpdateAfterBindInlineUniformBlocks;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKWriteDescriptorSetInlineUniformBlock {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint DataSize;
+		public IntPtr Data;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKWriteDescriptorSetInlineUniformBlockCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint MaxInlineUniformBlockBindings;
+
+	}
+
+	// VK_EXT_texture_compression_astc_hdr
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceTextureCompressionASTCHDRFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 TextureCompressionASTC_HDR;
+
+	}
+	
+	// VK_KHR_dynamic_rendering
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKRenderingAttachmentInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkImageView ImageView;
+		public VKImageLayout ImageLayout;
+		public VKResolveModeFlagBits ResolveMode;
+		public VkImageView ResolveImageView;
+		public VKImageLayout ResolveImageLayout;
+		public VKAttachmentLoadOp LoadOp;
+		public VKAttachmentStoreOp StoreOp;
+		public VKClearValue ClearValue;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKRenderingInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKRenderingFlagBits Flags;
+		public VKRect2D RenderArea;
+		public uint LayerCount;
+		public uint ViewMask;
+		public uint ColorAttachmentCount;
+		[NativeType("const VkRenderingAttachmentInfo*")]
+		public IntPtr ColorAttachments;
+		[NativeType("const VkRenderingAttachmentInfo*")]
+		public IntPtr DepthAttachment;
+		[NativeType("const VkRenderingAttachmentInfo*")]
+		public IntPtr StencilAttachment;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPipelineRenderingCreateInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public uint ViewMask;
+		public uint ColorAttachmentCount;
+		[NativeType("const VkFormat*")]
+		public IntPtr ColorAttachmentFormats;
+		public VKFormat DepthAttachmentFormat;
+		public VKFormat StencilAttachmentFormat;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceDynamicRenderingFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 DynamicRendering;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKCommandBufferInheritanceRenderingInfo {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKRenderingFlagBits Flags;
+		public uint ViewMask;
+		public uint ColorAttachmentCount;
+		[NativeType("const VkFormat*")]
+		public IntPtr ColorAttachmentFormats;
+		public VKFormat DepthAttachmentFormat;
+		public VKFormat StencilAttachmentFormat;
+		public VKSampleCountFlagBits RasterizationSamples;
+
+	}
+
+	// VK_KHR_shader_integer_dot_product
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceShaderIntegerDotProductFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 ShaderIntegerDotProduct;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceShaderIntegerDotProductProperties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 IntegerDotProduct8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct8BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct4x8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct16BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct16BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct16BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct32BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct32BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct32BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProduct64BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProduct64BitSignedAccelerated;
+		public VKBool32 IntegerDotProduct64BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating4x8BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating16BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating32BitMixedSignednessAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitUnsignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitSignedAccelerated;
+		public VKBool32 IntegerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated;
+
+	}
+
+	// VK_EXT_texel_buffer_alignment
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceTexelBufferAlignmentFeatures {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 TexelBufferAlignment;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceTexelBufferAlignmentProperties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkDeviceSize StorageTexelBufferOffsetAlignmentBytes;
+		public VKBool32 StorageTexelBufferOffsetSingleTexelAlignment;
+		public VkDeviceSize UniformTexelBufferOffsetAlignmentBytes;
+		public VKBool32 UniformTexelBufferOffsetSingleTexelAlignment;
+
+	}
+
+	// VK_KHR_format_feature_flags2
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKFormatProperties3 {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKFormatFeatureFlagBits2 LinearTilingFeatures;
+		public VKFormatFeatureFlagBits2 OptimalTilingFeatures;
+		public VKFormatFeatureFlagBits2 BufferFeatures;
+
+	}
+
+	// VK_KHR_maintenance4
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceMaintenance4Features {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VKBool32 Maintenance4;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKPhysicalDeviceMaintenance4Properties {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		public VkDeviceSize MaxBufferSize;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKDeviceBufferMemoryRequirements {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		[NativeType("const VkBufferCreateInfo*")]
+		public IntPtr CreateInfo;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VKDeviceImageMemoryRequirements {
+
+		public VKStructureType Type;
+		public IntPtr Next;
+		[NativeType("const VkImageCreateInfo*")]
+		public IntPtr CreateInfo;
+		public VKImageAspectFlagBits PlaneAspect;
+
+	}
+
+	#endregion
 
 }

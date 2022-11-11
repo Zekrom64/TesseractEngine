@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKRenderPass : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.RenderPass;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkRenderPass")]

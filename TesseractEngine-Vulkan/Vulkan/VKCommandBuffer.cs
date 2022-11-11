@@ -12,6 +12,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKCommandBuffer : IVKDeviceObject, IDisposable, IPrimitiveHandle<IntPtr> {
 
+		public VKObjectType ObjectType => VKObjectType.CommandBuffer;
+
 		public VKCommandPool CommandPool { get; }
 
 		public VKDevice Device => CommandPool.Device;
@@ -20,6 +22,8 @@ namespace Tesseract.Vulkan {
 		public IntPtr CommandBuffer { get; }
 
 		public IntPtr PrimitiveHandle => CommandBuffer;
+
+		ulong IPrimitiveHandle<ulong>.PrimitiveHandle => (ulong)PrimitiveHandle;
 
 		public VKCommandBuffer(VKCommandPool commandPool, IntPtr commandBuffer) {
 			CommandPool = commandPool;
@@ -702,7 +706,7 @@ namespace Tesseract.Vulkan {
 		// VK_KHR_dynamic_rendering
 		// Vulkan 1.3
 
-		public void BeginRendering(in VKRenderingInfoKHR renderingInfo) => Device.KHRDynamicRendering!.vkCmdBeginRenderingKHR(CommandBuffer, renderingInfo);
+		public void BeginRendering(in VKRenderingInfo renderingInfo) => Device.KHRDynamicRendering!.vkCmdBeginRenderingKHR(CommandBuffer, renderingInfo);
 
 		public void EndRendering() => Device.KHRDynamicRendering!.vkCmdEndRenderingKHR(CommandBuffer);
 
@@ -741,6 +745,76 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
+		// VK_KHR_copy_commands2
+		// Vulkan 1.3
+
+		public void BlitImage2(in VKBlitImageInfo2 blitImageInfo) => Device.KHRCopyCommands2!.vkCmdBlitImage2KHR(CommandBuffer, blitImageInfo);
+
+		public void CopyBuffer2(in VKCopyBufferInfo2 copyBufferInfo) => Device.KHRCopyCommands2!.vkCmdCopyBuffer2KHR(CommandBuffer, copyBufferInfo);
+
+		public void CopyBufferToImage2(in VKCopyBufferToImageInfo2 copyBufferToImageInfo) => Device.KHRCopyCommands2!.vkCmdCopyBufferToImage2KHR(CommandBuffer, copyBufferToImageInfo);
+
+		public void CopyImage2(in VKCopyImageInfo2 copyImageInfo) => Device.KHRCopyCommands2!.vkCmdCopyImage2KHR(CommandBuffer, copyImageInfo);
+
+		public void CopyImageToBuffer2(in VKCopyImageToBufferInfo2 copyImageToBufferInfo) => Device.KHRCopyCommands2!.vkCmdCopyImageToBuffer2KHR(CommandBuffer, copyImageToBufferInfo);
+
+		public void ResolveImage2(in VKResolveImageInfo2 resolveImageInfo) => Device.KHRCopyCommands2!.vkCmdResolveImage2(CommandBuffer, resolveImageInfo);
+
+		// VK_KHR_synchronization2
+		// Vulkan 1.3
+
+		public void PipelineBarrier2(in VKDependencyInfo dependencyInfo) => Device.KHRSynchronization2!.vkCmdPipelineBarrier2(CommandBuffer, dependencyInfo);
+
+		public void ResetEvent2(VKEvent _event, VKPipelineStageFlagBits2 stageMask) => Device.KHRSynchronization2!.vkCmdResetEvent2(CommandBuffer, _event, stageMask);
+
+		public void SetEvent2(VKEvent _event, in VKDependencyInfo dependencyInfo) => Device.KHRSynchronization2!.vkCmdSetEvent2(CommandBuffer, _event, dependencyInfo);
+
+		public void WaitEvents2(VKEvent _event, VKDependencyInfo dependencyInfo) {
+			ulong uevent = _event;
+			unsafe {
+				Device.KHRSynchronization2!.vkCmdWaitEvents2(CommandBuffer, 1, (IntPtr)(&uevent), (IntPtr)(&dependencyInfo));
+			}
+		}
+
+		public void WaitEvents2(in ReadOnlySpan<ulong> events, in ReadOnlySpan<VKDependencyInfo> dependencyInfos) {
+			unsafe {
+				fixed (ulong* pEvents = events) {
+					fixed (VKDependencyInfo* pDependencyInfos = dependencyInfos) {
+						Device.KHRSynchronization2!.vkCmdWaitEvents2(CommandBuffer, (uint)Math.Min(events.Length, dependencyInfos.Length), (IntPtr)pEvents, (IntPtr)pDependencyInfos);
+					}
+				}
+			}
+		}
+
+		public void WaitEvents2(IReadOnlyList<VKEvent> events, IReadOnlyList<VKDependencyInfo> dependencyInfos) {
+			int count = Math.Min(events.Count, dependencyInfos.Count);
+			Span<ulong> sEvents = stackalloc ulong[count];
+			Span<VKDependencyInfo> sDependencyInfos = stackalloc VKDependencyInfo[count];
+			for(int i = 0; i < count; i++) {
+				sEvents[i] = events[i];
+				sDependencyInfos[i] = dependencyInfos[i];
+			}
+			WaitEvents2(sEvents, sDependencyInfos);
+		}
+
+		public void WaitEvents2(IReadOnlyCollection<(VKEvent, VKDependencyInfo)> eventsAndDependencies) {
+			int count = eventsAndDependencies.Count;
+			Span<ulong> sEvents = stackalloc ulong[count];
+			Span<VKDependencyInfo> sDependencyInfos = stackalloc VKDependencyInfo[count];
+			int i = 0;
+			foreach(var x in eventsAndDependencies) {
+				sEvents[i] = x.Item1;
+				sDependencyInfos[i] = x.Item2;
+				i++;
+			}
+			WaitEvents2(sEvents, sDependencyInfos);
+		}
+
+		public void WriteTimestamp2(VKPipelineStageFlagBits2 stage, VKQueryPool queryPool, uint query) => Device.KHRSynchronization2!.vkCmdWriteTimestamp2(CommandBuffer, stage, queryPool, query);
+
+		public void WritePrimitiveHandle(IntPtr ptr) {
+			throw new NotImplementedException();
+		}
 
 		public static implicit operator IntPtr(VKCommandBuffer? commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;
 

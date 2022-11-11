@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKDescriptorSetLayout : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.DescriptorSetLayout;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkDescriptorSetLayout")]

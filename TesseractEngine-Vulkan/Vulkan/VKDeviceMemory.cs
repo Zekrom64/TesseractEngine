@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKDeviceMemory : IDisposable, IVKDeviceObject, IVKAllocatedObject, IEquatable<VKDeviceMemory>, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.DeviceMemory;
+
 		[NativeType("VkDeviceMemory")]
 		public ulong DeviceMemory;
 

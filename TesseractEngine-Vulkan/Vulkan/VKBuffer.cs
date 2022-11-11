@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKBuffer : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Buffer;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkBuffer")]

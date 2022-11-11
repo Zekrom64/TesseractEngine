@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKFence : IDisposable, IVKDeviceObject, IVKAllocatedObject, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.Fence;
+
 		public VulkanAllocationCallbacks? Allocator { get; }
 
 		public VKDevice Device { get; }

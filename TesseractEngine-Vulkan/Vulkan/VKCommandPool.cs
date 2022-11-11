@@ -10,6 +10,8 @@ namespace Tesseract.Vulkan {
 
 	public class VKCommandPool : IVKDeviceObject, IVKAllocatedObject, IDisposable, IPrimitiveHandle<ulong> {
 
+		public VKObjectType ObjectType => VKObjectType.CommandPool;
+
 		public VKDevice Device { get; }
 
 		[NativeType("VkCommandPool")]

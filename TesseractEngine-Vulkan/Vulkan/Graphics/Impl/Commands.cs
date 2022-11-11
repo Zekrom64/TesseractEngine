@@ -1108,7 +1108,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		public void BeginRendering(in ICommandSink.RenderingInfo renderingInfo) {
 			using MemoryStack sp = MemoryStack.Push();
 
-			VKRenderingInfoKHR vkInfo = new() {
+			VKRenderingInfo vkInfo = new() {
 				Type = VKStructureType.RenderingInfo,
 				RenderArea = renderingInfo.RenderArea,
 				LayerCount = 1,
@@ -1118,7 +1118,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			if (renderingInfo.ColorAttachments != null) {
 				var colors = renderingInfo.ColorAttachments;
 				vkInfo.ColorAttachmentCount = (uint)colors.Length;
-				vkInfo.ColorAttachments = sp.Values<VKRenderingAttachmentInfoKHR>(colors.ConvertAll(info => VulkanConverter.Convert(info)));
+				vkInfo.ColorAttachments = sp.Values<VKRenderingAttachmentInfo>(colors.ConvertAll(info => VulkanConverter.Convert(info)));
 			}
 			if (renderingInfo.DepthAttachment != null)
 				vkInfo.DepthAttachment = sp.Values(VulkanConverter.Convert(renderingInfo.DepthAttachment.Value));
