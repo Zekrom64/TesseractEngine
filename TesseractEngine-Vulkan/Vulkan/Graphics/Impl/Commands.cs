@@ -498,7 +498,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 							SetBlendConstants(state.BlendConstant);
 							break;
 						case PipelineDynamicState.DepthBounds:
-							SetDepthBounds(state.DepthBounds.Item1, state.DepthBounds.Item2);
+							SetDepthBounds(state.DepthBounds.Min, state.DepthBounds.Max);
 							break;
 						case PipelineDynamicState.StencilCompareMask:
 							SetStencilCompareMask(CullFace.Front, state.FrontStencilState.CompareMask);
@@ -596,8 +596,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			VKImageAspectFlagBits vkaspect = VulkanConverter.Convert(aspect);
 			VKImageBlit blit = new() {
 				SrcOffsets = new() {
-					X = new(srcArea.X0, srcArea.Y0, 0),
-					Y = new(srcArea.X1, srcArea.Y1, 1)
+					X = new Vector3i(srcArea.Minimum, 0),
+					Y = new Vector3i(srcArea.Maximum, 1)
 				},
 				SrcSubresource = new() {
 					AspectMask = vkaspect,
@@ -606,8 +606,8 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 					MipLevel = vksrcview.SubresourceRange.BaseMipLevel
 				},
 				DstOffsets = new() {
-					X = new(dstArea.X0, dstArea.Y0, 0),
-					Y = new(dstArea.X1, dstArea.X1, 1)
+					X = new Vector3i(dstArea.Minimum, 0),
+					Y = new Vector3i(dstArea.Maximum, 1)
 				},
 				DstSubresource = new() {
 					AspectMask = vkaspect,
@@ -897,14 +897,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 				// Blit from previous level
 				Vector3ui newsize = size / 2;
 				CommandBuffer.BlitImage(vkdst.Image, VKImageLayout.TransferSrcOptimal, vkdst.Image, VKImageLayout.TransferDstOptimal, new VKImageBlit() {
-					SrcOffsets = (new VKOffset3D(), (Vector3i)size),
+					SrcOffsets = (Vector3i.Zero, (Vector3i)size),
 					SrcSubresource = new() {
 						AspectMask = VKImageAspectFlagBits.Color,
 						BaseArrayLayer = 0,
 						MipLevel = (level - 1),
 						LayerCount = dst.ArrayLayers
 					},
-					DstOffsets = (new VKOffset3D(), (Vector3i)newsize),
+					DstOffsets = (Vector3i.Zero, (Vector3i)newsize),
 					DstSubresource = new() {
 						AspectMask = VKImageAspectFlagBits.Color,
 						BaseArrayLayer = 0,

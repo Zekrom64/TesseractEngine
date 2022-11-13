@@ -81,17 +81,17 @@ namespace Tesseract.Core.Audio {
 		/// If the audio is accessed in a planar manner, with each channel supplied in an independent stream of samples. Otherwise,
 		/// the audio is accessed in an interleaved manner with a single stream of groups of samples for each channel.
 		/// </summary>
-		public bool IsPlanar { get; init; }
+		public bool IsPlanar { get; init; } = false;
 
 		/// <summary>
 		/// The number of samples per second in each channel.
 		/// </summary>
-		public int SampleRate { get; init; }
+		public required int SampleRate { get; init; }
 
 		/// <summary>
 		/// The format of each sample in the format.
 		/// </summary>
-		public AudioSampleFormat SampleFormat { get; init; }
+		public required AudioSampleFormat SampleFormat { get; init; }
 
 		/// <summary>
 		/// The number of bytes per sample based on the sample format of this format.

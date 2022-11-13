@@ -232,7 +232,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Haptic != null) {
 				SDL2.Functions.SDL_HapticClose(Haptic.Ptr);
-				Haptic = null!;
+				Haptic = new NullPointer<SDL_Haptic>();
 			}
 		}
 

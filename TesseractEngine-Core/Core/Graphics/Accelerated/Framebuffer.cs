@@ -32,7 +32,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The render pass the framebuffer will be used with.
 		/// </summary>
-		public IRenderPass RenderPass { get; init; } = null!;
+		public required IRenderPass RenderPass { get; init; }
 
 		/// <summary>
 		/// The list of attachments to use with the framebuffer.
@@ -42,12 +42,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The 2D size of the framebuffer.
 		/// </summary>
-		public Vector2i Size { get; init; }
+		public required Vector2i Size { get; init; }
 
 		/// <summary>
-		/// The number of layers the framebuffer will have
+		/// The number of layers the framebuffer will have.
 		/// </summary>
-		public uint Layers { get; init; }
+		public required uint Layers { get; init; }
 
 	}
 

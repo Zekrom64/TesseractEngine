@@ -84,17 +84,17 @@ namespace Tesseract.SDL {
 
 	public record SDLMessageBoxData {
 
-		public SDLMessageBoxFlags Flags { get; init; }
+		public SDLMessageBoxFlags Flags { get; init; } = default;
 
-		public SDLWindow? Window { get; init; }
+		public SDLWindow? Window { get; init; } = null;
 
-		public string Title { get; init; } = null!;
+		public required string Title { get; init; }
 
-		public string Message { get; init; } = null!;
+		public required string Message { get; init; }
 
-		public SDLMessageBoxButtonData[]? Buttons { get; init; }
+		public SDLMessageBoxButtonData[]? Buttons { get; init; } = null;
 
-		public SDLMessageBoxColorScheme? ColorScheme { get; init; }
+		public SDLMessageBoxColorScheme? ColorScheme { get; init; } = null;
 
 	}
 

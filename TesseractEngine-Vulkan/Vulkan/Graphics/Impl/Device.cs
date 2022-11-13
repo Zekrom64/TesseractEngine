@@ -350,11 +350,11 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// The semaphore to lock on to get access to the queue.
 		/// </summary>
-		public SemaphoreSlim QueueSemaphore;
+		public SemaphoreSlim? QueueSemaphore;
 
 		public void Dispose() {
 			QueueSemaphore?.Dispose();
-			QueueSemaphore = null!;
+			QueueSemaphore = null;
 		}
 
 		/// <summary>

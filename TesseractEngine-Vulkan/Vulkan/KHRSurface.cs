@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan {
+
+	using VKExtent2D = Vector2ui;
 
 	public enum VKPresentModeKHR {
 		Immediate = 0,

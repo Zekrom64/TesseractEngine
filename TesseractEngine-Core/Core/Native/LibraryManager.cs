@@ -10,7 +10,7 @@ namespace Tesseract.Core.Native {
 
 	public record LibrarySpec {
 
-		public string Name { get; init; } = null!;
+		public required string Name { get; init; }
 		public string[] AltNames { get; init; } = Array.Empty<string>();
 		public LibrarySpec[] Dependencies { get; init; } = Array.Empty<LibrarySpec>();
 

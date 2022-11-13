@@ -68,8 +68,8 @@ namespace Tesseract.ImGui.SDL {
 			if (fbSize.X == 0 || fbSize.Y == 0) return;
 
 			bool oldClipEnabled = renderer.IsClipEnabled;
-			SDLRect oldViewport = renderer.Viewport;
-			SDLRect oldClipRect = renderer.ClipRect;
+			Recti oldViewport = renderer.Viewport;
+			Recti oldClipRect = renderer.ClipRect;
 
 			Vector2 clipOffset = drawData.DisplayPos;
 			Vector2 clipScale = renderScale;
@@ -90,11 +90,9 @@ namespace Tesseract.ImGui.SDL {
 						if (clipMax.Y > fbSize.Y) clipMax.Y = fbSize.Y;
 						if (clipMax.X <= clipMin.X || clipMax.Y <= clipMin.Y) continue;
 
-						SDLRect r = new() {
-							X = (int)clipMin.X,
-							Y = (int)clipMin.Y,
-							W = (int)(clipMax.X - clipMin.X),
-							H = (int)(clipMax.Y - clipMin.Y)
+						Recti r = new() {
+							Position = (Vector2i)clipMin,
+							Size = (Vector2i)(clipMax - clipMin)
 						};
 						renderer.ClipRect = r;
 

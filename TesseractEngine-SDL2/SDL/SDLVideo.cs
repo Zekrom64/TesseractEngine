@@ -147,7 +147,7 @@ namespace Tesseract.SDL {
 		ResizeLeft,
 	}
 
-	public delegate SDLHitTestResult SDLHitTest([NativeType("SDL_Window*")] IntPtr window, in SDLPoint area, IntPtr data);
+	public delegate SDLHitTestResult SDLHitTest([NativeType("SDL_Window*")] IntPtr window, in Vector2i area, IntPtr data);
 
 	public class SDLDisplay {
 
@@ -155,16 +155,16 @@ namespace Tesseract.SDL {
 
 		public string Name => Marshal.PtrToStringUTF8(SDL2.Functions.SDL_GetDisplayName(DisplayIndex))!;
 
-		public SDLRect Bounds {
+		public Recti Bounds {
 			get {
-				SDL2.CheckError(SDL2.Functions.SDL_GetDisplayBounds(DisplayIndex, out SDLRect rect));
+				SDL2.CheckError(SDL2.Functions.SDL_GetDisplayBounds(DisplayIndex, out Recti rect));
 				return rect;
 			}
 		}
 
-		public SDLRect UsableBounds {
+		public Recti UsableBounds {
 			get {
-				SDL2.CheckError(SDL2.Functions.SDL_GetDisplayUsableBounds(DisplayIndex, out SDLRect rect));
+				SDL2.CheckError(SDL2.Functions.SDL_GetDisplayUsableBounds(DisplayIndex, out Recti rect));
 				return rect;
 			}
 		}
@@ -376,15 +376,15 @@ namespace Tesseract.SDL {
 
 		public void UpdateSurface() => SDL2.CheckError(SDL2.Functions.SDL_UpdateWindowSurface(Window.Ptr));
 
-		public void UpdateSurfaceRects(Span<SDLRect> rects) {
+		public void UpdateSurfaceRects(Span<Recti> rects) {
 			unsafe {
-				fixed (SDLRect* pRects = rects) {
+				fixed (Recti* pRects = rects) {
 					SDL2.CheckError(SDL2.Functions.SDL_UpdateWindowSurfaceRects(Window.Ptr, (IntPtr)pRects, rects.Length));
 				}
 			}
 		}
 
-		public void UpdateSurfaceRects(SDLRect[] rects) => UpdateSurfaceRects(new Span<SDLRect>(rects));
+		public void UpdateSurfaceRects(Recti[] rects) => UpdateSurfaceRects(new Span<Recti>(rects));
 
 		public void SetModalFor(SDLWindow parent) => SDL2.CheckError(SDL2.Functions.SDL_SetWindowModalFor(Window.Ptr, parent.Window.Ptr));
 
@@ -394,7 +394,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Window != null && !Window.IsNull) {
 				SDL2.Functions.SDL_DestroyWindow(Window.Ptr);
-				Window = null!;
+				Window = new NullPointer<SDL_Window>();
 			}
 		}
 

@@ -189,7 +189,7 @@ internal:
 
 	void Set(const char* str) {
 		if (str == (const char*)(void*)m_strptr) return;
-		Set(Tesseract::Core::Native::MemoryUtil::GetUTF8((System::IntPtr)(void*)str, -1, true));
+		Set(Marshal::PtrToStringUTF8((IntPtr)(void*)str));
 	}
 
 public:

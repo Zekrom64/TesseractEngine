@@ -70,7 +70,7 @@ namespace Tesseract.Core.Native {
 	/// A managed pointer references memory that is manually managed by the developer.
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
-	public struct ManagedPointer<T> : IDisposable, IPointer<T> where T : struct {
+	public readonly struct ManagedPointer<T> : IDisposable, IPointer<T> where T : struct {
 
 		public IntPtr Ptr { get; }
 
@@ -267,7 +267,7 @@ namespace Tesseract.Core.Native {
 	/// An unmanaged pointer references memory that is externally managed.
 	/// </summary>
 	/// <typeparam name="T">Type reference</typeparam>
-	public struct UnmanagedPointer<T> : IPointer<T> where T : unmanaged {
+	public readonly struct UnmanagedPointer<T> : IPointer<T> where T : unmanaged {
 
 		public IntPtr Ptr { get; }
 
@@ -354,7 +354,7 @@ namespace Tesseract.Core.Native {
 	/// </para>
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
-	public struct ObjectPointer<T> : IDisposable, IConstPointer<T?> where T : class {
+	public readonly struct ObjectPointer<T> : IDisposable, IConstPointer<T?> where T : class {
 
 		public IntPtr Ptr { get; }
 
@@ -402,6 +402,34 @@ namespace Tesseract.Core.Native {
 		public static implicit operator IntPtr(ObjectPointer<T> optr) => optr.Ptr;
 
 		public static implicit operator bool(ObjectPointer<T> optr) => optr.Ptr != IntPtr.Zero;
+
+	}
+
+	/// <summary>
+	/// This structure will always act like a null pointer, and can be used for any pointer element type.
+	/// </summary>
+	/// <typeparam name="T">Pointer element type</typeparam>
+	public struct NullPointer<T> : IPointer<T> {
+
+		public T this[int key] {
+			get => throw new NullReferenceException("Attempted to dereference a null pointer");
+			set => throw new NullReferenceException("Attempted to dereference a null pointer");
+		}
+
+		T IReadOnlyIndexer<int, T>.this[int key] => throw new NullReferenceException("Attempted to dereference a null pointer");
+
+		T IConstPointer<T>.Value => throw new NullReferenceException("Attempted to dereference a null pointer");
+
+		public T Value {
+			get => throw new NullReferenceException("Attempted to dereference a null pointer");
+			set => throw new NullReferenceException("Attempted to dereference a null pointer");
+		}
+
+		public Span<T> Span => Span<T>.Empty;
+
+		public nint Ptr => 0;
+
+		public int ArraySize => -1;
 
 	}
 

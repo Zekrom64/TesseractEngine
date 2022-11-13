@@ -15,12 +15,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// A rectangle describing the 2D area that will be captured by the framebuffer.
 		/// </summary>
-		public Rectf Area { get; set; }
+		public required Rectf Area { get; set; }
 
 		/// <summary>
 		/// The minimum and maximum depth bounds values.
 		/// </summary>
-		public (float Min, float Max) DepthBounds { get; set; }
+		public required (float Min, float Max) DepthBounds { get; set; }
 
 	}
 
@@ -495,22 +495,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The component mapping for the red component.
 		/// </summary>
-		public ComponentSwizzle Red;
+		public ComponentSwizzle Red = ComponentSwizzle.Identity;
 
 		/// <summary>
 		/// The component mapping for the green component.
 		/// </summary>
-		public ComponentSwizzle Green;
+		public ComponentSwizzle Green = ComponentSwizzle.Identity;
 
 		/// <summary>
 		/// The component mapping for the blue component.
 		/// </summary>
-		public ComponentSwizzle Blue;
+		public ComponentSwizzle Blue = ComponentSwizzle.Identity;
 
 		/// <summary>
 		/// The component mapping for the alpha component.
 		/// </summary>
-		public ComponentSwizzle Alpha;
+		public ComponentSwizzle Alpha = ComponentSwizzle.Identity;
 
 		/// <summary>
 		/// If the mapping is an identity mapping (ie. every component maps to itself).
@@ -520,6 +520,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			(Green == ComponentSwizzle.Identity || Green == ComponentSwizzle.Green) &&
 			(Blue == ComponentSwizzle.Identity || Blue == ComponentSwizzle.Blue) &&
 			(Alpha == ComponentSwizzle.Identity || Alpha == ComponentSwizzle.Alpha);
+
+		public ComponentMapping() { }
 
 	}
 

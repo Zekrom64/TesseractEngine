@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -937,23 +938,25 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Command buffer submission information.
 		/// </summary>
-		public readonly ref struct CommandBufferSubmitInfo {
+		public readonly struct CommandBufferSubmitInfo {
 
 			/// <summary>
 			/// The command buffers to submit.
 			/// </summary>
-			public ReadOnlySpan<ICommandBuffer> CommandBuffer { get; init; }
+			public required IReadOnlyList<ICommandBuffer> CommandBuffer { get; init; }
 
 			/// <summary>
 			/// List of sync objects to wait on and their respective pipeline stages. Granularity may be
 			/// smaller than that of individual pipeline stages in some cases.
 			/// </summary>
-			public ReadOnlySpan<(ISync, PipelineStage)> WaitSync { get; init; }
+			public IReadOnlyList<(ISync, PipelineStage)> WaitSync { get; init; } = Collections<(ISync, PipelineStage)>.EmptyList;
 
 			/// <summary>
 			/// List of sync objects to signal once all commands in the buffer are completed.
 			/// </summary>
-			public ReadOnlySpan<ISync> SignalSync { get; init; }
+			public IReadOnlyList<ISync> SignalSync { get; init; } = Collections<ISync>.EmptyList;
+
+			public CommandBufferSubmitInfo() { }
 
 		}
 

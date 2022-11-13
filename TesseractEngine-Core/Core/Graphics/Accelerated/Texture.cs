@@ -249,49 +249,49 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The type of texture to create.
 		/// </summary>
-		public TextureType Type { get; init; }
+		public required TextureType Type { get; init; }
 
 		/// <summary>
 		/// The pixel format of the texture.
 		/// </summary>
-		public PixelFormat Format { get; init; } = null!;
+		public required PixelFormat Format { get; init; }
 
 		/// <summary>
 		/// The size of the texture.
 		/// </summary>
-		public Vector3ui Size { get; init; }
+		public required Vector3ui Size { get; init; }
 
 		/// <summary>
 		/// The number of mipmap levels in the texture.
 		/// </summary>
-		public uint MipLevels { get; init; }
+		public uint MipLevels { get; init; } = 1;
 
 		/// <summary>
 		/// The number of array layers in the texture. If the texture is a type of
 		/// cubemap this must be a multiple of 6.
 		/// </summary>
-		public uint ArrayLayers { get; init; }
+		public uint ArrayLayers { get; init; } = 1;
 
 		/// <summary>
 		/// The number of multisampling samples the texture will use.
 		/// </summary>
-		public uint Samples { get; init; }
+		public uint Samples { get; init; } = 0;
 
 		/// <summary>
 		/// The initial layout of the texture.
 		/// </summary>
-		public TextureLayout InitialLayout { get; init; }
+		public TextureLayout InitialLayout { get; init; } = TextureLayout.Undefined;
 
 		/// <summary>
 		/// Bitmask of usages expected for this texture.
 		/// </summary>
-		public TextureUsage Usage { get; init; }
+		public required TextureUsage Usage { get; init; }
 
 		/// <summary>
 		/// Explicit memory binding information for the texture, or <c>null</c> to let the backend
 		/// decide how memory should be bound for the texture.
 		/// </summary>
-		public IMemoryBinding? MemoryBinding { get; init; }
+		public IMemoryBinding? MemoryBinding { get; init; } = null;
 
 	}
 
@@ -303,22 +303,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Bitmask of the texture aspects contained in this subresource.
 		/// </summary>
-		public TextureAspect Aspects;
+		public required TextureAspect Aspects;
 
 		/// <summary>
 		/// The mip level contained in this subresource.
 		/// </summary>
-		public uint MipLevel;
+		public uint MipLevel = 0;
 
 		/// <summary>
 		/// The first array layer in the subresource.
 		/// </summary>
-		public uint BaseArrayLayer;
+		public uint BaseArrayLayer = 0;
 
 		/// <summary>
 		/// The number of array layers in the subresource.
 		/// </summary>
-		public uint LayerCount;
+		public uint LayerCount = 1;
+
+		public TextureSubresourceLayers() { }
 
 	}
 
@@ -330,27 +332,29 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Bitmask of the texture aspects contained in this subresource.
 		/// </summary>
-		public TextureAspect Aspects;
+		public required TextureAspect Aspects;
 
 		/// <summary>
 		/// The first mip level in the subresource.
 		/// </summary>
-		public uint BaseMipLevel;
+		public uint BaseMipLevel = 0;
 
 		/// <summary>
 		/// The number of mip levels in this subresource.
 		/// </summary>
-		public uint MipLevelCount;
+		public uint MipLevelCount = 1;
 
 		/// <summary>
 		/// The first array layer in the subresource.
 		/// </summary>
-		public uint BaseArrayLayer;
+		public uint BaseArrayLayer = 0;
 
 		/// <summary>
 		/// The number of array layers in the subresource.
 		/// </summary>
-		public uint ArrayLayerCount;
+		public uint ArrayLayerCount = 1;
+
+		public TextureSubresourceRange() { }
 
 	}
 
@@ -394,27 +398,27 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The source texture for the texture view.
 		/// </summary>
-		public ITexture Texture { get; init; } = null!;
+		public required ITexture Texture { get; init; }
 
 		/// <summary>
 		/// The type of texture view to create.
 		/// </summary>
-		public TextureType Type { get; init; }
+		public required TextureType Type { get; init; }
 
 		/// <summary>
 		/// The pixel format of the texture view.
 		/// </summary>
-		public PixelFormat Format { get; init; } = null!;
+		public required PixelFormat Format { get; init; }
 
 		/// <summary>
 		/// The component mapping of the texture view.
 		/// </summary>
-		public ComponentMapping Mapping { get; init; }
+		public ComponentMapping Mapping { get; init; } = new();
 
 		/// <summary>
 		/// The subresource range of the texture view within the source texture.
 		/// </summary>
-		public TextureSubresourceRange SubresourceRange { get; init; }
+		public required TextureSubresourceRange SubresourceRange { get; init; }
 
 	}
 

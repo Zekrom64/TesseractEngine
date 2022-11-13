@@ -40,7 +40,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Cursor != null && !Cursor.IsNull) {
 				SDL2.Functions.SDL_FreeCursor(Cursor.Ptr);
-				Cursor = null!;
+				Cursor = new NullPointer<SDL_Cursor>();
 			}
 		}
 

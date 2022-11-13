@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.SDL.Native {
 
@@ -45,7 +46,7 @@ namespace Tesseract.SDL.Native {
 		/// <summary>
 		/// Clipping area to clip blits from.
 		/// </summary>
-		public readonly SDLRect ClipRect;
+		public readonly Recti ClipRect;
 		private readonly IntPtr map;
 		public int RefCount;
 
@@ -58,6 +59,6 @@ namespace Tesseract.SDL.Native {
 
 	}
 
-	public delegate int SDL_blit([NativeType("SDL_Surface*")] IntPtr src, [In] ref SDLRect srcrect, [NativeType("SDL_Surface*")] IntPtr dst, [In] ref SDLRect dstrect);
+	public delegate int SDL_blit([NativeType("SDL_Surface*")] IntPtr src, [In] ref Recti srcrect, [NativeType("SDL_Surface*")] IntPtr dst, [In] ref Recti dstrect);
 
 }

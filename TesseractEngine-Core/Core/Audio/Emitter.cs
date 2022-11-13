@@ -153,12 +153,12 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio emitter's flags.
 		/// </summary>
-		public AudioEmitterFlags Flags { get; init; }
+		public AudioEmitterFlags Flags { get; init; } = default;
 
 		/// <summary>
 		/// The audio format this emitter will use.
 		/// </summary>
-		public AudioFormat Format { get; init; } = null!;
+		public required AudioFormat Format { get; init; }
 
 	}
 

@@ -39,17 +39,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The sampler used with this texture binding.
 		/// </summary>
-		public ISampler Sampler { get; init; } = null!;
+		public required ISampler Sampler { get; init; }
 
 		/// <summary>
 		/// The texture view used with this texture binding.
 		/// </summary>
-		public ITextureView TextureView { get; init; } = null!;
+		public required ITextureView TextureView { get; init; }
 
 		/// <summary>
 		/// The expected layout of the texture that will be bound.
 		/// </summary>
-		public TextureLayout TexureLayout { get; init; }
+		public required TextureLayout TexureLayout { get; init; }
 
 	}
 

@@ -180,7 +180,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The rate at which groups of attributes are fetched from the vertex buffer.
 		/// </summary>
-		public VertexInputRate InputRate;
+		public VertexInputRate InputRate { get; set; }
 
 	}
 
@@ -260,7 +260,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format of vertices in the vertex array.
 		/// </summary>
-		public VertexFormat Format { get; init; } = null!;
+		public required VertexFormat Format { get; init; }
 
 		/// <summary>
 		/// The list of buffer bindings for vertex buffers with their associated
@@ -271,7 +271,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The buffer binding for an index buffer.
 		/// </summary>
-		public (BufferBinding Binding, IndexType Type)? IndexBuffer { get; init; }
+		public (BufferBinding Binding, IndexType Type)? IndexBuffer { get; init; } = null;
 
 	}
 

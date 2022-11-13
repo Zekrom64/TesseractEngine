@@ -79,7 +79,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The hardware features that should be enabled during creation. If null no
 		/// additional features will be enabled.
 		/// </summary>
-		public GraphicsHardwareFeatures? EnabledFeatures { get; init; }
+		public GraphicsHardwareFeatures? EnabledFeatures { get; init; } = null;
 
 		/// <summary>
 		/// Extended graphics creation information, or null if none is given.
@@ -96,7 +96,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The supported presentation modes.
 		/// </summary>
-		public IReadOnlyCollection<SwapchainPresentMode> SupportedPresentModes { get; init; } = Collections<SwapchainPresentMode>.EmptyList;
+		public IReadOnlyCollection<SwapchainPresentMode> SupportedPresentModes { get; init; }
 
 		/// <summary>
 		/// The type of images used by the swapchain.
@@ -123,17 +123,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The window to present to.
 		/// </summary>
-		public IWindow PresentWindow { get; init; } = null!;
+		public required IWindow PresentWindow { get; init; }
 
 		/// <summary>
 		/// The presentation mode to use.
 		/// </summary>
-		public SwapchainPresentMode PresentMode { get; init; }
+		public required SwapchainPresentMode PresentMode { get; init; }
 
 		/// <summary>
 		/// Bitmask of the required usages for each image in image-based swapchains.
 		/// </summary>
-		public TextureUsage ImageUsage { get; init; }
+		public required TextureUsage ImageUsage { get; init; }
 
 		/// <summary>
 		/// The preferred pixel format to use for the images of the swapchain. If null, a pixel format is
@@ -250,6 +250,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	public static class GraphicsEnumerator {
 
+		// TODO: Refactor to use a more standardized provider enumerator
+
 		private static readonly List<Func<GraphicsEnumeratorCreateInfo,IGraphicsEnumerator>> enumerators = new();
 
 		private static void LoadEnumerators(Assembly asm) {
@@ -276,7 +278,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		// Combines several graphics enumerators as one
 		private class MultiGraphicsEnumerator : IGraphicsEnumerator {
 
-			public List<IGraphicsEnumerator> Enumerators { get; init; } = null!;
+			public required List<IGraphicsEnumerator> Enumerators { get; init; }
 
 			public void Dispose() {
 				foreach (IGraphicsEnumerator e in Enumerators) e.Dispose();

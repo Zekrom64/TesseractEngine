@@ -75,14 +75,14 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// The memory manager for this binding.
 		/// </summary>
-		public VulkanMemory MemoryManager { get; init; } = null!;
+		public required VulkanMemory MemoryManager { get; init; }
 
 		/// <summary>
 		/// The underlying VMA allocation for this binding.
 		/// </summary>
-		public VMAAllocation Allocation { get; init; } = null!;
+		public required VMAAllocation Allocation { get; init; }
 
-		public VKDeviceMemory DeviceMemory { get; init; } = null!;
+		public required VKDeviceMemory DeviceMemory { get; init; }
 
 		public ulong Size => Allocation.Info.Size;
 

@@ -160,44 +160,154 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="reference">Stencil test reference value</param>
 		public void SetStencilReference(CullFace face, uint reference);
 
+		/// <summary>
+		/// Sets the culling mode of the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="culling">Faces to cull</param>
 		public void SetCullMode(CullFace culling);
 
+		/// <summary>
+		/// Sets if the depth bounds test is enabled for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If the depth bounds test should be enabled</param>
 		public void SetDepthBoundsTestEnable(bool enabled);
 
+		/// <summary>
+		/// Sets the depth comparison operation of the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="op">Depth comparison operation</param>
 		public void SetDepthCompareOp(CompareOp op);
 
+		/// <summary>
+		/// Sets if the depth test is enabled for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If the depth test should be enabled</param>
 		public void SetDepthTestEnable(bool enabled);
 
+		/// <summary>
+		/// Sets if depth value writing is enabled for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If depth writing should be enabled</param>
 		public void SetDepthWriteEnable(bool enabled);
 
+		/// <summary>
+		/// Sets the front face to use for culling for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="face">Front face to use for culling</param>
 		public void SetFrontFace(FrontFace face);
 
+		/// <summary>
+		/// Sets the draw mode to use for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="mode">Draw mode to use</param>
 		public void SetDrawMode(DrawMode mode);
 
+		/// <summary>
+		/// Sets the number of and values for scissors on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="scissors">Scissor areas to set</param>
 		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors);
 
+		/// <summary>
+		/// Sets the number of and values for scissors on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="scissors">Scissor areas to set</param>
 		public void SetScissorsWithCount(params Recti[] scissors) => SetScissorsWithCount(scissors.AsSpan());
 
+		/// <summary>
+		/// Sets the stencil operation values for the given stencil faces on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="faces">Faces to set stencil operation for</param>
+		/// <param name="failOp">Stencil test failure operation value</param>
+		/// <param name="passOp">Stencil test pass operation value</param>
+		/// <param name="depthFailOp">Depth test failure operation value</param>
+		/// <param name="compareOp">Stencil comparison operation value</param>
 		public void SetStencilOp(CullFace faces, StencilOp failOp, StencilOp passOp, StencilOp depthFailOp, CompareOp compareOp);
 
+		/// <summary>
+		/// Sets if the stencil test should be enabled on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If the stencil test should be enabled</param>
 		public void SetStencilTestEnable(bool enabled);
 
+		/// <summary>
+		/// Sets the number of and values for viewports on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="viewports">Viewport areas to set</param>
 		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports);
 
+		/// <summary>
+		/// Sets the number of and values for viewports on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="viewports">Viewport areas to set</param>
 		public void SetViewportsWithCount(params Viewport[] viewports) => SetViewportsWithCount(viewports.AsSpan());
 
+		/// <summary>
+		/// Sets if depth biasing is enabled on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If depth biasing should be enabled</param>
 		public void SetDepthBiasEnable(bool enabled);
 
+		/// <summary>
+		/// Sets the color logic operation to use for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="op">Color logic operation to use</param>
 		public void SetLogicOp(LogicOp op);
 
+		/// <summary>
+		/// Sets the number of patch control points to use for tessellation on the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="controlPoints">Patch control point value</param>
 		public void SetPatchControlPoints(uint controlPoints);
 
+		/// <summary>
+		/// Sets if primitive restart is enabled for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If primitive restart should be enabledd</param>
+		/// <remarks>
+		/// <seealso cref="PipelineDynamicCreateInfo.PrimitiveRestartEnable"/>
+		/// </remarks>
 		public void SetPrimitiveRestartEnable(bool enabled);
 
+		/// <summary>
+		/// Sets if rasterizer discard should be enabled for the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enabled">If rasterizer discard should be enabled</param>
+		/// <remarks>
+		/// <seealso cref="PipelineDynamicCreateInfo.RasterizerDiscardEnable"/>
+		/// </remarks>
 		public void SetRasterizerDiscardEnable(bool enabled);
 
+		/// <summary>
+		/// Sets the vertex format to use with the currently bound pipeline.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="format">Vertex format to use</param>
 		public void SetVertexFormat(VertexFormat format);
 
+		/// <summary>
+		/// Sets if color writing is enabled on each attachment of the currently bound framebuffer.
+		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
+		/// </summary>
+		/// <param name="enables">List of color write enable flags</param>
 		public void SetColorWriteEnable(in ReadOnlySpan<bool> enables);
 
 		/// <summary>
@@ -302,7 +412,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Byte length of the region.
 			/// </summary>
-			public nuint Length { get; init; }
+			public required nuint Length { get; init; }
 
 		}
 
@@ -354,7 +464,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The source subresource layers.
 			/// </summary>
-			public TextureSubresourceLayers SrcSubresource { get; init; }
+			public required TextureSubresourceLayers SrcSubresource { get; init; }
 
 			/// <summary>
 			/// The destination offset in pixels.
@@ -364,17 +474,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The destination subresource layers.
 			/// </summary>
-			public TextureSubresourceLayers DstSubresource { get; init; }
+			public required TextureSubresourceLayers DstSubresource { get; init; }
 
 			/// <summary>
 			/// The size of the region in pixels.
 			/// </summary>
-			public Vector3ui Size { get; init; }
+			public required Vector3ui Size { get; init; }
 
 			/// <summary>
 			/// A bitmask of aspects which are included in the region.
 			/// </summary>
-			public TextureAspect Aspect { get; init; }
+			public required TextureAspect Aspect { get; init; }
 
 		}
 
@@ -437,7 +547,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The offset defining the second corner of the source region to copy.
 			/// </summary>
-			public Vector3ui SrcOffset1 { get; init; }
+			public required Vector3ui SrcOffset1 { get; init; }
 
 			/// <summary>
 			/// The source mip level to copy from.
@@ -452,7 +562,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The offset defining the second corner of the destination region.
 			/// </summary>
-			public Vector3ui DstOffset1 { get; init; }
+			public required Vector3ui DstOffset1 { get; init; }
 
 			/// <summary>
 			/// The destination mip level to copy to.
@@ -462,7 +572,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// A bitmask of texture aspects to copy.
 			/// </summary>
-			public TextureAspect Aspect { get; init; }
+			public required TextureAspect Aspect { get; init; }
 
 		}
 
@@ -546,12 +656,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The size of the copy region in the texture.
 			/// </summary>
-			public Vector3ui TextureSize { get; init; }
+			public required Vector3ui TextureSize { get; init; }
 
 			/// <summary>
 			/// The subresource to be copied in the texture.
 			/// </summary>
-			public TextureSubresourceLayers TextureSubresource { get; init; }
+			public required TextureSubresourceLayers TextureSubresource { get; init; }
 
 		}
 
@@ -709,7 +819,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The format of the clear value.
 			/// </summary>
-			public PixelFormat Format { get; init; }
+			public required PixelFormat Format { get; init; }
 
 			/// <summary>
 			/// The float components of the clear value, may be uninitialized if unused.
@@ -824,7 +934,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// A bitmask of texture aspects to clear.
 			/// </summary>
-			public TextureAspect Aspect { get; init; }
+			public required TextureAspect Aspect { get; init; }
 
 			/// <summary>
 			/// The color clear value.
@@ -851,12 +961,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The index of the attachment to clear.
 			/// </summary>
-			public int Attachment { get; init; }
+			public required int Attachment { get; init; }
 
 			/// <summary>
 			/// The value to clear the attachment with.
 			/// </summary>
-			public ClearValue Value { get; init; }
+			public required ClearValue Value { get; init; }
 
 		}
 
@@ -868,7 +978,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The 2D area within the attachment to clear.
 			/// </summary>
-			public Recti Rect { get; init; }
+			public required Recti Rect { get; init; }
 
 			/// <summary>
 			/// The base array layer of the attachment to clear.
@@ -1018,12 +1128,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; set; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; set; }
 
 		}
 
@@ -1035,22 +1145,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; set; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; set; }
 
 			/// <summary>
 			/// The buffer whose contents are the subject of the barrier.
 			/// </summary>
-			public IBuffer Buffer { get; set; }
+			public required IBuffer Buffer { get; set; }
 
 			/// <summary>
 			/// The range of memory in the buffer subject to the barrier.
 			/// </summary>
-			public MemoryRange Range { get; set; }
+			public required MemoryRange Range { get; set; }
 
 		}
 
@@ -1062,32 +1172,32 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; set; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; set; }
 
 			/// <summary>
 			/// The layout of the texture before the barrier.
 			/// </summary>
-			public TextureLayout OldLayout { get; set; }
+			public required TextureLayout OldLayout { get; set; }
 
 			/// <summary>
 			/// The layout to assign to the texture after the barrier.
 			/// </summary>
-			public TextureLayout NewLayout { get; set; }
+			public required TextureLayout NewLayout { get; set; }
 
 			/// <summary>
 			/// The texture whose contents are the subject of the barrier.
 			/// </summary>
-			public ITexture Texture { get; set; }
+			public required ITexture Texture { get; set; }
 
 			/// <summary>
 			/// The subresource range within the texture subject to the barrier.
 			/// </summary>
-			public TextureSubresourceRange SubresourceRange { get; set; }
+			public required TextureSubresourceRange SubresourceRange { get; set; }
 
 		}
 
@@ -1099,12 +1209,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Bitmask of pipeline stages in which operations occur that must come before any of the barriers.
 			/// </summary>
-			public PipelineStage ProvokingStages { get; init; }
+			public required PipelineStage ProvokingStages { get; init; }
 
 			/// <summary>
 			/// Bitmask of pipeline stages in which operations occur that must come after any of the barriers.
 			/// </summary>
-			public PipelineStage AwaitingStages { get; init; }
+			public required PipelineStage AwaitingStages { get; init; }
 
 			/// <summary>
 			/// List of global memory barriers.
@@ -1231,12 +1341,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The render pass to being rendering with.
 			/// </summary>
-			public IRenderPass RenderPass { get; init; }
+			public required IRenderPass RenderPass { get; init; }
 
 			/// <summary>
 			/// The framebuffer to begin rendering to.
 			/// </summary>
-			public IFramebuffer Framebuffer { get; init; }
+			public required IFramebuffer Framebuffer { get; init; }
 
 			/// <summary>
 			/// The area within the framebuffer that will be rendered to.
@@ -1277,17 +1387,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The index of the attachment within the framebuffer.
 			/// </summary>
-			public uint Index { get; init; }
+			public required uint Index { get; init; }
 
 			/// <summary>
 			/// The texture view to use as an attachment.
 			/// </summary>
-			public ITextureView TextureView { get; init; }
+			public required ITextureView TextureView { get; init; }
 
 			/// <summary>
 			/// The current layout of the attachment's texture.
 			/// </summary>
-			public TextureLayout TextureLayout { get; init; }
+			public required TextureLayout TextureLayout { get; init; }
 
 			/// <summary>
 			/// The resolution mode to use for any resolve texture.
@@ -1307,12 +1417,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The load operation to perform on the attachment at the start of rendering.
 			/// </summary>
-			public AttachmentLoadOp LoadOp { get; init; }
+			public required AttachmentLoadOp LoadOp { get; init; }
 
 			/// <summary>
 			/// The store operation to perform on the attachment at the end of rendering.
 			/// </summary>
-			public AttachmentStoreOp StoreOp { get; init; }
+			public required AttachmentStoreOp StoreOp { get; init; }
 
 			/// <summary>
 			/// The clear value to use if the <see cref="LoadOp"/> is <see cref="AttachmentLoadOp.Clear"/>.
@@ -1334,7 +1444,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The framebuffer containing the attachments to render to.
 			/// </summary>
-			public IFramebuffer Framebuffer { get; init; } = null!;
+			public required IFramebuffer Framebuffer { get; init; }
 
 			/// <summary>
 			/// The list of color attachments to use during rendering, or null if there are no color attachments.
@@ -1545,17 +1655,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The required granularity of potential texture transfers done by commands in this
 		/// command buffer. A granularity of (0,0,0) will be interpreted as a "don't care".
 		/// </summary>
-		public Vector3ui RequiredTransferGranularity { get; init; }
+		public Vector3ui RequiredTransferGranularity { get; init; } = Vector3ui.Zero;
 
 		/// <summary>
 		/// The type of command buffer to create.
 		/// </summary>
-		public CommandBufferType Type { get; init; }
+		public required CommandBufferType Type { get; init; }
 
 		/// <summary>
 		/// Usage flags for the command buffer.
 		/// </summary>
-		public CommandBufferUsage Usage { get; init; }
+		public required CommandBufferUsage Usage { get; init; }
 
 	}
 

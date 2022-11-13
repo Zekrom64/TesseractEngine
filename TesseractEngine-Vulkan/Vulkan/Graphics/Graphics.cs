@@ -348,7 +348,7 @@ namespace Tesseract.Vulkan.Graphics {
 		public void SubmitCommands(in IGraphics.CommandBufferSubmitInfo submitInfo) {
 			VulkanCommands.CommandBank? cmdbank = null;
 			ulong queueid = 0;
-			Span<IntPtr> cmds = stackalloc IntPtr[submitInfo.CommandBuffer.Length];
+			Span<IntPtr> cmds = stackalloc IntPtr[submitInfo.CommandBuffer.Count];
 			for (int i = 0; i < cmds.Length; i++) {
 				var vkcmd = ((VulkanCommandBuffer)submitInfo.CommandBuffer[i]);
 				cmds[i] = vkcmd.CommandBuffer.CommandBuffer;
@@ -361,8 +361,8 @@ namespace Tesseract.Vulkan.Graphics {
 
 			VulkanFenceSync? fence = null;
 			int sigcount = 0, waitcount = 0;
-			Span<ulong> sigs = stackalloc ulong[submitInfo.SignalSync.Length];
-			Span<ulong> waits = stackalloc ulong[submitInfo.WaitSync.Length];
+			Span<ulong> sigs = stackalloc ulong[submitInfo.SignalSync.Count];
+			Span<ulong> waits = stackalloc ulong[submitInfo.WaitSync.Count];
 			Span<VKPipelineStageFlagBits> waitStages = stackalloc VKPipelineStageFlagBits[waits.Length];
 
 			// Parse the signal sync list

@@ -386,6 +386,7 @@ namespace Tesseract.SDL {
 
 	}
 
+	/*
 	/// <summary>
 	/// Stores a single SDL color value.
 	/// </summary>
@@ -424,6 +425,7 @@ namespace Tesseract.SDL {
 		}
 
 	}
+	*/
 
 	public class SDLPalette : IDisposable {
 
@@ -445,7 +447,7 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public ReadOnlySpan<SDLColor> Colors {
+		public ReadOnlySpan<Vector4b> Colors {
 			get {
 				unsafe {
 					return ((SDL_Palette*)Palette.Ptr)->Colors;
@@ -453,27 +455,27 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public SDLColor this[int index] => Colors[index];
+		public Vector4b this[int index] => Colors[index];
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Palette != null && !Palette.IsNull) {
 				SDL2.Functions.SDL_FreePalette(Palette.Ptr);
-				Palette = null!;
+				Palette = new NullPointer<SDL_Palette>();
 			}
 		}
 
-		public void SetColors(in ReadOnlySpan<SDLColor> colors, int first = 0) {
+		public void SetColors(in ReadOnlySpan<Vector4b> colors, int first = 0) {
 			unsafe {
-				fixed(SDLColor* pColors = colors) {
+				fixed(Vector4b* pColors = colors) {
 					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
 				}
 			}
 		}
 
-		public void SetColors(int first, params SDLColor[] colors) {
+		public void SetColors(int first, params Vector4b[] colors) {
 			unsafe {
-				fixed (SDLColor* pColors = colors) {
+				fixed (Vector4b* pColors = colors) {
 					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
 				}
 			}
@@ -558,7 +560,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (PixelFormat != null && !PixelFormat.IsNull) {
 				SDL2.Functions.SDL_FreeFormat(PixelFormat.Ptr);
-				PixelFormat = null!;
+				PixelFormat = new NullPointer<SDL_PixelFormat>();
 			}
 		}
 

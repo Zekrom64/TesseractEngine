@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan {
 
@@ -21,10 +22,10 @@ namespace Tesseract.Vulkan {
 
 		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public VKExtent2D RenderAreaGranularity {
+		public Vector2ui RenderAreaGranularity {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Device.VK10Functions.vkGetRenderAreaGranularity(Device, RenderPass, out VKExtent2D granularity);
+				Device.VK10Functions.vkGetRenderAreaGranularity(Device, RenderPass, out Vector2ui granularity);
 				return granularity;
 			}
 		}

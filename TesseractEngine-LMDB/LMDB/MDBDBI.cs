@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Input;
 
 namespace Tesseract.LMDB {
 	
@@ -211,7 +213,15 @@ namespace Tesseract.LMDB {
 		/// <returns>The data corresponding to the key</returns>
 		public Span<byte> Get<K>(K key) where K : unmanaged {
 			unsafe {
-				return Get(new ReadOnlySpan<byte>(&key, sizeof(K)));
+				K* pKey = &key;
+				MDBVal vkey = new() {
+					Size = (nuint)Marshal.SizeOf<K>(),
+					Data = (IntPtr)pKey
+				};
+				MDBResult err = MDB.Functions.mdb_get(Txn, DBI, vkey, out MDBVal data);
+				if (err == MDBResult.NotFound) throw new KeyNotFoundException();
+				if (err != MDBResult.Success) throw new MDBException("Failed to get database entry", err);
+				return new Span<byte>((void*)data.Data, (int)data.Size);
 			}
 		}
 
@@ -224,8 +234,18 @@ namespace Tesseract.LMDB {
 		/// <param name="data">The data corresponding to the key</param>
 		/// <returns>If the entry was retrieved for the given key</returns>
 		public bool TryGet<K>(K key, out Span<byte> data) where K : unmanaged {
+			data = Span<byte>.Empty;
 			unsafe {
-				return TryGet(new ReadOnlySpan<byte>(&key, sizeof(K)), out data);
+				K* pKey = &key;
+				MDBVal vkey = new() {
+					Size = (nuint)Marshal.SizeOf<K>(),
+					Data = (IntPtr)pKey
+				};
+				MDBResult err = MDB.Functions.mdb_get(Txn, DBI, vkey, out MDBVal data2);
+				if (err == MDBResult.NotFound) return false;
+				if (err != MDBResult.Success) throw new MDBException("Failed to get database entry", err);
+				data = new Span<byte>((void*)data2.Data, (int)data2.Size);
+				return true;
 			}
 		}
 

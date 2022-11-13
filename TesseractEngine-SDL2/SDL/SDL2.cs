@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
 using Tesseract.SDL.Native;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.SDL {
 
@@ -59,7 +60,7 @@ namespace Tesseract.SDL {
 		private static Library? library = null;
 		public static Library Library {
 			get {
-				if (library == null) library = LibraryManager.Load(LibrarySpec);
+				library ??= LibraryManager.Load(LibrarySpec);
 				return library;
 			}
 		}
@@ -144,7 +145,7 @@ namespace Tesseract.SDL {
 		/// <param name="points">Points to test for enclosure</param>
 		/// <param name="clip">Optional clipping rectangle to apply to points</param>
 		/// <returns>Clipping rectagle, or null if no points are enclosed</returns>
-		public static SDLRect? EnclosePoints(SDLPoint[] points, SDLRect? clip = null) => EnclosePoints(new Span<SDLPoint>(points), clip);
+		public static Recti? EnclosePoints(Vector2i[] points, Recti? clip = null) => EnclosePoints(new Span<Vector2i>(points), clip);
 
 		/// <summary>
 		/// Computes the rectangle that contains an entire set of points.
@@ -152,11 +153,11 @@ namespace Tesseract.SDL {
 		/// <param name="points">Points to test for enclosure</param>
 		/// <param name="clip">Optional clipping rectangle to apply to points</param>
 		/// <returns>Clipping rectagle, or null if no points are enclosed</returns>
-		public static SDLRect? EnclosePoints(Span<SDLPoint> points, SDLRect? clip = null) {
+		public static Recti? EnclosePoints(Span<Vector2i> points, Recti? clip = null) {
 			unsafe {
-				SDLRect cclip = clip.GetValueOrDefault();
-				fixed (SDLPoint* pPoints = points) {
-					if (Functions.SDL_EnclosePoints((IntPtr)pPoints, points.Length, clip.HasValue ? ((IntPtr)(&cclip)) : IntPtr.Zero, out SDLRect ret)) return ret;
+				Recti cclip = clip.GetValueOrDefault();
+				fixed (Vector2i* pPoints = points) {
+					if (Functions.SDL_EnclosePoints((IntPtr)pPoints, points.Length, clip.HasValue ? ((IntPtr)(&cclip)) : IntPtr.Zero, out Recti ret)) return ret;
 					else return null;
 				}
 			}
@@ -172,7 +173,7 @@ namespace Tesseract.SDL {
 		/// <param name="x2">Second line X coordinate</param>
 		/// <param name="y2">Second line Y coordinate</param>
 		/// <returns>If the rectangle and line intersect</returns>
-		public static bool IntersectRectAndLine(in SDLRect rect, ref int x1, ref int y1, ref int x2, ref int y2) =>
+		public static bool IntersectRectAndLine(in Recti rect, ref int x1, ref int y1, ref int x2, ref int y2) =>
 			Functions.SDL_IntersectRectAndLine(rect, ref x1, ref y1, ref x2, ref y2);
 
 		// SDL_blendmode.h
@@ -408,7 +409,7 @@ namespace Tesseract.SDL {
 
 		public static void StopTextInput() => Functions.SDL_StopTextInput();
 
-		public static void SetTextInputRect(in SDLRect rect) => Functions.SDL_SetTextInputRect(rect);
+		public static void SetTextInputRect(in Recti rect) => Functions.SDL_SetTextInputRect(rect);
 
 		public static bool HasScreenKeyboardSupport => Functions.SDL_HasScreenKeyboardSupport();
 

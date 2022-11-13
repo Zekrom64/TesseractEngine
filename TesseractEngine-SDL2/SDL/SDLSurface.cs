@@ -181,18 +181,18 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The clipping rectangle for blitting operations.
 		/// </summary>
-		public SDLRect? ClipRect {
+		public Recti? ClipRect {
 			set {
 				if (!value.HasValue) SDL2.CheckError(SDL2.Functions.SDL_SetClipRect(Surface.Ptr, IntPtr.Zero));
 				else {
 					unsafe {
-						SDLRect rect = value.Value;
+						Recti rect = value.Value;
 						SDL2.CheckError(SDL2.Functions.SDL_SetClipRect(Surface.Ptr, (IntPtr)(&rect)));
 					}
 				}
 			}
 			get {
-				SDL2.Functions.SDL_GetClipRect(Surface.Ptr, out SDLRect rect);
+				SDL2.Functions.SDL_GetClipRect(Surface.Ptr, out Recti rect);
 				return rect;
 			}
 		}
@@ -288,7 +288,7 @@ namespace Tesseract.SDL {
 		/// <seealso cref="Fill(uint)"/>
 		/// <seealso cref="FillRects(Span{SDLRect}, uint)"/>
 		/// <seealso cref="FillRects(uint, SDLRect[])"/>
-		public void FillRect(SDLRect rect, uint color) {
+		public void FillRect(Recti rect, uint color) {
 			unsafe {
 				SDL2.CheckError(SDL2.Functions.SDL_FillRect(Surface.Ptr, (IntPtr)(&rect), color));
 			}
@@ -302,9 +302,9 @@ namespace Tesseract.SDL {
 		/// <seealso cref="Fill(uint)"/>
 		/// <seealso cref="FillRect(SDLRect, uint)"/>
 		/// <seealso cref="FillRects(Span{SDLRect}, uint)"/>
-		public void FillRects(uint color, params SDLRect[] rects) {
+		public void FillRects(uint color, params Recti[] rects) {
 			unsafe {
-				fixed (SDLRect* pRects = rects) {
+				fixed (Recti* pRects = rects) {
 					SDL2.CheckError(SDL2.Functions.SDL_FillRects(Surface.Ptr, (IntPtr)pRects, rects.Length, color));
 				}
 			}
@@ -318,9 +318,9 @@ namespace Tesseract.SDL {
 		/// <seealso cref="Fill(uint)"/>
 		/// <seealso cref="FillRect(SDLRect, uint)"/>
 		/// <seealso cref="FillRects(uint, SDLRect[])"/>
-		public void FillRects(Span<SDLRect> rects, uint color) {
+		public void FillRects(Span<Recti> rects, uint color) {
 			unsafe {
-				fixed (SDLRect* pRects = rects) {
+				fixed (Recti* pRects = rects) {
 					SDL2.CheckError(SDL2.Functions.SDL_FillRects(Surface.Ptr, (IntPtr)pRects, rects.Length, color));
 				}
 			}
@@ -332,9 +332,9 @@ namespace Tesseract.SDL {
 		/// <param name="dstRect">Destination blit area, or null to use whole area</param>
 		/// <param name="src">Source surface</param>
 		/// <param name="srcRect">Source blit area, or null to use whole area</param>
-		public void Blit(SDLRect? dstRect, SDLSurface src, SDLRect? srcRect) {
+		public void Blit(Recti? dstRect, SDLSurface src, Recti? srcRect) {
 			unsafe {
-				SDLRect dstr, srcr;
+				Recti dstr, srcr;
 				if (dstRect.HasValue) dstr = dstRect.Value;
 				if (srcRect.HasValue) srcr = srcRect.Value;
 				SDL2.CheckError(SDL2.Functions.SDL_UpperBlit(src.Surface.Ptr, srcRect.HasValue ? (IntPtr)(&srcr) : IntPtr.Zero, Surface.Ptr, dstRect.HasValue ? (IntPtr)(&dstr) : IntPtr.Zero));
@@ -347,9 +347,9 @@ namespace Tesseract.SDL {
 		/// <param name="dstRect">Destination blit area, or null to use whole area</param>
 		/// <param name="src">Source surface</param>
 		/// <param name="srcRect">Source blit area, or null to use whole area</param>
-		public void BlitScaled(SDLRect? dstRect, SDLSurface src, SDLRect? srcRect) {
+		public void BlitScaled(Recti? dstRect, SDLSurface src, Recti? srcRect) {
 			unsafe {
-				SDLRect dstr, srcr;
+				Recti dstr, srcr;
 				if (dstRect.HasValue) dstr = dstRect.Value;
 				if (srcRect.HasValue) srcr = srcRect.Value;
 				SDL2.CheckError(SDL2.Functions.SDL_UpperBlitScaled(src.Surface.Ptr, srcRect.HasValue ? (IntPtr)(&srcr) : IntPtr.Zero, Surface.Ptr, dstRect.HasValue ? (IntPtr)(&dstr) : IntPtr.Zero));
@@ -360,7 +360,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Surface != null && !Surface.IsNull) {
 				SDL2.Functions.SDL_FreeSurface(Surface.Ptr);
-				Surface = null!;
+				Surface = new NullPointer<SDL_Surface>();
 			}
 		}
 

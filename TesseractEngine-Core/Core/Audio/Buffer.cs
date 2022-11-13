@@ -55,12 +55,12 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format the buffer will use.
 		/// </summary>
-		public AudioFormat Format { get; init; } = null!;
+		public required AudioFormat Format { get; init; }
 
 		/// <summary>
 		/// The number of samples the buffer will store.
 		/// </summary>
-		public int NumSamples { get; init; }
+		public required int NumSamples { get; init; }
 
 	}
 

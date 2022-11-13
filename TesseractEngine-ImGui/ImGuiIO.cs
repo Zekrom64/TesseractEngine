@@ -1,6 +1,4 @@
 ﻿using System.Numerics;
-using Tesseract.Core;
-using Tesseract.Core.Native;
 
 namespace Tesseract.ImGui {
 

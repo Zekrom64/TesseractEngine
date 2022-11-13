@@ -45,13 +45,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The byte offset of the memory range.
 		/// </summary>
-		public ulong Offset { get; set; }
+		public ulong Offset { get; set; } = 0;
 
 		/// <summary>
 		/// The length of the memory range in bytes. Zero values are interpreted
 		/// as mappings from the offset to the end of the memory being referenced.
 		/// </summary>
-		public ulong Length { get; set; }
+		public ulong Length { get; set; } = 0;
+
+		public MemoryRange() { }
 
 		/// <summary>
 		/// Constrains the memory range within a fixed length of memory. This will always
@@ -286,23 +288,23 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The size of the buffer.
 		/// </summary>
-		public ulong Size { get; init; }
+		public required ulong Size { get; init; }
 
 		/// <summary>
 		/// The required usages of the buffer.
 		/// </summary>
-		public BufferUsage Usage { get; init; }
+		public required BufferUsage Usage { get; init; }
 
 		/// <summary>
 		/// Explicit memory binding information for the buffer, or <c>null</c> to let the backend
 		/// decide how memory should be bound for the buffer.
 		/// </summary>
-		public IMemoryBinding? MemoryBinding { get; init; }
+		public IMemoryBinding? MemoryBinding { get; init; } = null;
 
 		/// <summary>
 		/// The required memory mapping flags to support.
 		/// </summary>
-		public MemoryMapFlags MapFlags { get; init; }
+		public MemoryMapFlags MapFlags { get; init; } = MemoryMapFlags.None;
 
 	}
 
@@ -314,12 +316,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The buffer to bind.
 		/// </summary>
-		public IBuffer Buffer { get; init; } = null!;
+		public required IBuffer Buffer { get; init; }
 
 		/// <summary>
 		/// The memory range within the buffer to bind.
 		/// </summary>
-		public MemoryRange Range { get; init; }
+		public MemoryRange Range { get; init; } = default;
 
 	}
 

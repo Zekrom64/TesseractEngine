@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.SDL {
 	
@@ -19,7 +20,7 @@ namespace Tesseract.SDL {
 		[FieldOffset(0)]
 		public byte BinarizationCutoff;
 		[FieldOffset(0)]
-		public SDLColor ColorKey;
+		public Vector4b ColorKey;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]

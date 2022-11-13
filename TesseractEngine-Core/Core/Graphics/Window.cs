@@ -517,7 +517,7 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="dstPos">The point to copy to on the window surface</param>
 		/// <param name="srcImage">The image to copy from</param>
 		/// <param name="srcArea">The area to copy from the image</param>
-		public void BlitToSurface(IReadOnlyTuple2<int> dstPos, IImage srcImage, IReadOnlyRect<int> srcArea);
+		public void BlitToSurface(Vector2i dstPos, IImage srcImage, Recti srcArea);
 
 		/// <summary>
 		/// Swaps the front and back buffers of the window surface, making changes visible.

@@ -1,8 +1,6 @@
 #include "imgui.h"
 #include "imgui_cli.h"
 
-using namespace Tesseract::Core::Numerics;
-using namespace Tesseract::Core::Native;
 using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Numerics;
@@ -284,7 +282,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 
 	public ref class ImDrawListCLI : public Tesseract::ImGui::IImDrawList {
 	internal:
-		ref class CmdBufferImpl : Tesseract::Core::Utilities::CLI::ListBase<Tesseract::ImGui::ImDrawCmd> {
+		ref class CmdBufferImpl : Tesseract::ImGui::Utilities::CLI::ListBase<Tesseract::ImGui::ImDrawCmd> {
 		internal:
 			ImDrawListCLI^ m_drawlist;
 			ImVector<ImDrawCmd>* m_vec;
@@ -355,7 +353,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<unsigned short>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<unsigned short>((IReadOnlyList<unsigned short>^)this);
+				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<unsigned short>((IReadOnlyList<unsigned short>^)this);
 			}
 
 			virtual property int Count {
@@ -466,7 +464,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImDrawVert>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImDrawVert>((IReadOnlyList<Tesseract::ImGui::ImDrawVert>^)this);
+				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImDrawVert>((IReadOnlyList<Tesseract::ImGui::ImDrawVert>^)this);
 			}
 
 			virtual property int Count {
@@ -1022,7 +1020,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<float>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<float>(this);
+				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<float>(this);
 			}
 
 			virtual property int Count {
@@ -1046,7 +1044,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<wchar_t>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<wchar_t>(this);
+				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<wchar_t>(this);
 			}
 
 			virtual property int Count {
@@ -1070,7 +1068,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			}
 
 			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImFontGlyph>^ GetEnumerator() {
-				return gcnew Tesseract::Core::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImFontGlyph>(this);
+				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImFontGlyph>(this);
 			}
 
 			virtual property int Count {

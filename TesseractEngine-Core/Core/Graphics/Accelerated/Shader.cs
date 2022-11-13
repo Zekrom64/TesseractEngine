@@ -83,17 +83,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The type of shader to create.
 		/// </summary>
-		public ShaderType Type { get; init; }
+		public required ShaderType Type { get; init; }
 
 		/// <summary>
 		/// The type of source to create the shader from.
 		/// </summary>
-		public ShaderSourceType SourceType { get; init; }
+		public required ShaderSourceType SourceType { get; init; }
 
 		/// <summary>
 		/// The object to use as the source code for the shader.
 		/// </summary>
-		public object Source { get; init; } = null!;
+		public required object Source { get; init; }
 
 	}
 

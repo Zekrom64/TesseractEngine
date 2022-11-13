@@ -125,7 +125,7 @@ namespace Tesseract.Vulkan {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKDevice CreateDevice(in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks? allocator = null) {
 			VK.CheckError(Instance.VK10Functions.vkCreateDevice(PhysicalDevice, createInfo, allocator, out IntPtr device), "Failed to create logical device");
-			return new VKDevice(Instance, device, createInfo, allocator);
+			return new VKDevice(Instance, device, createInfo, allocator, this);
 		}
 
 		// VK_KHR_surface

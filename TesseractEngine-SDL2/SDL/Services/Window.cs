@@ -72,12 +72,7 @@ namespace Tesseract.SDL.Services {
 
 		public readonly SDLDisplay Display;
 
-		public IReadOnlyTuple2<int> Position {
-			get {
-				SDLRect bounds = Display.Bounds;
-				return new Vector2i(bounds.X, bounds.Y);
-			}
-		}
+		public IReadOnlyTuple2<int> Position => Display.Bounds.Position;
 
 		public string Name => Display.Name;
 
@@ -259,7 +254,7 @@ namespace Tesseract.SDL.Services {
 
 		public IGLContext CreateContext() {
 			lock (lockGlcontext) {
-				if (glcontext == null) glcontext = new SDLGLContext(Window);
+				glcontext ??= new SDLGLContext(Window);
 				return glcontext;
 			}
 		}
@@ -285,7 +280,7 @@ namespace Tesseract.SDL.Services {
 			SDLDisplayMode sdlmode;
 			if (mode is SDLServiceDisplayMode sdlsmode) sdlmode = sdlsmode.DisplayMode;
 			else {
-				if (mode == null) mode = display.CurrentMode;
+				mode ??= display.CurrentMode;
 				sdlmode = new SDLDisplayMode() {
 					W = mode.Size.X,
 					H = mode.Size.Y,
@@ -363,7 +358,7 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetMouseButtonState(int button) => SDLServiceMouse.GetCurrentMouseButtonState(button);
 
-		public void BlitToSurface(IReadOnlyTuple2<int> dstPos, IImage srcImage, IReadOnlyRect<int> srcArea) {
+		public void BlitToSurface(Vector2i dstPos, IImage srcImage, Recti srcArea) {
 			SDLServiceImage sdlimg;
 			bool dispose = false;
 			if (srcImage is SDLServiceImage sdlsrc) sdlimg = sdlsrc;
@@ -371,17 +366,7 @@ namespace Tesseract.SDL.Services {
 				sdlimg = new SDLServiceImage(srcImage);
 				dispose = true;
 			}
-			Window.Surface.Blit(new SDLRect() {
-				X = dstPos.X,
-				Y = dstPos.Y,
-				W = srcArea.Size.X,
-				H = srcArea.Size.Y
-			}, sdlimg.Surface, new SDLRect() {
-				X = srcArea.Position.X,
-				Y = srcArea.Position.Y,
-				W = srcArea.Size.X,
-				H = srcArea.Size.Y
-			});
+			Window.Surface.Blit(new Recti(dstPos, srcArea.Size), sdlimg.Surface, srcArea);
 			if (dispose) sdlimg.Dispose();
 		}
 

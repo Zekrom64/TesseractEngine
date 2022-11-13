@@ -206,12 +206,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Intermediate ref struct that simply acts as a provider for an awaiter tied
 		/// to a sync object and a timeout.
 		/// </summary>
-		public ref struct SyncAwaitProvider {
+		public readonly ref struct SyncAwaitProvider {
 
 			/// <summary>
 			/// The referenced sync object.
 			/// </summary>
-			public ISync Sync { get; init; }
+			public required ISync Sync { get; init; }
 
 			/// <summary>
 			/// The referenced timeout.
@@ -244,17 +244,17 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Required synchonrization granularity for the sync object.
 		/// </summary>
-		public SyncGranularity Granularity { get; init; }
+		public required SyncGranularity Granularity { get; init; }
 
 		/// <summary>
 		///  Required synchronization direction for the sync object.
 		/// </summary>
-		public SyncDirection Direction { get; init; }
+		public required SyncDirection Direction { get; init; }
 
 		/// <summary>
 		/// Bitmask of required features for the sync object.
 		/// </summary>
-		public SyncFeatures Features { get; init; }
+		public required SyncFeatures Features { get; init; }
 
 	}
 

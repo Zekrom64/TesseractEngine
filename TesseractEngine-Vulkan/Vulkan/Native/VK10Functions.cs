@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.Vulkan.Native {
 
@@ -36,6 +37,8 @@ namespace Tesseract.Vulkan.Native {
 	using VkDescriptorSet = UInt64;
 	using VkFramebuffer = UInt64;
 	using VkCommandPool = UInt64;
+
+	using VKExtent2D = Vector2ui;
 
 #nullable disable
 	public class VK10Functions {

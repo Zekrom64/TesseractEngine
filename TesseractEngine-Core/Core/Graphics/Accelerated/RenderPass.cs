@@ -44,12 +44,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A render pass attachment describes layout and load/store for an image that will be attached to a framebuffer.
 	/// </summary>
-	public record struct RenderPassAttachment {
+	public readonly record struct RenderPassAttachment {
 
 		/// <summary>
 		/// The format of the texture view that will be used by this attachment.
 		/// </summary>
-		public PixelFormat Format { get; init; } = null!;
+		public required PixelFormat Format { get; init; }
 
 		/// <summary>
 		/// The number of samples that will be used with this attachment
@@ -79,12 +79,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The inital layout of the attachment's underlying texture at the start of the render pass.
 		/// </summary>
-		public TextureLayout InitialLayout { get; init; } = default;
+		public required TextureLayout InitialLayout { get; init; }
 
 		/// <summary>
 		/// The final layout of the attachment's underlying texture at the end of the render pass.
 		/// </summary>
-		public TextureLayout FinalLayout { get; init; } = default;
+		public required TextureLayout FinalLayout { get; init; }
 
 		public RenderPassAttachment() { }
 
@@ -108,7 +108,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The layout of the attachment while it is in use by the current subpass.
 		/// </summary>
-		public TextureLayout Layout { get; init; } = default;
+		public required TextureLayout Layout { get; init; }
 
 		/// <summary>
 		/// If the referenced attachment is unused.
@@ -122,7 +122,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A subpass describes a collection of attachments to use when rendering.
 	/// </summary>
-	public record struct RenderPassSubpass {
+	public readonly record struct RenderPassSubpass {
 
 		/// <summary>
 		/// The type of pipeline that will be bound.
@@ -174,7 +174,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A dependency describes a barrier to apply between subpasses that have inter-dependent attachment usages.
 	/// </summary>
-	public record struct RenderPassDependency {
+	public readonly record struct RenderPassDependency {
 
 		/// <summary>
 		/// Index for specifying that a dependency is external to the current render pass.
@@ -194,22 +194,22 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The pipeline stages initiating the dependency.
 		/// </summary>
-		public PipelineStage SrcStages { get; init; } = default;
+		public required PipelineStage SrcStages { get; init; }
 
 		/// <summary>
 		/// The pipeline stages awaiting on the dependency.
 		/// </summary>
-		public PipelineStage DstStages { get; init; } = default;
+		public required PipelineStage DstStages { get; init; }
 
 		/// <summary>
 		/// The memory accesses initiating the dependency.
 		/// </summary>
-		public MemoryAccess SrcAccess { get; init; } = default;
+		public required MemoryAccess SrcAccess { get; init; }
 
 		/// <summary>
 		/// The memory accesses awaiting the dependency.
 		/// </summary>
-		public MemoryAccess DstAccess { get; init; } = default;
+		public required MemoryAccess DstAccess { get; init; }
 
 		public RenderPassDependency() { }
 

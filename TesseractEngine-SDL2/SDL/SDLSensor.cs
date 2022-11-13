@@ -55,7 +55,7 @@ namespace Tesseract.SDL {
 			GC.SuppressFinalize(this);
 			if (Sensor != null) {
 				SDL2.Functions.SDL_SensorClose(Sensor.Ptr);
-				Sensor = null!;
+				Sensor = new NullPointer<SDL_Sensor>();
 			}
 		}
 

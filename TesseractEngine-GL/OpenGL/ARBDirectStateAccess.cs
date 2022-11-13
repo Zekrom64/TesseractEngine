@@ -717,7 +717,11 @@ namespace Tesseract.OpenGL {
 		public void ClearNamedFramebuffer(uint framebuffer, GLClearBuffer buffer, int drawbuffer, float depth, int stencil) => Functions.glClearNamedFramebufferfi(framebuffer, (uint)buffer, drawbuffer, depth, stencil);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlitNamedFramebuffer(uint readFramebuffer, uint drawFramebuffer, Recti src, Recti dst, GLBufferMask mask, GLFilter filter) => Functions.glBlitNamedFramebuffer(readFramebuffer, drawFramebuffer, src.X0, src.Y0, src.X1, src.Y1, dst.X0, dst.Y0, dst.X1, dst.Y1, (uint)mask, (uint)filter);
+		public void BlitNamedFramebuffer(uint readFramebuffer, uint drawFramebuffer, Recti src, Recti dst, GLBufferMask mask, GLFilter filter) {
+			Vector2i srcmin = src.Minimum, srcmax = src.Maximum;
+			Vector2i dstmin = dst.Minimum, dstmax = dst.Maximum;
+			Functions.glBlitNamedFramebuffer(readFramebuffer, drawFramebuffer, srcmin.X, srcmin.Y, srcmax.X, srcmax.Y, dstmin.X, dstmin.Y, dstmax.X, dstmax.Y, (uint)mask, (uint)filter);
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public GLFramebufferStatus CheckNamedFramebufferStatus(uint framebuffer, GLFramebufferTarget target) => (GLFramebufferStatus)Functions.glCheckNamedFramebufferStatus(framebuffer, (uint)target);

@@ -8,8 +8,4 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
-  </ItemGroup>
-
 </Project>

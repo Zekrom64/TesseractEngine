@@ -150,7 +150,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 			Swapchain?.Dispose();
 			Swapchain = newSwapchain;
 
-			Images = Swapchain.Images.ConvertAll(img => new VulkanTexture(img, false));
+			Images = Swapchain.Images.ConvertAll(img => new VulkanTexture(img, false) { Format = Format });
 
 			OnRebuild?.Invoke();
 		}

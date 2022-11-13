@@ -9,6 +9,8 @@ using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
+using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Tesseract.Vulkan {
 
@@ -43,6 +45,11 @@ namespace Tesseract.Vulkan {
 
 	using VkSamplerYcbcrConversion = UInt64;
 	using VkDescriptorUpdateTemplate = UInt64;
+
+	using VKExtent3D = Vector3ui;
+	using VKOffset3D = Vector3i;
+	using VKExtent2D = Vector2ui;
+	using VKOffset2D = Vector2i;
 	
 	public struct VKBool32 {
 
@@ -190,8 +197,9 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	/*
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VKExtent3D : ITuple3<uint> {
+	public struct VKExtent3D : IVector3Int<VKExtent3D, uint> {
 
 		public uint Width;
 		public uint Height;
@@ -217,6 +225,8 @@ namespace Tesseract.Vulkan {
 		uint IReadOnlyTuple<uint, uint>.Y => Height;
 		uint IReadOnlyTuple<uint, uint, uint>.Z => Depth;
 
+		public Span<uint> AsSpan => throw new NotImplementedException();
+
 		public uint this[int key] {
 			get => key switch {
 				0 => Width,
@@ -235,10 +245,127 @@ namespace Tesseract.Vulkan {
 
 		uint IReadOnlyIndexer<int, uint>.this[int key] => this[key];
 
+		public override bool Equals([NotNullWhen(true)] object? obj) => obj is VKExtent3D ext && Equals(ext);
+
+		public override int GetHashCode() => (int)(Width + Height * 5 + Depth * 7);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Vector3ui(VKExtent3D e) => new(e.Width, e.Height, e.Depth);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator VKExtent3D(Vector3ui v) => new(v.X, v.Y, v.Z);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator %(VKExtent3D left, uint right) => new(left.X % right, left.Y % right, left.Z % right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator &(VKExtent3D left, uint right) => new(left.X & right, left.Y & right, left.Z & right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator |(VKExtent3D left, uint right) => new(left.X | right, left.Y | right, left.Z | right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator ^(VKExtent3D left, uint right) => new(left.X ^ right, left.Y ^ right, left.Z ^ right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator +(VKExtent3D left, uint right) => new(left.X + right, left.Y + right, left.Z + right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator -(VKExtent3D left, uint right) => new(left.X - right, left.Y - right, left.Z - right);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator *(VKExtent3D left, uint right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator /(VKExtent3D left, uint right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator +(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator -(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator *(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator /(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator -(VKExtent3D value) => new((uint)(-value.X), (uint)(-value.Y), (uint)(-value.Z));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator +(VKExtent3D value) => value;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator ++(VKExtent3D value) => new(value.X + 1, value.Y + 1, value.Z + 1);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator --(VKExtent3D value) => new(value.X - 1, value.Y - 1, value.Z - 1);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator %(VKExtent3D left, VKExtent3D right) => new(left.X % right.X, left.Y % right.Y, left.Z % right.Z);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator <<(VKExtent3D value, int shiftAmount) => new(value.X << shiftAmount, value.Y << shiftAmount, value.Z << shiftAmount);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator >>(VKExtent3D value, int shiftAmount) => new(value.X >> shiftAmount, value.Y >> shiftAmount, value.Z >> shiftAmount);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator >>>(VKExtent3D value, int shiftAmount) => new(value.X >>> shiftAmount, value.Y >>> shiftAmount, value.Z >>> shiftAmount);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator &(VKExtent3D left, VKExtent3D right) => new(left.X & )
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator |(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator ^(VKExtent3D left, VKExtent3D right) {
+			throw new NotImplementedException();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D operator ~(VKExtent3D value) => new(~value.X, ~value.Y, ~value.Z);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static VKExtent3D Create(uint x, uint y, uint z) => new(x, y, z);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void MinMax(ref VKExtent3D min, ref VKExtent3D max) {
+			ExMath.MinMax(ref min.Width, ref max.Width);
+			ExMath.MinMax(ref min.Height, ref max.Height);
+			ExMath.MinMax(ref min.Depth, ref max.Depth);
+		}
+
+		public bool Equals(VKExtent3D other) => Width == other.Width && Height == other.Height && Depth == other.Depth;
 	}
+	*/
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKImageFormatProperties {
@@ -701,7 +828,8 @@ namespace Tesseract.Vulkan {
 		public uint ArrayLayer;
 
 	}
-
+	
+	/*
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKOffset3D : ITuple3<int> {
 
@@ -755,6 +883,7 @@ namespace Tesseract.Vulkan {
 		public static implicit operator Vector3i(VKOffset3D o) => new(o.X, o.Y, o.Z);
 
 	}
+	*/
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKSparseImageMemoryBind {
@@ -1140,6 +1269,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
+	/*
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKOffset2D : ITuple2<int> {
 
@@ -1226,6 +1356,7 @@ namespace Tesseract.Vulkan {
 		public static implicit operator Vector2ui(VKExtent2D e) => new(e.Width, e.Height);
 
 	}
+	*/
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKRect2D {

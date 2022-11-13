@@ -20,7 +20,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 		/// <summary>
 		/// The format of vertices in this vertex array.
 		/// </summary>
-		public VertexFormat Format { get; init; } = null!;
+		public required VertexFormat Format { get; init; }
 
 		public void Dispose() => GC.SuppressFinalize(this);
 

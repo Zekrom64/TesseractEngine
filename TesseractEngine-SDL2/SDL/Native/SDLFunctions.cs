@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core;
 using Tesseract.Core.Native;
+using Tesseract.Core.Numerics;
+using System.Numerics;
 
 namespace Tesseract.SDL.Native {
+
+	using SDLPoint = Vector2i;
+	using SDLFPoint = Vector2;
+	using SDLRect = Recti;
 
 #nullable disable
 	public class SDLFunctions {

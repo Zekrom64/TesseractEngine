@@ -42,7 +42,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format this output will use.
 		/// </summary>
-		public AudioFormat Format { get; init; } = null!;
+		public required AudioFormat Format { get; init; }
 
 	}
 
@@ -54,7 +54,7 @@ namespace Tesseract.Core.Audio {
 		/// <summary>
 		/// The audio format this input will use.
 		/// </summary>
-		public AudioFormat Format { get; init; } = null!;
+		public required AudioFormat Format { get; init; }
 
 	}
 

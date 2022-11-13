@@ -229,7 +229,7 @@ namespace Tesseract.SDL.Services {
 
 		private class SDLServiceJoystickLightSystem : ILightSystem {
 
-			public SDLServiceJoystick Joystick { get; init; } = null!;
+			public required SDLServiceJoystick Joystick { get; init; }
 
 			public string Name => Joystick.Name;
 
@@ -320,7 +320,7 @@ namespace Tesseract.SDL.Services {
 
 		private class SDLServiceGamepadLightSystem : ILightSystem {
 
-			public SDLServiceGamepad Gamepad { get; init; } = null!;
+			public required SDLServiceGamepad Gamepad { get; init; }
 
 			public string Name => Gamepad.Name;
 

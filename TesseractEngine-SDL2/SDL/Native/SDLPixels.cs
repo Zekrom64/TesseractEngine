@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
+using Tesseract.Core.Numerics;
 
 namespace Tesseract.SDL.Native {
 
@@ -13,7 +14,7 @@ namespace Tesseract.SDL.Native {
 	/// Stores a SDL color palette.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SDL_Palette {
+	public readonly struct SDL_Palette {
 
 		public readonly int NColors;
 		private readonly IntPtr colors;
@@ -29,15 +30,15 @@ namespace Tesseract.SDL.Native {
 		/// <summary>
 		/// The array of colors in the palette.
 		/// </summary>
-		public ReadOnlySpan<SDLColor> Colors {
+		public ReadOnlySpan<Vector4b> Colors {
 			get {
 				unsafe {
-					return new ReadOnlySpan<SDLColor>((void*)colors, NColors);
+					return new ReadOnlySpan<Vector4b>((void*)colors, NColors);
 				}
 			}
 		}
 
-		public SDLColor this[int index] => Colors[index];
+		public Vector4b this[int index] => Colors[index];
 
 	}
 
@@ -45,7 +46,7 @@ namespace Tesseract.SDL.Native {
 	/// Stores pixel format information.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct SDL_PixelFormat {
+	public readonly struct SDL_PixelFormat {
 
 		/// <summary>
 		/// The enumeration value of the format.

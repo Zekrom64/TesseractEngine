@@ -21,7 +21,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public TextureType Type { get; init; }
 
-		public PixelFormat Format { get; init; } = null!;
+		public required PixelFormat Format { get; init; }
 
 		public Vector3ui Size { get; init; }
 
@@ -33,7 +33,7 @@ namespace Tesseract.Vulkan.Graphics.Impl {
 
 		public TextureUsage Usage { get; init; }
 
-		public IMemoryBinding MemoryBinding { get; init; } = null!;
+		public IMemoryBinding? MemoryBinding { get; init; }
 
 		private readonly bool disposable;
 

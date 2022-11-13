@@ -78,7 +78,7 @@ namespace Tesseract.SDL.Services {
 			return newimg;
 		}
 
-		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
+		public void Blit(Recti dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
 			SDLServiceImage sdlsrc;
 			bool dispose = false;
 			if (src is SDLServiceImage sdlimg) sdlsrc = sdlimg;
@@ -86,18 +86,7 @@ namespace Tesseract.SDL.Services {
 				sdlsrc = new SDLServiceImage(src);
 				dispose = true;
 			}
-			Surface.Blit(new SDLRect() {
-				X = dstArea.Position.X,
-				Y = dstArea.Position.Y,
-				W = dstArea.Size.X,
-				H = dstArea.Size.Y
-			},
-			sdlsrc.Surface, new SDLRect() {
-				X = srcPos.X,
-				Y = srcPos.Y,
-				W = dstArea.Size.X,
-				H = dstArea.Size.Y
-			});
+			Surface.Blit(dstArea, sdlsrc.Surface, new Recti(srcPos, dstArea.Size));
 			if (dispose) sdlsrc.Dispose();
 		}
 
@@ -107,14 +96,8 @@ namespace Tesseract.SDL.Services {
 			return new SDLServiceImage(newSurface);
 		}
 
-		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color) {
-			Surface.FillRect(new SDLRect() {
-				X = dstArea.Position.X,
-				Y = dstArea.Position.Y,
-				W = dstArea.Size.X,
-				H = dstArea.Size.Y
-			}, Surface.PixelFormat.MapColor(color));
-		}
+		public void Fill(Recti dstArea, Vector4 color) =>
+			Surface.FillRect(dstArea, Surface.PixelFormat.MapColor(color));
 
 		public Vector4 this[int x, int y] {
 			get {

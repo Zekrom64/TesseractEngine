@@ -151,7 +151,7 @@ namespace Tesseract.Core.Graphics {
 
 		public IProcessableImage Convert(PixelFormat format) => IImageSharpImage.Create(this); // TODO: Pixel format selection
 
-		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
+		public void Blit(Recti dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
 			IImageSharpImage isi;
 			bool dispose = false;
 			if (src is IImageSharpImage image) isi = image;
@@ -183,7 +183,7 @@ namespace Tesseract.Core.Graphics {
 		public IProcessableImage Resize(IReadOnlyTuple2<int> newSize) =>
 			new ImageSharpImage<TPixel>(Image.Clone(x => x.Resize(newSize.X, newSize.Y, KnownResamplers.NearestNeighbor)));
 
-		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color) => Image.Mutate(x => x.Fill(
+		public void Fill(Recti dstArea, Vector4 color) => Image.Mutate(x => x.Fill(
 			new Color(color), new RectangleF(dstArea.Position.X, dstArea.Position.Y, dstArea.Size.X, dstArea.Size.Y)));
 
 		public Vector4 this[int x, int y] {

@@ -275,7 +275,7 @@ namespace Tesseract.Core.Graphics {
 		/// <param name="dstArea">Destination area to copy to</param>
 		/// <param name="src">Source image to copy from</param>
 		/// <param name="srcPos">Position within source image to copy from</param>
-		public void Blit(IReadOnlyRect<int> dstArea, IImage src, IReadOnlyTuple2<int> srcPos);
+		public void Blit(Recti dstArea, IImage src, IReadOnlyTuple2<int> srcPos);
 
 		/// <summary>
 		/// Creates a resized version of this image using nearest-neighbor sampling.
@@ -289,7 +289,7 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="dstArea">Destination area to fill</param>
 		/// <param name="color">Color to fill with</param>
-		public void Fill(IReadOnlyRect<int> dstArea, Vector4 color);
+		public void Fill(Recti dstArea, Vector4 color);
 
 	}
 

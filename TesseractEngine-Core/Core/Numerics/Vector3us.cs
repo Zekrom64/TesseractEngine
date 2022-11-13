@@ -8,7 +8,7 @@ namespace Tesseract.Core.Numerics {
 	/// A three-component of 16-bit unsigned integers.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct Vector3us : ITuple3<ushort>, IEquatable<IReadOnlyTuple3<ushort>> {
+	public struct Vector3us : IVector3Int<Vector3us, ushort>, IEquatable<IReadOnlyTuple3<ushort>> {
 
 		/// <summary>
 		/// Vector X component.
@@ -29,10 +29,26 @@ namespace Tesseract.Core.Numerics {
 
 		ushort ITuple<ushort, ushort, ushort>.Z { get => Z; set => Z = value; }
 
+		public Span<ushort> AsSpan {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => MemoryMarshal.CreateSpan(ref X, 3);
+		}
+
+		public bool IsZeroLength {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => X == 0 && Y == 0 && Z == 0;
+		}
+
+		public ushort LengthSquared {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => Dot(this);
+		}
+
 		/// <summary>
 		/// Creates a new vector from a scalar value.
 		/// </summary>
 		/// <param name="s">Scalar value</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector3us(ushort s) {
 			X = Y = Z = s;
 		}
@@ -41,6 +57,7 @@ namespace Tesseract.Core.Numerics {
 		/// Creates a new vector from a scalar value.
 		/// </summary>
 		/// <param name="s">Scalar value</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector3us(int s) {
 			X = Y = Z = (ushort)s;
 		}
@@ -51,6 +68,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="x">X component value</param>
 		/// <param name="y">Y component value</param>
 		/// <param name="z">Z component value</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector3us(ushort x, ushort y, ushort z) {
 			X = x;
 			Y = y;
@@ -63,6 +81,7 @@ namespace Tesseract.Core.Numerics {
 		/// <param name="x">X component value</param>
 		/// <param name="y">Y component value</param>
 		/// <param name="z">Z component value</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector3us(int x, int y, int z) {
 			X = (ushort)x;
 			Y = (ushort)y;
@@ -73,36 +92,64 @@ namespace Tesseract.Core.Numerics {
 		/// Creates a new vector from an existing tuple.
 		/// </summary>
 		/// <param name="tuple">Tuple to copy</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Vector3us(IReadOnlyTuple3<ushort> tuple) {
 			X = tuple.X;
 			Y = tuple.Y;
 			Z = tuple.Z;
 		}
 
-		/// <summary>
-		/// Casts a tuple of another type to a vector type.
-		/// </summary>
-		/// <typeparam name="T">Tuple element type</typeparam>
-		/// <param name="tuple">Tuple to cast</param>
-		/// <returns>Vector from tuple value</returns>
-		public static Vector3us Cast<T>(IReadOnlyTuple3<T> tuple) where T : unmanaged =>
-			new(Convert.ToUInt16(tuple.X), Convert.ToUInt16(tuple.Y), Convert.ToUInt16(tuple.Z));
-
 		public bool Equals(IReadOnlyTuple3<ushort>? other) => other != null && X == other.X && Y == other.Y && Z == other.Z;
 
 		public override bool Equals(object? obj) => obj is IReadOnlyTuple3<ushort> other && Equals(other);
 
-		public override int GetHashCode() => X ^ (Y << 10) ^ (Z << 20);
+		public override int GetHashCode() => X + Y * 5 + Z * 7;
 
 		public override string ToString() => $"({X},{Y},{Z})";
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us Create(ushort x, ushort y, ushort z) => new(x, y, z);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector3us Swizzle(int x, int y, int z) => new(this[x], this[y], this[z]);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void MinMax(ref Vector3us min, ref Vector3us max) {
+			ExMath.MinMax(ref min.X, ref max.X);
+			ExMath.MinMax(ref min.Y, ref max.Y);
+			ExMath.MinMax(ref min.Z, ref max.Z);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector3us Abs() => this;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector3us Min(Vector3us v2) => new(Math.Min(X, v2.X), Math.Min(Y, v2.Y), Math.Min(Z, v2.Z));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Vector3us Max(Vector3us v2) => new(Math.Max(X, v2.X), Math.Max(Y, v2.Y), Math.Max(Z, v2.Z));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ushort Sum() => (ushort)(X + Y + Z);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ushort Dot(Vector3us v2) => (this * v2).Sum();
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ushort DistanceSquared(Vector3us v2) => (this - v2).LengthSquared;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool Equals(Vector3us other) => X == other.X && Y == other.Y && Z == other.Z;
+
 		public ushort this[int index] {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => index switch {
 				0 => X,
 				1 => Y,
 				2 => Z,
 				_ => default
 			};
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
 				switch (index) {
 					case 0: X = value; break;
@@ -165,7 +212,32 @@ namespace Tesseract.Core.Numerics {
 		public static Vector3us operator ^(Vector3us left, int right) => new(left.X ^ right, left.Y ^ right, left.Z ^ right);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator %(Vector3us left, ushort right) => new(left.X % right, left.Y % right, left.Z % right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator &(Vector3us left, ushort right) => new(left.X & right, left.Y & right, left.Z & right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator |(Vector3us left, ushort right) => new(left.X | right, left.Y | right, left.Z | right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator ^(Vector3us left, ushort right) => new(left.X ^ right, left.Y ^ right, left.Z ^ right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator +(Vector3us left, ushort right) => new(left.X + right, left.Y + right, left.Z + right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator -(Vector3us left, ushort right) => new(left.X - right, left.Y - right, left.Z - right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator *(Vector3us left, ushort right) => new(left.X * right, left.Y * right, left.Z * right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator /(Vector3us left, ushort right) => new(left.X / right, left.Y / right, left.Z / right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator -(Vector3us value) => new(-value.X, -value.Y, -value.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator +(Vector3us value) => value;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3us operator >>>(Vector3us value, int shiftAmount) => new(value.X >>> shiftAmount, value.Y >>> shiftAmount, value.Z >>> shiftAmount);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator Vector3us(Vector3 v) => new((ushort)v.X, (ushort)v.Y, (ushort)v.Z);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator Vector3us(Vector3b v) => new(v.X, v.Y, v.Z);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static explicit operator Vector3us(Vector3i v) => new((ushort)v.X, (ushort)v.Y, (ushort)v.Z);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -175,7 +247,6 @@ namespace Tesseract.Core.Numerics {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator Vector3(Vector3us v) => new(v.X, v.Y, v.Z);
-
 	}
 
 }
