@@ -44,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-OpenG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Box2D", "TesseractEngine-Box2D\TesseractEngine-Box2D.csproj", "{1D45081E-9278-4D8B-BC0A-E932D8820D39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-SDL2-OpenGL", "TesseractEngine-SDL-OpenGL\TesseractEngine-SDL2-OpenGL.csproj", "{86E7031E-C56B-4A27-A8D1-4B8AD7CE55DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-SDL2-OpenGL", "TesseractEngine-SDL2-OpenGL\TesseractEngine-SDL2-OpenGL.csproj", "{86E7031E-C56B-4A27-A8D1-4B8AD7CE55DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-SDL2-Vulkan", "TesseractEngine-SDL2-Vulkan\TesseractEngine-SDL2-Vulkan.csproj", "{841DB2D5-EA88-4BB2-80D3-1FA6FF0C3C10}"
 EndProject
