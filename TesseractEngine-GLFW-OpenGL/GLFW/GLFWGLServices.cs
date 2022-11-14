@@ -4,7 +4,7 @@ using Tesseract.GLFW.Services;
 using Tesseract.Core.Graphics;
 using Tesseract.GLFW;
 
-namespace Tesseract.SDL {
+namespace Tesseract.GLFW {
 
 	public class GLFWServiceWindowGLContextProvider : IGLContextProvider {
 

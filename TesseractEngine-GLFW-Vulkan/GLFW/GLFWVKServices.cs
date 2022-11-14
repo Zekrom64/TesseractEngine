@@ -7,7 +7,7 @@ using Tesseract.Core.Numerics;
 using Tesseract.Vulkan.Services;
 using Tesseract.Core.Native;
 
-namespace Tesseract.SDL {
+namespace Tesseract.GLFW {
 
 	public class GLFWServiceWindowVKSurfaceProvider : IVKSurfaceProvider {
 
