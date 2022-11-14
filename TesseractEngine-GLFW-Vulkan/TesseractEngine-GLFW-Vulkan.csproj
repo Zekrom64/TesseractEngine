@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>TesseractEngine_GLFW_Vulkan</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine-GLFW\TesseractEngine-GLFW.csproj" />
+    <ProjectReference Include="..\TesseractEngine-Vulkan\TesseractEngine-Vulkan.csproj" />
+  </ItemGroup>
+
+</Project>

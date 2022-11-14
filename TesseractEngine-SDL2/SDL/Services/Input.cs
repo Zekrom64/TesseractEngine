@@ -279,7 +279,7 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public T? GetService<T>(IService<T> service) where T : notnull {
+		public virtual T? GetService<T>(IService<T> service) where T : notnull {
 			if (service == InputServices.LightSystem) return (T?)(object?)lightSystem;
 			// TODO: Advanced haptic services
 			return ServiceInjector.Lookup(this, service);
@@ -341,11 +341,14 @@ namespace Tesseract.SDL.Services {
 			else lightSystem = null;
 		}
 
-		public T? GetService<T>(IService<T> service) where T : notnull {
+#nullable disable
+		// Note: Nullability is disabled here because the C# compiler doesn't understand virtual overrides of generic methods
+		public override T GetService<T>(IService<T> service) {
 			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
 			// TODO: Advanced haptic services
 			return base.GetService(service);
 		}
+#nullable restore
 
 		public const int NumButtons = 21;
 

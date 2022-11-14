@@ -3,12 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Tesseract</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
+    <ProjectReference Include="..\TesseractEngine-GLFW\TesseractEngine-GLFW.csproj" />
+    <ProjectReference Include="..\TesseractEngine-GL\TesseractEngine-GL.csproj" />
   </ItemGroup>
 
 </Project>

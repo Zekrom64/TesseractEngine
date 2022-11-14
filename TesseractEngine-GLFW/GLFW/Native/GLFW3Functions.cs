@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core;
 using Tesseract.Core.Native;
-using Tesseract.Vulkan;
 
 namespace Tesseract.GLFW.Native {
 

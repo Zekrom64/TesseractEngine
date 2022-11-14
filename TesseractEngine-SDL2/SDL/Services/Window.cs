@@ -9,9 +9,6 @@ using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Services;
 using Tesseract.Core.Utilities;
-using Tesseract.OpenGL;
-using Tesseract.Vulkan;
-using Tesseract.Vulkan.Graphics;
 
 namespace Tesseract.SDL.Services {
 
@@ -99,14 +96,11 @@ namespace Tesseract.SDL.Services {
 
 	}
 
-	public class SDLServiceWindow : IDisposable, IWindow, IWindowSurface, IGammaRampObject, IGLContextProvider, IVKSurfaceProvider {
+	public class SDLServiceWindow : IDisposable, IWindow, IWindowSurface, IGammaRampObject {
 
 		internal const string WindowDataID = "__GCHandle";
 
 		public readonly SDLWindow Window;
-
-		private readonly object lockGlcontext = new();
-		private SDLGLContext? glcontext = null;
 
 		public string Title { get => Window.Title; set => Window.Title = value; }
 		public Vector2i Size { get => Window.Size; set => Window.Size = value; }
@@ -213,6 +207,10 @@ namespace Tesseract.SDL.Services {
 
 		private SDLCursor? windowCursor = null;
 
+		public delegate void SDLWindowFlagParser(WindowAttributeList attributes, ref SDLWindowFlags flags);
+
+		public static event SDLWindowFlagParser? OnParseAttributes;
+
 		private static SDLWindowFlags GetAttributeFlags(WindowAttributeList? attributes) {
 			if (attributes == null) return 0;
 			SDLWindowFlags flags = 0;
@@ -224,10 +222,11 @@ namespace Tesseract.SDL.Services {
 			if (attributes.TryGet(WindowAttributes.Minimized, out bool minimized) && minimized) flags |= SDLWindowFlags.Minimized;
 			if (attributes.TryGet(WindowAttributes.Maximized, out bool maximized) && maximized) flags |= SDLWindowFlags.Maximized;
 			if (attributes.TryGet(WindowAttributes.Focused, out bool focused) && focused) flags |= SDLWindowFlags.InputFocus;
-			if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) flags |= SDLWindowFlags.OpenGL;
-			if (attributes.TryGet(VulkanWindowAttributes.VulkanWindow, out bool vkwindow) && vkwindow) flags |= SDLWindowFlags.Vulkan;
+			OnParseAttributes?.Invoke(attributes, ref flags);
 			return flags;
 		}
+
+		public static event Action<WindowAttributeList>? OnWindowSetup;
 
 		public SDLServiceWindow(string title, int w, int h, WindowAttributeList? attributes) {
 			Vector2i position = new(SDL2.WindowPosUndefined);
@@ -235,11 +234,8 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Title, out string? newTitle)) title = newTitle!;
 				if (attributes.TryGet(WindowAttributes.Position, out Vector2i newPosition)) position = newPosition;
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
-				if (attributes.TryGet(GLWindowAttributes.OpenGLWindow, out bool glwindow) && glwindow) {
-					if (attributes.TryGet(GLWindowAttributes.ContextVersionMajor, out int majorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMajorVersion, majorver);
-					if (attributes.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorver)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextMinorVersion, minorver);
-				}
 			}
+			OnWindowSetup?.Invoke(attributes);
 			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
 			if (attributes != null) {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
@@ -248,17 +244,8 @@ namespace Tesseract.SDL.Services {
 			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
 		}
 
-		public IGLContext CreateContext() {
-			lock (lockGlcontext) {
-				glcontext ??= new SDLGLContext(Window);
-				return glcontext;
-			}
-		}
-
 		public T? GetService<T>(IService<T> service) where T : notnull {
-			if (service == GLServices.GLContextProvider ||
-				service == GraphicsServices.GammaRampObject ||
-				service == VKServices.SurfaceProvider) return (T)(object)this;
+			if (service == GraphicsServices.GammaRampObject) return (T)(object)this;
 			return ServiceInjector.Lookup(this, service);
 		}
 
@@ -367,23 +354,6 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public void SwapSurface() => Window.UpdateSurface();
-
-		public string[] RequiredInstanceExtensions {
-			get {
-				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Ptr, out int count, out IntPtr names)) throw new SDLException(SDL2.GetError());
-				UnmanagedPointer<IntPtr> pNames = new(names);
-				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
-				return exts;
-			}
-		}
-
-		public Vector2i SurfaceExtent => Size;
-
-		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
-			if (!SDL2.Functions.SDL_Vulkan_CreateSurface(Window.Window.Ptr, instance, out ulong surface)) throw new SDLException(SDL2.GetError());
-			return new VKSurfaceKHR(instance, surface, null);
-		}
 	}
 
 	public class SDLServiceGammaRamp : IGammaRamp {

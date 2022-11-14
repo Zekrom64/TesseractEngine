@@ -80,13 +80,23 @@ namespace Tesseract.SDL {
 			AppDomain.CurrentDomain.ProcessExit += (s, e) => Quit();
 		}
 
-		internal static string GetError() {
+		/// <summary>
+		/// Gets the previous error as a string.
+		/// </summary>
+		/// <returns>Error string</returns>
+		public static string GetError() {
 			string error = MemoryUtil.GetASCII(Functions.SDL_GetError())!;
 			Functions.SDL_ClearError();
 			return error;
 		}
 
-		internal static int CheckError(int ret) {
+		/// <summary>
+		/// Checks if the given return value indicates an error, throwing an exception if it does.
+		/// </summary>
+		/// <param name="ret">Return value to check</param>
+		/// <returns>The return value from the function</returns>
+		/// <exception cref="SDLException">If the return value indicates an error</exception>
+		public static int CheckError(int ret) {
 			if (ret < 0) throw new SDLException(GetError());
 			return ret;
 		}
