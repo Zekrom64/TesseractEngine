@@ -76,10 +76,6 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		static SDL2() {
-			AppDomain.CurrentDomain.ProcessExit += (s, e) => Quit();
-		}
-
 		/// <summary>
 		/// Gets the previous error as a string.
 		/// </summary>
@@ -132,7 +128,7 @@ namespace Tesseract.SDL {
 		public static void QuitSubSystem(SDLSubsystems flags) => Functions.SDL_QuitSubSystem((uint)flags);
 
 		/// <summary>
-		/// Cleans up all initialized subsystems. This is automatically called when the program exits.
+		/// Cleans up all initialized subsystems.
 		/// </summary>
 		public static void Quit() => Functions.SDL_Quit();
 

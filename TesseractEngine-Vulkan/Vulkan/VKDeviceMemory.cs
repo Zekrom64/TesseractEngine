@@ -73,8 +73,8 @@ namespace Tesseract.Vulkan {
 		}
 
 		public static bool operator==(VKDeviceMemory? m1, VKDeviceMemory? m2) {
-			if (m1 != null ^ m2 != null) return false;
-			if (m1 != null) return m1.Equals(m2);
+			if (m1 is null ^ m2 is null) return false;
+			if (m1 is not null) return m1.Equals(m2);
 			return false;
 		}
 

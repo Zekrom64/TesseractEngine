@@ -31,10 +31,6 @@ namespace Tesseract.GLFW {
 			}
 		}
 
-		static GLFW3() {
-			AppDomain.CurrentDomain.ProcessExit += (e, a) => Terminate();
-		}
-
 		public static bool Init() => Functions.glfwInit();
 
 		public static void Terminate() => Functions.glfwTerminate();
