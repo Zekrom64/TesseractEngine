@@ -12,6 +12,7 @@ using Tesseract.Core.Services;
 using Tesseract.OpenGL;
 using Tesseract.Vulkan;
 using Tesseract.Vulkan.Graphics;
+using System.Runtime.InteropServices;
 
 namespace Tesseract.GLFW.Services {
 
@@ -57,9 +58,48 @@ namespace Tesseract.GLFW.Services {
 
 	}
 
-	public class GLFWServiceDisplay : IDisplay {
+	public class GLFWServiceGammaRamp : IGammaRamp {
 
-		public readonly GLFWMonitor Monitor;
+		private readonly ushort[] red, green, blue;
+
+		public int Length { get; }
+
+		public ushort[] Red {
+			get => red; 
+			set => value.CopyTo(red.AsSpan());
+		}
+
+		public ushort[] Green {
+			get => green;
+			set => value.CopyTo(green.AsSpan());
+		}
+
+		public ushort[] Blue {
+			get => blue;
+			set => value.CopyTo(blue.AsSpan());
+		}
+
+		public Vector3us this[int index] {
+			get => new(red[index], green[index], blue[index]);
+			set {
+				red[index] = value.X;
+				green[index] = value.Y;
+				blue[index] = value.Z;
+			}
+		}
+
+		public GLFWServiceGammaRamp(int count) {
+			Length = count;
+			red = new ushort[count];
+			green = new ushort[count];
+			blue = new ushort[count];
+		}
+
+	}
+
+	public class GLFWServiceDisplay : IDisplay, IGammaRampObject {
+
+		public GLFWMonitor Monitor;
 
 		public GLFWServiceDisplay(GLFWMonitor monitor) {
 			Monitor = monitor;
@@ -71,6 +111,38 @@ namespace Tesseract.GLFW.Services {
 
 		public IDisplayMode CurrentMode => new GLFWServiceDisplayMode(Monitor.VideoMode);
 
+		public IGammaRamp GammaRamp {
+			get {
+				var ramp = Monitor.GammaRamp;
+				GLFWServiceGammaRamp rampout = new((int)ramp.Size);
+				unsafe {
+					new Span<ushort>((void*)ramp.Red, rampout.Length).CopyTo(rampout.Red);
+					new Span<ushort>((void*)ramp.Green, rampout.Length).CopyTo(rampout.Green);
+					new Span<ushort>((void*)ramp.Blue, rampout.Length).CopyTo(rampout.Blue);
+				}
+				return rampout;
+			}
+			set {
+				GLFWGammaRamp ramp = new() {
+					Size = (uint)value.Length
+				};
+				unsafe {
+					fixed(ushort* pRed = value.Red) {
+						fixed(ushort* pGreen = value.Green) {
+							fixed(ushort* pBlue = value.Blue) {
+								ramp.Red = (IntPtr)pRed;
+								ramp.Green = (IntPtr)pGreen;
+								ramp.Blue = (IntPtr)pBlue;
+								Monitor.GammaRamp = ramp;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		public IGammaRamp CreateCompatibleGammaRamp() => new GLFWServiceGammaRamp((int)Monitor.GammaRamp.Size);
+
 		public IDisplayMode[] GetDisplayModes() {
 			ReadOnlySpan<GLFWVidMode> glfwmodes = Monitor.VideoModes;
 			IDisplayMode[] modes = new IDisplayMode[glfwmodes.Length];
@@ -78,7 +150,11 @@ namespace Tesseract.GLFW.Services {
 			return modes;
 		}
 
-		public T? GetService<T>(IService<T> service) => default;
+		public T? GetService<T>(IService<T> service) where T : notnull {
+			if (service == GraphicsServices.GammaRampObject)
+				return (T)(object)this;
+			else return ServiceInjector.Lookup(this, service);
+		}
 
 	}
 
@@ -322,11 +398,6 @@ namespace Tesseract.GLFW.Services {
 
 		public bool GetMouseButtonState(int button) => Window.GetMouseButton(GLFWServiceMouse.StdToGLFWButton(button)) != GLFWButtonState.Release;
 
-		public T? GetService<T>(IService<T> service) {
-			if (service == GLServices.GLContextProvider || service == VKServices.SurfaceProvider) return (T)(object)this;
-			return default;
-		}
-
 		public void Restore() {
 			if (Fullscreen) SetFullscreen(null, null);
 			else Window.Restore();
@@ -338,7 +409,7 @@ namespace Tesseract.GLFW.Services {
 		private Vector2i? windowPosition = null;
 		public void SetFullscreen(IDisplay? display, IDisplayMode? mode) {
 			GLFWServiceDisplay? glfwdisplay = display as GLFWServiceDisplay;
-			GLFWServiceDisplayMode? glfwmode = mode as GLFWServiceDisplayMode;
+			GLFWServiceDisplayMode? glfwmode = (GLFWServiceDisplayMode?)mode;
 			Vector2i size = Window.Size;
 			Vector2i pos = Window.Pos;
 			GLFWMonitor curmon = Window.Monitor;
@@ -372,7 +443,7 @@ namespace Tesseract.GLFW.Services {
 
 		private GLFWGLContext? glcontext = null;
 		public IGLContext CreateContext() {
-			if (glcontext == null) glcontext = new GLFWGLContext(Window);
+			glcontext ??= new GLFWGLContext(Window);
 			return glcontext;
 		}
 
@@ -434,8 +505,6 @@ namespace Tesseract.GLFW.Services {
 			for (int i = 0; i < displays.Length; i++) displays[i] = new GLFWServiceDisplay(monitors[i]);
 			return displays;
 		}
-
-		public T? GetService<T>(IService<T> service) => default;
 
 	}
 }

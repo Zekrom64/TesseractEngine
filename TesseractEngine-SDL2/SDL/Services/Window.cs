@@ -23,8 +23,6 @@ namespace Tesseract.SDL.Services {
 
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
-		public T? GetService<T>(IService<T> service) => default;
-
 		public ICursor CreateCursor(IImage image, Vector2i hotspot) {
 			SDLServiceImage sdlimg;
 			bool dispose = false;
@@ -79,8 +77,6 @@ namespace Tesseract.SDL.Services {
 		public IDisplayMode CurrentMode => new SDLServiceDisplayMode(Display.CurrentDisplayMode);
 
 		public IDisplayMode[] GetDisplayModes() => Display.Modes.ConvertAll(mode => new SDLServiceDisplayMode(mode));
-
-		public T? GetService<T>(IService<T> service) => default;
 
 		public SDLServiceDisplay(SDLDisplay display) {
 			Display = display;
@@ -259,11 +255,11 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public T? GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) where T : notnull {
 			if (service == GLServices.GLContextProvider ||
 				service == GraphicsServices.GammaRampObject ||
 				service == VKServices.SurfaceProvider) return (T)(object)this;
-			return default;
+			return ServiceInjector.Lookup(this, service);
 		}
 
 		public void Restore() {

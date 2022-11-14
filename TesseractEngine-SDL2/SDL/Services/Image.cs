@@ -66,9 +66,9 @@ namespace Tesseract.SDL.Services {
 			Surface.Dispose();
 		}
 
-		public T? GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) where T : notnull {
 			if (service == GraphicsServices.ProcessableImage) return (T)(object)this;
-			return default;
+			return ServiceInjector.Lookup(this, service);
 		}
 
 		public IProcessableImage Convert(PixelFormat format) {

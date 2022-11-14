@@ -77,7 +77,7 @@ namespace Tesseract.Core.Services {
 		/// <typeparam name="T"></typeparam>
 		/// <param name="service">The service to get</param>
 		/// <returns></returns>
-		public T? GetService<T>(IService<T> service) where T : notnull => ServiceInjector.Lookup(this, service);
+		public virtual T? GetService<T>(IService<T> service) where T : notnull => ServiceInjector.Lookup(this, service);
 
 	}
 

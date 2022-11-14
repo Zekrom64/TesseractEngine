@@ -146,8 +146,6 @@ namespace Tesseract.GLFW.Services {
 
 		public bool GetKeyState(Key key) => throw new NotImplementedException();
 
-		public T? GetService<T>(IService<T> service) => default;
-
 		public void StartTextInput() => throw new NotImplementedException();
 
 	}
@@ -185,8 +183,6 @@ namespace Tesseract.GLFW.Services {
 #pragma warning restore 0067
 
 		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
-
-		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -234,8 +230,6 @@ namespace Tesseract.GLFW.Services {
 
 		public event Action? OnDisconnected;
 		internal void DoOnDisconnect() => OnDisconnected?.Invoke();
-
-		public T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -287,8 +281,6 @@ namespace Tesseract.GLFW.Services {
 			GamepadControl.RightTrigger => (int)GLFWGamepadAxis.RightTrigger,
 			_ => -1
 		};
-
-		public new T? GetService<T>(IService<T> service) => default;
 
 	}
 
@@ -372,8 +364,6 @@ namespace Tesseract.GLFW.Services {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 		}
-
-		public T? GetService<T>(IService<T> service) => default;
 
 		public void RunEvents() => GLFW3.PollEvents();
 	}

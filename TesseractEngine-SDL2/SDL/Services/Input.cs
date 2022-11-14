@@ -171,8 +171,6 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetKeyState(Key key) => GetCurrentKeyState(key);
 
-		public T? GetService<T>(IService<T> service) => default;
-
 		public void StartTextInput() => SDL2.StartTextInput();
 
 	}
@@ -221,8 +219,6 @@ namespace Tesseract.SDL.Services {
 
 		public bool GetMouseButtonState(int button) => GetCurrentMouseButtonState(button);
 
-		public T? GetService<T>(IService<T> service) => default;
-
 	}
 
 	public class SDLServiceJoystick : IJoystick {
@@ -235,8 +231,6 @@ namespace Tesseract.SDL.Services {
 
 			public event Action? OnDisconnected;
 			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
-
-			public T? GetService<T>(IService<T> service) => default;
 
 			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
 
@@ -255,7 +249,7 @@ namespace Tesseract.SDL.Services {
 		public event Action? OnDisconnected;
 		internal void DoOnDisconnected() {
 			OnDisconnected?.Invoke();
-			if (lightSystem != null) lightSystem.DoOnDisconnected();
+			lightSystem?.DoOnDisconnected();
 		}
 
 		public SDLServiceJoystick(SDLJoystick joystick) {
@@ -285,10 +279,10 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		public virtual T? GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) where T : notnull {
 			if (service == InputServices.LightSystem) return (T?)(object?)lightSystem;
 			// TODO: Advanced haptic services
-			return default;
+			return ServiceInjector.Lookup(this, service);
 		}
 
 		public static HatState SDLToStdHat(SDLHat hat) => hat switch {
@@ -327,8 +321,6 @@ namespace Tesseract.SDL.Services {
 			public event Action? OnDisconnected;
 			internal void DoOnDisconnected() => OnDisconnected?.Invoke();
 
-			public T? GetService<T>(IService<T> service) => default;
-
 			public bool IsLightPatternSupported(ILightPattern pattern) => pattern is SingleLightPattern;
 
 			public void SetLightPattern(ILightPattern pattern) {
@@ -349,14 +341,11 @@ namespace Tesseract.SDL.Services {
 			else lightSystem = null;
 		}
 
-		// Apparently the compiler has a hissy fit trying to override a virtual with a nullable return
-#nullable disable
-		public override T GetService<T>(IService<T> service) {
+		public T? GetService<T>(IService<T> service) where T : notnull {
 			if (service == InputServices.LightSystem) return (T)(object)lightSystem;
 			// TODO: Advanced haptic services
 			return base.GetService(service);
 		}
-#nullable restore
 
 		public const int NumButtons = 21;
 
@@ -468,8 +457,6 @@ namespace Tesseract.SDL.Services {
 			foreach (SDLServiceJoystick joystick in joysticks) joystick.Joystick.Dispose();
 			joysticks.Clear();
 		}
-
-		public T? GetService<T>(IService<T> service) => default;
 
 		public void RunEvents() {
 			SDL2.PumpEvents();
