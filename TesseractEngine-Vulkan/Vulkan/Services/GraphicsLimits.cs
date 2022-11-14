@@ -1,7 +1,7 @@
 ﻿using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Vulkan.Graphics.Impl;
+using Tesseract.Vulkan.Services.Objects;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Services {
 	public class VulkanGraphicsLimits : IGraphicsLimits {
 
 		public VulkanPhysicalDeviceInfo DeviceInfo { get; }

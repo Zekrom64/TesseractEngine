@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Tesseract.Core.Native;
 using Tesseract.Core.Graphics.Accelerated;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Vulkan memory binding interface.

@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Vulkan.Native;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Vulkan fence sync object implementation.

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Services;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Services {
 	
 	public static class VKServices {
 

@@ -10,7 +10,7 @@ using Tesseract.Core.Native;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Utilities;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Identifies a Vulkan physical device and backend-required information about it.

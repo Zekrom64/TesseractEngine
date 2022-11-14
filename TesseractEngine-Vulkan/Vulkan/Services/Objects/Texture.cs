@@ -7,7 +7,7 @@ using Tesseract.Core.Graphics;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Vulkan texture implementation.

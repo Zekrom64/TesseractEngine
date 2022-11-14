@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Native;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Implementation of a Vulkan buffer.

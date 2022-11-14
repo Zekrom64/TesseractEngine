@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Services {
 
 	/// <summary>
 	/// Vulkan-specific window attributes.

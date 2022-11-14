@@ -4,7 +4,7 @@ using Tesseract.GLFW.Services;
 using Tesseract.Core.Graphics;
 using Tesseract.GLFW;
 using Tesseract.Core.Numerics;
-using Tesseract.Vulkan.Graphics;
+using Tesseract.Vulkan.Services;
 using Tesseract.Core.Native;
 
 namespace Tesseract.SDL {

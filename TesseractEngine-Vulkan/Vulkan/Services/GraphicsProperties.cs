@@ -1,8 +1,8 @@
 ﻿using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Utilities;
-using Tesseract.Vulkan.Graphics.Impl;
+using Tesseract.Vulkan.Services.Objects;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Services {
 
 	/// <summary>
 	/// An interface for objects which can provide memory information.

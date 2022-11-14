@@ -9,7 +9,7 @@ using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Utilities;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	public class VulkanGraphicsProvider : IGraphicsProvider {
 

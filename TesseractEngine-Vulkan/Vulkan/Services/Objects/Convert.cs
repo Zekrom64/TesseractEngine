@@ -10,7 +10,7 @@ using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	public class VulkanConverter {
 

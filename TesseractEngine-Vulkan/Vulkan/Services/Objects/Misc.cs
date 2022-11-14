@@ -10,7 +10,7 @@ using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
 
-namespace Tesseract.Vulkan.Graphics.Impl {
+namespace Tesseract.Vulkan.Services.Objects {
 
 	/// <summary>
 	/// Vulkan vertex array implementation. This is just a data structure holding the format, index, and vertex buffers to bind.

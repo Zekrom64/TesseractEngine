@@ -8,9 +8,9 @@ using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
-using Tesseract.Vulkan.Graphics.Impl;
+using Tesseract.Vulkan.Services.Objects;
 
-namespace Tesseract.Vulkan.Graphics {
+namespace Tesseract.Vulkan.Services {
 
 	/// <summary>
 	/// Vulkan graphics implementation.
