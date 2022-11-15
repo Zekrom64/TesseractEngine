@@ -44,13 +44,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-OpenG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-Box2D", "TesseractEngine-Box2D\TesseractEngine-Box2D.csproj", "{1D45081E-9278-4D8B-BC0A-E932D8820D39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-SDL2-OpenGL", "TesseractEngine-SDL2-OpenGL\TesseractEngine-SDL2-OpenGL.csproj", "{86E7031E-C56B-4A27-A8D1-4B8AD7CE55DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-SDL2-OpenGL", "TesseractEngine-SDL2-OpenGL\TesseractEngine-SDL2-OpenGL.csproj", "{86E7031E-C56B-4A27-A8D1-4B8AD7CE55DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-SDL2-Vulkan", "TesseractEngine-SDL2-Vulkan\TesseractEngine-SDL2-Vulkan.csproj", "{841DB2D5-EA88-4BB2-80D3-1FA6FF0C3C10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-SDL2-Vulkan", "TesseractEngine-SDL2-Vulkan\TesseractEngine-SDL2-Vulkan.csproj", "{841DB2D5-EA88-4BB2-80D3-1FA6FF0C3C10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW-OpenGL", "TesseractEngine-GLFW-OpenGL\TesseractEngine-GLFW-OpenGL.csproj", "{F108ECB2-6A9C-47B3-991D-FCDEE051269F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GLFW-OpenGL", "TesseractEngine-GLFW-OpenGL\TesseractEngine-GLFW-OpenGL.csproj", "{F108ECB2-6A9C-47B3-991D-FCDEE051269F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW-Vulkan", "TesseractEngine-GLFW-Vulkan\TesseractEngine-GLFW-Vulkan.csproj", "{2836A9E5-9919-4B41-A800-792644696B04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GLFW-Vulkan", "TesseractEngine-GLFW-Vulkan\TesseractEngine-GLFW-Vulkan.csproj", "{2836A9E5-9919-4B41-A800-792644696B04}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DirectX", "DirectX", "{548E504F-55FB-486E-856F-D8AB8E231957}"
 	ProjectSection(SolutionItems) = preProject
@@ -74,6 +74,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DirectX", "DirectX", "{548E
 		Reference\DirectX\directx\dxgiformat.idl = Reference\DirectX\directx\dxgiformat.idl
 		Reference\DirectX\dxguids\dxguids.h = Reference\DirectX\dxguids\dxguids.h
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-DirectX", "TesseractEngine-DirectX\TesseractEngine-DirectX.csproj", "{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Win32", "TesseractEngine-Win32\TesseractEngine-Win32.csproj", "{943484D9-F50E-420F-A5C7-3EF82718A361}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -301,6 +305,30 @@ Global
 		{2836A9E5-9919-4B41-A800-792644696B04}.Release|x64.Build.0 = Release|Any CPU
 		{2836A9E5-9919-4B41-A800-792644696B04}.Release|x86.ActiveCfg = Release|Any CPU
 		{2836A9E5-9919-4B41-A800-792644696B04}.Release|x86.Build.0 = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|x64.Build.0 = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Debug|x86.Build.0 = Debug|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|x64.ActiveCfg = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|x64.Build.0 = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|x86.ActiveCfg = Release|Any CPU
+		{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}.Release|x86.Build.0 = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|x64.Build.0 = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Debug|x86.Build.0 = Debug|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|x64.ActiveCfg = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|x64.Build.0 = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|x86.ActiveCfg = Release|Any CPU
+		{943484D9-F50E-420F-A5C7-3EF82718A361}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
