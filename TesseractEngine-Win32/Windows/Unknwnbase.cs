@@ -25,7 +25,7 @@ namespace Tesseract.Windows {
 	/// </summary>
 	[ComImport, Guid("00000000-0000-0000-C000-000000000046")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IUnknown : IDisposable {
+	public interface IUnknown {
 
 		/// <summary>
 		/// Queries a COM object for a pointer to one of its interface; identifying the interface by a reference to its interface

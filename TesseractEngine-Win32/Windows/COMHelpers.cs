@@ -25,6 +25,7 @@ namespace Tesseract.Windows {
 		/// </summary>
 		/// <typeparam name="T">COM interface type</typeparam>
 		/// <returns>COM interface UUID</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Guid GetCOMID<T>() => typeof(T).GUID;
 
 		/// <summary>
@@ -34,19 +35,18 @@ namespace Tesseract.Windows {
 		/// <param name="ppvObject">COM object pointer</param>
 		/// <returns>Wrapped COM object</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T GetObjectForCOMPointer<T>(IntPtr ppvObject) => (T)Marshal.GetTypedObjectForIUnknown(ppvObject, typeof(T));
+		public static T? GetObjectForCOMPointer<T>(IntPtr ppvObject) where T : class =>
+			ppvObject == IntPtr.Zero ? null : (T)Marshal.GetTypedObjectForIUnknown(ppvObject, typeof(T));
 
 		/// <summary>
-		/// Retrieves a COM object 
+		/// Retrieves a COM object using an appropriate getter function.
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="getter"></param>
-		/// <returns></returns>
+		/// <typeparam name="T">Retrieved object wrapper type</typeparam>
+		/// <param name="getter">Getter function</param>
+		/// <returns>COM object retrieved from the getter</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T GetObjectFromCOMGetter<T>(COMObjectGetter getter) {
-			IntPtr ppv = getter(GetCOMID<T>());
-			return GetObjectForCOMPointer<T>(ppv);
-		}
+		public static T? GetObjectFromCOMGetter<T>(COMObjectGetter getter) where T : class =>
+			GetObjectForCOMPointer<T>(getter(GetCOMID<T>()));
 
 		/// <summary>
 		/// Casts a COM wrapper dervied from the <see cref="IUnknown"/> interface to a different
@@ -56,7 +56,8 @@ namespace Tesseract.Windows {
 		/// <param name="obj">COM wrapper object to cast</param>
 		/// <returns>Converted COM object</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T Cast<T>(IUnknown obj) => GetObjectFromCOMGetter<T>(obj.QueryInterface);
+		// QueryInterface will succeed or throw an exception so we can assume it will not return null
+		public static T Cast<T>(IUnknown obj) where T : class => GetObjectFromCOMGetter<T>(obj.QueryInterface)!;
 
 		/// <summary>
 		/// Gets the corresponding COM object pointer for 
