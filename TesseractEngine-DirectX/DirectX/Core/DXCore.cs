@@ -396,25 +396,6 @@ namespace Tesseract.DirectX.Core {
 	public interface IDXCoreAdapter : IUnknown {
 
 		/// <summary>
-		///  Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d11">Direct3D 11</see>
-		///  graphics APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
-		///  configuration supports these APIs.
-		/// </summary>
-		public static readonly Guid AttributeD3D11Graphics = new(0x8c47866b, 0x7583, 0x450d, 0xf0, 0xf0, 0x6b, 0xad, 0xa8, 0x95, 0xaf, 0x4b);
-		/// <summary>
-		/// Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d12">Direct3D 12</see>
-		/// graphics APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
-		/// configuration supports these APIs.
-		/// </summary>
-		public static readonly Guid AttributeD3D12Graphics = new(0x0c9ece4d, 0x2f6e, 0x4f01, 0x8c, 0x96, 0xe8, 0x9e, 0x33, 0x1b, 0x47, 0xb1);
-		/// <summary>
-		/// Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d12/core-feature-levels">Direct3D 12 Core</see>
-		/// compute APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
-		/// configuration supports these APIs.
-		/// </summary>
-		public static readonly Guid AttributeD3D12CoreCompute = new(0x248e2800, 0xa793, 0x4724, 0xab, 0xaa, 0x23, 0xa6, 0xde, 0x1b, 0xe0, 0x90);
-
-		/// <summary>
 		/// Determines whether this DXCore adapter object is still valid. For programming guidance, and code examples, see
 		/// <see href="https://docs.microsoft.com/en-us/windows/win32/dxcore/dxcore-enum-adapters">Using DXCore to enumerate adapters</see>.
 		/// </summary>
@@ -1059,6 +1040,25 @@ namespace Tesseract.DirectX.Core {
 	/// </summary>
 	public static class DXCore {
 
+		/// <summary>
+		///  Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d11">Direct3D 11</see>
+		///  graphics APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
+		///  configuration supports these APIs.
+		/// </summary>
+		public static readonly Guid AttributeD3D11Graphics = new(0x8c47866b, 0x7583, 0x450d, 0xf0, 0xf0, 0x6b, 0xad, 0xa8, 0x95, 0xaf, 0x4b);
+		/// <summary>
+		/// Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d12">Direct3D 12</see>
+		/// graphics APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
+		/// configuration supports these APIs.
+		/// </summary>
+		public static readonly Guid AttributeD3D12Graphics = new(0x0c9ece4d, 0x2f6e, 0x4f01, 0x8c, 0x96, 0xe8, 0x9e, 0x33, 0x1b, 0x47, 0xb1);
+		/// <summary>
+		/// Specifies an adapter that supports being used with the <see href="https://docs.microsoft.com/en-us/windows/win32/direct3d12/core-feature-levels">Direct3D 12 Core</see>
+		/// compute APIs. No guarantees are made about specific features, nor is a guarantee made that the OS in its current
+		/// configuration supports these APIs.
+		/// </summary>
+		public static readonly Guid AttributeD3D12CoreCompute = new(0x248e2800, 0xa793, 0x4724, 0xab, 0xaa, 0x23, 0xa6, 0xde, 0x1b, 0xe0, 0x90);
+
 		[DllImport("DXCore.dll", PreserveSig = false)]
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "SYSLIB1054:Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time", Justification = "DllImport required for PreserveSig attribute")]
 		private static extern IntPtr DXCoreCreateAdapterFactory(in Guid riid);
@@ -1073,7 +1073,7 @@ namespace Tesseract.DirectX.Core {
 		/// <typeparam name="T">The factory type to create</typeparam>
 		/// <returns>The created DXCore factory</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T CreateAdapterFactory<T>() => COMHelpers.GetObjectFromCOMGetter<T>(DXCoreCreateAdapterFactory);
+		public static T CreateAdapterFactory<T>() where T : class => COMHelpers.GetObjectFromCOMGetter<T>(DXCoreCreateAdapterFactory);
 
 	}
 

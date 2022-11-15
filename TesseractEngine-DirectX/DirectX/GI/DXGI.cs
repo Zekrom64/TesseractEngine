@@ -368,13 +368,13 @@ namespace Tesseract.DirectX.GI {
 		/// 
 		/// <typeparam name="T">The COM interface type</typeparam>
 		/// <returns>A <see cref="IDXGIFactory"/> object</returns>
-		public static T CreateDXGIFactory<T>() => COMHelpers.GetObjectFromCOMGetter<T>(CreateDXGIFactory);
+		public static T CreateDXGIFactory<T>() where T : class => COMHelpers.GetObjectFromCOMGetter<T>(CreateDXGIFactory)!;
 
 		[DllImport("dxgi.dll", PreserveSig = false)]
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "SYSLIB1054:Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time", Justification = "DllImport required for PreserveSig attribute")]
 		private static extern IntPtr CreateDXGIFactory1(in Guid riid);
 
-		public static T CreateDXGIFactory1<T>() => COMHelpers.GetObjectFromCOMGetter<T>(CreateDXGIFactory1);
+		public static T CreateDXGIFactory1<T>() where T : class => COMHelpers.GetObjectFromCOMGetter<T>(CreateDXGIFactory1)!;
 
 	}
 
