@@ -52,6 +52,29 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW-OpenGL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-GLFW-Vulkan", "TesseractEngine-GLFW-Vulkan\TesseractEngine-GLFW-Vulkan.csproj", "{2836A9E5-9919-4B41-A800-792644696B04}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DirectX", "DirectX", "{548E504F-55FB-486E-856F-D8AB8E231957}"
+	ProjectSection(SolutionItems) = preProject
+		Reference\DirectX\directx\d3d12.h = Reference\DirectX\directx\d3d12.h
+		Reference\DirectX\directx\d3d12.idl = Reference\DirectX\directx\d3d12.idl
+		Reference\DirectX\directx\d3d12compatibility.h = Reference\DirectX\directx\d3d12compatibility.h
+		Reference\DirectX\directx\d3d12compatibility.idl = Reference\DirectX\directx\d3d12compatibility.idl
+		Reference\DirectX\directx\d3d12sdklayers.h = Reference\DirectX\directx\d3d12sdklayers.h
+		Reference\DirectX\directx\d3d12sdklayers.idl = Reference\DirectX\directx\d3d12sdklayers.idl
+		Reference\DirectX\directx\d3d12shader.h = Reference\DirectX\directx\d3d12shader.h
+		Reference\DirectX\directx\d3d12video.h = Reference\DirectX\directx\d3d12video.h
+		Reference\DirectX\directx\d3d12video.idl = Reference\DirectX\directx\d3d12video.idl
+		Reference\DirectX\directx\d3dcommon.h = Reference\DirectX\directx\d3dcommon.h
+		Reference\DirectX\directx\d3dcommon.idl = Reference\DirectX\directx\d3dcommon.idl
+		Reference\DirectX\directx\d3dx12.h = Reference\DirectX\directx\d3dx12.h
+		Reference\DirectX\directx\dxcore.h = Reference\DirectX\directx\dxcore.h
+		Reference\DirectX\directx\dxcore_interface.h = Reference\DirectX\directx\dxcore_interface.h
+		Reference\DirectX\directx\dxgicommon.h = Reference\DirectX\directx\dxgicommon.h
+		Reference\DirectX\directx\dxgicommon.idl = Reference\DirectX\directx\dxgicommon.idl
+		Reference\DirectX\directx\dxgiformat.h = Reference\DirectX\directx\dxgiformat.h
+		Reference\DirectX\directx\dxgiformat.idl = Reference\DirectX\directx\dxgiformat.idl
+		Reference\DirectX\dxguids\dxguids.h = Reference\DirectX\dxguids\dxguids.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +304,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{548E504F-55FB-486E-856F-D8AB8E231957} = {F6247136-5939-4C3C-B04D-FCE1AF08913B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8475FECF-9DFC-451F-8479-B2C4085201EA}
