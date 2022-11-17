@@ -1073,7 +1073,7 @@ namespace Tesseract.DirectX.Core {
 		/// <typeparam name="T">The factory type to create</typeparam>
 		/// <returns>The created DXCore factory</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T CreateAdapterFactory<T>() where T : class => COMHelpers.GetObjectFromCOMGetter<T>(DXCoreCreateAdapterFactory);
+		public static T CreateAdapterFactory<T>() where T : class => COMHelpers.GetObjectFromCOMGetter<T>(DXCoreCreateAdapterFactory)!;
 
 	}
 
