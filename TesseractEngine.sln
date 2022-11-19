@@ -53,31 +53,120 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-GLFW-Vulkan", "TesseractEngine-GLFW-Vulkan\TesseractEngine-GLFW-Vulkan.csproj", "{2836A9E5-9919-4B41-A800-792644696B04}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DirectX", "DirectX", "{548E504F-55FB-486E-856F-D8AB8E231957}"
-	ProjectSection(SolutionItems) = preProject
-		Reference\DirectX\directx\d3d12.h = Reference\DirectX\directx\d3d12.h
-		Reference\DirectX\directx\d3d12.idl = Reference\DirectX\directx\d3d12.idl
-		Reference\DirectX\directx\d3d12compatibility.h = Reference\DirectX\directx\d3d12compatibility.h
-		Reference\DirectX\directx\d3d12compatibility.idl = Reference\DirectX\directx\d3d12compatibility.idl
-		Reference\DirectX\directx\d3d12sdklayers.h = Reference\DirectX\directx\d3d12sdklayers.h
-		Reference\DirectX\directx\d3d12sdklayers.idl = Reference\DirectX\directx\d3d12sdklayers.idl
-		Reference\DirectX\directx\d3d12shader.h = Reference\DirectX\directx\d3d12shader.h
-		Reference\DirectX\directx\d3d12video.h = Reference\DirectX\directx\d3d12video.h
-		Reference\DirectX\directx\d3d12video.idl = Reference\DirectX\directx\d3d12video.idl
-		Reference\DirectX\directx\d3dcommon.h = Reference\DirectX\directx\d3dcommon.h
-		Reference\DirectX\directx\d3dcommon.idl = Reference\DirectX\directx\d3dcommon.idl
-		Reference\DirectX\directx\d3dx12.h = Reference\DirectX\directx\d3dx12.h
-		Reference\DirectX\directx\dxcore.h = Reference\DirectX\directx\dxcore.h
-		Reference\DirectX\directx\dxcore_interface.h = Reference\DirectX\directx\dxcore_interface.h
-		Reference\DirectX\directx\dxgicommon.h = Reference\DirectX\directx\dxgicommon.h
-		Reference\DirectX\directx\dxgicommon.idl = Reference\DirectX\directx\dxgicommon.idl
-		Reference\DirectX\directx\dxgiformat.h = Reference\DirectX\directx\dxgiformat.h
-		Reference\DirectX\directx\dxgiformat.idl = Reference\DirectX\directx\dxgiformat.idl
-		Reference\DirectX\dxguids\dxguids.h = Reference\DirectX\dxguids\dxguids.h
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-DirectX", "TesseractEngine-DirectX\TesseractEngine-DirectX.csproj", "{7538F70D-7148-4B4A-97C7-C3096F7C5DB6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Win32", "TesseractEngine-Win32\TesseractEngine-Win32.csproj", "{943484D9-F50E-420F-A5C7-3EF82718A361}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wine", "wine", "{F74A7952-E53D-41DD-A4F0-B96951F47E75}"
+	ProjectSection(SolutionItems) = preProject
+		Reference\DirectX\wine\d2d1.idl = Reference\DirectX\wine\d2d1.idl
+		Reference\DirectX\wine\d2d1effectauthor.idl = Reference\DirectX\wine\d2d1effectauthor.idl
+		Reference\DirectX\wine\d2d1effects.idl = Reference\DirectX\wine\d2d1effects.idl
+		Reference\DirectX\wine\d2d1effects_1.idl = Reference\DirectX\wine\d2d1effects_1.idl
+		Reference\DirectX\wine\d2d1effects_2.idl = Reference\DirectX\wine\d2d1effects_2.idl
+		Reference\DirectX\wine\d2d1_1.idl = Reference\DirectX\wine\d2d1_1.idl
+		Reference\DirectX\wine\d2d1_2.idl = Reference\DirectX\wine\d2d1_2.idl
+		Reference\DirectX\wine\d2d1_3.idl = Reference\DirectX\wine\d2d1_3.idl
+		Reference\DirectX\wine\d2dbasetypes.h = Reference\DirectX\wine\d2dbasetypes.h
+		Reference\DirectX\wine\d2derr.h = Reference\DirectX\wine\d2derr.h
+		Reference\DirectX\wine\d3d.h = Reference\DirectX\wine\d3d.h
+		Reference\DirectX\wine\d3d10.idl = Reference\DirectX\wine\d3d10.idl
+		Reference\DirectX\wine\d3d10effect.h = Reference\DirectX\wine\d3d10effect.h
+		Reference\DirectX\wine\d3d10misc.h = Reference\DirectX\wine\d3d10misc.h
+		Reference\DirectX\wine\d3d10sdklayers.idl = Reference\DirectX\wine\d3d10sdklayers.idl
+		Reference\DirectX\wine\d3d10shader.h = Reference\DirectX\wine\d3d10shader.h
+		Reference\DirectX\wine\d3d10_1.idl = Reference\DirectX\wine\d3d10_1.idl
+		Reference\DirectX\wine\d3d10_1shader.h = Reference\DirectX\wine\d3d10_1shader.h
+		Reference\DirectX\wine\d3d11.idl = Reference\DirectX\wine\d3d11.idl
+		Reference\DirectX\wine\d3d11on12.idl = Reference\DirectX\wine\d3d11on12.idl
+		Reference\DirectX\wine\d3d11sdklayers.idl = Reference\DirectX\wine\d3d11sdklayers.idl
+		Reference\DirectX\wine\d3d11shader.h = Reference\DirectX\wine\d3d11shader.h
+		Reference\DirectX\wine\d3d11_1.idl = Reference\DirectX\wine\d3d11_1.idl
+		Reference\DirectX\wine\d3d11_2.idl = Reference\DirectX\wine\d3d11_2.idl
+		Reference\DirectX\wine\d3d11_3.idl = Reference\DirectX\wine\d3d11_3.idl
+		Reference\DirectX\wine\d3d11_4.idl = Reference\DirectX\wine\d3d11_4.idl
+		Reference\DirectX\wine\d3d12.idl = Reference\DirectX\wine\d3d12.idl
+		Reference\DirectX\wine\d3d12sdklayers.idl = Reference\DirectX\wine\d3d12sdklayers.idl
+		Reference\DirectX\wine\d3d12shader.idl = Reference\DirectX\wine\d3d12shader.idl
+		Reference\DirectX\wine\d3d9.h = Reference\DirectX\wine\d3d9.h
+		Reference\DirectX\wine\d3d9caps.h = Reference\DirectX\wine\d3d9caps.h
+		Reference\DirectX\wine\d3d9types.h = Reference\DirectX\wine\d3d9types.h
+		Reference\DirectX\wine\d3dcaps.h = Reference\DirectX\wine\d3dcaps.h
+		Reference\DirectX\wine\d3dcommon.idl = Reference\DirectX\wine\d3dcommon.idl
+		Reference\DirectX\wine\d3dcompiler.h = Reference\DirectX\wine\d3dcompiler.h
+		Reference\DirectX\wine\d3dhal.h = Reference\DirectX\wine\d3dhal.h
+		Reference\DirectX\wine\d3dkmdt.h = Reference\DirectX\wine\d3dkmdt.h
+		Reference\DirectX\wine\d3drm.h = Reference\DirectX\wine\d3drm.h
+		Reference\DirectX\wine\d3drmdef.h = Reference\DirectX\wine\d3drmdef.h
+		Reference\DirectX\wine\d3drmobj.h = Reference\DirectX\wine\d3drmobj.h
+		Reference\DirectX\wine\d3drmwin.h = Reference\DirectX\wine\d3drmwin.h
+		Reference\DirectX\wine\d3dtypes.h = Reference\DirectX\wine\d3dtypes.h
+		Reference\DirectX\wine\d3dukmdt.h = Reference\DirectX\wine\d3dukmdt.h
+		Reference\DirectX\wine\d3dvec.inl = Reference\DirectX\wine\d3dvec.inl
+		Reference\DirectX\wine\d3dx10.h = Reference\DirectX\wine\d3dx10.h
+		Reference\DirectX\wine\d3dx10async.h = Reference\DirectX\wine\d3dx10async.h
+		Reference\DirectX\wine\d3dx10core.h = Reference\DirectX\wine\d3dx10core.h
+		Reference\DirectX\wine\d3dx10math.h = Reference\DirectX\wine\d3dx10math.h
+		Reference\DirectX\wine\d3dx10mesh.h = Reference\DirectX\wine\d3dx10mesh.h
+		Reference\DirectX\wine\d3dx10tex.h = Reference\DirectX\wine\d3dx10tex.h
+		Reference\DirectX\wine\d3dx11.h = Reference\DirectX\wine\d3dx11.h
+		Reference\DirectX\wine\d3dx11async.h = Reference\DirectX\wine\d3dx11async.h
+		Reference\DirectX\wine\d3dx11core.idl = Reference\DirectX\wine\d3dx11core.idl
+		Reference\DirectX\wine\d3dx11tex.h = Reference\DirectX\wine\d3dx11tex.h
+		Reference\DirectX\wine\d3dx9.h = Reference\DirectX\wine\d3dx9.h
+		Reference\DirectX\wine\d3dx9anim.h = Reference\DirectX\wine\d3dx9anim.h
+		Reference\DirectX\wine\d3dx9core.h = Reference\DirectX\wine\d3dx9core.h
+		Reference\DirectX\wine\d3dx9effect.h = Reference\DirectX\wine\d3dx9effect.h
+		Reference\DirectX\wine\d3dx9math.h = Reference\DirectX\wine\d3dx9math.h
+		Reference\DirectX\wine\d3dx9math.inl = Reference\DirectX\wine\d3dx9math.inl
+		Reference\DirectX\wine\d3dx9mesh.h = Reference\DirectX\wine\d3dx9mesh.h
+		Reference\DirectX\wine\d3dx9shader.h = Reference\DirectX\wine\d3dx9shader.h
+		Reference\DirectX\wine\d3dx9shape.h = Reference\DirectX\wine\d3dx9shape.h
+		Reference\DirectX\wine\d3dx9tex.h = Reference\DirectX\wine\d3dx9tex.h
+		Reference\DirectX\wine\d3dx9xof.h = Reference\DirectX\wine\d3dx9xof.h
+		Reference\DirectX\wine\dcommon.idl = Reference\DirectX\wine\dcommon.idl
+		Reference\DirectX\wine\dwrite.idl = Reference\DirectX\wine\dwrite.idl
+		Reference\DirectX\wine\dwrite_1.idl = Reference\DirectX\wine\dwrite_1.idl
+		Reference\DirectX\wine\dwrite_2.idl = Reference\DirectX\wine\dwrite_2.idl
+		Reference\DirectX\wine\dwrite_3.idl = Reference\DirectX\wine\dwrite_3.idl
+		Reference\DirectX\wine\dxerr8.h = Reference\DirectX\wine\dxerr8.h
+		Reference\DirectX\wine\dxerr9.h = Reference\DirectX\wine\dxerr9.h
+		Reference\DirectX\wine\dxgi.idl = Reference\DirectX\wine\dxgi.idl
+		Reference\DirectX\wine\dxgi1_2.idl = Reference\DirectX\wine\dxgi1_2.idl
+		Reference\DirectX\wine\dxgi1_3.idl = Reference\DirectX\wine\dxgi1_3.idl
+		Reference\DirectX\wine\dxgi1_4.idl = Reference\DirectX\wine\dxgi1_4.idl
+		Reference\DirectX\wine\dxgi1_5.idl = Reference\DirectX\wine\dxgi1_5.idl
+		Reference\DirectX\wine\dxgi1_6.idl = Reference\DirectX\wine\dxgi1_6.idl
+		Reference\DirectX\wine\dxgicommon.idl = Reference\DirectX\wine\dxgicommon.idl
+		Reference\DirectX\wine\dxgidebug.idl = Reference\DirectX\wine\dxgidebug.idl
+		Reference\DirectX\wine\dxgiformat.idl = Reference\DirectX\wine\dxgiformat.idl
+		Reference\DirectX\wine\dxgitype.idl = Reference\DirectX\wine\dxgitype.idl
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directx-headers", "directx-headers", "{B1D83660-5E83-4525-9294-D2D49EE94F20}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directx", "directx", "{BA980566-2893-4A8A-9310-6A791B830632}"
+	ProjectSection(SolutionItems) = preProject
+		Reference\DirectX\directx-headers\directx\d3d12.h = Reference\DirectX\directx-headers\directx\d3d12.h
+		Reference\DirectX\directx-headers\directx\d3d12.idl = Reference\DirectX\directx-headers\directx\d3d12.idl
+		Reference\DirectX\directx-headers\directx\d3d12compatibility.h = Reference\DirectX\directx-headers\directx\d3d12compatibility.h
+		Reference\DirectX\directx-headers\directx\d3d12compatibility.idl = Reference\DirectX\directx-headers\directx\d3d12compatibility.idl
+		Reference\DirectX\directx-headers\directx\d3d12sdklayers.h = Reference\DirectX\directx-headers\directx\d3d12sdklayers.h
+		Reference\DirectX\directx-headers\directx\d3d12sdklayers.idl = Reference\DirectX\directx-headers\directx\d3d12sdklayers.idl
+		Reference\DirectX\directx-headers\directx\d3d12shader.h = Reference\DirectX\directx-headers\directx\d3d12shader.h
+		Reference\DirectX\directx-headers\directx\d3d12video.h = Reference\DirectX\directx-headers\directx\d3d12video.h
+		Reference\DirectX\directx-headers\directx\d3d12video.idl = Reference\DirectX\directx-headers\directx\d3d12video.idl
+		Reference\DirectX\directx-headers\directx\d3dcommon.h = Reference\DirectX\directx-headers\directx\d3dcommon.h
+		Reference\DirectX\directx-headers\directx\d3dcommon.idl = Reference\DirectX\directx-headers\directx\d3dcommon.idl
+		Reference\DirectX\directx-headers\directx\d3dx12.h = Reference\DirectX\directx-headers\directx\d3dx12.h
+		Reference\DirectX\directx-headers\directx\dxcore.h = Reference\DirectX\directx-headers\directx\dxcore.h
+		Reference\DirectX\directx-headers\directx\dxcore_interface.h = Reference\DirectX\directx-headers\directx\dxcore_interface.h
+		Reference\DirectX\directx-headers\directx\dxgicommon.h = Reference\DirectX\directx-headers\directx\dxgicommon.h
+		Reference\DirectX\directx-headers\directx\dxgicommon.idl = Reference\DirectX\directx-headers\directx\dxgicommon.idl
+		Reference\DirectX\directx-headers\directx\dxgiformat.h = Reference\DirectX\directx-headers\directx\dxgiformat.h
+		Reference\DirectX\directx-headers\directx\dxgiformat.idl = Reference\DirectX\directx-headers\directx\dxgiformat.idl
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -335,6 +424,9 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{548E504F-55FB-486E-856F-D8AB8E231957} = {F6247136-5939-4C3C-B04D-FCE1AF08913B}
+		{F74A7952-E53D-41DD-A4F0-B96951F47E75} = {548E504F-55FB-486E-856F-D8AB8E231957}
+		{B1D83660-5E83-4525-9294-D2D49EE94F20} = {548E504F-55FB-486E-856F-D8AB8E231957}
+		{BA980566-2893-4A8A-9310-6A791B830632} = {B1D83660-5E83-4525-9294-D2D49EE94F20}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8475FECF-9DFC-451F-8479-B2C4085201EA}

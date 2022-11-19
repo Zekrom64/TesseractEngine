@@ -361,7 +361,7 @@ namespace Tesseract.Core.Native {
 		/// <returns>String encoded in span</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string GetASCII(ReadOnlySpan<byte> span, bool nullTerminated = true) {
-			int length = span.Length;
+			int length = -1;
 			if (nullTerminated) length = FindFirst<byte>(span, 0);
 			if (length == -1) length = span.Length;
 			return Encoding.ASCII.GetString(span[..length]);
@@ -415,7 +415,7 @@ namespace Tesseract.Core.Native {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string? GetUTF16(IntPtr ptr, int length = -1, bool nullTerminated = true) {
 			if (ptr == IntPtr.Zero) return null;
-			if (length < 0) length = FindFirst<byte>(ptr, 0);
+			if (length < 0) length = FindFirst<ushort>(ptr, 0);
 			else if (nullTerminated) length = FindFirst<ushort>(ptr, 0, length);
 			unsafe {
 				return Encoding.Unicode.GetString(new ReadOnlySpan<byte>((void*)ptr, length * sizeof(ushort)));
@@ -430,26 +430,20 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>String at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string? GetUTF16(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
+		public static string? GetUTF16(IConstPointer<char> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
 
 		/// <summary>
-		/// Gets a UTF-16 encoded string from a span of bytes.
+		/// Gets a UTF-16 encoded string from a span of characters.
 		/// </summary>
 		/// <param name="span">Span to get string from</param>
 		/// <param name="nullTerminated">If the string is null terminated.</param>
 		/// <returns>String encoded in span</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF16(ReadOnlySpan<byte> span, bool nullTerminated = true) {
-			int length = span.Length;
-			if (nullTerminated) {
-				unsafe {
-					fixed (byte* pSpan = span) {
-						length = FindFirst<ushort>((IntPtr)pSpan, 0) * sizeof(ushort);
-					}
-				}
-			}
+		public static string GetUTF16(ReadOnlySpan<char> span, bool nullTerminated = true) {
+			int length = -1;
+			if (nullTerminated) length = FindFirst(span, '\0');
 			if (length < 0) length = span.Length;
-			return Encoding.Unicode.GetString(span[..length]);
+			return new string(span[..length]);
 		}
 
 		/// <summary>

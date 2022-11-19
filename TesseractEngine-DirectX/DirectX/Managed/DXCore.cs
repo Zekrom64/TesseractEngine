@@ -27,17 +27,15 @@ namespace Tesseract.DirectX.Managed {
 		public DXCoreAdapterList CreateAdapterList(in ReadOnlySpan<Guid> filterAttributes) {
 			unsafe {
 				fixed (Guid* pFilterAttributes = filterAttributes) {
-					var list = COMHelpers.GetObjectForCOMPointer<IDXCoreAdapterList>(
-						COM.CreateAdapterList((uint)filterAttributes.Length, (nint)pFilterAttributes, COMHelpers.GetCOMID<IDXCoreAdapterList>())
-					)!;
-					return new DXCoreAdapterList(list, this);
+					COM.CreateAdapterList((uint)filterAttributes.Length, (nint)pFilterAttributes, COMHelpers.GetCOMID<IDXCoreAdapterList>(), out IntPtr pAdapterList);
+					return new DXCoreAdapterList(COMHelpers.GetObjectForCOMPointer<IDXCoreAdapterList>(pAdapterList)!, this);
 				}
 			}
 		}
 
 		public DXCoreAdapter GetAdapterByLuid(in LUID adapterLUID) {
 			var riid = COMHelpers.GetCOMID<IDXCoreAdapter>();
-			nint pAdapter = COM.GetAdapterByLuid(adapterLUID, riid);
+			COM.GetAdapterByLuid(adapterLUID, riid, out nint pAdapter);
 			return new(COMHelpers.GetObjectForCOMPointer<IDXCoreAdapter>(pAdapter)!, this);
 		}
 
@@ -64,7 +62,7 @@ namespace Tesseract.DirectX.Managed {
 			SelfPtr = new ObjectPointer<DXCoreAdapterList>(this);
 			COM = com;
 			Factory = factory ?? new DXCoreAdapterFactory(COMHelpers.GetObjectFromCOMGetter<IDXCoreAdapterFactory>(com.GetFactory)!);
-			Factory.COM.RegisterEventNotification(COM, DXCoreNotificationType.AdapterListStale, NotifyStale, SelfPtr);
+			Factory.COM.RegisterEventNotification(COM, DXCoreNotificationType.AdapterListStale, NotifyStale, SelfPtr, out _);
 			Count = (int)COM.GetAdapterCount();
 			adapters.EnsureCapacity(Count);
 		}
@@ -98,7 +96,7 @@ namespace Tesseract.DirectX.Managed {
 				var adapter = adapters[index];
 				if (adapter == null) {
 					adapter = new DXCoreAdapter(
-						COMHelpers.GetObjectFromCOMGetter<IDXCoreAdapter>((in Guid riid) => COM.GetAdapter((uint)index, riid))!,
+						COMHelpers.GetObjectFromCOMGetter<IDXCoreAdapter>((in Guid riid, out IntPtr ptr) => COM.GetAdapter((uint)index, riid, out ptr))!,
 						Factory
 					);
 					adapters[index] = adapter;
@@ -122,7 +120,7 @@ namespace Tesseract.DirectX.Managed {
 
 		public DXCoreAdapter(IDXCoreAdapter com, DXCoreAdapterFactory? factory = null) {
 			COM = com;
-			Factory = factory ?? new DXCoreAdapterFactory(COMHelpers.GetObjectFromCOMGetter<IDXCoreAdapterFactory>(com.GetFactory)!);
+			Factory = factory ?? new DXCoreAdapterFactory(COMHelpers.GetObjectFromCOMGetter<IDXCoreAdapterFactory>(COM.GetFactory)!);
 		}
 
 		public void Dispose() {
@@ -162,7 +160,8 @@ namespace Tesseract.DirectX.Managed {
 		}
 
 		public byte[] GetProperty(DXCoreAdapterProperty property) {
-			byte[] data = new byte[(int)COM.GetPropertySize(property)];
+			COM.GetPropertySize(property, out nuint size);
+			byte[] data = new byte[(int)size];
 			unsafe {
 				fixed(byte* pData = data) {
 					COM.GetProperty(property, (uint)data.Length, (nint)pData);
