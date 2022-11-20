@@ -16,6 +16,13 @@ namespace Tesseract.Windows {
 	public delegate IntPtr COMObjectGetter(in Guid riid);
 
 	/// <summary>
+	/// Delegate function commonly implemented by COM interfaces for getting subinterfaces.
+	/// </summary>
+	/// <param name="riid">The ID of the interface to get</param>
+	/// <param name="ptr">COM object pointer for the given interface</param>
+	public delegate void COMObjectOutGetter(in Guid riid, out IntPtr ptr);
+
+	/// <summary>
 	/// Methods which help with COM interop.
 	/// </summary>
 	public static class COMHelpers {
@@ -47,6 +54,18 @@ namespace Tesseract.Windows {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static T? GetObjectFromCOMGetter<T>(COMObjectGetter getter) where T : class =>
 			GetObjectForCOMPointer<T>(getter(GetCOMID<T>()));
+
+		/// <summary>
+		/// Retrieves a COM object using an appropriate getter function.
+		/// </summary>
+		/// <typeparam name="T">Retrieved object wrapper type</typeparam>
+		/// <param name="getter">Getter function</param>
+		/// <returns>COM object retrieved from the getter</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static T? GetObjectFromCOMGetter<T>(COMObjectOutGetter getter) where T : class {
+			getter(GetCOMID<T>(), out IntPtr ptr);
+			return GetObjectForCOMPointer<T>(ptr);
+		}
 
 		/// <summary>
 		/// Casts a COM wrapper dervied from the <see cref="IUnknown"/> interface to a different

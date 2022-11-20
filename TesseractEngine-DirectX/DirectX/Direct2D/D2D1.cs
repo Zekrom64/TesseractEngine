@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 
-namespace Tesseract.DirectX.Direct3D {
+namespace Tesseract.DirectX.Direct2D {
+	
+	public interface ID2D1SimplifiedGeometrySink { }
 
 }

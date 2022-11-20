@@ -7,28 +7,103 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Windows;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 namespace Tesseract.DirectX.GI {
-	
-	[ComImport, Guid("ea9dbf1a-c88e-4486-854a-98aa0138f30c")]
-	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IDXGIDisplayControl : IUnknown {
 
-		[PreserveSig]
-		public bool IsStereoEnabled();
+	[Flags]
+	public enum DXGISharedHandleAccessFlags : uint {
+		GenericRead = 0x80000000,
+		GenericWrite = 0x40000000,
+		GenericExecute = 0x20000000,
+		GenericAll = 0x10000000,
+		SharedResourceRead = GenericRead,
+		SharedResourceWrite = 1
+	}
 
-		public void SetStereoEnabled(bool enabled);
+	public enum DXGIOfferResourcePriority {
+		Low = 1,
+		Normal,
+		High
+	}
 
+	public enum DXGIAlphaMode {
+		Unspecified,
+		Premultiplied,
+		Straight,
+		Ignore
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIOutDuplMoveRect {
+
+		public POINT SourcePoint;
+
+		public RECT DestinationRect;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIOutDuplDesc {
+
+		public DXGIModeDesc ModeDesc;
+		public DXGIModeRotation Rotation;
+		public bool DesktopImageInSystemMemory;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIOutDuplPointerPosition {
+		public POINT Position;
+		public bool Visible;
+	}
+
+	public enum DXGIOutDuplPointerShapeType {
+		Monochrome = 0x1,
+		Color = 0x2,
+		MaskedColor = 0x4
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIOutDuplPointerShapeInfo {
+		public DXGIOutDuplPointerShapeType Type;
+		public uint Width;
+		public uint Height;
+		public uint Pitch;
+		public POINT HotSpot;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIOutDuplFrameInfo {
+		public LARGE_INTEGER LastPresentTime;
+		public LARGE_INTEGER LastMouseUpdateTime;
+		public uint AccumulatedFrames;
+		public bool RectsCoalesced;
+		public bool ProtectedContentMaskedOut;
+		public DXGIOutDuplPointerPosition PointerPosition;
+		public uint TotalMetadataBufferSize;
+		public uint PointerShapedBufferSize;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIModeDesc1 {
+		public uint Width;
+		public uint Height;
+		public DXGIRational RefreshRate;
+		public DXGIFormat Format;
+		public DXGIModeScanlineOrder ScanlineOrdering;
+		public DXGIModeScaling Scaling;
+		public bool Stereo;
 	}
 
 	[ComImport, Guid("191cfac3-a341-470d-b26e-a864f428319c")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IDXGIOutputDuplication : IDXGIObject {
 
-		public DXGIOutputDesc GetDesc();
+		[PreserveSig]
+		public void GetDesc(out DXGIOutDuplDesc desc);
 
-		[return: MarshalAs(UnmanagedType.Interface)]
-		public IDXGIResource AcquireNextFrame(uint timeoutMilliseconds, out DXGIOutDuplFrameInfo frameInfo);
+		public void AcquireNextFrame(uint timeoutMilliseconds, out DXGIOutDuplFrameInfo frameInfo, [MarshalAs(UnmanagedType.Interface)] out IDXGIResource desktopResource);
 		
 		[PreserveSig]
 		[return: MarshalAs(UnmanagedType.U4)]
@@ -99,7 +174,7 @@ namespace Tesseract.DirectX.GI {
 		}
 		*/
 
-		public DXGIMappedRect MapDesktopSurface();
+		public void MapDesktopSurface(out DXGIMappedRect lockedRect);
 
 		public void UnMapDesktopSurface();
 
@@ -126,11 +201,21 @@ namespace Tesseract.DirectX.GI {
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IDXGIResource1 : IDXGIResource {
 
-		[return: MarshalAs(UnmanagedType.Interface)]
-		public IDXGISurface2 CreateSubresourceSurface(uint index);
+		public void CreateSubresourceSurface(uint index, [MarshalAs(UnmanagedType.Interface)] out IDXGISurface2 surface);
 
-		[return: NativeType("HANDLE")]
-		public IntPtr CreateSharedHandle([NativeType("const SECURITY_ATTRIBUTES*")] IntPtr pAttributes, DXGISharedHandleAccessFlags access, [MarshalAs(UnmanagedType.LPWStr)] string name);
+		public void CreateSharedHandle([NativeType("const SECURITY_ATTRIBUTES*")] IntPtr pAttributes, DXGISharedHandleAccessFlags access, [MarshalAs(UnmanagedType.LPWStr)] string name, [NativeType("HANDLE")] out IntPtr handle);
+
+	}
+
+	[ComImport, Guid("ea9dbf1a-c88e-4486-854a-98aa0138f30c")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IDXGIDisplayControl : IUnknown {
+
+		[PreserveSig]
+		public bool IsStereoEnabled();
+
+		[PreserveSig]
+		public void SetStereoEnabled(bool enabled);
 
 	}
 
@@ -178,36 +263,72 @@ namespace Tesseract.DirectX.GI {
 
 	}
 
+	public enum DXGIScaling {
+		Strech = 0,
+		None = 1,
+		AspectRatioStrech = 2
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGISwapChainDesc1 {
+		public uint Width;
+		public uint Height;
+		public DXGIFormat Format;
+		public bool Stereo;
+		public DXGISampleDesc SampleDesc;
+		public DXGIUsageFlags BufferUsage;
+		public uint BufferCount;
+		public DXGIScaling Scaling;
+		public DXGISwapEffect SwapEffect;
+		public DXGIAlphaMode AlphaMode;
+		public DXGISwapChainFlags Flags;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGISwapChainFullscreenDesc {
+		public DXGIRational RefreshRate;
+		public DXGIModeScanlineOrder ScanlineOrdering;
+		public DXGIModeScaling Scaling;
+		public bool Windowed;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIPresentParameters {
+		public uint DirtyRectsCount;
+		[NativeType("RECT*")]
+		public IntPtr DirtyRects;
+		[NativeType("POINT*")]
+		public IntPtr ScrollOffset;
+	}
+
 	[ComImport, Guid("790a45f7-0d42-4876-983a-0a55cfe6f4aa")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IDXGISwapChain1 : IDXGISwapChain {
 
-		public DXGISwapChainDesc1 GetDesc1();
+		public void GetDesc1(out DXGISwapChainDesc1 desc);
 
-		public DXGISwapChainFullscreenDesc GetFullscreenDesc();
+		public void GetFullscreenDesc(out DXGISwapChainFullscreenDesc desc);
 
-		[return: NativeType("HWND")]
-		public IntPtr GetHwnd();
+		public void GetHwnd([NativeType("HWND")] out IntPtr hwnd);
 
-		public IntPtr GetCoreWindow(in Guid riid);
+		public void GetCoreWindow(in Guid riid, out IntPtr unk);
 
 		//public T GetCoreWindow<T>() => COMHelpers.GetObjectFromCOMGetter<T>(GetCoreWindow);
 
-		public void Present(uint syncInterval, DXGIPresentFlags flags, in DXGIPresentParameters parameters);
+		public void Present1(uint syncInterval, DXGIPresentFlags flags, in DXGIPresentParameters parameters);
 
 		[PreserveSig]
 		public bool IsTemporaryMonoSupported();
 
-		[return: MarshalAs(UnmanagedType.Interface)]
-		public IDXGIOutput GetRestrictToOutput();
+		public void GetRestrictToOutput([MarshalAs(UnmanagedType.Interface)] out IDXGIOutput? restrictToOutput);
 
-		public void SetBackgroundColor(DXGIRGBA color);
+		public void SetBackgroundColor(in Vector4 color);
 
-		public DXGIRGBA GetBackgroundColor();
+		public void GetBackgroundColor(out Vector4 color);
 
 		public void SetRotation(DXGIModeRotation rotation);
 
-		public DXGIModeRotation GetRotation();
+		public void GetRotation(out DXGIModeRotation rotation);
 
 	}
 
@@ -218,7 +339,14 @@ namespace Tesseract.DirectX.GI {
 		[PreserveSig]
 		public bool IsWindowStereoEnabled();
 
-		public IDXGISwapChain1 CreateSwapchainForHwnd([MarshalAs(UnmanagedType.IUnknown)] object device, [NativeType("HWND")] IntPtr hWnd, in DXGISwapChainDesc1 desc, [NativeType("const DXGI_SWAP_CHAIN_FULLSCREEN_DESC*")] IntPtr pFullscreenDesc, [MarshalAs(UnmanagedType.Interface)] [AllowNull] IDXGIOutput restrictToOutput);
+		public void CreateSwapchainForHwnd(
+			[MarshalAs(UnmanagedType.IUnknown)] object device,
+			[NativeType("HWND")] IntPtr hWnd,
+			in DXGISwapChainDesc1 desc,
+			[NativeType("const DXGI_SWAP_CHAIN_FULLSCREEN_DESC*")] IntPtr pFullscreenDesc,
+			[MarshalAs(UnmanagedType.Interface)] IDXGIOutput? restrictToOutput,
+			[MarshalAs(UnmanagedType.Interface)] out IDXGISwapChain1 swapchain
+		);
 
 		/*
 		public IDXGISwapChain1 CreateSwapchainForHwnd(object device, [NativeType("HWND")] IntPtr hWnd, in DXGISwapChainDesc1 desc, DXGISwapChainFullscreenDesc? fullscreenDesc = null, [AllowNull] IDXGIOutput restrictToOutput = null) {
@@ -234,33 +362,77 @@ namespace Tesseract.DirectX.GI {
 		}
 		*/
 
-		public IDXGISwapChain1 CreateSwapchainForCoreWindow([MarshalAs(UnmanagedType.IUnknown)] object device, [MarshalAs(UnmanagedType.IUnknown)] object window, in DXGISwapChainDesc1 desc, [MarshalAs(UnmanagedType.Interface)][AllowNull] IDXGIOutput restrictToOutput);
+		public void CreateSwapchainForCoreWindow(
+			[MarshalAs(UnmanagedType.IUnknown)] object device,
+			[MarshalAs(UnmanagedType.IUnknown)] object window,
+			in DXGISwapChainDesc1 desc,
+			[MarshalAs(UnmanagedType.Interface)] IDXGIOutput? restrictToOutput,
+			[MarshalAs(UnmanagedType.Interface)] out IDXGISwapChain1 swapchain
+		);
 
-		public LUID GetSharedResourceAdapterLuid([NativeType("HANDLE")] IntPtr hResource);
+		public void GetSharedResourceAdapterLuid([NativeType("HANDLE")] IntPtr hResource, out LUID luid);
 
-		public uint RegisterStereoStatusWindow([NativeType("HWND")] IntPtr hWnd, uint msg);
+		public void RegisterStereoStatusWindow([NativeType("HWND")] IntPtr hWnd, uint msg, out uint cookie);
 
-		public uint RegisterStereoStatusEvent([NativeType("HANDLE")] IntPtr hEvent);
+		public void RegisterStereoStatusEvent([NativeType("HANDLE")] IntPtr hEvent, out uint cookie);
 
 		[PreserveSig]
 		public void UnregisterStereoStatus(uint cookie);
 
-		public uint RegisterOcclusionStatusWindow([NativeType("HWND")] IntPtr hWnd, uint msg);
+		public void RegisterOcclusionStatusWindow([NativeType("HWND")] IntPtr hWnd, uint msg, out uint cookie);
 
-		public uint RegisterOcclusionStatusEvent([NativeType("HANDLE")] IntPtr hEvent);
+		public void RegisterOcclusionStatusEvent([NativeType("HANDLE")] IntPtr hEvent, out uint cookie);
 
 		[PreserveSig]
 		public void UnregisterOcclusionStatus(uint cookie);
 
-		public IDXGISwapChain1 CreateSwapChainForComposition([MarshalAs(UnmanagedType.IUnknown)] object device, in DXGISwapChainDesc1 desc, [MarshalAs(UnmanagedType.Interface)][AllowNull] IDXGIOutput restrictToOutput);
+		public void CreateSwapChainForComposition(
+			[MarshalAs(UnmanagedType.IUnknown)] object device,
+			in DXGISwapChainDesc1 desc,
+			[MarshalAs(UnmanagedType.Interface)] IDXGIOutput? restrictToOutput,
+			[MarshalAs(UnmanagedType.Interface)] out IDXGISwapChain1 swapchain
+		);
 
+	}
+
+	public enum DXGIGraphicsPreemptionGranularity {
+		DmaBufferBoundary = 0,
+		PrimitiveBoundary,
+		TriangleBoundary,
+		PixelBoundary,
+		InstructionBoundary
+	}
+
+	public enum DXGIComputePreemptionGranularity {
+		DmaBufferBoundary = 0,
+		DispatchBoundary,
+		ThreadGroupBoundary,
+		ThreadBoundary,
+		InstructionBoundary
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DXGIAdapterDesc2 {
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+		public char[] Description;
+		public uint VendorId;
+		public uint DeviceId;
+		public uint SubSysId;
+		public uint Revision;
+		public nuint DedicatedVideoMemory;
+		public nuint DedicatedSystemMemory;
+		public nuint SharedSystemMemory;
+		public LUID AdapterLuid;
+		public DXGIAdapterFlags Flags;
+		public DXGIGraphicsPreemptionGranularity GraphicsPreemptionGranularity;
+		public DXGIComputePreemptionGranularity ComputePreemptionGranularity;
 	}
 
 	[ComImport, Guid("0AA1AE0A-FA0E-4B84-8644-E05FF8E5ACB5")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IDXGIAdapter2 : IDXGIAdapter1 {
 
-		public DXGIAdapterDesc2 GetDesc2();
+		public void GetDesc2(out DXGIAdapterDesc2 desc);
 
 	}
 
@@ -287,7 +459,7 @@ namespace Tesseract.DirectX.GI {
 
 		public void GetDisplaySurfaceData([MarshalAs(UnmanagedType.Interface)] IDXGIResource destination);
 
-		public IDXGIOutputDuplication DuplicateOutput([MarshalAs(UnmanagedType.IUnknown)] object device);
+		public void DuplicateOutput([MarshalAs(UnmanagedType.IUnknown)] object device, [MarshalAs(UnmanagedType.IUnknown)] out IDXGIOutputDuplication outputDuplication);
 
 	}
 

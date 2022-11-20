@@ -447,7 +447,7 @@ namespace Tesseract.DirectX.Core {
 		/// <param name="bufferSize">The size, in bytes, of the output buffer that you allocate and provide in <i>propertyData</i>.</param>
 		/// <param name="propertyData">
 		/// A pointer to an output buffer that you allocate in your application, and that the function fills in. Call
-		/// <see cref="GetPropertySize(DXCoreAdapterProperty)">GetPropertySize</see> to determine the size that the
+		/// <see cref="GetPropertySize(DXCoreAdapterProperty, out nuint)">GetPropertySize</see> to determine the size that the
 		/// <i>propertyData</i> buffer should be for a given adapter property.
 		/// </param>
 		public void GetProperty(DXCoreAdapterProperty property, nuint bufferSize, IntPtr propertyData);
@@ -486,11 +486,11 @@ namespace Tesseract.DirectX.Core {
 		/// </remarks>
 		/// 
 		/// <param name="property">The type of the property whose size, in bytes, you wish to retrieve.</param>
-		/// <returns>
+		/// <param name="size">
 		/// The size, in bytes, of the output buffer that you should allocate and pass as the <i>propertyData</i> argument in your
 		/// call to <see cref="GetProperty(DXCoreAdapterProperty, nuint, IntPtr)">GetProperty</see>.
-		/// </returns>
-		public nuint GetPropertySize(DXCoreAdapterProperty property);
+		/// </param>
+		public void GetPropertySize(DXCoreAdapterProperty property, out nuint size);
 
 		/// <summary>
 		/// Determines whether this DXCore adapter object and the current operating system (OS) support querying the value of the specified adapter state.
@@ -617,11 +617,11 @@ namespace Tesseract.DirectX.Core {
 		/// A reference to the globally unique identifier (GUID) of the interface that you wish to be returned.
 		/// This is expected to be the interface identifier (IID) of <see cref="IDXCoreAdapterFactory"/>.
 		/// </param>
-		/// <returns>
+		/// <param name="factory">
 		/// A pointer to the existing DXCore adapter factory object. Before returning, the function increments the reference count
 		/// on the factory object's <see cref="IDXCoreAdapterFactory"/> interface.
-		/// </returns>
-		public IntPtr GetFactory(in Guid riid);
+		/// </param>
+		public void GetFactory(in Guid riid, out IntPtr factory);
 
 		/*
 		/// <summary>
@@ -663,7 +663,7 @@ namespace Tesseract.DirectX.Core {
 		/// 
 		/// <param name="index">A zero-based index, identifying an adapter instance within the DXCore adapter list.</param>
 		/// <param name="riid">A reference to the globally unique identifier (GUID) of the interface that you wish to be returned. This is expected to be the interface identifier (IID) of <see cref="IDXCoreAdapter"/>.</param>
-		public IntPtr GetAdapter(uint index, in Guid riid);
+		public void GetAdapter(uint index, in Guid riid, out IntPtr adapter);
 
 		/*
 		/// <summary>
@@ -722,11 +722,11 @@ namespace Tesseract.DirectX.Core {
 		/// A reference to the globally unique identifier (GUID) of the interface that you wish to be returned.
 		/// This is expected to be the interface identifier (IID) of <see cref="IDXCoreAdapterFactory"/>.
 		/// </param>
-		/// <returns>
+		/// <param name="factory">
 		/// A pointer to the existing DXCore adapter factory object. Before returning, the function increments the reference count
 		/// on the factory object's <see cref="IDXCoreAdapterFactory"/> interface.
-		/// </returns>
-		public IntPtr GetFactory(in Guid riid);
+		/// </param>
+		public void GetFactory(in Guid riid, out IntPtr factory);
 
 		/*
 		/// <summary>
@@ -843,8 +843,8 @@ namespace Tesseract.DirectX.Core {
 		/// of the requested attributes will be included in the returned list.
 		/// </param>
 		/// <param name="riid">A reference to the globally unique identifier (GUID) of the interface that you wish to be returned. This is expected to be the interface identifier (IID) of <see cref="IDXCoreAdapterList"/>.</param>
-		/// <returns>A pointer to the adapter list created.</returns>
-		public IntPtr CreateAdapterList(uint numAttributes, [NativeType("const GUID*")] IntPtr filterAttributes, in Guid riid);
+		/// <param name="adapterList">A pointer to the adapter list created.</param>
+		public void CreateAdapterList(uint numAttributes, [NativeType("const GUID*")] IntPtr filterAttributes, in Guid riid, out IntPtr adapterList);
 
 		/*
 		/// <summary>
@@ -882,8 +882,8 @@ namespace Tesseract.DirectX.Core {
 		/// 
 		/// <param name="adapterLUID">The locally unique value that identifies the adapter instance.</param>
 		/// <param name="riid">A reference to the globally unique identifier (GUID) of the interface that you wish to be returned. This is expected to be the interface identifier (IID) of <see cref="IDXCoreAdapter"/>.</param>
-		/// <returns>a pointer to the DXCore adapter created.</returns>
-		public IntPtr GetAdapterByLuid(in LUID adapterLUID, in Guid riid);
+		/// <param name="adapter">A pointer to the DXCore adapter created.</param>
+		public void GetAdapterByLuid(in LUID adapterLUID, in Guid riid, out IntPtr adapter);
 
 		/*
 		/// <summary>
@@ -997,11 +997,11 @@ namespace Tesseract.DirectX.Core {
 		/// events. For the signature of the function, see <see cref="DXCoreNotificationCallback"/>.
 		/// </param>
 		/// <param name="callbackContext">An optional pointer to an object containing context info. This object is passed to your callback function when the notification is raised.</param>
-		/// <returns>
-		/// a non-zero cookie value representing this registration. Use this cookie value to unregister from the notification by
+		/// <param name="cookie">
+		/// A non-zero cookie value representing this registration. Use this cookie value to unregister from the notification by
 		/// calling <see cref="UnregisterEventNotification(uint)">IDXCoreAdapterFactory::UnregisterEventNotification</see>. See Remarks.
-		/// </returns>
-		public uint RegisterEventNotification([MarshalAs(UnmanagedType.IUnknown)] object dxCoreObject, DXCoreNotificationType notificationType, [MarshalAs(UnmanagedType.FunctionPtr)] DXCoreNotificationCallback callbackFunction, IntPtr callbackContext);
+		/// </param>
+		public void RegisterEventNotification([MarshalAs(UnmanagedType.IUnknown)] object dxCoreObject, DXCoreNotificationType notificationType, [MarshalAs(UnmanagedType.FunctionPtr)] DXCoreNotificationCallback callbackFunction, IntPtr callbackContext, out uint cookie);
 
 		/// <summary>
 		/// <para>
