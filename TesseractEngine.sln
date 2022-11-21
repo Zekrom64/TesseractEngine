@@ -121,7 +121,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wine", "wine", "{F74A7952-E
 		Reference\DirectX\wine\dwrite_1.idl = Reference\DirectX\wine\dwrite_1.idl
 		Reference\DirectX\wine\dwrite_2.idl = Reference\DirectX\wine\dwrite_2.idl
 		Reference\DirectX\wine\dwrite_3.idl = Reference\DirectX\wine\dwrite_3.idl
-		Reference\DirectX\wine\dxerr8.h = Reference\DirectX\wine\dxerr8.h
 		Reference\DirectX\wine\dxerr9.h = Reference\DirectX\wine\dxerr9.h
 		Reference\DirectX\wine\dxgi.idl = Reference\DirectX\wine\dxgi.idl
 		Reference\DirectX\wine\dxgi1_2.idl = Reference\DirectX\wine\dxgi1_2.idl
