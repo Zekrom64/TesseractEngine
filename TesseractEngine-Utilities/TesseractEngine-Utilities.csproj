@@ -4,7 +4,15 @@
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Tesseract</RootNamespace>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Utilities\**" />
+    <EmbeddedResource Remove="Utilities\**" />
+    <None Remove="Utilities\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NVorbis" Version="0.10.4" />
@@ -12,10 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Utilities\" />
   </ItemGroup>
 
 </Project>
