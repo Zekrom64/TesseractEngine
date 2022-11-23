@@ -33,7 +33,9 @@ namespace Tesseract.Reflection {
 
 		public void VisitWithIndex(int ip, OpCode opcode, ushort index);
 
-		public void VisitLdcWithImmediate(int ip, OpCode opcode, decimal value);
+		public void VisitWithImmediate(int ip, OpCode opcode, decimal value);
+
+		public void VisitLdstr(int ip, string value);
 
 		public void VisitSwitch(int ip, int[] targets);
 
@@ -49,7 +51,9 @@ namespace Tesseract.Reflection {
 
 		public void VisitCalli(int ip, Signature signature) { }
 
-		public void VisitLdcWithImmediate(int ip, OpCode opcode, decimal value) { }
+		public void VisitWithImmediate(int ip, OpCode opcode, decimal value) { }
+
+		public void VisitLdstr(int ip, string value) { }
 
 		public void VisitSwitch(int ip, int[] targets) { }
 

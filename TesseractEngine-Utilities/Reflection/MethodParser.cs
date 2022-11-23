@@ -30,7 +30,10 @@ namespace Tesseract.Reflection {
 
 			OpCodeValue NextOp() {
 				int op = bytecode[ip2++];
-				if (op >= 0xF8) op |= bytecode[ip2++] << 8;
+				if (op >= 0xF8) {
+					op <<= 8;
+					op |= bytecode[ip2++];
+				}
 				return (OpCodeValue)op;
 			}
 
@@ -55,6 +58,12 @@ namespace Tesseract.Reflection {
 				l |= (long)NextI4() << 32;
 				return l;
 			}
+
+			Type NextType() => module.ResolveType(NextI4());
+
+			MethodBase NextMethod() => module.ResolveMethod(NextI4())!;
+
+			FieldInfo NextField() => module.ResolveField(NextI4())!;
 
 			while (ip < bytecode.Length) {
 				OpCodeValue op = NextOp();
@@ -153,19 +162,19 @@ namespace Tesseract.Reflection {
 						visitor.Visit(ip, OpCodes.Ldc_I4_8);
 						break;
 					case OpCodeValue.Ldc_I4_S:
-						visitor.VisitLdcWithImmediate(ip, OpCodes.Ldc_I4_S, (sbyte)NextU1());
+						visitor.VisitWithImmediate(ip, OpCodes.Ldc_I4_S, (sbyte)NextU1());
 						break;
 					case OpCodeValue.Ldc_I4:
-						visitor.VisitLdcWithImmediate(ip, OpCodes.Ldc_I4, NextI4());
+						visitor.VisitWithImmediate(ip, OpCodes.Ldc_I4, NextI4());
 						break;
 					case OpCodeValue.Ldc_I8:
-						visitor.VisitLdcWithImmediate(ip, OpCodes.Ldc_I8, NextI8());
+						visitor.VisitWithImmediate(ip, OpCodes.Ldc_I8, NextI8());
 						break;
 					case OpCodeValue.Ldc_R4:
-						visitor.VisitLdcWithImmediate(ip, OpCodes.Ldc_R4, (decimal)BitConverter.Int32BitsToSingle(NextI4()));
+						visitor.VisitWithImmediate(ip, OpCodes.Ldc_R4, (decimal)BitConverter.Int32BitsToSingle(NextI4()));
 						break;
 					case OpCodeValue.Ldc_R8:
-						visitor.VisitLdcWithImmediate(ip, OpCodes.Ldc_R4, (decimal)BitConverter.Int64BitsToDouble(NextI8()));
+						visitor.VisitWithImmediate(ip, OpCodes.Ldc_R4, (decimal)BitConverter.Int64BitsToDouble(NextI8()));
 						break;
 					case OpCodeValue.Dup:
 						visitor.Visit(ip, OpCodes.Dup);
@@ -173,20 +182,14 @@ namespace Tesseract.Reflection {
 					case OpCodeValue.Pop:
 						visitor.Visit(ip, OpCodes.Pop);
 						break;
-					case OpCodeValue.Jmp: {
-							MethodBase mb = module.ResolveMethod(NextI4()) ?? throw new InvalidOperationException("Could not lookup method token");
-							visitor.VisitWithMethodBase(ip, OpCodes.Jmp, mb);
-						}
+					case OpCodeValue.Jmp:
+						visitor.VisitWithMethodBase(ip, OpCodes.Jmp, NextMethod());
 						break;
-					case OpCodeValue.Call: {
-							MethodBase mb = module.ResolveMethod(NextI4()) ?? throw new InvalidOperationException("Could not lookup method token");
-							visitor.VisitWithMethodBase(ip, OpCodes.Call, mb);
-						}
+					case OpCodeValue.Call:
+						visitor.VisitWithMethodBase(ip, OpCodes.Call, NextMethod());
 						break;
-					case OpCodeValue.Calli: {
-							byte[] sigdata = module.ResolveSignature(NextI4());
-							visitor.VisitCalli(ip, Signature.Parse(sigdata));
-						}
+					case OpCodeValue.Calli:
+						visitor.VisitCalli(ip, Signature.Parse(module, module.ResolveSignature(NextI4())));
 						break;
 					case OpCodeValue.Ret:
 						visitor.Visit(ip, OpCodes.Ret);
@@ -279,298 +282,445 @@ namespace Tesseract.Reflection {
 						}
 						break;
 					case OpCodeValue.Ldind_I1:
+						visitor.Visit(ip, OpCodes.Ldind_I1);
 						break;
 					case OpCodeValue.Ldind_U1:
+						visitor.Visit(ip, OpCodes.Ldind_U1);
 						break;
 					case OpCodeValue.Ldind_I2:
+						visitor.Visit(ip, OpCodes.Ldind_I2);
 						break;
 					case OpCodeValue.Ldind_U2:
+						visitor.Visit(ip, OpCodes.Ldind_U2);
 						break;
 					case OpCodeValue.Ldind_I4:
+						visitor.Visit(ip, OpCodes.Ldind_I4);
 						break;
 					case OpCodeValue.Ldind_U4:
+						visitor.Visit(ip, OpCodes.Ldind_U4);
 						break;
 					case OpCodeValue.Ldind_I8:
+						visitor.Visit(ip, OpCodes.Ldind_I8);
 						break;
 					case OpCodeValue.Ldind_I:
+						visitor.Visit(ip, OpCodes.Ldind_I);
 						break;
 					case OpCodeValue.Ldind_R4:
+						visitor.Visit(ip, OpCodes.Ldind_R4);
 						break;
 					case OpCodeValue.Ldind_R8:
+						visitor.Visit(ip, OpCodes.Ldind_R8);
 						break;
 					case OpCodeValue.Ldind_Ref:
+						visitor.Visit(ip, OpCodes.Ldind_Ref);
 						break;
 					case OpCodeValue.Stind_Ref:
+						visitor.Visit(ip, OpCodes.Stind_Ref);
 						break;
 					case OpCodeValue.Stind_I1:
+						visitor.Visit(ip, OpCodes.Stind_I1);
 						break;
 					case OpCodeValue.Stind_I2:
+						visitor.Visit(ip, OpCodes.Stind_I2);
 						break;
 					case OpCodeValue.Stind_I4:
+						visitor.Visit(ip, OpCodes.Stind_I4);
 						break;
 					case OpCodeValue.Stind_I8:
+						visitor.Visit(ip, OpCodes.Stind_I8);
 						break;
 					case OpCodeValue.Stind_R4:
+						visitor.Visit(ip, OpCodes.Stind_R4);
 						break;
 					case OpCodeValue.Stind_R8:
+						visitor.Visit(ip, OpCodes.Stind_R8);
 						break;
 					case OpCodeValue.Add:
+						visitor.Visit(ip, OpCodes.Add);
 						break;
 					case OpCodeValue.Sub:
+						visitor.Visit(ip, OpCodes.Sub);
 						break;
 					case OpCodeValue.Mul:
+						visitor.Visit(ip, OpCodes.Mul);
 						break;
 					case OpCodeValue.Div:
+						visitor.Visit(ip, OpCodes.Div);
 						break;
 					case OpCodeValue.Div_Un:
+						visitor.Visit(ip, OpCodes.Div_Un);
 						break;
 					case OpCodeValue.Rem:
+						visitor.Visit(ip, OpCodes.Rem);
 						break;
 					case OpCodeValue.Rem_Un:
+						visitor.Visit(ip, OpCodes.Rem_Un);
 						break;
 					case OpCodeValue.And:
+						visitor.Visit(ip, OpCodes.And);
 						break;
 					case OpCodeValue.Or:
+						visitor.Visit(ip, OpCodes.Or);
 						break;
 					case OpCodeValue.Xor:
+						visitor.Visit(ip, OpCodes.Xor);
 						break;
 					case OpCodeValue.Shl:
+						visitor.Visit(ip, OpCodes.Shl);
 						break;
 					case OpCodeValue.Shr:
+						visitor.Visit(ip, OpCodes.Shr);
 						break;
 					case OpCodeValue.Shr_Un:
+						visitor.Visit(ip, OpCodes.Shr_Un);
 						break;
 					case OpCodeValue.Neg:
+						visitor.Visit(ip, OpCodes.Neg);
 						break;
 					case OpCodeValue.Not:
+						visitor.Visit(ip, OpCodes.Not);
 						break;
 					case OpCodeValue.Conv_I1:
+						visitor.Visit(ip, OpCodes.Conv_I1);
 						break;
 					case OpCodeValue.Conv_I2:
+						visitor.Visit(ip, OpCodes.Conv_I2);
 						break;
 					case OpCodeValue.Conv_I4:
+						visitor.Visit(ip, OpCodes.Conv_I4);
 						break;
 					case OpCodeValue.Conv_I8:
+						visitor.Visit(ip, OpCodes.Conv_I8);
 						break;
 					case OpCodeValue.Conv_R4:
+						visitor.Visit(ip, OpCodes.Conv_R4);
 						break;
 					case OpCodeValue.Conv_R8:
+						visitor.Visit(ip, OpCodes.Conv_R8);
 						break;
 					case OpCodeValue.Conv_U4:
+						visitor.Visit(ip, OpCodes.Conv_U4);
 						break;
 					case OpCodeValue.Conv_U8:
+						visitor.Visit(ip, OpCodes.Conv_U8);
 						break;
 					case OpCodeValue.Callvirt:
+						visitor.VisitWithMethodBase(ip, OpCodes.Callvirt, NextMethod());
 						break;
 					case OpCodeValue.Cpobj:
+						visitor.VisitWithType(ip, OpCodes.Cpobj, NextType());
 						break;
 					case OpCodeValue.Ldobj:
+						visitor.VisitWithType(ip, OpCodes.Ldobj, NextType());
 						break;
 					case OpCodeValue.Ldstr:
+						visitor.VisitLdstr(ip, module.ResolveString(NextI4()));
 						break;
 					case OpCodeValue.Newobj:
+						visitor.VisitWithMethodBase(ip, OpCodes.Newobj, NextMethod());
 						break;
 					case OpCodeValue.Castclass:
+						visitor.VisitWithType(ip, OpCodes.Castclass, NextType());
 						break;
 					case OpCodeValue.Isinst:
+						visitor.VisitWithType(ip, OpCodes.Isinst, NextType());
 						break;
 					case OpCodeValue.Conv_R_Un:
+						visitor.Visit(ip, OpCodes.Conv_R_Un);
 						break;
 					case OpCodeValue.Unbox:
+						visitor.VisitWithType(ip, OpCodes.Unbox, NextType());
 						break;
 					case OpCodeValue.Throw:
+						visitor.Visit(ip, OpCodes.Throw);
 						break;
 					case OpCodeValue.Ldfld:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Ldfld, NextField());
 						break;
 					case OpCodeValue.Ldflda:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Ldflda, NextField());
 						break;
 					case OpCodeValue.Stfld:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Stfld, NextField());
 						break;
 					case OpCodeValue.Ldsfld:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Ldsfld, NextField());
 						break;
 					case OpCodeValue.Ldsflda:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Ldsflda, NextField());
 						break;
 					case OpCodeValue.Stsfld:
+						visitor.VisitWithFieldInfo(ip, OpCodes.Stsfld, NextField());
 						break;
 					case OpCodeValue.Stobj:
+						visitor.VisitWithType(ip, OpCodes.Stobj, NextType());
 						break;
 					case OpCodeValue.Conv_Ovf_I1_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I1_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_I2_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I2_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_I4_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I4_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_I8_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I8_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_U1_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U1_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_U2_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U2_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_U4_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U4_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_U8_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U8_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_I_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I_Un);
 						break;
 					case OpCodeValue.Conv_Ovf_U_Un:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U_Un);
 						break;
 					case OpCodeValue.Box:
+						visitor.VisitWithType(ip, OpCodes.Box, NextType());
 						break;
 					case OpCodeValue.Newarr:
+						visitor.VisitWithType(ip, OpCodes.Newarr, NextType());
 						break;
 					case OpCodeValue.Ldlen:
+						visitor.Visit(ip, OpCodes.Ldlen);
 						break;
 					case OpCodeValue.Ldelema:
+						visitor.VisitWithType(ip, OpCodes.Ldelema, NextType());
 						break;
 					case OpCodeValue.Ldelem_I1:
+						visitor.Visit(ip, OpCodes.Ldelem_I1);
 						break;
 					case OpCodeValue.Ldelem_U1:
+						visitor.Visit(ip, OpCodes.Ldelem_U1);
 						break;
 					case OpCodeValue.Ldelem_I2:
+						visitor.Visit(ip, OpCodes.Ldelem_I2);
 						break;
 					case OpCodeValue.Ldelem_U2:
+						visitor.Visit(ip, OpCodes.Ldelem_U2);
 						break;
 					case OpCodeValue.Ldelem_I4:
+						visitor.Visit(ip, OpCodes.Ldelem_I4);
 						break;
 					case OpCodeValue.Ldelem_U4:
+						visitor.Visit(ip, OpCodes.Ldelem_U4);
 						break;
 					case OpCodeValue.Ldelem_I8:
+						visitor.Visit(ip, OpCodes.Ldelem_I8);
 						break;
 					case OpCodeValue.Ldelem_I:
+						visitor.Visit(ip, OpCodes.Ldelem_I);
 						break;
 					case OpCodeValue.Ldelem_R4:
+						visitor.Visit(ip, OpCodes.Ldelem_R4);
 						break;
 					case OpCodeValue.Ldelem_R8:
+						visitor.Visit(ip, OpCodes.Ldelem_R8);
 						break;
 					case OpCodeValue.Ldelem_Ref:
+						visitor.Visit(ip, OpCodes.Ldelem_Ref);
 						break;
 					case OpCodeValue.Stelem_I:
+						visitor.Visit(ip, OpCodes.Stelem_I);
 						break;
 					case OpCodeValue.Stelem_I1:
+						visitor.Visit(ip, OpCodes.Stelem_I1);
 						break;
 					case OpCodeValue.Stelem_I2:
+						visitor.Visit(ip, OpCodes.Stelem_I2);
 						break;
 					case OpCodeValue.Stelem_I4:
+						visitor.Visit(ip, OpCodes.Stelem_I4);
 						break;
 					case OpCodeValue.Stelem_I8:
+						visitor.Visit(ip, OpCodes.Stelem_I8);
 						break;
 					case OpCodeValue.Stelem_R4:
+						visitor.Visit(ip, OpCodes.Stelem_R4);
 						break;
 					case OpCodeValue.Stelem_R8:
+						visitor.Visit(ip, OpCodes.Stelem_R8);
 						break;
 					case OpCodeValue.Stelem_Ref:
+						visitor.Visit(ip, OpCodes.Stelem_Ref);
 						break;
 					case OpCodeValue.Ldelem:
+						visitor.VisitWithType(ip, OpCodes.Ldelem, NextType());
 						break;
 					case OpCodeValue.Stelem:
+						visitor.VisitWithType(ip, OpCodes.Stelem, NextType());
 						break;
 					case OpCodeValue.Unbox_Any:
+						visitor.VisitWithType(ip, OpCodes.Unbox_Any, NextType());
 						break;
 					case OpCodeValue.Conv_Ovf_I1:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I1);
 						break;
 					case OpCodeValue.Conv_Ovf_U1:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U1);
 						break;
 					case OpCodeValue.Conv_Ovf_I2:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I2);
 						break;
 					case OpCodeValue.Conv_Ovf_U2:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U2);
 						break;
 					case OpCodeValue.Conv_Ovf_I4:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I4);
 						break;
 					case OpCodeValue.Conv_Ovf_U4:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U4);
 						break;
 					case OpCodeValue.Conv_Ovf_I8:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I8);
 						break;
 					case OpCodeValue.Conv_Ovf_U8:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U8);
 						break;
 					case OpCodeValue.Refanyval:
+						visitor.Visit(ip, OpCodes.Refanyval);
 						break;
 					case OpCodeValue.Ckfinite:
+						visitor.Visit(ip, OpCodes.Ckfinite);
 						break;
 					case OpCodeValue.Mkrefany:
+						visitor.VisitWithType(ip, OpCodes.Mkrefany, NextType());
 						break;
 					case OpCodeValue.Ldtoken:
+						visitor.VisitWithImmediate(ip, OpCodes.Ldtoken, NextI4());
 						break;
 					case OpCodeValue.Conv_U2:
+						visitor.Visit(ip, OpCodes.Conv_U2);
 						break;
 					case OpCodeValue.Conv_U1:
+						visitor.Visit(ip, OpCodes.Conv_U1);
 						break;
 					case OpCodeValue.Conv_I:
+						visitor.Visit(ip, OpCodes.Conv_I);
 						break;
 					case OpCodeValue.Conv_Ovf_I:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_I);
 						break;
 					case OpCodeValue.Conv_Ovf_U:
+						visitor.Visit(ip, OpCodes.Conv_Ovf_U);
 						break;
 					case OpCodeValue.Add_Ovf:
+						visitor.Visit(ip, OpCodes.Add_Ovf);
 						break;
 					case OpCodeValue.Add_Ovf_Un:
+						visitor.Visit(ip, OpCodes.Add_Ovf_Un);
 						break;
 					case OpCodeValue.Mul_Ovf:
+						visitor.Visit(ip, OpCodes.Mul_Ovf);
 						break;
 					case OpCodeValue.Mul_Ovf_Un:
+						visitor.Visit(ip, OpCodes.Mul_Ovf_Un);
 						break;
 					case OpCodeValue.Sub_Ovf:
+						visitor.Visit(ip, OpCodes.Sub_Ovf);
 						break;
 					case OpCodeValue.Sub_Ovf_Un:
+						visitor.Visit(ip, OpCodes.Sub_Ovf_Un);
 						break;
 					case OpCodeValue.Endfinally:
+						visitor.Visit(ip, OpCodes.Endfinally);
 						break;
 					case OpCodeValue.Leave:
+						visitor.VisitBranch(ip, OpCodes.Leave, NextI4() + ip2);
 						break;
 					case OpCodeValue.Leave_S:
+						visitor.VisitBranch(ip, OpCodes.Leave_S, (sbyte)NextU1() + ip2);
 						break;
 					case OpCodeValue.Stind_I:
+						visitor.Visit(ip, OpCodes.Stind_I);
 						break;
 					case OpCodeValue.Conv_U:
+						visitor.Visit(ip, OpCodes.Conv_U);
 						break;
 					case OpCodeValue.Arglist:
+						visitor.Visit(ip, OpCodes.Arglist);
 						break;
 					case OpCodeValue.Ceq:
+						visitor.Visit(ip, OpCodes.Ceq);
 						break;
 					case OpCodeValue.Cgt:
+						visitor.Visit(ip, OpCodes.Cgt);
 						break;
 					case OpCodeValue.Cgt_Un:
+						visitor.Visit(ip, OpCodes.Cgt_Un);
 						break;
 					case OpCodeValue.Clt:
+						visitor.Visit(ip, OpCodes.Clt);
 						break;
 					case OpCodeValue.Clt_Un:
+						visitor.Visit(ip, OpCodes.Clt_Un);
 						break;
 					case OpCodeValue.Ldftn:
+						visitor.VisitWithMethodBase(ip, OpCodes.Ldftn, NextMethod());
 						break;
 					case OpCodeValue.Ldvirtfn:
+						visitor.VisitWithMethodBase(ip, OpCodes.Ldvirtftn, NextMethod());
 						break;
 					case OpCodeValue.Ldarg:
+						visitor.VisitWithIndex(ip, OpCodes.Ldarg, NextU2());
 						break;
 					case OpCodeValue.Ldarga:
+						visitor.VisitWithIndex(ip, OpCodes.Ldarga, NextU2());
 						break;
 					case OpCodeValue.Starg:
+						visitor.VisitWithIndex(ip, OpCodes.Starg, NextU2());
 						break;
 					case OpCodeValue.Ldloc:
+						visitor.VisitWithIndex(ip, OpCodes.Ldloc, NextU2());
 						break;
 					case OpCodeValue.Ldloca:
+						visitor.VisitWithIndex(ip, OpCodes.Ldloca, NextU2());
 						break;
 					case OpCodeValue.Stloc:
+						visitor.VisitWithIndex(ip, OpCodes.Stloc, NextU2());
 						break;
 					case OpCodeValue.Localloc:
+						visitor.Visit(ip, OpCodes.Localloc);
 						break;
 					case OpCodeValue.Endfilter:
+						visitor.Visit(ip, OpCodes.Endfilter);
 						break;
 					case OpCodeValue.Unaligned:
+						visitor.VisitWithImmediate(ip, OpCodes.Unaligned, NextU1());
 						break;
 					case OpCodeValue.Volatile:
+						visitor.Visit(ip, OpCodes.Volatile);
 						break;
-					case OpCodeValue.Tail:
+					case OpCodeValue.Tailcall:
+						visitor.Visit(ip, OpCodes.Tailcall);
 						break;
 					case OpCodeValue.Initobj:
+						visitor.VisitWithType(ip, OpCodes.Initobj, NextType());
 						break;
 					case OpCodeValue.Constrained:
+						visitor.VisitWithType(ip, OpCodes.Constrained, NextType());
 						break;
-					case OpCodeValue.Cpblock:
+					case OpCodeValue.Cpblk:
+						visitor.Visit(ip, OpCodes.Cpblk);
 						break;
 					case OpCodeValue.Initblk:
+						visitor.Visit(ip, OpCodes.Initblk);
 						break;
 					case OpCodeValue.Rethrow:
+						visitor.Visit(ip, OpCodes.Rethrow);
 						break;
 					case OpCodeValue.Sizeof:
+						visitor.VisitWithType(ip, OpCodes.Sizeof, NextType());
 						break;
 					case OpCodeValue.Refanytype:
 						visitor.Visit(ip, OpCodes.Refanytype);
@@ -579,7 +729,7 @@ namespace Tesseract.Reflection {
 						visitor.Visit(ip, OpCodes.Readonly);
 						break;
 					default:
-						throw new InvalidOperationException($"Unexpected opcode 0x{(int)op:X}");
+						throw new InvalidOperationException($"Unexpected opcode 0x{(int)op:X}@0x{ip:X}");
 				}
 				ip = ip2;
 			}
