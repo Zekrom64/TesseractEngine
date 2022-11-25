@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Tesseract.Reflection {
 	
+	/// <summary>
+	/// Enumeration of IL opcode values as presented by <see cref="System.Reflection.Emit.OpCode"/>.
+	/// </summary>
 	public enum OpCodeValue {
 		// Unprefixed (1-byte)
 		Nop,

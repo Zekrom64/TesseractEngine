@@ -9,25 +9,52 @@ using Tesseract.Core.Utilities;
 
 namespace Tesseract.Reflection {
 
+	/// <summary>
+	/// A method parser can parse the IL of a method, generating calls to a visitor
+	/// for every instruction parsed.
+	/// </summary>
 	public class MethodParser {
 
+		/// <summary>
+		/// The method the parser targets.
+		/// </summary>
 		public MethodBase Method { get; }
 
+		/// <summary>
+		/// The body of the method.
+		/// </summary>
 		public MethodBody Body { get; }
 
 		private readonly byte[] bytecode;
+
+		/// <summary>
+		/// The raw bytecode of the method.
+		/// </summary>
 		public IReadOnlyList<byte> Bytecode => bytecode;
 
+		/// <summary>
+		/// Creates a method parser that will parse the specified method.
+		/// </summary>
+		/// <param name="method">The method to parse</param>
+		/// <exception cref="ArgumentException">If the specified method cannot be parsed</exception>
+		/// <exception cref="InvalidOperationException">If an error occurs attempting to set up the method for parsing</exception>
 		public MethodParser(MethodBase method) {
 			Method = method;
 			Body = method.GetMethodBody() ?? throw new ArgumentException("Cannot parse abstract method", nameof(method));
 			bytecode = Body.GetILAsByteArray() ?? throw new InvalidOperationException("Could not get method IL");
 		}
 
+		/// <summary>
+		/// Visits the target method using the given visitor.
+		/// </summary>
+		/// <param name="visitor">Visitor which will visit the method</param>
+		/// <exception cref="InvalidOperationException">If an error occurs parsing the method's IL code</exception>
 		public void Visit(IMethodVisitor visitor) {
 			Module module = Method.Module;
+			// ip - Pointer to current instruction, ip2 - Pointer within current instruction
 			int ip = 0, ip2 = ip;
 
+			// Fetches the next opcode
 			OpCodeValue NextOp() {
 				int op = bytecode[ip2++];
 				if (op >= 0xF8) {
@@ -37,14 +64,17 @@ namespace Tesseract.Reflection {
 				return (OpCodeValue)op;
 			}
 
+			// Fetches the next byte
 			byte NextU1() => bytecode[ip2++];
 
+			// Fetches the next ushort
 			ushort NextU2() {
 				ushort u = bytecode[ip2++];
 				u |= (ushort)(bytecode[ip2++] << 8);
 				return u;
 			}
 
+			// Fetches the next int
 			int NextI4() {
 				int i = bytecode[ip2++];
 				i |= bytecode[ip2++] << 8;
@@ -53,18 +83,21 @@ namespace Tesseract.Reflection {
 				return i;
 			}
 
+			// Fetches the next long
 			long NextI8() {
 				long l = NextI4();
 				l |= (long)NextI4() << 32;
 				return l;
 			}
 
+			// Fetches the next type
 			Type NextType() => module.ResolveType(NextI4());
-
+			// Fetches the next method
 			MethodBase NextMethod() => module.ResolveMethod(NextI4())!;
-
+			// Fetches the next field
 			FieldInfo NextField() => module.ResolveField(NextI4())!;
 
+			// While the instruction pointer is below the length keep parsing opcodes
 			while (ip < bytecode.Length) {
 				OpCodeValue op = NextOp();
 				switch (op) {
@@ -731,6 +764,8 @@ namespace Tesseract.Reflection {
 					default:
 						throw new InvalidOperationException($"Unexpected opcode 0x{(int)op:X}@0x{ip:X}");
 				}
+
+				// Update the current instruction pointer
 				ip = ip2;
 			}
 		}

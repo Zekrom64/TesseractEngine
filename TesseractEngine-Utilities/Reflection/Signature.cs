@@ -7,7 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Tesseract.Reflection {
-	
+
+	/// <summary>
+	/// Enumeration of signature calling convention values. See the associated
+	/// <a href="https://referencesource.microsoft.com/#mscorlib/system/reflection/mdimport.cs,580b341d4d1856b6">reference source</a>
+	/// and 
+	/// <a href="https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/metadata/corcallingconvention-enumeration?redirectedfrom=MSDN">MSDN document</a>
+	/// for the meaning of each element.
+	/// </summary>
 	public enum MdSigCallingConvention : byte {
 		Default = 0,
 		C,
@@ -26,6 +33,11 @@ namespace Tesseract.Reflection {
 		FlagExplicitThis = 0x40
 	}
 
+	/// <summary>
+	/// Enumeration of signature element types. See the associated
+	/// <a href="https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/metadata/corelementtype-enumeration?redirectedfrom=MSDN">MSDN document</a>
+	/// for the meaning of each element.
+	/// </summary>
 	public enum CorElementType : byte {
 		End = 0,
 		Void,
@@ -65,6 +77,10 @@ namespace Tesseract.Reflection {
 		Pinned = 0x45
 	}
 
+	/// <summary>
+	/// Enumeration of IL metadata token types. Each token stores its type
+	/// as specified in this enum in the topmost 8 bits of the value.
+	/// </summary>
 	public enum MetadataTokenType {
 		Module = 0x00000000,
 		TypeRef = 0x01000000,
@@ -93,13 +109,23 @@ namespace Tesseract.Reflection {
 		BaseType = 0x72000000
 	}
 
+	/// <summary>
+	/// Record for a function signature. Method signatures can be determined from the <see cref="MethodBase"/> class,
+	/// but calls to function pointers require the raw signature information using this class.
+	/// </summary>
 	public record class Signature {
 
 		// https://www.debugthings.com/2015/10/13/rewriting-il-remotely-part3/
 		// Use this to help decipher the convoluted mess of how signatures are encoded
 
+		/// <summary>
+		/// The calling convention for the function.
+		/// </summary>
 		public MdSigCallingConvention CallConvention { get; init; } = MdSigCallingConvention.Default;
 
+		/// <summary>
+		/// The 'native' calling convention for the function, or null if not specified.
+		/// </summary>
 		public CallingConvention? NativeCallConvention => 
 			(CallConvention & (MdSigCallingConvention)0xF) switch {
 				MdSigCallingConvention.C => (CallingConvention?)CallingConvention.Cdecl,
@@ -109,14 +135,28 @@ namespace Tesseract.Reflection {
 				_ => null,
 			};
 
+		/// <summary>
+		/// The list of argument types for the function.
+		/// </summary>
 		public IReadOnlyList<Type> ArgumentTypes { get; init; } = Array.Empty<Type>();
 
+		/// <summary>
+		/// The return type of the function.
+		/// </summary>
 		public Type ReturnType { get; init; } = typeof(void);
 
+		/// <summary>
+		/// Parses a signature from a binary blob in the context of the given module.
+		/// </summary>
+		/// <param name="module">The module the signature is being loaded from</param>
+		/// <param name="sigdata">The binary signature data</param>
+		/// <returns>Parsed signature</returns>
+		/// <exception cref="InvalidOperationException">If an error occurs parsing the signature data</exception>
 		public static Signature Parse(Module module, in ReadOnlySpan<byte> sigdata) {
 			MdSigCallingConvention cc = (MdSigCallingConvention)sigdata[0];
 			int ptr = 1;
 
+			// Reads the next packed integer from the data
 			int NextPackInt32(in ReadOnlySpan<byte> dat) {
 				int i = dat[ptr++];
 				if ((i & 0x80) != 0) {
@@ -134,6 +174,7 @@ namespace Tesseract.Reflection {
 				return i;
 			}
 
+			// Reads the next type via a token
 			Type NextTypeToken(in ReadOnlySpan<byte> dat) {
 				int rid = NextPackInt32(dat);
 				int mode = rid & 0x3;
@@ -155,6 +196,7 @@ namespace Tesseract.Reflection {
 				return module.ResolveType(rid);
 			}
 
+			// Reads the next type using a CorElementType expression
 			Type NextCorType(in ReadOnlySpan<byte> dat) {
 				CorElementType et = (CorElementType)dat[ptr++];
 				switch (et) {
@@ -238,17 +280,22 @@ namespace Tesseract.Reflection {
 				throw new InvalidOperationException($"Unrecognized CorElementType 0x{et:X}");
 			}
 
+			// Parse generic paramter count (currently unused but the data must be read)
 			int genericParamCount = 0;
 			if ((cc & MdSigCallingConvention.FlagGeneric) != 0)
 				genericParamCount = NextPackInt32(sigdata);
 
+			// Read the number of parameters
 			int paramCount = NextPackInt32(sigdata);
 
+			// Read the return type
 			Type returnType = NextCorType(sigdata);
 
+			// Read the parameter types
 			List<Type> paramTypes = new(paramCount);
 			for (int i = 0; i < paramCount; i++) paramTypes.Add(NextCorType(sigdata));
 			
+			// Construct the signature
 			return new Signature() {
 				CallConvention = cc,
 				ArgumentTypes = paramTypes,
