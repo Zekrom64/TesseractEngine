@@ -34,8 +34,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-AL", "Tesse
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui", "TesseractEngine-ImGui\TesseractEngine-ImGui.csproj", "{1CBD56D7-57BD-4D92-872B-9D1B44054154}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-Engine2D", "TesseractEngine-Engine2D\TesseractEngine-Engine2D.csproj", "{7166552D-E01E-498A-BAA8-29FD79C922EB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TesseractEngine-ImGui-CLI", "TesseractEngine-ImGui-CLI\TesseractEngine-ImGui-CLI.vcxproj", "{A2941801-C897-4DBF-9774-B6F193521427}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-SDL2", "TesseractEngine-ImGui-SDL2\TesseractEngine-ImGui-SDL2.csproj", "{13EAB341-B99F-41E7-A8A1-2C74C47F9C17}"
@@ -276,18 +274,6 @@ Global
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|x64.Build.0 = Release|Any CPU
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|x86.ActiveCfg = Release|Any CPU
 		{1CBD56D7-57BD-4D92-872B-9D1B44054154}.Release|x86.Build.0 = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|x64.Build.0 = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Debug|x86.Build.0 = Debug|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|x64.ActiveCfg = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|x64.Build.0 = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|x86.ActiveCfg = Release|Any CPU
-		{7166552D-E01E-498A-BAA8-29FD79C922EB}.Release|x86.Build.0 = Release|Any CPU
 		{A2941801-C897-4DBF-9774-B6F193521427}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{A2941801-C897-4DBF-9774-B6F193521427}.Debug|Any CPU.Build.0 = Debug|x64
 		{A2941801-C897-4DBF-9774-B6F193521427}.Debug|x64.ActiveCfg = Debug|x64

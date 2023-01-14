@@ -11,41 +11,17 @@ namespace Tesseract.Core.Native {
 
 	/// <summary>
 	/// A primitive handle is an object whose native representation is that
-	/// of a handle of a simple primitive type. This interface is the non-generic form
-	/// which only provides a method to write the handle to memory.
-	/// <seealso cref="IPrimitiveHandle{T}"/>
-	/// </summary>
-	public interface IPrimitiveHandle {
-
-		public void WritePrimitiveHandle(IntPtr ptr) { }
-
-	}
-
-	/// <summary>
-	/// A primitive handle is an object whose native representation is that
 	/// of a handle of a simple primitive type.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IPrimitiveHandle<T> : IPrimitiveHandle where T : unmanaged {
+	public interface IPrimitiveHandle<T> where T : unmanaged {
 
 		/// <summary>
 		/// The primitive handle value.
 		/// </summary>
 		public T PrimitiveHandle { get; }
 
-		void IPrimitiveHandle.WritePrimitiveHandle(IntPtr ptr) => MemoryUtil.WriteUnmanaged(ptr, PrimitiveHandle);
-
 	}
-
-	/*
-	public interface IBlittable {
-
-		public void WriteToMemory(IntPtr ptr);
-
-		public void ReadFromMemory(IntPtr ptr);
-
-	}
-	*/
 
 	/// <summary>
 	/// Provides utilities for interacting with native memory.
@@ -134,79 +110,6 @@ namespace Tesseract.Core.Native {
 		/// <param name="ptr"></param>
 		/// <param name="value"></param>
 		public static unsafe void WriteUnmanaged<T>(IntPtr ptr, T value) where T : unmanaged { unsafe { *(T*)ptr = value; } }
-
-		/* TODO: Wait for more consideration on the need and practicality of a reader/writer system for complex types
-		public interface IReaderWriter {
-
-			public object ReadRaw(IntPtr ptr);
-
-			public void WriteRaw(object value, IntPtr ptr);
-
-		}
-
-		public struct ReaderWriter<T> : IReaderWriter where T : struct {
-
-			public Func<IntPtr, T> Reader { get; init; }
-
-			public Action<T, IntPtr> Writer { get; init; }
-
-			public object ReadRaw(IntPtr ptr) => Reader(ptr);
-
-			public void WriteRaw(object value, IntPtr ptr) => Writer((T)value, ptr);
-		}
-
-		// Cache of reader/writer objects for different types
-		private static readonly Dictionary<Type, object> rwcache = new();
-
-		/// <summary>
-		/// Gets a <see cref="ReaderWriter{T}"/> instance for the given type.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static ReaderWriter<T> GetReaderWriter<T>() where T : struct {
-			Type type = typeof(T);
-			lock (rwcache) {
-				if (rwcache.TryGetValue(type, out object rw)) return (ReaderWriter<T>)rw;
-				else {
-					ReaderWriter<T> readwrite;
-					if (type.IsEnum) { // For enum types
-						// Get the underlying type
-						Type enumType = type.GetEnumUnderlyingType();
-						// Get the raw reader/writer for the type
-						IReaderWriter etrw = (IReaderWriter)rwcache[enumType];
-						// Initialize the new reader/writer using the raw version and casting
-						readwrite = new() {
-							Reader = ptr => (T)etrw.ReadRaw(ptr),
-							Writer = (val, ptr) => etrw.WriteRaw(val, ptr)
-						};
-					} else if (type.IsSubclassOf(typeof(IPrimitiveHandle))) { // For IPrimitiveHandle objects
-						// Cannot read, but can use the writer method of the class
-						readwrite = new() {
-							Reader = ptr => throw new InvalidOperationException("Cannot read primitive handle value"),
-							Writer = (val, ptr) => ((IPrimitiveHandle)val).WritePrimitiveHandle(ptr)
-						};
-					} else if (type.IsSubclassOf(typeof(IBlittable))) { // For IBlittable objects
-						// The reader/writer will call the methods on the object
-						readwrite = new() {
-							Reader = ptr => {
-								T t = new();
-								((IBlittable)t).ReadFromMemory(ptr);
-								return t;
-							},
-							Writer = (val, ptr) => ((IBlittable)val).WriteToMemory(ptr)
-						};
-					} else {
-						readwrite = new() {
-							Reader = ptr => Marshal.PtrToStructure<T>(ptr),
-							Writer = (val, ptr) => Marshal.StructureToPtr(val, ptr, false)
-						};
-					}
-					rwcache[type] = readwrite;
-					return readwrite;
-				}
-			}
-		}
-		*/
 
 		// Span <-> Pointer Copying
 

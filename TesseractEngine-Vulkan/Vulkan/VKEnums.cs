@@ -1368,11 +1368,31 @@ namespace Tesseract.Vulkan {
 		Occlusion = 0,
 		PipelineStatistics = 1,
 		Timestamp = 2,
+		// VK_KHR_video_queue
+		ResultStatusOnlyKHR = 1000023000,
+		// VK_EXT_transform_feedback
 		TransformFeedbackStreamEXT = 1000028004,
+		// VK_KHR_performance_query
 		PerformanceQueryKHR = 1000116000,
-		AccelerationStructureCompactedSizeKHR = 1000165000,
-		AccelerationStructureSerializationSizeKHR = 1000150000,
-		PerformanceQueryINTEL = 1000210000
+		// VK_KHR_acceleration_structure
+		AccelerationStructureCompactedSizeKHR = 1000150000,
+		AccelerationStructureSerializationSizeKHR = 1000150001,
+		// VK_NV_ray_tracing
+		AccelerationStructureCompactedSizeNV = 1000165000,
+		// VK_INTEL_performance_query
+		PerformanceQueryINTEL = 1000210000,
+		// VK_KHR_video_encode_queue
+		VideoEncodeBitstreamBufferRangeKHR = 1000299000,
+		// VK_EXT_mesh_shader
+		MeshPrimitivesGeneratedEXT = 1000328000,
+		// VK_EXT_primitives_generated_query
+		PrimitivesGeneratedEXT = 1000382000,
+		// VK_KHR_ray_tracing_maintenance1
+		AccelerationStructureSerializationBottomLevelPointersKHR = 1000386000,
+		AccelerationStructureSizeKHR = 1000386001,
+		// VK_EXT_opacity_micromap
+		MicromapSerializationSizeEXT = 1000396000,
+		MicromapCompactedSizeEXT = 1000396001
 	}
 
 	public enum VKSharingMode : int {
@@ -1522,6 +1542,7 @@ namespace Tesseract.Vulkan {
 		ReverseSubtract = 2,
 		Min = 3,
 		Max = 4,
+		// VK_EXT_blend_operation_advanced
 		ZeroEXT = 1000148000,
 		SrcEXT = 1000148001,
 		DstEXT = 1000148002,
@@ -1580,6 +1601,22 @@ namespace Tesseract.Vulkan {
 		StencilCompareMask = 6,
 		StencilWriteMask = 7,
 		StencilReference = 8,
+		// Vulkan 1.3
+		CullMode = 1000267000,
+		FrontFace,
+		PrimitiveTopology,
+		ViewportWithCount,
+		ScissorWithCount,
+		VertexInputBindingStride,
+		DepthTestEnable,
+		DepthWriteEnable,
+		DepthCompareOp,
+		DepthBoundsTestEnable,
+		StencilTestEnable,
+		StencilOp,
+		RasterizerDiscardEnable = 1000377001,
+		DepthBiasEnable,
+		PrimitiveRestartEnable = 1000377004,
 		// VK_NV_clip_space_w_scaling
 		ViewportWScalingNV = 1000087000,
 		// VK_EXT_discard_rectangles
@@ -1597,35 +1634,52 @@ namespace Tesseract.Vulkan {
 		FragmentShadingRate = 1000226000,
 		// VK_EXT_line_rasterization
 		LineStippleEXT = 1000259000,
-		// VK_EXT_extended_dynamic_state
-		CullModeEXT = 1000267000,
-		FrontFaceEXT,
-		PrimitiveTopologyEXT,
-		ViewportWithCountEXT,
-		ScissorWithCountEXT,
-		VertexInputBindingStrideEXT,
-		DepthTestEnableEXT,
-		DepthWriteEnableEXT,
-		DepthCompareOpEXT,
-		DepthBoundsTestEnableEXT,
-		StencilTestEnableEXT,
-		StencilOpEXT,
 		// VK_EXT_vertex_input_dynamic_state
 		VertexInputEXT = 1000352000,
 		// VK_EXT_extended_dynamic_state2
 		PatchControlPointsEXT = 1000377000,
-		RasterizerDiscardEnableEXT,
-		DepthBiasEnableEXT,
-		LogicOpEXT,
-		PrimitiveRestartEnableEXT,
+		LogicOpEXT = 1000377003,
 		// VK_EXT_color_write_enable
-		ColorWriteEnableEXT = 1000381000
+		ColorWriteEnableEXT = 1000381000,
+		// VK_EXT_extended_dynamic_state3
+		TessellationDomainOriginEXT = 1000455002,
+		DepthClampEnableEXT,
+		PolygonModeEXT,
+		RasterizationSamplesEXT,
+		SampleMaskEXT,
+		AlphaToCoverageEnableEXT,
+		AlphaToOneEnableEXT,
+		LogicOpEnableEXT,
+		ColorBlendEnableEXT,
+		ColorBlendEquationEXT,
+		ColorWriteMaskEXT,
+		RasterizationStreamEXT,
+		ConservativeRasterizationModeEXT,
+		ExtraPrimitiveOverestimationSizeEXT,
+		DepthClipEnableEXT,
+		SampleLocationsEnableEXT,
+		ColorBlendAdvancedEXT,
+		ProvokingVertexModeEXT,
+		LineRasterizationModeEXT,
+		LineStippleEnableEXT,
+		DepthClipNegativeOneToOneEXT,
+		ViewportWScalingEnableNV,
+		ViewportSwizzleNV,
+		CoverageToColorEnableNV,
+		CoverageToColorLocationNV,
+		CoverageModulationModeNV,
+		CoverageModulationTableEnableNV,
+		CoverageModulationTableNV,
+		ShadingRateImageEnableNV,
+		RepresentativeFragmentTestEnableNV,
+		ConverageReductionModeNV
 	}
 
 	public enum VKFilter : int {
 		Nearest = 0,
 		Linear = 1,
-		CubicIMG = 1000015000
+		// VK_EXT_filter_cubic
+		CubicEXT = 1000015000
 	}
 
 	public enum VKSamplerMipmapMode : int {
@@ -1648,6 +1702,7 @@ namespace Tesseract.Vulkan {
 		IntOpaqueBlack = 3,
 		FloatOpaqueWhite = 4,
 		IntOpaqueWhite = 5,
+		// VK_EXT_custom_border_color
 		FloatCustomEXT = 1000287003,
 		IntCustomEXT = 1000287004
 	}
@@ -1664,27 +1719,41 @@ namespace Tesseract.Vulkan {
 		UniformBufferDynamic = 8,
 		StorageBufferDynamic = 9,
 		InputAttachment = 10,
-		InlineUniformBlockEXT = 1000138000,
-		AccelerationStructureKHR = 1000165000
+		// Vulkan 1.3
+		InlineUniformBlock = 1000138000,
+		// VK_KHR_acceleration_structure
+		AccelerationStructureKHR = 1000150000,
+		// VK_NV_ray_tracing
+		AccelerationStructureNV = 1000165000,
+		// VK_QCOM_image_processing
+		SampleWeightImageQCOM = 1000440000,
+		BlockMatchImageQCOM = 1000440001,
+		// VK_EXT_mutable_descriptor_type
+		MutableEXT = 1000351000
 	}
 
 	public enum VKAttachmentLoadOp : int {
 		Load = 0,
 		Clear = 1,
-		DontCare = 2
+		DontCare = 2,
+		// VK_EXT_load_store_op_none
+		NoneEXT = 1000400000
 	}
 
 	public enum VKAttachmentStoreOp : int {
 		Store = 0,
 		DontCare = 1,
-		// Vulkan 1.3
+		// Vulkan 1.3 or VK_KHR_dynamic_rendering or VK_QCOM_render_pass_store_ops or VK_EXT_load_store_op_none
 		None = 1000301000
 	}
 
 	public enum VKPipelineBindPoint : int {
 		Graphics = 0,
 		Compute = 1,
-		RayTracingKHR = 1000165000
+		// VK_KHR_ray_tracing_pipeline
+		RayTracingKHR = 1000165000,
+		// VK_HUAWEI_subpass_shading
+		SubpassShadingHUAWEI = 1000369003
 	}
 
 	public enum VKCommandBufferLevel : int {
@@ -1695,7 +1764,9 @@ namespace Tesseract.Vulkan {
 	public enum VKIndexType : int {
 		UInt16 = 0,
 		UInt32 = 1,
+		// VK_KHR_acceleration_structure
 		NoneKHR = 1000165000,
+		// VK_EXT_index_type_uint8
 		UInt8EXT = 1000265000
 	}
 
@@ -1731,20 +1802,46 @@ namespace Tesseract.Vulkan {
 		DescriptorSet = 23,
 		Framebuffer = 24,
 		CommandPool = 25,
+		// Vulkan 1.1
 		SamplerYCbCrConversion = 1000156000,
 		DescriptorUpdateTemplate = 1000085000,
+		// Vulkan 1.3
+		PrivateDataSlot = 1000295000,
+		// VK_KHR_surface
 		SurfaceKHR = 1000000000,
+		// VK_KHR_swapchain
 		SwapchainKHR = 1000001000,
+		// VK_KHR_display
 		DisplayKHR = 1000002000,
 		DisplayModeKHR = 1000002001,
+		// VK_EXT_debug_report
 		DebugReportCallbackEXT = 1000011000,
+		// VK_KHR_video_queue
+		VideoSessionKHR = 1000023000,
+		VideoSessionParametersKHR = 1000023001,
+		// VK_NVX_binary_import
+		CUModuleNVX = 1000029000,
+		CUFunctionNVX = 1000029001,
+		// VK_EXT_debug_utils
 		DebugUtilsMessengerEXT = 1000128000,
-		AccelerationStructureKHR = 1000165000,
+		// VK_KHR_acceleration_structure
+		AccelerationStructureKHR = 1000150000,
+		// VK_EXT_validation_cache
 		ValidationCacheEXT = 1000160000,
+		// VK_NV_ray_tracing
+		AccelerationStructureNV = 1000165000,
+		// VK_INTEL_performance_query
 		PerformanceConfigurationINTEL = 1000210000,
+		// VK_KHR_deferred_host_operations
 		DeferredOperationKHR = 1000268000,
+		// VK_NV_device_generated_commands
 		IndirectCommandsLayoutNV = 1000277000,
-		PrivateDataSlotEXT = 1000295000
+		// VK_FUCHSIA_buffer_collection
+		BufferCollectionFUCHSIA = 1000366000,
+		// VK_EXT_opacity_micromap
+		MicromapEXT = 1000396000,
+		// VK_NV_optical_flow
+		OpticalFlowSessionNV = 1000464000
 	}
 
 	public enum VKVendorID : int {
@@ -1761,7 +1858,10 @@ namespace Tesseract.Vulkan {
 	}
 
 	[Flags]
-	public enum VKInstanceCreateFlagBits : VKFlags { }
+	public enum VKInstanceCreateFlagBits : VKFlags {
+		// VK_KHR_portability_enumeration
+		EnumeratePortabilityKHR = 0x00000001
+	}
 
 	[Flags]
 	public enum VKFormatFeatureFlagBits : VKFlags {
@@ -1778,6 +1878,7 @@ namespace Tesseract.Vulkan {
 		BlitSrc = 0x00000400,
 		BlitDst = 0x00000800,
 		SampledImageFilterLinear = 0x00001000,
+		// Vulkan 1.1
 		TransferSrc = 0x00004000,
 		TransferDst = 0x00008000,
 		MidpointChromaSamples = 0x00020000,
@@ -1787,10 +1888,22 @@ namespace Tesseract.Vulkan {
 		SampledImageYCbCrConversionChromaReconstructionExplicitForceable = 0x00200000,
 		Disjoint = 0x00400000,
 		CositedChromaSamples = 0x00800000,
+		// Vulkan 1.2
 		SampledImageFitlerMinmax = 0x00010000,
+		// VK_KHR_video_decode_queue
+		VideoDecodeOutputKHR = 0x2000000,
+		VideoDecodeDPBKHR = 0x04000000,
+		// VK_KHR_acceleration_structure
+		AccelerationStructureVertexBufferKHR = 0x20000000,
+		// VK_EXT_filter_cubic
 		SampledImageFilterCubicIMG = 0x00002000,
-		AccelerationStructureVertexBufferKHR = 0x10000000,
-		FragmentDensityMapEXT = 0x01000000
+		// VK_EXT_fragment_density_map
+		FragmentDensityMapEXT = 0x01000000,
+		// VK_KHR_fragment_shading_rate
+		FragmentShadingRateAttachmentKHR = 0x40000000,
+		// VK_KHR_video_encode_queue
+		VideoEncodeInputKHR = 0x08000000,
+		VideoEncodeDPBKHR = 0x10000000,
 	}
 
 	[Flags]
@@ -1803,8 +1916,25 @@ namespace Tesseract.Vulkan {
 		DepthStencilAttachment = 0x00000020,
 		TransientAttachment = 0x00000040,
 		InputAttachment = 0x00000080,
-		ShadingRateImageNV = 0x00000100,
-		FragmentDensityMapEXT = 0x00000200
+		// VK_KHR_video_decode_queue
+		VideoDecodeDstKHR = 0x00000400,
+		VideoDecodeSrcKHR = 0x00000800,
+		VideoDecodeDPB_KHR = 0x00001000,
+		// VK_EXT_fragment_density_map
+		FragmentDensityMapEXT = 0x00000200,
+		// VK_KHR_fragment_shading_rate
+		ShadingRateAttachmentKHR = 0x00000100,
+		// VK_KHR_video_encode_queue
+		VideoEncodeDstKHR = 0x00002000,
+		VideoEncodeSrcKHR = 0x00004000,
+		VideoEncodeDPB_KHR = 0x00008000,
+		// VK_EXT_attachment_feedback_loop_layout
+		AttachmentFeedbackLoopBitEXT = 0x00080000,
+		// VK_HUAWEI_invocation_mask
+		InvocationMaskHUAWEI = 0x00040000,
+		// VK_QCOM_image_processing
+		SampleWeightQCOM = 0x00100000,
+		SampleBlockMatchQCOM = 0x00200000
 	}
 
 	[Flags]
@@ -1814,6 +1944,7 @@ namespace Tesseract.Vulkan {
 		SparseAliased = 0x00000004,
 		MutableFormat = 0x00000008,
 		CubeCompatible = 0x00000010,
+		// Vulkan 1.1
 		Alias = 0x00000400,
 		SplitInstanceBindRegions = 0x00000040,
 		Create2DArrayCompatible = 0x00000020,
@@ -1821,9 +1952,20 @@ namespace Tesseract.Vulkan {
 		ExtendedUsage = 0x00000100,
 		Protected = 0x00000800,
 		Disjoint = 0x00000200,
+		// VK_NV_corner_sampled_image
 		CornerSampledNV = 0x00002000,
+		// VK_EXT_sample_locations
 		SampleLocationsCompatibleDepthEXT = 0x00001000,
-		SubsampledEXT = 0x00004000
+		// VK_EXT_fragment_density_map
+		SubsampledEXT = 0x00004000,
+		// VK_EXT_descriptor_buffer
+		DescriptorBufferCaptureReplayEXT = 0x00010000,
+		// VK_EXT_multisampled_render_to_single_sampled
+		MultisampledRenderToSingleSampledEXT = 0x00040000,
+		// VK_EXT_image_2d_view_of_3d
+		_2DViewCompatibleEXT = 0x00020000,
+		// VK_QCOM_fragment_density_map_offset
+		FragmentDensityMapOffsetQCOM = 0x00008000
 	}
 
 	[Flags]
@@ -1843,7 +1985,12 @@ namespace Tesseract.Vulkan {
 		Compute = 0x00000002,
 		Transfer = 0x00000004,
 		SparseBinding = 0x00000008,
-		Protected = 0x00000010
+		// Vulkan 1.1
+		Protected = 0x00000010,
+		// VK_KHR_video_decode_queue
+		VideoDecodeKHR = 0x00000020,
+		// VK_KHR_video_encode_queue
+		VideoEncodeKHR = 0x00000040
 	}
 
 	[Flags]
@@ -1853,14 +2000,19 @@ namespace Tesseract.Vulkan {
 		HostCoherent = 0x00000004,
 		HostCached = 0x00000008,
 		LazilyAllocated = 0x00000010,
-		ProtectedBit = 0x00000020,
+		// Vulkan 1.1
+		Protected = 0x00000020,
+		// VK_AMD_device_coherent_memory
 		DeviceCoherentAMD = 0x00000040,
-		DeviceUncachedAMD = 0x00000080
+		DeviceUncachedAMD = 0x00000080,
+		// VK_NV_external_memory_rdma
+		RDMACapableNV = 0x00000100
 	}
 
 	[Flags]
 	public enum VKMemoryHeapFlagBits : VKFlags {
 		DeviceLocal = 0x00000001,
+		// Vulkan 1.1
 		MultiInstance = 0x00000002
 	}
 
@@ -1891,15 +2043,24 @@ namespace Tesseract.Vulkan {
 		Host = 0x00004000,
 		AllGraphics = 0x00008000,
 		AllCommands = 0x00010000,
+		// Vulkan 1.3
+		None = 0,
+		// VK_EXT_transform_feedback
 		TransformFeedbackEXT = 0x01000000,
+		// VK_EXT_conditional_rendering
 		ConditionalRenderingEXT = 0x00040000,
+		// VK_KHR_acceleration_structure
+		AccelerationStructureBuildKHR = 0x02000000,
 		RayTracingShaderKHR = 0x00200000,
-		AccelerationStructureBuildKHR = 0x002000000,
-		ShadingRateImageNV = 0x00400000,
-		TaskShaderNV = 0x00080000,
-		MeshShaderNV = 0x00100000,
+		// VK_EXT_fragment_density_map
 		FragmentDensityProcessEXT = 0x00800000,
-		CommandPreProcessNV = 0x00020000
+		// VK_KHR_fragment_shading_rate
+		ShadingRateAttachmentKHR = 0x00400000,
+		// VK_NV_device_generated_commands
+		CommandPreProcessNV = 0x00020000,
+		// VK_EXT_mesh_shader
+		TaskShaderEXT = 0x00080000,
+		MeshShaderEXT = 0x00100000
 	}
 
 	[Flags]
@@ -1911,13 +2072,17 @@ namespace Tesseract.Vulkan {
 		Depth = 0x00000002,
 		Stencil = 0x00000004,
 		Metadata = 0x000000008,
+		// Vulkan 1.1
 		Plane0 = 0x00000010,
 		Plane1 = 0x00000020,
 		Plane2 = 0x00000040,
+		// Vulkan 1.3
+		None = 0,
+		// VK_EXT_image_frm_format_modifier
 		MemoryPlane0EXT = 0x00000080,
 		MemoryPlane1EXT = 0x00000100,
 		MemoryPlane2EXT = 0x00000200,
-		MemoryPlane3EXT = 0x00000400
+		MemoryPlane3EXT = 0x00000400,
 	}
 
 	[Flags]
@@ -1989,11 +2154,31 @@ namespace Tesseract.Vulkan {
 		IndexBuffer = 0x00000040,
 		VertexBuffer = 0x00000080,
 		IndirectBuffer = 0x00000100,
+		// Vulkan 1.2
 		ShaderDeviceAddress = 0x00020000,
+		// VK_KHR_video_decode_queue
+		VideoDecodeSrcKHR = 0x00002000,
+		VideoDecodeDstKHR = 0x00004000,
+		// VK_EXT_transform_feedback
 		TransformFeedbackBufferEXT = 0x00000800,
 		TransformFeedbackCounterBufferEXT = 0x00001000,
+		// VK_EXT_conditional_rendering
 		ConditionalRenderingEXT = 0x00000200,
-		RayTracingKHR = 0x00000400
+		// VK_KHR_acceleration_structure
+		AccelerationStructureBuildInputReadOnlyKHR = 0x00080000,
+		AccelerationStructureStorageKHR = 0x00100000,
+		// VK_KHR_ray_tracing_pipeline
+		ShaderBindingTableKHR = 0x00000400,
+		// VK_KHR_video_encode_queue
+		VideoEncodeDstKHR = 0x00008000,
+		VideoEncodeSrcKHR = 0x00010000,
+		// VK_EXT_descriptor_buffer
+		SamplerDescriptorBufferEXT = 0x00200000,
+		ResourceDescriptorBufferEXT = 0x00400000,
+		PushDescriptorsDescriptorBufferEXT = 0x04000000,
+		// VK_EXT_opacity_micromap
+		MicromapBuildInputReadOnlyEXT = 0x00800000,
+		MicromapStorageEXT = 0x01000000
 	}
 
 	[Flags]
@@ -2001,7 +2186,12 @@ namespace Tesseract.Vulkan {
 
 	[Flags]
 	public enum VKImageViewCreateFlagBits : VKFlags {
-		FragmentDensityMapDynamicEXT = 0x00000001
+		// VK_EXT_fragment_density_map
+		FragmentDensityMapDynamicEXT = 0x00000001,
+		// VK_EXT_descriptor_buffer
+		DescriptorBufferCaptureReplayEXT = 0x00000004,
+		// VK_EXT_fragment_density_map2
+		FragmentDensityMapDeferredEXT = 0x00000002
 	}
 
 	[Flags]
@@ -2009,6 +2199,7 @@ namespace Tesseract.Vulkan {
 
 	[Flags]
 	public enum VKPipelineCacheCreateFlagBits : VKFlags {
+		// Vulkan 1.3
 		ExternallySynchronizedEXT = 0x00000001
 	}
 
@@ -2017,27 +2208,55 @@ namespace Tesseract.Vulkan {
 		DisableOptimization = 0x00000001,
 		AllowDerivatives = 0x00000002,
 		Derivative = 0x00000004,
+		// Vulkan 1.1
 		ViewIndexFromDeviceIndex = 0x00000008,
 		DispatchBase = 0x00000010,
+		// Vulkan 1.3
+		FailOnPipelineCompileRequired = 0x00000100,
+		EarlyReturnOnFailure = 0x00000200,
+		// VK_KHR_dynamic_rendering + VK_KHR_fragment_shading_rate
+		RenderingFragmentShadingRateAttachmentKHR = 0x00200000,
+		// VK_KHR_dynamic_rendering + VK_EXT_fragment_density_map
+		REnderingFragmentDensityMapAttachmentKHR = 0x00400000,
+		// VK_KHR_ray_tracing_pipeline
 		RayTracingNoNullAnyHitShadersKHR = 0x00004000,
 		RayTracingNoNullClosestHitShadersKHR = 0x00008000,
 		RayTracingNoNullMissShadersKHR = 0x00010000,
 		RayTracingNoNullIntersectionShadersKHR = 0x00020000,
 		RayTracingSkipTrianglesKHR = 0x00001000,
 		RayTracingSkipAABBsKHR = 0x00002000,
+		RayTracingShaderGroupHandleCaptureReplayKHR = 0x00080000,
+		// VK_NV_ray_tracing
 		DeferCompileNV = 0x00000020,
+		// VK_KHR_pipeline_executable_properties
 		CaptureStatisticsKHR = 0x00000040,
 		CaptureInternalRepresentationsKHR = 0x00000080,
+		// VK_NV_device_generated_commands
 		IndirectBindableNV = 0x00040000,
+		// VK_KHR_pipeline_library
 		LibraryKHR = 0x00000800,
-		FailOnPipelineCompileRequiredEXT = 0x00000100,
-		EarlyReturnOnFailureEXT = 0x00000200
+		// VK_EXT_descriptor_buffer
+		DescriptorBufferEXT = 0x20000000,
+		// VK_EXT_graphics_pipeline_library
+		RetainLinkTimeOptimizationInfoEXT = 0x00800000,
+		LinkTimeOptimizationEXT = 0x00000400,
+		// VK_NV_ray_tracing_motion_blur
+		RayTracingAllowMotionNV = 0x00100000,
+		// VK_EXT_attachment_feedback_loop_layout
+		ColorAttachmentFeedbackLoopEXT = 0x02000000,
+		DepthStencilAttachmentFeedbackLoopEXT = 0x04000000,
+		// VK_EXT_opacity_micromap
+		RayTracingOpacityMicromapEXT = 0x01000000,
+		// VK_EXT_pipeline_protected_access
+		NoProtectedAccessEXT = 0x08000000,
+		ProtectedAccessOnlyEXT = 0x40000000
 	}
 
 	[Flags]
 	public enum VKPipelineShaderStageCreateFlagBits : VKFlags {
-		AllowVaryingSubgroupSizeEXT = 0x00000001,
-		RequireFullSubgroupsEXT = 0x00000002
+		// Vulkan 1.3
+		AllowVaryingSubgroupSize = 0x00000001,
+		RequireFullSubgroups = 0x00000002
 	}
 
 	[Flags]
@@ -2050,14 +2269,16 @@ namespace Tesseract.Vulkan {
 		Compute = 0x00000020,
 		AllGraphics = 0x0000001F,
 		All = 0x7FFFFFFF,
+		// VK_KHR_ray_tracing_pipeline
 		RaygenKHR = 0x00000100,
 		AnyHitKHR = 0x00000200,
 		ClosestHitKHR = 0x00000400,
 		MissKHR = 0x00000800,
 		IntersectionKHR = 0x00001000,
 		CallableKHR = 0x00002000,
-		TaskNV = 0x00000040,
-		MeshNV = 0x00000080
+		// VK_EXT_mesh_shader
+		TaskEXT = 0x00000040,
+		MeshEXT = 0x00000080
 	}
 
 	[Flags]
@@ -2087,10 +2308,17 @@ namespace Tesseract.Vulkan {
 	public enum VKPipelineMultisampleStateCreateFlagBits : VKFlags { }
 
 	[Flags]
-	public enum VKPipelineDepthStencilStateCreateFlagBits : VKFlags { }
+	public enum VKPipelineDepthStencilStateCreateFlagBits : VKFlags {
+		// VK_EXT_rasterization_order_attachment_access
+		RasterizationOrderAttachmentDepthAccessEXT = 0x00000001,
+		RasterizationOrderAttachmentStencilAccessEXT = 0x00000002
+	}
 
 	[Flags]
-	public enum VKPipelineColorBlendStateCreateFlagBits : VKFlags { }
+	public enum VKPipelineColorBlendStateCreateFlagBits : VKFlags {
+		// VK_EXT_rasterization_order_attachment_access
+		RasterizationOrderAttachmentColorAccessEXT = 0x00000001
+	}
 
 	[Flags]
 	public enum VKColorComponentFlagBits : VKFlags {
@@ -2104,24 +2332,44 @@ namespace Tesseract.Vulkan {
 	public enum VKPipelineDynamicStateCreateFlagBits : VKFlags { }
 
 	[Flags]
-	public enum VKPipelineLayoutCreateFlagBits : VKFlags { }
+	public enum VKPipelineLayoutCreateFlagBits : VKFlags {
+		// VK_EXT_graphics_pipeline_library
+		IndependentSetsEXT = 0x00000002	
+	}
 
 	[Flags]
 	public enum VKSamplerCreateFlagBits : VKFlags {
+		// VK_EXT_fragment_density_map
 		SubsampledEXT = 0x00000001,
-		SubsampledCoarseReconstructionEXT = 0x00000002
+		SubsampledCoarseReconstructionEXT = 0x00000002,
+		// VK_EXT_descriptor_buffer,
+		DescriptorBufferCaptureReplayEXT = 0x00000008,
+		// VK_EXT_non_seamless_cube_map
+		NonSeamlessCubeMapEXT = 0x00000004,
+		// VK_QCOM_image_processing
+		ImageProcessingQCOM = 0x00000010
 	}
 
 	[Flags]
 	public enum VKDescriptorSetLayoutCreateFlagBits : VKFlags {
+		// Vulkan 1.2
 		UpdateAfterBindPool = 0x00000002,
-		PushDescriptorKHR = 0x00000001
+		// VK_KHR_push_descriptor
+		PushDescriptorKHR = 0x00000001,
+		// VK_EXT_descriptor_buffer
+		DescriptorBufferEXT = 0x00000010,
+		EmbeddedImmutableSamplersEXT = 0x00000020,
+		// VK_EXT_mutable_descriptor_type
+		HostOnlyPoolEXT = 0x00000004
 	}
 
 	[Flags]
 	public enum VKDescriptorPoolCreateFlagBits : VKFlags {
 		FreeDescriptorSet = 0x00000001,
-		UpdateAfterBind = 0x00000002
+		// Vulkan 1.2
+		UpdateAfterBind = 0x00000002,
+		// VK_EXT_mutable_descriptor_type
+		HostOnlyEXT = 0x00000004
 	}
 
 	[Flags]
@@ -2129,11 +2377,13 @@ namespace Tesseract.Vulkan {
 
 	[Flags]
 	public enum VKFramebufferCreateFlagBits : VKFlags {
+		// Vulkan 1.2
 		Imageless = 0x00000001
 	}
 
 	[Flags]
 	public enum VKRenderPassCreateFlagBits : VKFlags {
+		// VK_QCOM_render_pass_transform
 		TransformQCOM = 0x00000002
 	}
 
@@ -2144,8 +2394,10 @@ namespace Tesseract.Vulkan {
 
 	[Flags]
 	public enum VKSubpassDescriptionFlagBits : VKFlags {
+		// VK_NVX_multiview_per_view_attributes
 		PerViewAttributesNVX = 0x00000001,
 		PerViewPositionXOnlyNVX = 0x00000002,
+		// VK_QCOM_render_pass_shader_resolve
 		FragmentRegionQCOM = 0x00000004,
 		ShaderResolveQCOM = 0x00000008
 	}
@@ -2169,24 +2421,36 @@ namespace Tesseract.Vulkan {
 		HostWrite = 0x00004000,
 		MemoryRead = 0x00008000,
 		MemoryWrite = 0x00010000,
+		// VK_EXT_transform_feedback
 		TransformFeedbackWriteEXT = 0x02000000,
 		TransformFeedbackCounterReadEXT = 0x04000000,
 		TransformFeedbackCounterWriteEXT = 0x08000000,
+		// VK_EXT_conditional_rendering
 		ConditionalRenderingReadEXT = 0x00100000,
+		// VK_EXT_blend_operation_advanced
 		ColorAttachmentReadNonCoherentEXT = 0x00080000,
+		// VK_KHR_acceleration_structure
 		AccelerationStructureReadKHR = 0x00200000,
 		AccelerationStructureWriteKHR = 0x00400000,
-		ShadingRateImageReadNV = 0x00800000,
+		// VK_KHR_fragment_shading_rate
+		ShadingRateAttachmentReadKHR = 0x00800000,
+		// VK_EXT_fragment_density_map
 		FragmentDensityMapReadEXT = 0x01000000,
+		// VK_NV_device_generated_commands
 		CommandPreProcessReadNV = 0x00020000,
-		CommandPreProcessWriteNV = 0x00040000
+		CommandPreProcessWriteNV = 0x00040000,
+		// Vulkan 1.3
+		None = 0
 	}
 
 	[Flags]
 	public enum VKDependencyFlagBits : VKFlags {
 		ByRegion = 0x00000001,
+		// Vulkan 1.1
 		DeviceGroup = 0x0000004,
-		ViewLocal = 0x00000002
+		ViewLocal = 0x00000002,
+		// VK_EXT_attachment_feedback_loop_layout
+		FeedbackLoopEXT = 0x00000008
 	}
 
 	[Flags]

@@ -235,7 +235,7 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Position, out Vector2i newPosition)) position = newPosition;
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
 			}
-			OnWindowSetup?.Invoke(attributes);
+			if (attributes != null) OnWindowSetup?.Invoke(attributes);
 			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
 			if (attributes != null) {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;

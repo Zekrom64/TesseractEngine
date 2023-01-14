@@ -50,13 +50,18 @@ namespace Tesseract.Vulkan {
 		DisplayKHR = 29,
 		DisplayModeKHR = 30,
 		ValidationCacheEXT = 33,
+		// Vulkan 1.1
 		SamplerYCbCrConversion = 1000156000,
 		DescriptorUpdateTemplate = 1000085000,
+		// VK_NVX_binary_import
 		CUModuleNVX = 1000029000,
 		CUFunctionNVX = 1000029001,
+		// VK_KHR_acceleration_structure
 		AccelerationStructureKHR = 1000150000,
+		// VK_NV_ray_tracing
 		AccelerationStructureNV = 1000165000,
-		BufferCollectionFUCHSIA = 1000366000
+		// VK_FUCHSIA_buffer_collection
+		BufferCollectionFUCHSIA = 1000366000,
 	}
 
 	public delegate bool VKDebugReportCallback(VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, [MarshalAs(UnmanagedType.LPUTF8Str)] string layerPrefix, [MarshalAs(UnmanagedType.LPUTF8Str)] string message, IntPtr userData);

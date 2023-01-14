@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Engine2D.Entity {
-	internal class Entity {
+namespace Tesseract.Core.Engine.Input {
+
+	public class InputLayer {
+
 	}
+
 }

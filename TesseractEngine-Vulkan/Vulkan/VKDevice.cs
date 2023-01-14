@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Vulkan.Native;
 using Microsoft.VisualBasic;
+using Tesseract.Core.Utilities;
 
 namespace Tesseract.Vulkan {
 
@@ -80,6 +81,9 @@ namespace Tesseract.Vulkan {
 		public bool KHRZeroInitializeWorkgroupMemory { get; }
 		// Miscellaneous
 		public KHRSwapchainDeviceFunctions? KHRSwapchain { get; }
+		public KHRDeferredHostOperationsFunctions? KHRDeferredHostOperations { get; }
+		public KHRAccelerationStructureFunctions? KHRAccelerationStructure { get; }
+		public KHRRayTracingPipelineFunctions? KHRRayTracingPipeline { get; }
 
 		// EXT Extensions
 		// Vulkan 1.2
@@ -205,6 +209,9 @@ namespace Tesseract.Vulkan {
 
 			// KHR Extensions
 			if (exts.Contains(Vulkan.KHRSwapchain.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRSwapchain = new());
+			if (exts.Contains(Vulkan.KHRDeferredHostOperations.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRDeferredHostOperations = new());
+			if (exts.Contains(Vulkan.KHRAccelerationStructure.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRAccelerationStructure = new());
+			if (exts.Contains(Vulkan.KHRRayTracingPipeline.ExtensionName)) Library.LoadFunctions(GetProcAddr, KHRRayTracingPipeline = new());
 
 			// EXT Extensions
 			EXTCustomBorderColor = exts.Contains(Vulkan.EXTCustomBorderColor.ExtensionName);
@@ -656,6 +663,97 @@ namespace Tesseract.Vulkan {
 				}
 			}
 			return toolProperties;
+		}
+
+		// VK_KHR_deferred_host_operations
+
+		public VKDeferredOperationKHR CreateDeferredOperationKHR(VulkanAllocationCallbacks? allocationCallbacks = null) {
+			VK.CheckError(KHRDeferredHostOperations!.vkCreateDeferredOperationKHR(Device, allocationCallbacks, out ulong deferredOp));
+			return new VKDeferredOperationKHR(this, deferredOp, allocationCallbacks);
+		}
+
+		// VK_KHR_acceleration_structure
+
+		public void BuildAccelerationStructures(in ReadOnlySpan<VKAccelerationStructureBuildGeometryInfoKHR> infos, IReadOnlyList<IPointer<VkAccelerationStructureBuildRangeInfoKHR>> buildRangeInfos, VKDeferredOperationKHR? deferredOperation = null) {
+			Span<IntPtr> pBuildRangeInfos = stackalloc IntPtr[buildRangeInfos.Count];
+			for (int i = 0; i < pBuildRangeInfos.Length; i++) pBuildRangeInfos[i] = buildRangeInfos[i].Ptr;
+			unsafe {
+				fixed(VKAccelerationStructureBuildGeometryInfoKHR* pInfos = infos) {
+					fixed (IntPtr* ppBuildRangeInfos = pBuildRangeInfos) {
+						VK.CheckError(KHRAccelerationStructure!.vkBuildAccelerationStructuresKHR(Device, deferredOperation?.DeferredOperation ?? 0, (uint)infos.Length, (IntPtr)pInfos, (IntPtr)ppBuildRangeInfos));
+					}
+				}
+			}
+		}
+
+		public void CopyAccelerationStructure(in VKCopyAccelerationStructureInfoKHR info, VKDeferredOperationKHR? deferredOperation = null) => VK.CheckError(KHRAccelerationStructure!.vkCopyAccelerationStructureKHR(Device, deferredOperation?.DeferredOperation ?? 0, info));
+
+		public void CopyAccelerationStructureToMemory(in VKCopyAccelerationStructureToMemoryInfoKHR info, VKDeferredOperationKHR? deferredOperation = null) => VK.CheckError(KHRAccelerationStructure!.vkCopyAccelerationStructureToMemoryKHR(Device, deferredOperation?.DeferredOperation ?? 0, info));
+
+		public void CopyMemoryToAccelerationStructure(in VKCopyMemoryToAccelerationStructureInfoKHR info, VKDeferredOperationKHR? deferredOperation = null) => VK.CheckError(KHRAccelerationStructure!.vkCopyMemoryToAccelerationStructureKHR(Device, deferredOperation?.DeferredOperation ?? 0, info));
+
+		public VKAccelerationStructureKHR CreateAccelerationStructure(in VKAccelerationStructureCreateInfoKHR createInfo, VulkanAllocationCallbacks? allocator = null) {
+			VK.CheckError(KHRAccelerationStructure!.vkCreateAccelerationStructureKHR(Device, createInfo, allocator, out ulong accelerationStructure));
+			return new VKAccelerationStructureKHR(accelerationStructure, this, allocator);
+		}
+
+		public void GetAccelerationStructureBuildSizes(VKAccelerationStructureBuildTypeKHR buildType, in VKAccelerationStructureBuildGeometryInfoKHR buildInfo, in ReadOnlySpan<uint> maxPrimitiveCounts, ref VkAccelerationStructureBuildSizesInfoKHR sizeInfo) {
+			unsafe {
+				fixed(uint* pMaxPrimitiveCounts = maxPrimitiveCounts) {
+					KHRAccelerationStructure!.vkGetAccelerationStructureBuildSizesKHR(Device, buildType, buildInfo, (IntPtr)pMaxPrimitiveCounts, ref sizeInfo);
+				}
+			}
+		}
+
+		public ulong GetAccelerationStructureDeviceAddress(in VKAccelerationStructureDeviceAddressInfoKHR info) => KHRAccelerationStructure!.vkGetAccelerationStructureDeviceAddressKHR(Device, info);
+
+		public void GetDeviceAccelerationStructureCompatibility(in VKAccelerationStructureVersionInfoKHR versionInfo, ref VKAccelerationStructureCompatibilityKHR compatibility) => KHRAccelerationStructure!.vkGetDeviceAccelerationStructureCompatibilityKHR(Device, versionInfo, ref compatibility);
+
+		public void WriteAccelerationStructuresProperties(IReadOnlyList<VKAccelerationStructureKHR> accelerationStructures, VKQueryType queryType, int dataSize, IntPtr data, int stride) {
+			Span<ulong> accelStructs = stackalloc ulong[accelerationStructures.Count];
+			for (int i = 0; i < accelStructs.Length; i++) accelStructs[i] = accelerationStructures[i];
+			unsafe {
+				fixed(ulong* pAccelerationStructures = accelStructs) {
+					VK.CheckError(KHRAccelerationStructure!.vkWriteAccelerationStructuresPropertiesKHR(Device, (uint)accelStructs.Length, (IntPtr)pAccelerationStructures, queryType, (nuint)dataSize, data, (nuint)stride));
+				}
+			}
+		}
+
+		public void WriteAccelerationStructuresProperties<T>(IReadOnlyList<VKAccelerationStructureKHR> accelerationStructures, VKQueryType queryType, IPointer<T> data) where T : unmanaged =>
+			WriteAccelerationStructuresProperties(accelerationStructures, queryType, data.ArraySize * Marshal.SizeOf<T>(), data.Ptr, Marshal.SizeOf<T>());
+
+		public void WriteAccelerationStructuresProperties<T>(IReadOnlyList<VKAccelerationStructureKHR> accelerationStructures, VKQueryType queryType, Span<T> data) where T : unmanaged {
+			unsafe {
+				fixed(T* pData = data) {
+					WriteAccelerationStructuresProperties(accelerationStructures, queryType, data.Length * Marshal.SizeOf<T>(), (IntPtr)pData, Marshal.SizeOf<T>());
+				}
+			}
+		}
+
+		// VK_KHR_ray_tracing_pipeline
+
+		public VKPipeline CreateRayTracingPipelines(in VKRayTracingPipelineCreateInfoKHR createInfo, VKDeferredOperationKHR? deferredOperation = null, VKPipelineCache? pipelineCache = null, VulkanAllocationCallbacks? allocator = null) {
+			ulong pipeline = 0;
+			unsafe {
+				fixed (VKRayTracingPipelineCreateInfoKHR* pCreateInfo = &createInfo) {
+					VK.CheckError(KHRRayTracingPipeline!.vkCreateRayTracingPipelinesKHR(Device, deferredOperation, pipelineCache, 1, (IntPtr)pCreateInfo, allocator, (IntPtr)(&pipeline)));
+				}
+			}
+			return new VKPipeline(this, pipeline, allocator);
+		}
+
+		public VKPipeline[] CreateRayTracingPipelines(in ReadOnlySpan<VKRayTracingPipelineCreateInfoKHR> createInfos, VKDeferredOperationKHR? deferredOperation = null, VKPipelineCache? pipelineCache = null, VulkanAllocationCallbacks? allocator = null) {
+			Span<ulong> pipelines = stackalloc ulong[createInfos.Length];
+			unsafe {
+				fixed(VKRayTracingPipelineCreateInfoKHR* pCreateInfos = createInfos) {
+					fixed (ulong* pPipelines = pipelines) {
+						VK.CheckError(KHRRayTracingPipeline!.vkCreateRayTracingPipelinesKHR(Device, deferredOperation, pipelineCache, (uint)createInfos.Length, (IntPtr)pCreateInfos, allocator, (IntPtr)pPipelines));
+					}
+				}
+			}
+			VKPipeline[] vkpipelines = new VKPipeline[pipelines.Length];
+			for(int i = 0; i < pipelines.Length; i++) vkpipelines[i] = new VKPipeline(this, pipelines[i], allocator);
+			return vkpipelines;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

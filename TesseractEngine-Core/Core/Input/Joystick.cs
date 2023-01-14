@@ -1,4 +1,6 @@
-﻿namespace Tesseract.Core.Input {
+﻿using System;
+
+namespace Tesseract.Core.Input {
 
 	public enum GamepadControl {
 		// Buttons
@@ -171,19 +173,35 @@
 		public bool IsGamepad { get; }
 
 		/// <summary>
+		/// The ID of the connected joystick. Joysticks are assigned an ID when connected and use it exclusively
+		/// until they are disconnected. Even if the same joystick is disconnected and reconnected it will be assigned
+		/// a new ID.
+		/// </summary>
+		public int ID { get; }
+
+		/// <summary>
+		/// The index of a joystick as associated with a "player". Unlike <see cref="DeviceIndex"/> which is constant while the
+		/// joystick is connected and may be noncontiguous among all joysticks, the player index may change as joysticks are connected
+		/// and disconnected but will always be a value between 0 and the total number of connected joysticks minus one. Connected joysticks
+		/// will get a player index equal to the current number of joysticks and disconnecting a joystick will shift all other joysticks
+		/// with a higher player index down by one.
+		/// </summary>
+		public int PlayerIndex { get; }
+
+		/// <summary>
 		/// The state of the buttons of the joystick.
 		/// </summary>
-		public bool[] Buttons { get; }
+		public ReadOnlySpan<bool> Buttons { get; }
 
 		/// <summary>
 		/// The state of the axes of the joystick, normalized between ±1.
 		/// </summary>
-		public float[] Axes { get; }
+		public ReadOnlySpan<float> Axes { get; }
 
 		/// <summary>
 		/// The state of the hats of the joystick.
 		/// </summary>
-		public HatState[] Hats { get; }
+		public ReadOnlySpan<HatState> Hats { get; }
 
 	}
 
@@ -199,12 +217,12 @@
 		/// <summary>
 		/// The state of the buttons of the gamepad.
 		/// </summary>
-		public bool[] GamepadButtons { get; }
+		public ReadOnlySpan<bool> GamepadButtons { get; }
 
 		/// <summary>
 		/// The state of the axes of the gamepad, normalized between ±1.
 		/// </summary>
-		public float[] GamepadAxes { get; }
+		public ReadOnlySpan<float> GamepadAxes { get; }
 
 		/// <summary>
 		/// Gets the index of a standard gamepad control. If the control does not
