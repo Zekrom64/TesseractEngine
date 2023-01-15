@@ -111,6 +111,13 @@ namespace Tesseract.Core.Resource {
 		}
 
 		/// <summary>
+		/// Tests if the given file resource exists.
+		/// </summary>
+		/// <param name="file">The resource to test</param>
+		/// <returns>If the resource exists as a file</returns>
+		public abstract bool Exists(ResourceLocation file);
+
+		/// <summary>
 		/// Opens a resource location from this domain as a stream.
 		/// </summary>
 		/// <param name="file">The resource to open as a stream</param>
@@ -152,6 +159,8 @@ namespace Tesseract.Core.Resource {
 
 		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collections<ResourceLocation>.EmptyList;
 
+		public override bool Exists(ResourceLocation file) => false;
+
 		public override ResourceMetadata GetMetadata(ResourceLocation file) => new() { Size = -1, Local = true };
 
 		public override Stream OpenStream(ResourceLocation file) => throw new IOException("Cannot open stream from null resource domain");
@@ -167,7 +176,7 @@ namespace Tesseract.Core.Resource {
 	/// or as only the path and the domain will be inferred from <see cref="ResourceDomain.Current"/>.
 	/// </para>
 	/// </summary>
-	public record struct ResourceLocation {
+	public readonly record struct ResourceLocation {
 
 		/// <summary>
 		/// The domain component of this resource location.
@@ -205,6 +214,11 @@ namespace Tesseract.Core.Resource {
 		/// The metadata of the resource.
 		/// </summary>
 		public ResourceMetadata Metadata => Domain.GetMetadata(this);
+
+		/// <summary>
+		/// If the resource exists as a file.
+		/// </summary>
+		public bool Exists => Domain.Exists(this);
 
 		/// <summary>
 		/// Creates a new resource location from a resource domain and path.

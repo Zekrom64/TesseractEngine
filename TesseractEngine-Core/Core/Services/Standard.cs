@@ -50,6 +50,11 @@ namespace Tesseract.Core.Services {
 		/// </summary>
 		public static readonly IService<ILightSystem> LightSystem = new OpaqueService<ILightSystem>();
 
+		/// <summary>
+		/// The clipboard service.
+		/// </summary>
+		public static readonly IService<IClipboard> Clipboard = new OpaqueService<IClipboard>();
+
 	}
 
 }

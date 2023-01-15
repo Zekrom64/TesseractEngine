@@ -118,5 +118,6 @@ namespace Tesseract.Core.Resource {
 			else return default;
 		}
 
+		public override bool Exists(ResourceLocation file) => resourceCache.ContainsKey(PathPrefix + file.Path);
 	}
 }

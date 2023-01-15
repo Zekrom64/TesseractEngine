@@ -155,7 +155,7 @@ namespace Tesseract.GLFW.Services {
 
 	}
 
-	public class GLFWServiceWindow : IWindow {
+	public class GLFWServiceWindow : IWindow, IClipboard {
 
 		public readonly GLFWWindow Window;
 
@@ -322,11 +322,6 @@ namespace Tesseract.GLFW.Services {
 			}
 		}
 
-		public bool CaptureMouse {
-			get => Window.GetInputMode<GLFWCursorMode>(GLFWInputMode.Cursor) == GLFWCursorMode.Disabled;
-			set => Window.SetInputMode(GLFWInputMode.Cursor, value ? GLFWCursorMode.Disabled : GLFWCursorMode.Normal);
-		}
-
 		public IWindowSurface? Surface => null;
 
 		public Vector2i MousePosition {
@@ -334,6 +329,28 @@ namespace Tesseract.GLFW.Services {
 				Vector2d pos = Window.CursorPos;
 				return new((int)pos.X, (int)pos.Y);
 			}
+		}
+
+		public string? ClipboardText {
+			get => Window.Clipboard;
+			set => Window.Clipboard = value;
+		}
+
+		public Vector2i DrawableSize => Window.FramebufferSize;
+
+		public CursorMode CursorMode {
+			get {
+				return Window.GetInputMode<GLFWCursorMode>(GLFWInputMode.Cursor) switch {
+					GLFWCursorMode.Hidden => CursorMode.Hidden,
+					GLFWCursorMode.Disabled => CursorMode.Locked,
+					_ => CursorMode.Default
+				};
+			}
+			set => Window.SetInputMode(GLFWInputMode.Cursor, value switch {
+				CursorMode.Hidden => GLFWCursorMode.Hidden,
+				CursorMode.Locked => GLFWCursorMode.Disabled,
+				_ => GLFWCursorMode.Normal,
+			});
 		}
 
 		public event Action<Vector2i>? OnResize;
@@ -410,6 +427,11 @@ namespace Tesseract.GLFW.Services {
 		}
 
 		public void StartTextInput() => textInput = true;
+
+		public T? GetService<T>(IService<T> service) where T : notnull {
+			if (service == InputServices.Clipboard) return (T)(object)this;
+			else return ServiceInjector.Lookup(this, service);
+		}
 
 	}
 

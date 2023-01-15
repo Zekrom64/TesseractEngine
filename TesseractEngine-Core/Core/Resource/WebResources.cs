@@ -70,6 +70,11 @@ namespace Tesseract.Core.Resource {
 			HttpClient.Dispose();
 		}
 
+		public override bool Exists(ResourceLocation file) {
+			var areq = HttpClient.GetAsync(URLPrefix + PathPrefix + file.Path);
+			if (!areq.Wait(Timeout)) return false;
+			return areq.Result.IsSuccessStatusCode;
+		}
 	}
 
 }

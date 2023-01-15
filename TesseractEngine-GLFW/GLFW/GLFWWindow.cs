@@ -219,6 +219,11 @@ namespace Tesseract.GLFW {
 			set => GLFW3.Functions.glfwSetDropCallback(Window, value);
 		}
 
+		public string? Clipboard {
+			get => MemoryUtil.GetUTF8(GLFW3.Functions.glfwGetClipboardString(Window));
+			set => GLFW3.Functions.glfwSetClipboardString(Window, value);
+		}
+
 		public void SwapBuffers() => GLFW3.Functions.glfwSwapBuffers(Window);
 
 		public void Dispose() {

@@ -70,6 +70,7 @@ namespace Tesseract.Core.Resource {
 			};
 		}
 
+		public override bool Exists(ResourceLocation file) => File.Exists(ToFilePath(file));
 	}
 
 	/// <summary>
@@ -139,6 +140,7 @@ namespace Tesseract.Core.Resource {
 			archive.Dispose();
 		}
 
+		public override bool Exists(ResourceLocation file) => ToEntry(file) != null;
 	}
 
 }
