@@ -70,6 +70,19 @@ namespace Tesseract.ImGui {
 
 		public ReadOnlySpan<char> GlyphRangesVietnamese { get; }
 
+		public static List<(char, char)> ParseGlyphRange(in ReadOnlySpan<char> glyphRanges) {
+			List<(char, char)> ranges = new(glyphRanges.Length / 2);
+			for (int i = 0; i < glyphRanges.Length; i += 2) ranges.Add((glyphRanges[i], glyphRanges[i + 1]));
+			return ranges;
+		}
+
+		public static List<(char, char)> ConcatGlyphRanges(params IEnumerable<(char, char)>[] ranges) {
+			List<(char, char)> retn = new();
+			foreach(var range in ranges)
+				foreach(var subrange in range) retn.Add(subrange);
+			return retn;
+		}
+
 
 		public int AddCustomRectRegular(int width, int height);
 

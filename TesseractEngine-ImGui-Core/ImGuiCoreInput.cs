@@ -147,6 +147,7 @@ namespace Tesseract.ImGui.Core {
 			}
 
 			window.OnKey += OnKey;
+			window.OnTextInput += OnTextInput;
 			window.OnMouseMove += OnMouseMoved;
 			window.OnMouseButton += OnMouseButton;
 			window.OnMouseWheel += OnMouseWheel;
@@ -169,7 +170,7 @@ namespace Tesseract.ImGui.Core {
 			if (imkey != ImGuiKey.None) GImGui.IO.AddKeyEvent(imkey, key.State);
 		}
 
-
+		private static void OnTextInput(TextInputEvent evt) => GImGui.IO.AddInputCharacters(evt.Text);
 
 		private static void OnMouseMoved(MouseMoveEvent evt) => GImGui.IO.AddMousePosEvent(evt.Position.X, evt.Position.Y);
 
@@ -195,6 +196,7 @@ namespace Tesseract.ImGui.Core {
 		public static void Shutdown() {
 			if (window != null) {
 				window.OnKey -= OnKey;
+				window.OnTextInput -= OnTextInput;
 				window.OnMouseMove -= OnMouseMoved;
 				window.OnMouseButton -= OnMouseButton;
 				window.OnMouseWheel -= OnMouseWheel;

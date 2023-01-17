@@ -233,7 +233,7 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
 			}
 			if (attributes != null) OnWindowSetup?.Invoke(attributes);
-			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
+			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes) | SDLWindowFlags.AllowHighDPI);
 			if (attributes != null) {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;

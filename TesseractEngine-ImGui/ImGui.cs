@@ -477,15 +477,14 @@ namespace Tesseract.ImGui {
 		public static bool VSliderScalar<T>(string label, Vector2 size, ref T data, T min, T max, string? format = null, ImGuiSliderFlags flags = default) where T : unmanaged =>
 			Instance.VSliderScalar<T>(label, size, ref data, min, max, format, flags);
 
-
 		public static bool InputText(string label, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
-			Instance.InputText(label, buf, flags, callback);
+			Instance.InputText(label, buf, flags, callback ?? buf.Callback);
 
 		public static bool InputTextMultiline(string label, ImGuiTextBuffer buf, Vector2 size = default, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
-			Instance.InputTextMultiline(label, buf, size, flags, callback);
+			Instance.InputTextMultiline(label, buf, size, flags, callback ?? buf.Callback);
 
 		public static bool InputTextWithHint(string label, string hint, ImGuiTextBuffer buf, ImGuiInputTextFlags flags = default, ImGuiInputTextCallback? callback = null) =>
-			Instance.InputTextWithHint(label, hint, buf, flags, callback);
+			Instance.InputTextWithHint(label, hint, buf, flags, callback ?? buf.Callback);
 
 		public static bool InputFloat(string label, ref float v, float step = 0, float stepFast = 0, string format = "%.3f", ImGuiInputTextFlags flags = default) =>
 			Instance.InputFloat(label, ref v, step, stepFast, format, flags);
