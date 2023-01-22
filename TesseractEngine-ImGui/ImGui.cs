@@ -367,6 +367,20 @@ namespace Tesseract.ImGui {
 
 		public static bool Combo(string label, ref int currentItem, IImGui.ComboItemsGetter itemsGetter, int itemsCount, int popupMaxHeightInItems = -1) => Instance.Combo(label, ref currentItem, itemsGetter, itemsCount, popupMaxHeightInItems);
 
+		public static bool Combo<T>(string label, ref int currentItem, IReadOnlyList<T> list, Func<T, string>? getter = null, int popupMaxHeightInItems = -1) {
+			getter ??= t => t?.ToString() ?? "null";
+			bool Get(int index, out string str) {
+				if (index < 0 || index >= list.Count) {
+					str = string.Empty;
+					return false;
+				} else {
+					str = getter!(list[index]);
+					return true;
+				}
+			}
+			return Combo(label, ref currentItem, Get, list.Count, popupMaxHeightInItems);
+		}
+
 
 		public static bool DragFloat(string label, ref float v, float vSpeed = 1, float vMin = 0, float vMax = 0, string format = "%.3f", ImGuiSliderFlags flags = default) =>
 			Instance.DragFloat(label, ref v, vSpeed, vMin, vMax, format, flags);
