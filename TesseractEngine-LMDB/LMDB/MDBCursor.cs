@@ -9,7 +9,7 @@ namespace Tesseract.LMDB {
 
 	public class MDBCursor : IDisposable {
 
-		public MDBDBI DBI { get; }
+		public MDBTxn Txn { get; }
 
 		[NativeType("MDB_cursor*")]
 		public IntPtr Cursor { get; private set; }
@@ -26,8 +26,8 @@ namespace Tesseract.LMDB {
 			}
 		}
 
-		public MDBCursor(MDBDBI dbi, IntPtr cursor) {
-			DBI = dbi;
+		public MDBCursor(MDBTxn txn, IntPtr cursor) {
+			Txn = txn;
 			Cursor = cursor;
 		}
 
@@ -54,7 +54,7 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <exception cref="MDBException"></exception>
 		public void Renew() {
-			MDBResult err = MDB.Functions.mdb_cursor_renew(DBI.Txn, Cursor);
+			MDBResult err = MDB.Functions.mdb_cursor_renew(Txn, Cursor);
 			if (err != MDBResult.Success) throw new MDBException("Failed to renew cursor", err);
 		}
 

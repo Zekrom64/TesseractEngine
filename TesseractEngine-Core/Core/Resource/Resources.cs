@@ -106,6 +106,12 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		public string PathPrefix { get; init; } = string.Empty;
 
+		/// <summary>
+		/// If the domain is considered 'writable', such that streams opened via <see cref="OpenStream(ResourceLocation)"/> support
+		/// writing operations and will create the required underlying resource file.
+		/// </summary>
+		public virtual bool Writable { get; } = false;
+
 		protected ResourceDomain(string name) {
 			Name = name;
 		}

@@ -565,15 +565,15 @@ namespace Tesseract.ImGui {
 
 		public static bool TreeNode(string label) => Instance.TreeNode(label);
 
-		public static bool TreeNode(string strID, string fmt) => Instance.TreeNode(strID, fmt);
+		public static bool TreeNode(string strID, string text) => Instance.TreeNode(strID, text);
 
-		public static bool TreeNode(nint ptrID, string fmt) => Instance.TreeNode(ptrID, fmt);
+		public static bool TreeNode(nint ptrID, string text) => Instance.TreeNode(ptrID, text);
 
 		public static bool TreeNodeEx(string label, ImGuiTreeNodeFlags flags = default) => Instance.TreeNodeEx(label, flags);
 
-		public static bool TreeNodeEx(string strID, ImGuiTreeNodeFlags flags, string fmt) => Instance.TreeNodeEx(strID, flags, fmt);
+		public static bool TreeNodeEx(string strID, ImGuiTreeNodeFlags flags, string text) => Instance.TreeNodeEx(strID, flags, text);
 
-		public static bool TreeNodeEx(nint ptrID, ImGuiTreeNodeFlags flags, string fmt) => Instance.TreeNodeEx(ptrID, flags, fmt);
+		public static bool TreeNodeEx(nint ptrID, ImGuiTreeNodeFlags flags, string text) => Instance.TreeNodeEx(ptrID, flags, text);
 
 		public static void TreePush(string strID) => Instance.TreePush(strID);
 
@@ -762,20 +762,28 @@ namespace Tesseract.ImGui {
 		// Legacy Columns API (prefer using Tables!)
 		// - You can also use SameLine(pos_x) to mimic simplified columns.
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static void Columns(int count = 1, string? id = null, bool border = true) => Instance.Columns(count, id, border);
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static void NextColumn() => Instance.NextColumn();
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static int ColumnIndex => Instance.ColumnIndex;
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static float GetColumnWidth(int columnIndex = -1) => Instance.GetColumnWidth(columnIndex);
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static void SetColumnWidth(int columnIndex, float width) => Instance.SetColumnWidth(columnIndex, width);
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static float GetColumnOffset(int columnIndex = -1) => Instance.GetColumnWidth(columnIndex);
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static void SetColumnOffset(int columnIndex, float width) => Instance.SetColumnOffset(columnIndex, width);
 
+		[Obsolete("Prefer to use the Tables API instead")]
 		public static int ColumnsCount => Instance.ColumnsCount;
 
 		// Tab Bars, Tabs

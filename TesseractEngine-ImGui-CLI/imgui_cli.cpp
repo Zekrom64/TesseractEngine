@@ -1,918 +1,30 @@
 #include "imgui.h"
 #include "imgui_cli.h"
+#include "imgui_cli_draw.h"
+#include "imgui_cli_font.h"
+#include "imgui_cli_style.h"
+#include "imgui_cli_io.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Numerics;
 
-namespace Tesseract { namespace CLI { namespace ImGui {
+typedef unsigned char byte;
 
-	ref class ImFontAtlasCLI;
+/* Note: Counterintuitively we use Tesseract::CLI::ImGui instead of Tesseract::ImGui::CLI because
+ * the C++ / CLI compiler is retarded and will override ImGui's C++ types with the managed versions.
+ */
+namespace Tesseract { namespace CLI { namespace ImGui {
 
 	// Globals that CLI doesn't like being in managed types
 	StringParam g_comboGetterText;
 	StringParam g_listBoxText;
-
-	ref class DrawCallbackHolder {
-	public:
-		static initonly DrawCallbackHolder^ Instance = gcnew DrawCallbackHolder();
-
-		List<Tesseract::ImGui::ImDrawCallback^>^ m_callbacks = gcnew List<Tesseract::ImGui::ImDrawCallback^>();
-		Dictionary<Tesseract::ImGui::ImDrawCallback^, UIntPtr>^ m_lookups = gcnew Dictionary<Tesseract::ImGui::ImDrawCallback^, UIntPtr>();
-
-		void* Register(Tesseract::ImGui::ImDrawCallback^ cbk) {
-			UIntPtr value;
-			if (m_lookups->TryGetValue(cbk, value)) return (void*)value;
-			m_callbacks->Add(cbk);
-			uintptr_t idx = m_callbacks->Count;
-			m_lookups->Add(cbk, (UIntPtr)idx);
-			return (void*)idx;
-		}
-
-		Tesseract::ImGui::ImDrawCallback^ Get(void* ptr) {
-			if (ptr == nullptr) return nullptr;
-			uintptr_t iptr = (uintptr_t)ptr;
-			if (iptr <= m_callbacks->Count) return m_callbacks[(int)(iptr - 1)];
-			else return nullptr;
-		}
-
-		void Clear() {
-			m_callbacks->Clear();
-			m_lookups->Clear();
-		}
-	};
-
-	void g_customDrawCallback(const ImDrawList* parentList, const ImDrawCmd* cmd);
 
 	public ref class ImGuiContextCLI : Tesseract::ImGui::IImGuiContext {
 	internal:
 		ImGuiContext* m_context;
 
 		ImGuiContextCLI(ImGuiContext* ctx) : m_context(ctx) {}
-	};
-
-	public ref class ImGuiStyleCLI : Tesseract::ImGui::IImGuiStyle {
-	internal:
-		ImGuiStyle* m_style;
-		bool m_allocd;
-
-		ImGuiStyleCLI() {
-			m_style = new ImGuiStyle();
-			m_allocd = true;
-		}
-
-		ImGuiStyleCLI(ImGuiStyle* style) : m_style(style), m_allocd(false) {}
-
-		~ImGuiStyleCLI() {
-			if (m_allocd) delete m_style;
-		}
-
-	public:
-		virtual property float Alpha {
-			virtual float get() { return m_style->Alpha; }
-			virtual void set(float value) { m_style->Alpha = value; }
-		}
-
-		virtual property float DisabledAlpha {
-			virtual float get() { return m_style->DisabledAlpha; }
-			virtual void set(float value) { m_style->DisabledAlpha = value; }
-		}
-
-		virtual property System::Numerics::Vector2 WindowPadding {
-			virtual Vector2 get() { return Vector2(m_style->WindowPadding.x, m_style->WindowPadding.y); }
-			virtual void set(Vector2 value) { m_style->WindowPadding = { value.X, value.Y }; }
-		}
-
-		virtual property float WindowRounding {
-			virtual float get() { return m_style->WindowRounding; }
-			virtual void set(float value) { m_style->WindowRounding = value; }
-		}
-
-		virtual property float WindowBorderSize {
-			virtual float get() { return m_style->WindowBorderSize; }
-			virtual void set(float value) { m_style->WindowBorderSize = value; }
-		}
-
-		virtual property System::Numerics::Vector2 WindowMinSize {
-			virtual Vector2 get() { return Vector2(m_style->WindowMinSize.x, m_style->WindowMinSize.y); }
-			virtual void set(Vector2 value) { m_style->WindowMinSize = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 WindowTitleAlign {
-			virtual Vector2 get() { return Vector2(m_style->WindowTitleAlign.x, m_style->WindowTitleAlign.y); }
-			virtual void set(Vector2 value) { m_style->WindowTitleAlign = { value.X, value.Y }; }
-		}
-
-		virtual property Tesseract::ImGui::ImGuiDir WindowMenuButtonPosition {
-			virtual Tesseract::ImGui::ImGuiDir get() { return (Tesseract::ImGui::ImGuiDir)m_style->WindowMenuButtonPosition; }
-			virtual void set(Tesseract::ImGui::ImGuiDir value) { m_style->WindowMenuButtonPosition = (ImGuiDir)value; }
-		}
-
-		virtual property float ChildRounding {
-			virtual float get() { return m_style->ChildRounding; }
-			virtual void set(float value) { m_style->ChildRounding = value; }
-		}
-
-		virtual property float ChildBorderSize {
-			virtual float get() { return m_style->ChildBorderSize; }
-			virtual void set(float value) { m_style->ChildBorderSize = value; }
-		}
-
-		virtual property float PopupRounding {
-			virtual float get() { return m_style->PopupRounding; }
-			virtual void set(float value) { m_style->PopupRounding = value; }
-		}
-
-		virtual property float PopupBorderSize {
-			virtual float get() { return m_style->PopupBorderSize; }
-			virtual void set(float value) { m_style->PopupBorderSize = value; }
-		}
-
-		virtual property System::Numerics::Vector2 FramePadding {
-			virtual Vector2 get() { return Vector2(m_style->FramePadding.x, m_style->FramePadding.y); }
-			virtual void set(Vector2 value) { m_style->FramePadding = { value.X, value.Y }; }
-		}
-
-		virtual property float FrameRounding {
-			virtual float get() { return m_style->FrameRounding; }
-			virtual void set(float value) { m_style->FrameRounding = value; }
-		}
-
-		virtual property float FrameBorderSize {
-			virtual float get() { return m_style->FrameBorderSize; }
-			virtual void set(float value) { m_style->FrameBorderSize = value; }
-		}
-
-		virtual property System::Numerics::Vector2 ItemSpacing {
-			virtual Vector2 get() { return Vector2(m_style->ItemSpacing.x, m_style->ItemSpacing.y); }
-			virtual void set(Vector2 value) { m_style->ItemSpacing = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 ItemInnerSpacing {
-			virtual Vector2 get() { return Vector2(m_style->ItemInnerSpacing.x, m_style->ItemInnerSpacing.y); }
-			virtual void set(Vector2 value) { m_style->ItemInnerSpacing = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 CellPadding {
-			virtual Vector2 get() { return Vector2(m_style->CellPadding.x, m_style->CellPadding.y); }
-			virtual void set(Vector2 value) { m_style->CellPadding = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 TouchExtraPadding {
-			virtual Vector2 get() { return Vector2(m_style->TouchExtraPadding.x, m_style->TouchExtraPadding.y); }
-			virtual void set(Vector2 value) { m_style->TouchExtraPadding = { value.X, value.Y }; }
-		}
-
-		virtual property float IndentSpacing {
-			virtual float get() { return m_style->IndentSpacing; }
-			virtual void set(float value) { m_style->IndentSpacing = value; }
-		}
-
-		virtual property float ColumnsMinSpacing {
-			virtual float get() { return m_style->ColumnsMinSpacing; }
-			virtual void set(float value) { m_style->ColumnsMinSpacing = value; }
-		}
-
-		virtual property float ScrollbarSize {
-			virtual float get() { return m_style->ScrollbarSize; }
-			virtual void set(float value) { m_style->ScrollbarSize = value; }
-		}
-
-		virtual property float ScrollbarRounding {
-			virtual float get() { return m_style->ScrollbarRounding; }
-			virtual void set(float value) { m_style->ScrollbarRounding = value; }
-		}
-
-		virtual property float GrabMinSize {
-			virtual float get() { return m_style->GrabMinSize; }
-			virtual void set(float value) { m_style->GrabMinSize = value; }
-		}
-
-		virtual property float GrabRounding {
-			virtual float get() { return m_style->GrabRounding; }
-			virtual void set(float value) { m_style->GrabRounding = value; }
-		}
-
-		virtual property float LogSliderDeadzone {
-			virtual float get() { return m_style->LogSliderDeadzone; }
-			virtual void set(float value) { m_style->LogSliderDeadzone = value; }
-		}
-
-		virtual property float TabRounding {
-			virtual float get() { return m_style->TabRounding; }
-			virtual void set(float value) { m_style->TabRounding = value; }
-		}
-
-		virtual property float TabBorderSize {
-			virtual float get() { return m_style->TabBorderSize; }
-			virtual void set(float value) { m_style->TabBorderSize = value; }
-		}
-
-		virtual property float TabMinWidthForCloseButton {
-			virtual float get() { return m_style->TabMinWidthForCloseButton; }
-			virtual void set(float value) { m_style->TabMinWidthForCloseButton = value; }
-		}
-
-		virtual property Tesseract::ImGui::ImGuiDir ColorButtonPosition {
-			virtual Tesseract::ImGui::ImGuiDir get() { return (Tesseract::ImGui::ImGuiDir)m_style->ColorButtonPosition; }
-			virtual void set(Tesseract::ImGui::ImGuiDir value) { m_style->ColorButtonPosition = (ImGuiDir)value; }
-		}
-
-		virtual property System::Numerics::Vector2 ButtonTextAlign {
-			virtual Vector2 get() { return Vector2(m_style->ButtonTextAlign.x, m_style->ButtonTextAlign.y); }
-			virtual void set(Vector2 value) { m_style->ButtonTextAlign = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 SelectableTextAlign {
-			virtual Vector2 get() { return Vector2(m_style->SelectableTextAlign.x, m_style->SelectableTextAlign.y); }
-			virtual void set(Vector2 value) { m_style->SelectableTextAlign = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 DisplayWindowPadding {
-			virtual Vector2 get() { return Vector2(m_style->DisplayWindowPadding.x, m_style->DisplayWindowPadding.y); }
-			virtual void set(Vector2 value) { m_style->DisplayWindowPadding = { value.X, value.Y }; }
-		}
-
-		virtual property System::Numerics::Vector2 DisplaySafeAreaPadding {
-			virtual Vector2 get() { return Vector2(m_style->DisplaySafeAreaPadding.x, m_style->DisplaySafeAreaPadding.y); }
-			virtual void set(Vector2 value) { m_style->DisplaySafeAreaPadding = { value.X, value.Y }; }
-		}
-
-		virtual property float MouseCursorScale {
-			virtual float get() { return m_style->MouseCursorScale; }
-			virtual void set(float value) { m_style->MouseCursorScale = value; }
-		}
-
-		virtual property bool AntiAliasedLines {
-			virtual bool get() { return m_style->AntiAliasedLines; }
-			virtual void set(bool value) { m_style->AntiAliasedLines = value; }
-		}
-
-		virtual property bool AntiAliasedLinesUseTex {
-			virtual bool get() { return m_style->AntiAliasedLinesUseTex; }
-			virtual void set(bool value) { m_style->AntiAliasedLinesUseTex = value; }
-		}
-
-		virtual property bool AntiAliasedFill {
-			virtual bool get() { return m_style->AntiAliasedFill; }
-			virtual void set(bool value) { m_style->AntiAliasedFill = value; }
-		}
-
-		virtual property float CurveTessellationTol {
-			virtual float get() { return m_style->CurveTessellationTol; }
-			virtual void set(float value) { m_style->CurveTessellationTol = value; }
-		}
-
-		virtual property float CircleTessellationMaxError {
-			virtual float get() { return m_style->CircleTessellationMaxError; }
-			virtual void set(float value) { m_style->CircleTessellationMaxError = value; }
-		}
-
-		virtual property System::Span<System::Numerics::Vector4> Colors {
-			virtual Span<Vector4> get() {
-				return Span<Vector4>((void*)m_style->Colors, sizeof(m_style->Colors) / sizeof(ImVec4));
-			}
-		}
-
-		virtual void ScaleAllSizes(float scaleFactor) {
-			m_style->ScaleAllSizes(scaleFactor);
-		}
-
-	};
-
-	public ref class ImDrawListCLI : public Tesseract::ImGui::IImDrawList {
-	internal:
-		ref class CmdBufferImpl : Tesseract::ImGui::Utilities::CLI::ListBase<Tesseract::ImGui::ImDrawCmd> {
-		internal:
-			ImDrawListCLI^ m_drawlist;
-			ImVector<ImDrawCmd>* m_vec;
-
-			CmdBufferImpl(ImDrawListCLI^ drawlist) : m_drawlist(drawlist), m_vec(&drawlist->m_drawlist->CmdBuffer) {}
-
-			ImDrawCmd* Find(Tesseract::ImGui::ImDrawCmd item) {
-				ImDrawCmd nitem = ConvertCmd(item);
-				ImDrawCmd* itr = m_vec->begin();
-				while (itr != m_vec->end()) {
-					if (!memcmp(itr, &nitem, sizeof(ImDrawCmd)))
-						break;
-				}
-				return itr;
-			}
-
-		public:
-			virtual property int Count {
-				virtual int get() override {
-					return m_vec->Size;
-				}
-			}
-
-			virtual Tesseract::ImGui::ImDrawCmd Get(int index) override {
-				return ConvertCmd(m_vec->operator[](index));
-			}
-
-			virtual void Set(int index, Tesseract::ImGui::ImDrawCmd value) override {
-				m_vec->operator[](index) = ConvertCmd(value);
-			}
-
-			virtual void Add(Tesseract::ImGui::ImDrawCmd item) override {
-				m_vec->push_back(ConvertCmd(item));
-			}
-
-			virtual void Clear() override {
-				m_vec->clear();
-			}
-
-			virtual int IndexOf(Tesseract::ImGui::ImDrawCmd item) override {
-				auto itr = Find(item);
-				if (itr == m_vec->end()) return -1;
-				else return (int)(itr - m_vec->begin());
-			}
-
-			virtual void Insert(int index, Tesseract::ImGui::ImDrawCmd item) override {
-				m_vec->insert(m_vec->begin() + index, ConvertCmd(item));
-			}
-
-			virtual void RemoveAt(int index) override {
-				m_vec->erase(m_vec->begin() + index);
-			}
-
-		};
-
-		ref class IdxBufferImpl : Tesseract::ImGui::IImVector<unsigned short> {
-		internal:
-			ImDrawListCLI^ m_drawlist;
-			ImVector<unsigned short>* m_vec;
-
-			IdxBufferImpl(ImDrawListCLI^ drawlist) : m_drawlist(drawlist) {
-				m_vec = &drawlist->m_drawlist->IdxBuffer;
-			}
-
-		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return (System::Collections::IEnumerator^)GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<unsigned short>^ GetEnumerator() {
-				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<unsigned short>((IReadOnlyList<unsigned short>^)this);
-			}
-
-			virtual property int Count {
-				virtual int get() { return m_vec->Size; }
-			}
-			
-			virtual property bool IsReadOnly {
-				virtual bool get() { return false; }
-			}
-
-			virtual void Add(unsigned short item) {
-				m_vec->push_back(item);
-			}
-
-			virtual void Clear() {
-				m_vec->clear();
-			}
-
-			virtual bool Contains(unsigned short item) {
-				return m_vec->find(item) != m_vec->end();
-			}
-
-			virtual void CopyTo(array<unsigned short, 1>^ arr, int arrayIndex) {
-				int len = Math::Min(arr->Length - arrayIndex, Count);
-				if (len > 1) {
-					pin_ptr<unsigned short> pArr = &arr[arrayIndex];
-					memcpy(pArr, m_vec->Data, len * sizeof(unsigned short));
-				}
-			}
-
-			virtual bool Remove(unsigned short item) {
-				auto itr = m_vec->find(item);
-				if (itr != m_vec->end()) {
-					m_vec->erase(itr);
-					return true;
-				} else return false;
-			}
-
-			virtual property unsigned short default[int] {
-				virtual unsigned short get(int index) {
-					return m_vec->Data[index];
-				}
-				virtual void set(int index, unsigned short value) {
-					m_vec->Data[index] = value;
-				}
-			}
-
-			virtual int IndexOf(unsigned short item) {
-				auto itr = m_vec->find(item);
-				return itr != m_vec->end() ? (int)(itr - m_vec->begin()) : -1;
-			}
-			
-			virtual void Insert(int index, unsigned short item) {
-				m_vec->insert(m_vec->begin() + index, item);
-			}
-
-			virtual void RemoveAt(int index) {
-				m_vec->erase(m_vec->begin() + index);
-			}
-
-			virtual System::Span<unsigned short> AsSpan() {
-				return System::Span<unsigned short>(m_vec->Data, Count);
-			}
-
-			virtual void Resize(int newSize) {
-				m_vec->resize(newSize);
-			}
-		};
-
-		ref class VtxBufferImpl : Tesseract::ImGui::IImVector<Tesseract::ImGui::ImDrawVert> {
-		internal:
-			ImDrawListCLI^ m_drawlist;
-			ImVector<ImDrawVert>* m_vec;
-
-			VtxBufferImpl(ImDrawListCLI^ drawlist) : m_drawlist(drawlist) {
-				m_vec = &drawlist->m_drawlist->VtxBuffer;
-			}
-
-			static ImDrawVert ConvertVtx(Tesseract::ImGui::ImDrawVert vtx) {
-				ImDrawVert nvtx = {};
-				nvtx.pos = { vtx.Pos.X, vtx.Pos.Y };
-				nvtx.uv = { vtx.UV.X, vtx.UV.Y };
-				nvtx.col = vtx.Col;
-				return nvtx;
-			}
-
-			static Tesseract::ImGui::ImDrawVert ConvertVtx(ImDrawVert vtx) {
-				Tesseract::ImGui::ImDrawVert mvtx = {};
-				mvtx.Pos = Vector2(vtx.pos.x, vtx.pos.y);
-				mvtx.UV = Vector2(vtx.uv.x, vtx.uv.y);
-				mvtx.Col = vtx.col;
-				return mvtx;
-			}
-
-			ImDrawVert* Find(Tesseract::ImGui::ImDrawVert vtx) {
-				ImDrawVert nvtx = ConvertVtx(vtx);
-				ImDrawVert* itr = m_vec->begin();
-				while (itr != m_vec->end()) {
-					if (!memcmp(itr, &nvtx, sizeof(ImDrawVert)))
-						break;
-				}
-				return itr;
-			}
-
-		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImDrawVert>^ GetEnumerator() {
-				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImDrawVert>((IReadOnlyList<Tesseract::ImGui::ImDrawVert>^)this);
-			}
-
-			virtual property int Count {
-				virtual int get() { return m_vec->Size; }
-			}
-			
-			virtual property bool IsReadOnly {
-				virtual bool get() { return false; }
-			}
-
-			virtual void Add(Tesseract::ImGui::ImDrawVert item) {
-				m_vec->push_back(ConvertVtx(item));
-			}
-			
-			virtual void Clear() {
-				m_vec->clear();
-			}
-			
-			virtual bool Contains(Tesseract::ImGui::ImDrawVert item) {
-				return Find(item) != m_vec->end();
-			}
-			
-			virtual void CopyTo(array<Tesseract::ImGui::ImDrawVert, 1>^ arr, int arrayIndex) {
-				int len = Math::Min(m_vec->Size, arr->Length - arrayIndex);
-				pin_ptr<Tesseract::ImGui::ImDrawVert> pArr = &arr[arrayIndex];
-				memcpy(pArr, m_vec->Data, len * sizeof(ImDrawVert));
-			}
-			
-			virtual bool Remove(Tesseract::ImGui::ImDrawVert item) {
-				auto itr = Find(item);
-				if (itr) {
-					m_vec->erase(itr);
-					return true;
-				} else return false;
-			}
-
-			virtual property Tesseract::ImGui::ImDrawVert default[int]{
-				virtual Tesseract::ImGui::ImDrawVert get(int index) {
-					return ConvertVtx(m_vec->operator[](index));
-				}
-				virtual void set(int index, Tesseract::ImGui::ImDrawVert value) {
-					m_vec->operator[](index) = ConvertVtx(value);
-				}
-			}
-
-			virtual int IndexOf(Tesseract::ImGui::ImDrawVert item) {
-				auto itr = Find(item);
-				return itr != m_vec->end() ? (int)(itr - m_vec->begin()) : -1;
-			}
-			
-			virtual void Insert(int index, Tesseract::ImGui::ImDrawVert item) {
-				m_vec->insert(m_vec->begin() + index, ConvertVtx(item));
-			}
-			
-			virtual void RemoveAt(int index) {
-				m_vec->erase(m_vec->begin() + index);
-			}
-			
-			virtual System::Span<Tesseract::ImGui::ImDrawVert> AsSpan() {
-				return System::Span<Tesseract::ImGui::ImDrawVert>(m_vec->Data, m_vec->Size);
-			}
-
-			virtual void Resize(int newSize) {
-				m_vec->resize(newSize);
-			}
-		};
-
-		ImDrawList* m_drawlist;
-		bool m_allocd;
-		CmdBufferImpl^ m_cmdbuffer;
-		IdxBufferImpl^ m_idxbuffer;
-		VtxBufferImpl^ m_vtxbuffer;
-
-		ImDrawListCLI(ImDrawList* drawlist, bool allocd) : m_drawlist(drawlist), m_allocd(allocd) {
-			m_cmdbuffer = gcnew CmdBufferImpl(this);
-			m_idxbuffer = gcnew IdxBufferImpl(this);
-			m_vtxbuffer = gcnew VtxBufferImpl(this);
-		}
-
-		~ImDrawListCLI() {
-			if (m_allocd) delete m_drawlist;
-		}
-
-		static ImDrawCmd ConvertCmd(Tesseract::ImGui::ImDrawCmd cmd) {
-			ImDrawCmd ncmd = {};
-			ncmd.ClipRect = { cmd.ClipRect.X, cmd.ClipRect.Y, cmd.ClipRect.Z, cmd.ClipRect.W };
-			ncmd.TextureId = (void*)cmd.TextureID;
-			ncmd.VtxOffset = cmd.VtxOffset;
-			ncmd.IdxOffset = cmd.IdxOffset;
-			ncmd.ElemCount = cmd.ElemCount;
-			if (cmd.UserCallback) {
-				if (cmd.UserCallback == Tesseract::ImGui::GImGui::ResetRenderState) {
-					ncmd.UserCallback = ImDrawCallback_ResetRenderState;
-				} else {
-					ncmd.UserCallback = g_customDrawCallback;
-					ncmd.UserCallbackData = DrawCallbackHolder::Instance->Register(cmd.UserCallback);
-				}
-			}
-			return ncmd;
-		}
-
-		static Tesseract::ImGui::ImDrawCmd ConvertCmd(ImDrawCmd cmd) {
-			Tesseract::ImGui::ImDrawCmd mcmd = {};
-			mcmd.ClipRect = Vector4(cmd.ClipRect.x, cmd.ClipRect.y, cmd.ClipRect.z, cmd.ClipRect.w);
-			mcmd.TextureID = (UIntPtr)cmd.TextureId;
-			mcmd.VtxOffset = cmd.VtxOffset;
-			mcmd.IdxOffset = cmd.IdxOffset;
-			mcmd.ElemCount = cmd.ElemCount;
-			if (cmd.UserCallback) {
-				if (cmd.UserCallback == g_customDrawCallback) {
-					mcmd.UserCallback = DrawCallbackHolder::Instance->Get(cmd.UserCallbackData);
-				} else if (cmd.UserCallback == ImDrawCallback_ResetRenderState) {
-					mcmd.UserCallback = Tesseract::ImGui::GImGui::ResetRenderState;
-				}
-			}
-			return mcmd;
-		}
-
-		
-	public:
-		virtual property System::Collections::Generic::IList<Tesseract::ImGui::ImDrawCmd>^ CmdBuffer {
-			virtual IList<Tesseract::ImGui::ImDrawCmd>^ get() {
-				return m_cmdbuffer;
-			}
-		}
-
-		virtual property Tesseract::ImGui::IImVector<unsigned short>^ IdxBuffer {
-			virtual Tesseract::ImGui::IImVector<unsigned short>^ get() {
-				return m_idxbuffer;
-			}
-		}
-
-		virtual property Tesseract::ImGui::IImVector<Tesseract::ImGui::ImDrawVert>^ VtxBuffer {
-			virtual Tesseract::ImGui::IImVector<Tesseract::ImGui::ImDrawVert>^ get() {
-				return m_vtxbuffer;
-			}
-		}
-
-		virtual property Tesseract::ImGui::ImDrawListFlags Flags {
-			virtual Tesseract::ImGui::ImDrawListFlags get() {
-				return (Tesseract::ImGui::ImDrawListFlags)m_drawlist->Flags;
-			}
-			virtual void set(Tesseract::ImGui::ImDrawListFlags value) {
-				m_drawlist->Flags = (ImDrawListFlags)value;
-			}
-		}
-
-		virtual property System::Numerics::Vector2 ClipRectMin {
-			virtual Vector2 get() {
-				auto value = m_drawlist->GetClipRectMin();
-				return Vector2(value.x, value.y);
-			}
-		}
-
-		virtual property System::Numerics::Vector2 ClipRectMax {
-			virtual Vector2 get() {
-				auto value = m_drawlist->GetClipRectMax();
-				return Vector2(value.x, value.y);
-			}
-		}
-
-		virtual void PushClipRect(System::Numerics::Vector2 clipRectMin, System::Numerics::Vector2 clipRectMax, bool intersectWithCurrentClipRect) {
-			m_drawlist->PushClipRect({ clipRectMin.X, clipRectMin.Y }, { clipRectMax.X, clipRectMax.Y }, intersectWithCurrentClipRect);
-		}
-
-		virtual void PushClipRectFullScreen() {
-			m_drawlist->PushClipRectFullScreen();
-		}
-
-		virtual void PopClipRect() {
-			m_drawlist->PopClipRect();
-		}
-
-		virtual void PushTextureID(System::UIntPtr textureID) {
-			m_drawlist->PushTextureID((void*)textureID);
-		}
-
-		virtual void PopTextureID() {
-			m_drawlist->PopTextureID();
-		}
-
-		virtual void AddLine(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, unsigned int col, float thickness) {
-			m_drawlist->AddLine({ p1.X, p1.Y }, { p2.X, p2.Y }, col, thickness);
-		}
-
-		virtual void AddRect(System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, unsigned int col, float rounding, Tesseract::ImGui::ImDrawFlags flags, float thickness) {
-			m_drawlist->AddRect({ pMin.X, pMin.Y }, { pMax.X, pMax.Y }, col, rounding, (ImDrawFlags)flags, thickness);
-		}
-
-		virtual void AddRectFilled(System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, unsigned int col, float rounding, Tesseract::ImGui::ImDrawFlags flags) {
-			m_drawlist->AddRectFilled({ pMin.X, pMin.Y }, { pMax.X, pMax.Y }, col, rounding, (ImDrawFlags)flags);
-		}
-
-		virtual void AddRectFilledMultiColor(System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, unsigned int colUprLeft, unsigned int colUprRight, unsigned int colBotRight, unsigned int colBotLeft) {
-			m_drawlist->AddRectFilledMultiColor({ pMin.X, pMin.Y }, { pMax.X, pMax.Y }, colUprLeft, colUprRight, colBotRight, colBotLeft);
-		}
-
-		virtual void AddQuad(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, unsigned int col, float thickness) {
-			m_drawlist->AddQuad({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, { p4.X, p4.Y }, col, thickness);
-		}
-
-		virtual void AddQuadFilled(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, unsigned int col) {
-			m_drawlist->AddQuadFilled({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, { p4.X, p4.Y }, col);
-		}
-
-		virtual void AddTriangle(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, unsigned int col, float thickness) {
-			m_drawlist->AddTriangle({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, col, thickness);
-		}
-
-		virtual void AddTriangleFilled(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, unsigned int col) {
-			m_drawlist->AddTriangleFilled({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, col);
-		}
-
-		virtual void AddCircle(System::Numerics::Vector2 center, float radius, unsigned int col, int numSegments, float thickness) {
-			m_drawlist->AddCircle({ center.X, center.Y }, radius, col, numSegments, thickness);
-		}
-
-		virtual void AddCircleFilled(System::Numerics::Vector2 center, float radius, unsigned int col, int numSegments) {
-			m_drawlist->AddCircle({ center.X, center.Y }, radius, col, numSegments);
-		}
-
-		virtual void AddNgon(System::Numerics::Vector2 center, float radius, unsigned int col, int numSegments, float thickness) {
-			m_drawlist->AddNgon({ center.X, center.Y }, radius, col, numSegments, thickness);
-		}
-
-		virtual void AddNgonFilled(System::Numerics::Vector2 center, float radius, unsigned int col, int numSegments) {
-			m_drawlist->AddNgonFilled({ center.X, center.Y }, radius, col, numSegments);
-		}
-
-		virtual void AddText(System::Numerics::Vector2 pos, unsigned int col, System::String^ text) {
-			StringParam pText(text);
-			m_drawlist->AddText({ pos.X, pos.Y }, col, pText.begin(), pText.end());
-		}
-
-		virtual void AddText(Tesseract::ImGui::IImFont^ font, float fontSize, System::Numerics::Vector2 pos, unsigned int col, System::String^ text, float wrapWidth, System::Nullable<System::Numerics::Vector4> cpuFineClipRect);
-
-		virtual void AddPolyline(System::ReadOnlySpan<System::Numerics::Vector2> points, unsigned int col, Tesseract::ImGui::ImDrawFlags flags, float thickness) {
-			pin_ptr<Vector2> pPoints = &MemoryMarshal::GetReference(points);
-			m_drawlist->AddPolyline((ImVec2*)pPoints, points.Length, col, (ImDrawFlags)flags, thickness);
-		}
-
-		virtual void AddConvexPolyFilled(System::ReadOnlySpan<System::Numerics::Vector2> points, unsigned int col) {
-			pin_ptr<Vector2> pPoints = &MemoryMarshal::GetReference(points);
-			m_drawlist->AddConvexPolyFilled((ImVec2*)pPoints, points.Length, col);
-		}
-
-		virtual void AddBezierCubic(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, unsigned int col, float thickness, int numSegments) {
-			m_drawlist->AddBezierCubic({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, { p4.X, p4.Y }, col, thickness, numSegments);
-		}
-
-		virtual void AddBezierQuadratic(System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, unsigned int col, float thickness, int numSegments) {
-			m_drawlist->AddBezierQuadratic({ p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, col, thickness, numSegments);
-		}
-
-		virtual void AddImage(System::UIntPtr userTextureID, System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, System::Numerics::Vector2 uvMin, System::Numerics::Vector2 uvMax, unsigned int col) {
-			m_drawlist->AddImage((void*)userTextureID, { pMin.X, pMin.Y }, { pMax.X, pMax.Y }, { uvMin.X, uvMin.Y }, { uvMax.X, uvMax.Y }, col);
-		}
-
-		virtual void AddImage(System::UIntPtr userTextureID, System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, System::Numerics::Vector2 uvMin) {
-			AddImage(userTextureID, pMin, pMax, uvMin, Vector2::One, 0xFFFFFFFF);
-		}
-
-		virtual void AddImageQuad(System::UIntPtr userTextureID, System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, System::Numerics::Vector2 uv1, System::Numerics::Vector2 uv2, System::Numerics::Vector2 uv3, System::Numerics::Vector2 uv4, unsigned int col) {
-			m_drawlist->AddImageQuad((void*)userTextureID, { p1.X, p1.Y }, { p2.X, p2.Y }, { p3.X, p3.Y }, { p4.X, p4.Y }, { uv1.X, uv1.Y }, { uv2.X, uv2.Y }, { uv3.X, uv3.Y }, { uv4.X, uv4.Y }, col);
-		}
-
-		virtual void AddImageQuad(System::UIntPtr userTextureID, System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, System::Numerics::Vector2 uv1, System::Numerics::Vector2 uv2, System::Numerics::Vector2 uv3) {
-			AddImageQuad(userTextureID, p1, p2, p3, p4, uv1, uv2, uv3, Vector2(0, 1), 0xFFFFFFFF);
-		}
-
-		virtual void AddImageQuad(System::UIntPtr userTextureID, System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, System::Numerics::Vector2 uv1, System::Numerics::Vector2 uv2) {
-			AddImageQuad(userTextureID, p1, p2, p3, p4, uv1, uv2, Vector2::One);
-		}
-
-		virtual void AddImageQuad(System::UIntPtr userTextureID, System::Numerics::Vector2 p1, System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, System::Numerics::Vector2 uv1) {
-			AddImageQuad(userTextureID, p1, p2, p3, p4, uv1, Vector2(1, 0));
-		}
-
-		virtual void AddImageRounded(System::UIntPtr userTextureID, System::Numerics::Vector2 pMin, System::Numerics::Vector2 pMax, System::Numerics::Vector2 uvMin, System::Numerics::Vector2 uvMax, unsigned int col, float rounding, Tesseract::ImGui::ImDrawFlags flags) {
-			m_drawlist->AddImageRounded((void*)userTextureID, { pMin.X, pMin.Y }, { pMax.X, pMax.Y }, { uvMin.X, uvMin.Y }, { uvMax.X, uvMax.Y }, col, rounding, (ImDrawFlags)flags);
-		}
-
-		virtual void PathClear() {
-			m_drawlist->PathClear();
-		}
-
-		virtual void PathLineTo(System::Numerics::Vector2 pos) {
-			m_drawlist->PathLineTo({ pos.X, pos.Y });
-		}
-
-		virtual void PathLineToMergeDuplicate(System::Numerics::Vector2 pos) {
-			m_drawlist->PathLineToMergeDuplicate({ pos.X, pos.Y });
-		}
-
-		virtual void PathFillConvex(unsigned int col) {
-			m_drawlist->PathFillConvex(col);
-		}
-
-		virtual void PathStroke(unsigned int col, Tesseract::ImGui::ImDrawFlags flags, float thickness) {
-			m_drawlist->PathStroke(col, (ImDrawFlags)flags, thickness);
-		}
-
-		virtual void PathArcTo(System::Numerics::Vector2 center, float radius, float aMin, float aMax, int numSegments) {
-			m_drawlist->PathArcTo({ center.X, center.Y }, radius, aMin, aMax, numSegments);
-		}
-
-		virtual void PathArcToFast(System::Numerics::Vector2 center, float radius, int aMinOf12, int aMaxOf12) {
-			m_drawlist->PathArcToFast({ center.X, center.Y }, radius, aMinOf12, aMaxOf12);
-		}
-
-		virtual void PathBezierCubicCurveTo(System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, System::Numerics::Vector2 p4, int numSegments) {
-			m_drawlist->PathBezierCubicCurveTo({ p2.X, p2.Y }, { p3.X, p3.Y }, { p4.X, p4.Y }, numSegments);
-		}
-
-		virtual void PathBezierQuadraticCurveTo(System::Numerics::Vector2 p2, System::Numerics::Vector2 p3, int numSegments) {
-			m_drawlist->PathBezierQuadraticCurveTo({ p2.X, p2.Y }, { p3.X, p3.Y }, numSegments);
-		}
-
-		virtual void PathRect(System::Numerics::Vector2 rectMin, System::Numerics::Vector2 rectMax, float rounding, Tesseract::ImGui::ImDrawFlags flags) {
-			m_drawlist->PathRect({ rectMin.X, rectMin.Y }, { rectMax.X, rectMax.Y }, rounding, (ImDrawFlags)flags);
-		}
-
-		virtual void AddCallback(Tesseract::ImGui::ImDrawCallback^ callback) {
-			m_drawlist->AddCallback(g_customDrawCallback, DrawCallbackHolder::Instance->Register(callback));
-		}
-
-		virtual void AddDrawCmd() {
-			m_drawlist->AddDrawCmd();
-		}
-
-		virtual Tesseract::ImGui::IImDrawList^ CloneOutput() {
-			return gcnew ImDrawListCLI(m_drawlist->CloneOutput(), true);
-		}
-		
-		virtual void ChannelsSplit(int count) {
-			m_drawlist->ChannelsSplit(count);
-		}
-
-		virtual void ChannelsMerge() {
-			m_drawlist->ChannelsMerge();
-		}
-
-		virtual void ChannelsSetCurrent(int n) {
-			m_drawlist->ChannelsSetCurrent(n);
-		}
-
-		virtual void PrimReserve(int idxCount, int vtxCount) {
-			m_drawlist->PrimReserve(idxCount, vtxCount);
-		}
-
-		virtual void PrimUnreserve(int idxCount, int vtxCount) {
-			m_drawlist->PrimUnreserve(idxCount, vtxCount);
-		}
-
-		virtual void PrimRect(System::Numerics::Vector2 a, System::Numerics::Vector2 b, unsigned int col) {
-			m_drawlist->PrimRect({ a.X, a.Y }, { b.X, b.Y }, col);
-		}
-
-		virtual void PrimRectUV(System::Numerics::Vector2 a, System::Numerics::Vector2 b, System::Numerics::Vector2 uvA, System::Numerics::Vector2 uvB, unsigned int col) {
-			m_drawlist->PrimRectUV({ a.X, a.Y }, { b.X, b.Y }, { uvA.X, uvA.Y }, { uvB.X, uvB.Y }, col);
-		}
-
-		virtual void PrimQuadUV(System::Numerics::Vector2 a, System::Numerics::Vector2 b, System::Numerics::Vector2 c, System::Numerics::Vector2 d, System::Numerics::Vector2 uvA, System::Numerics::Vector2 uvB, System::Numerics::Vector2 uvC, System::Numerics::Vector2 uvD, unsigned int col) {
-			m_drawlist->PrimQuadUV({ a.X, a.Y }, { b.X, b.Y }, { c.X, c.Y }, { d.X, d.Y }, { uvA.X, uvA.Y }, { uvB.X, uvB.Y }, { uvC.X, uvC.Y }, { uvD.X, uvD.Y }, col);
-		}
-
-		virtual void PrimWriteVtx(System::Numerics::Vector2 pos, System::Numerics::Vector2 uv, unsigned int col) {
-			m_drawlist->PrimWriteVtx({ pos.X, pos.Y }, { uv.X, uv.Y }, col);
-		}
-
-		virtual void PrimWriteIdx(unsigned short idx) {
-			m_drawlist->PrimWriteIdx(idx);
-		}
-
-		virtual void PrimVtx(System::Numerics::Vector2 pos, System::Numerics::Vector2 uv, unsigned int col) {
-			m_drawlist->PrimVtx({ pos.X, pos.Y }, { uv.X, uv.Y }, col);
-		}
-	};
-
-	public ref class ImDrawDataCLI : public Tesseract::ImGui::IImDrawData {
-	internal:
-		ImDrawData* m_drawdata;
-		List<ImDrawListCLI^>^ m_drawlists;
-
-		ImDrawDataCLI(ImDrawData* drawdata) : m_drawdata(drawdata) {
-			m_drawlists = gcnew List<ImDrawListCLI^>();
-		}
-
-		void UpdateDrawLists() {
-			bool valid = m_drawlists->Count == m_drawdata->CmdListsCount;
-			if (valid) {
-				for (int i = 0; i < m_drawdata->CmdListsCount; i++) {
-					if (m_drawlists->default[i]->m_drawlist != m_drawdata->CmdLists[i]) {
-						valid = false;
-						break;
-					}
-				}
-			}
-			if (valid) return;
-			m_drawlists->Clear();
-			for (int i = 0; i < m_drawdata->CmdListsCount; i++) {
-				m_drawlists->Add(gcnew ImDrawListCLI(m_drawdata->CmdLists[i], false));
-			}
-		}
-
-	public:
-		virtual property bool Valid {
-			virtual bool get() { return m_drawdata->Valid; }
-		}
-
-		virtual property int TotalIdxCount {
-			virtual int get() { return m_drawdata->TotalIdxCount; }
-		}
-
-		virtual property int TotalVtxCount {
-			virtual int get() { return m_drawdata->TotalVtxCount; }
-		}
-		
-		virtual property System::Collections::Generic::IReadOnlyList<Tesseract::ImGui::IImDrawList^>^ CmdLists {
-			virtual IReadOnlyList<Tesseract::ImGui::IImDrawList^>^ get() {
-				UpdateDrawLists();
-				return (IReadOnlyList<Tesseract::ImGui::IImDrawList^>^)m_drawlists;
-			}
-		}
-
-		virtual property System::Numerics::Vector2 DisplayPos {
-			virtual Vector2 get() { return Vector2(m_drawdata->DisplayPos.x, m_drawdata->DisplayPos.y); }
-		}
-
-		virtual property System::Numerics::Vector2 DisplaySize {
-			virtual Vector2 get() { return Vector2(m_drawdata->DisplaySize.x, m_drawdata->DisplaySize.y); }
-		}
-
-		virtual property System::Numerics::Vector2 FramebufferScale {
-			virtual Vector2 get() { return Vector2(m_drawdata->FramebufferScale.x, m_drawdata->FramebufferScale.y); }
-		}
-
-		virtual void Clear() {
-			m_drawdata->Clear();
-		}
-
-		virtual void DeIndexAllBuffers() {
-			m_drawdata->DeIndexAllBuffers();
-		}
-
-		virtual void ScaleClipRects(System::Numerics::Vector2 fbScale) {
-			m_drawdata->ScaleClipRects({ fbScale.X, fbScale.Y });
-		}
 	};
 
 	public ref class ImGuiInputTextCallbackDataCLI : Tesseract::ImGui::IImGuiInputTextCallbackData {
@@ -938,9 +50,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			virtual Tesseract::ImGui::ImGuiKey get() { return (Tesseract::ImGui::ImGuiKey)m_data->EventKey; }
 		}
 
-		virtual property System::Span<unsigned char> Buf {
-			virtual Span<unsigned char> get() {
-				return Span<unsigned char>(m_data->Buf, m_data->BufSize);
+		virtual property System::Span<byte> Buf {
+			virtual Span<byte> get() {
+				return Span<byte>(m_data->Buf, m_data->BufSize);
 			}
 		}
 
@@ -999,892 +111,6 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 
 	};
 
-	public ref class ImDrawListSharedDataCLI : Tesseract::ImGui::IImDrawListSharedData {
-	internal:
-		ImDrawListSharedData* m_data;
-
-		ImDrawListSharedDataCLI(ImDrawListSharedData* data) : m_data(data) {}
-	};
-
-	public ref class ImFontCLI : public Tesseract::ImGui::IImFont {
-	internal:
-		ref class IndexAdvanceXImpl : IReadOnlyList<float> {
-		internal:
-			ImVector<float>* m_vec;
-
-			IndexAdvanceXImpl(ImVector<float>* vec) : m_vec(vec) {}
-
-		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<float>^ GetEnumerator() {
-				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<float>(this);
-			}
-
-			virtual property int Count {
-				virtual int get() { return m_vec->Size; }
-			}
-
-			virtual property float default[int]{
-				virtual float get(int index) { return m_vec->operator[](index); }
-			}
-		};
-
-		ref class IndexLookupImpl : IReadOnlyList<wchar_t> {
-		internal:
-			ImVector<ImWchar>* m_vec;
-
-			IndexLookupImpl(ImVector<ImWchar>* vec) : m_vec(vec) {}
-
-		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<wchar_t>^ GetEnumerator() {
-				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<wchar_t>(this);
-			}
-
-			virtual property int Count {
-				virtual int get() { return m_vec->Size; }
-			}
-
-			virtual property wchar_t default[int]{
-				virtual wchar_t get(int index) { return m_vec->operator[](index); }
-			}
-		};
-
-		ref class GlyphsImpl : IReadOnlyList<Tesseract::ImGui::ImFontGlyph> {
-		internal:
-			ImVector<ImFontGlyph>* m_vec;
-
-			GlyphsImpl(ImVector<ImFontGlyph>* vec) : m_vec(vec) {}
-
-		public:
-			virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator{
-				return GetEnumerator();
-			}
-
-			virtual System::Collections::Generic::IEnumerator<Tesseract::ImGui::ImFontGlyph>^ GetEnumerator() {
-				return gcnew Tesseract::ImGui::Utilities::CLI::ListEnumerator<Tesseract::ImGui::ImFontGlyph>(this);
-			}
-
-			virtual property int Count {
-				virtual int get() { return m_vec->Size; }
-			}
-
-			virtual property Tesseract::ImGui::ImFontGlyph default[int]{
-				virtual Tesseract::ImGui::ImFontGlyph get(int index) { return ConvertGlyph(m_vec->operator[](index)); }
-			}
-		};
-
-		ImFont* m_font;
-		ImFontAtlasCLI^ m_atlas;
-		IndexAdvanceXImpl^ m_indexadvancex;
-		IndexLookupImpl^ m_indexlookup;
-		GlyphsImpl^ m_glyphs;
-
-		ImFontCLI(ImFont* font);
-
-		static Tesseract::ImGui::ImFontGlyph ConvertGlyph(ImFontGlyph glyph) {
-			Tesseract::ImGui::ImFontGlyph mglyph = {};
-			mglyph.Colored = glyph.Colored;
-			mglyph.Visible = glyph.Visible;
-			mglyph.Codepoint = glyph.Codepoint;
-			mglyph.AdvanceX = glyph.AdvanceX;
-			mglyph.XY0 = Vector2(glyph.X0, glyph.Y0);
-			mglyph.XY1 = Vector2(glyph.X1, glyph.Y1);
-			mglyph.UV0 = Vector2(glyph.U0, glyph.V0);
-			mglyph.UV1 = Vector2(glyph.U1, glyph.V1);
-			return mglyph;
-		}
-
-	public:
-		virtual property System::Collections::Generic::IReadOnlyList<float>^ IndexAdvanceX {
-			virtual IReadOnlyList<float>^ get() { return m_indexadvancex; }
-		}
-
-		virtual property float FallbackAdvanceX {
-			virtual float get() { return m_font->FallbackAdvanceX; }
-		}
-
-		virtual property float FontSize {
-			virtual float get() { return m_font->FontSize; }
-			virtual void set(float value) { m_font->FontSize = value; }
-		}
-
-		virtual property System::Collections::Generic::IReadOnlyList<wchar_t>^ IndexLookup {
-			virtual IReadOnlyList<wchar_t>^ get() { return m_indexlookup; }
-		}
-
-		virtual property System::Collections::Generic::IReadOnlyList<Tesseract::ImGui::ImFontGlyph>^ Glyphs {
-			virtual IReadOnlyList<Tesseract::ImGui::ImFontGlyph>^ get() { return m_glyphs; }
-		}
-
-		virtual property Tesseract::ImGui::ImFontGlyph FallbackGlyph {
-			virtual Tesseract::ImGui::ImFontGlyph get() { return ConvertGlyph(*m_font->FallbackGlyph); }
-		}
-
-		virtual property Tesseract::ImGui::IImFontAtlas^ ContainerAtlas {
-			virtual Tesseract::ImGui::IImFontAtlas^ get() { return (Tesseract::ImGui::IImFontAtlas^)m_atlas; }
-		}
-
-		virtual property wchar_t FallbackChar {
-			virtual wchar_t get() { return m_font->FallbackChar; }
-		}
-
-		virtual property wchar_t EllipsisChar {
-			virtual wchar_t get() { return m_font->EllipsisChar; }
-		}
-
-		virtual property wchar_t DotChar {
-			virtual wchar_t get() { return m_font->DotChar; }
-		}
-
-		virtual property bool DirtyLookupTables {
-			virtual bool get() { return m_font->DirtyLookupTables; }
-		}
-
-		virtual property float Scale {
-			virtual float get() { return m_font->Scale; }
-			virtual void set(float value) { m_font->Scale = value; }
-		}
-
-		virtual property float Ascent {
-			virtual float get() { return m_font->Ascent; }
-		}
-
-		virtual property float Descent {
-			virtual float get() { return m_font->Descent; }
-		}
-
-		virtual property int MetricsTotalSurface {
-			virtual int get() { return m_font->MetricsTotalSurface; }
-		}
-
-		virtual property bool IsLoaded {
-			virtual bool get() { return m_font->IsLoaded(); }
-		}
-
-		virtual property System::String^ DebugName {
-			virtual String^ get() { return gcnew String(m_font->GetDebugName()); }
-		}
-
-		virtual Tesseract::ImGui::ImFontGlyph FintGlyph(wchar_t c) {
-			return ConvertGlyph(*m_font->FindGlyph(c));
-		}
-
-		virtual System::Nullable<Tesseract::ImGui::ImFontGlyph> FindGlyphNoFallback(wchar_t c) {
-			auto glyph = m_font->FindGlyphNoFallback(c);
-			if (glyph == nullptr) return {};
-			else return ConvertGlyph(*glyph);
-		}
-
-		virtual float GetCharAdvance(wchar_t c) {
-			return m_font->GetCharAdvance(c);
-		}
-
-		virtual System::Numerics::Vector2 CalcTextSizeA(float size, float maxWidth, float wrapWidth, System::String^ text, int textBegin) {
-			StringParam pText(text->Substring(textBegin));
-			auto retn = m_font->CalcTextSizeA(size, maxWidth, wrapWidth, pText.begin(), pText.end());
-			return System::Numerics::Vector2(retn.x, retn.y);
-		}
-
-		virtual int CalcWordWrapPositionA(float scale, System::String^ text, float wrapWidth, int textBegin) {
-			StringParam pText(text->Substring(textBegin));
-			return pText.to_index(m_font->CalcWordWrapPositionA(scale, pText.begin(), pText.end(), wrapWidth));
-		}
-
-		virtual void RenderChar(Tesseract::ImGui::IImDrawList^ drawList, float size, System::Numerics::Vector2 pos, unsigned int col, wchar_t c) {
-			ImDrawList* pDrawList = ((ImDrawListCLI^)drawList)->m_drawlist;
-			m_font->RenderChar(pDrawList, size, { pos.X, pos.Y }, col, c);
-		}
-
-		virtual void RenderText(Tesseract::ImGui::IImDrawList^ drawList, float size, System::Numerics::Vector2 pos, unsigned int col, System::Numerics::Vector4 clipRect, System::String^ text, int textBegin, int textEnd, float wrapWidth, bool cpuFineClip) {
-			ImDrawList* pDrawList = ((ImDrawListCLI^)drawList)->m_drawlist;
-			if (textEnd < 0) textEnd = text->Length;
-			StringParam pText(text->Substring(textBegin, textBegin - textEnd));
-			m_font->RenderText(pDrawList, size, { pos.X, pos.Y }, col, { clipRect.X, clipRect.Y, clipRect.Z, clipRect.W }, pText.begin(), pText.end(), wrapWidth, cpuFineClip);
-		}
-	};
-
-	public ref class ImFontAtlasCustomRectCLI : Tesseract::ImGui::IImFontAtlasCustomRect {
-	internal:
-		ImFontAtlasCustomRect* m_rect;
-
-		ImFontAtlasCustomRectCLI(ImFontAtlasCustomRect* rect) : m_rect(rect) {}
-
-	public:
-		virtual property unsigned short Width {
-			virtual unsigned short get() { return m_rect->Width; }
-			virtual void set(unsigned short value) { m_rect->Width = value; }
-		}
-
-		virtual property unsigned short Height {
-			virtual unsigned short get() { return m_rect->Height; }
-			virtual void set(unsigned short value) { m_rect->Height = value; }
-		}
-
-		virtual property unsigned short X {
-			virtual unsigned short get() { return m_rect->X; }
-		}
-
-		virtual property unsigned short Y {
-			virtual unsigned short get() { return m_rect->Y; }
-		}
-
-		virtual property unsigned int GlyphID {
-			virtual unsigned int get() { return m_rect->GlyphID; }
-			virtual void set(unsigned int value) { m_rect->GlyphID = value; }
-		}
-
-		virtual property float GlyphAdvanceX {
-			virtual float get() { return m_rect->GlyphAdvanceX; }
-			virtual void set(float value) { m_rect->GlyphAdvanceX = value; }
-		}
-
-		virtual property System::Numerics::Vector2 GlyphOffset {
-			virtual Vector2 get() { return Vector2(m_rect->GlyphOffset.x, m_rect->GlyphOffset.y); }
-			virtual void set(Vector2 value) { m_rect->GlyphOffset = { value.X, value.Y }; }
-		}
-
-		virtual property Tesseract::ImGui::IImFont^ Font {
-			virtual Tesseract::ImGui::IImFont^ get() { return gcnew ImFontCLI(m_rect->Font); }
-			virtual void set(Tesseract::ImGui::IImFont^ value) { m_rect->Font = value ? ((ImFontCLI^)value)->m_font : nullptr; }
-		}
-
-		virtual property bool IsPacked {
-			virtual bool get() { return m_rect->IsPacked(); }
-		}
-
-	};
-
-	public ref class ImFontAtlasCLI : Tesseract::ImGui::IImFontAtlas {
-	internal:
-		ImFontAtlas* m_atlas;
-		bool m_allocd;
-		List<IntPtr>^ m_glyphranges = gcnew List<IntPtr>();
-
-		ImFontAtlasCLI(ImFontAtlas* atlas, bool allocd) : m_atlas(atlas), m_allocd(allocd) {}
-		~ImFontAtlasCLI() {
-			if (m_allocd) delete m_atlas;
-			for (int i = 0; i < m_glyphranges->Count; i++) delete (wchar_t*)(void*)m_glyphranges->default[i];
-		}
-
-		static int GetRangeLength(const wchar_t* ptr) {
-			int length = 0;
-			while (*ptr++) length++;
-			return length;
-		}
-
-		static ImFontConfig ConvertConfig(Tesseract::ImGui::ImFontConfig^ cfg) {
-			ImFontConfig ncfg = {};
-			if (cfg) {
-				ncfg.FontNo = cfg->FontNo;
-				ncfg.SizePixels = cfg->SizePixels;
-				ncfg.OversampleH = cfg->OversampleH;
-				ncfg.OversampleV = cfg->OversampleV;
-				ncfg.PixelSnapH = cfg->PixelSnapH;
-				ncfg.GlyphExtraSpacing = { cfg->GlyphExtraSpacing.X, cfg->GlyphExtraSpacing.Y };
-				ncfg.GlyphOffset = { cfg->GlyphOffset.X, cfg->GlyphOffset.Y };
-				ncfg.GlyphMinAdvanceX = cfg->GlyphMinAdvanceX;
-				ncfg.GlyphMaxAdvanceX = cfg->GlyphMaxAdvanceX;
-				ncfg.MergeMode = cfg->MergeMode;
-				ncfg.FontBuilderFlags = cfg->FontBuilderFlags;
-				ncfg.RasterizerMultiply = cfg->RasterizerMultiply;
-				ncfg.EllipsisChar = cfg->EllipsisChar;
-			}
-			return ncfg;
-		}
-
-		const ImWchar* CreateGlyphRange(IReadOnlyCollection<ValueTuple<wchar_t, wchar_t>>^ collection) {
-			ImWchar* pGlyphRanges = new ImWchar[(size_t)collection->Count * 2 + 1];
-			auto en = collection->GetEnumerator();
-			int i = 0;
-			while (en->MoveNext()) {
-				auto pair = en->Current;
-				pGlyphRanges[i++] = pair.Item1;
-				pGlyphRanges[i++] = pair.Item2;
-			}
-			pGlyphRanges[collection->Count * 2] = 0;
-			return pGlyphRanges;
-		}
-
-	public:
-		virtual property bool IsBuilt {
-			virtual bool get() { return m_atlas->IsBuilt(); }
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesDefault {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesDefault());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesKorean {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesKorean());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesJapanese {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesJapanese());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesChineseFull {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesChineseFull());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesChineseSimplifiedCommon {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesChineseSimplifiedCommon());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesCyrillic {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesCyrillic());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesThai {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesThai());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property System::ReadOnlySpan<wchar_t> GlyphRangesVietnamese {
-			virtual ReadOnlySpan<wchar_t> get() {
-				wchar_t* ptr = (wchar_t*)const_cast<ImWchar*>(m_atlas->GetGlyphRangesVietnamese());
-				return ReadOnlySpan<wchar_t>(ptr, GetRangeLength(ptr));
-			}
-		}
-
-		virtual property Tesseract::ImGui::ImFontAtlasFlags Flags {
-			virtual Tesseract::ImGui::ImFontAtlasFlags get() {
-				return (Tesseract::ImGui::ImFontAtlasFlags)m_atlas->Flags;
-			}
-			virtual void set(Tesseract::ImGui::ImFontAtlasFlags value) {
-				m_atlas->Flags = (ImFontAtlasFlags)value;
-			}
-		}
-
-		virtual property System::UIntPtr TexID {
-			virtual UIntPtr get() { return (UIntPtr)m_atlas->TexID; }
-			virtual void set(UIntPtr value) { m_atlas->TexID = (void*)value; }
-		}
-
-		virtual property int TexDesiredWidth {
-			virtual int get() { return m_atlas->TexDesiredWidth; }
-			virtual void set(int value) { m_atlas->TexDesiredWidth = value; }
-		}
-
-		virtual property int TexGlyphPadding {
-			virtual int get() { return m_atlas->TexGlyphPadding; }
-			virtual void set(int value) { m_atlas->TexGlyphPadding = value; }
-		}
-
-		virtual property bool Locked {
-			virtual bool get() { return m_atlas->Locked; }
-		}
-
-#define INIT_FONT_DATA(INCFG,OUTCFG) \
-		pin_ptr<unsigned char> pData; \
-		if (INCFG && INCFG->FontData) { \
-			pData = &INCFG->FontData[0]; \
-			OUTCFG.FontData = pData; \
-			OUTCFG.FontDataSize = INCFG->FontData->Length; \
-		}
-#define INIT_FONT_GLYPHS(INCFG,OUTCFG) \
-		if (INCFG && INCFG->GlyphRanges) { \
-			const ImWchar* pGlyphRanges = CreateGlyphRange(INCFG->GlyphRanges); \
-			m_glyphranges->Add((IntPtr)(void*)pGlyphRanges); \
-			OUTCFG.GlyphRanges = pGlyphRanges; \
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFont(Tesseract::ImGui::ImFontConfig^ config) {
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_DATA(config, ncfg);
-			INIT_FONT_GLYPHS(config, ncfg);
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFont(&ncfg));
-			return font;
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFontDefault(Tesseract::ImGui::ImFontConfig^ config) {
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_DATA(config, ncfg);
-			INIT_FONT_GLYPHS(config, ncfg);
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFontDefault(config ? &ncfg : nullptr));
-			return font;
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFontFromFileTTF(System::String^ filename, float sizePixels, Tesseract::ImGui::ImFontConfig^ config, System::Collections::Generic::IReadOnlyCollection<System::ValueTuple<wchar_t, wchar_t>>^ glyphRanges) {
-			StringParam pFilename(filename);
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_GLYPHS(config, ncfg);
-			const ImWchar* pGlyphRanges = glyphRanges ? CreateGlyphRange(glyphRanges) : nullptr;
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFontFromFileTTF(pFilename.c_str(), sizePixels, config ? &ncfg : nullptr, pGlyphRanges));
-			return font;
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFontFromMemoryTTF(array<unsigned char, 1>^ fontData, float sizePixels, Tesseract::ImGui::ImFontConfig^ config, System::Collections::Generic::IReadOnlyCollection<System::ValueTuple<wchar_t, wchar_t>>^ glyphRanges) {
-			pin_ptr<unsigned char> pFontData = &fontData[0];
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_GLYPHS(config, ncfg);
-			const ImWchar* pGlyphRanges = glyphRanges ? CreateGlyphRange(glyphRanges) : nullptr;
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFontFromMemoryTTF(pFontData, fontData->Length, sizePixels, config ? &ncfg : nullptr, pGlyphRanges));
-			return font;
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFontFromMemoryCompressedTTF(array<unsigned char, 1>^ compressedFontData, float sizePixels, Tesseract::ImGui::ImFontConfig^ config, System::Collections::Generic::IReadOnlyCollection<System::ValueTuple<wchar_t, wchar_t>>^ glyphRanges) {
-			pin_ptr<unsigned char> pFontData = &compressedFontData[0];
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_GLYPHS(config, ncfg);
-			const ImWchar* pGlyphRanges = glyphRanges ? CreateGlyphRange(glyphRanges) : nullptr;
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFontFromMemoryCompressedTTF(pFontData, compressedFontData->Length, sizePixels, config ? &ncfg : nullptr, pGlyphRanges));
-			return font;
-		}
-
-		virtual Tesseract::ImGui::IImFont^ AddFontFromMemoryCompressedBase85TTF(array<unsigned char, 1>^ compressedFontData, float sizePixels, Tesseract::ImGui::ImFontConfig^ config, System::Collections::Generic::IReadOnlyCollection<System::ValueTuple<wchar_t, wchar_t>>^ glyphRanges) {
-			pin_ptr<unsigned char> pFontData = &compressedFontData[0];
-			ImFontConfig ncfg = ConvertConfig(config);
-			INIT_FONT_GLYPHS(config, ncfg);
-			const ImWchar* pGlyphRanges = glyphRanges ? CreateGlyphRange(glyphRanges) : nullptr;
-			ImFontCLI^ font = gcnew ImFontCLI(m_atlas->AddFontFromMemoryCompressedBase85TTF((const char*)pFontData, sizePixels, config ? &ncfg : nullptr, pGlyphRanges));
-			return font;
-		}
-
-		virtual void ClearInputData() {
-			m_atlas->ClearInputData();
-		}
-
-		virtual void ClearTexData() {
-			m_atlas->ClearTexData();
-		}
-
-		virtual void ClearFonts() {
-			m_atlas->ClearFonts();
-		}
-
-		virtual void Clear() {
-			m_atlas->Clear();
-		}
-
-		virtual bool Build() {
-			return m_atlas->Build();
-		}
-
-		virtual System::ReadOnlySpan<unsigned char> GetTexDataAsAlpha8(int% outWidth, int% outHeight, int% outBytesPerPixel) {
-			pin_ptr<int> pOutWidth = &outWidth, pOutHeight = &outHeight, pOutBytesPerPixel = &outBytesPerPixel;
-			unsigned char* pData;
-			m_atlas->GetTexDataAsAlpha8(&pData, pOutWidth, pOutHeight, pOutBytesPerPixel);
-			return ReadOnlySpan<unsigned char>(pData, outWidth * outHeight * outBytesPerPixel);
-		}
-
-		virtual System::ReadOnlySpan<unsigned char> GetTexDataAsRGBA32(int% outWidth, int% outHeight, int% outBytesPerPixel) {
-			pin_ptr<int> pOutWidth = &outWidth, pOutHeight = &outHeight, pOutBytesPerPixel = &outBytesPerPixel;
-			unsigned char* pData;
-			m_atlas->GetTexDataAsRGBA32(&pData, pOutWidth, pOutHeight, pOutBytesPerPixel);
-			return ReadOnlySpan<unsigned char>(pData, outWidth * outHeight * outBytesPerPixel);
-		}
-
-		virtual void SetTexID(System::UIntPtr id) {
-			m_atlas->SetTexID((void*)id);
-		}
-
-		virtual int AddCustomRectRegular(int width, int height) {
-			return m_atlas->AddCustomRectRegular(width, height);
-		}
-
-		virtual int AddCustomRectFontGlyph(Tesseract::ImGui::IImFont^ font, wchar_t id, int width, int height, float advanceX, System::Numerics::Vector2 offset) {
-			return m_atlas->AddCustomRectFontGlyph(((ImFontCLI^)font)->m_font, id, width, height, advanceX, { offset.X, offset.Y });
-		}
-
-		virtual Tesseract::ImGui::IImFontAtlasCustomRect^ GetCustomRectByIndex(int index) {
-			return gcnew ImFontAtlasCustomRectCLI(m_atlas->GetCustomRectByIndex(index));
-		}
-
-		virtual void CalcCustomRectUV(Tesseract::ImGui::IImFontAtlasCustomRect^ rect, System::Numerics::Vector2% outUVMin, System::Numerics::Vector2% outUVMax) {
-			pin_ptr<Vector2> pOutUVMin = &outUVMin, pOutUVMax = &outUVMax;
-			m_atlas->CalcCustomRectUV(((ImFontAtlasCustomRectCLI^)rect)->m_rect, (ImVec2*)pOutUVMin, (ImVec2*)pOutUVMax);
-		}
-
-		virtual bool GetMouseCursorTexData(Tesseract::ImGui::ImGuiMouseCursor cursor, System::Numerics::Vector2% outOffset, System::Numerics::Vector2% outSize, System::Span<System::Numerics::Vector2> outUVBorder, System::Span<System::Numerics::Vector2> outUVFill) {
-			if (outUVBorder.Length < 2) throw gcnew ArgumentException("Output span must have length >=2", "outUVBorder");
-			if (outUVFill.Length < 2) throw gcnew ArgumentException("Output span must have length >=2", "outUVBorder");
-			pin_ptr<Vector2> pOutOffset = &outOffset, pOutSize = &outSize, pOutUVBorder = &MemoryMarshal::GetReference(outUVBorder), pOutUVFill = &MemoryMarshal::GetReference(outUVFill);
-			return m_atlas->GetMouseCursorTexData((ImGuiMouseCursor)cursor, (ImVec2*)pOutOffset, (ImVec2*)pOutSize, (ImVec2*)pOutUVBorder, (ImVec2*)pOutUVFill);
-		}
-	};
-
-	public ref class ImGuiIOCLI : Tesseract::ImGui::IImGuiIO {
-	internal:
-		ImGuiIO* m_io;
-		ImFontAtlasCLI^ m_fonts;
-		ImFontCLI^ m_fontdefault;
-
-		ImGuiIOCLI(ImGuiIO* io) : m_io(io) {
-			m_fonts = gcnew ImFontAtlasCLI(io->Fonts, false);
-		}
-
-	public:
-		virtual property Tesseract::ImGui::ImGuiConfigFlags ConfigFlags {
-			virtual Tesseract::ImGui::ImGuiConfigFlags get() { return (Tesseract::ImGui::ImGuiConfigFlags)m_io->ConfigFlags; }
-			virtual void set(Tesseract::ImGui::ImGuiConfigFlags value) { m_io->ConfigFlags = (ImGuiConfigFlags)value; }
-		}
-
-		virtual property Tesseract::ImGui::ImGuiBackendFlags BackendFlags {
-			virtual Tesseract::ImGui::ImGuiBackendFlags get() { return (Tesseract::ImGui::ImGuiBackendFlags)m_io->BackendFlags; }
-			virtual void set(Tesseract::ImGui::ImGuiBackendFlags value) { m_io->BackendFlags = (ImGuiBackendFlags)value; }
-		}
-
-		virtual property System::Numerics::Vector2 DisplaySize {
-			virtual Vector2 get() { return Vector2(m_io->DisplaySize.x, m_io->DisplaySize.y); }
-			virtual void set(Vector2 value) { m_io->DisplaySize = { value.X, value.Y }; }
-		}
-
-		virtual property float DeltaTime {
-			virtual float get() { return m_io->DeltaTime; }
-			virtual void set(float value) { m_io->DeltaTime = value; }
-		}
-
-		virtual property float IniSavingRate {
-			virtual float get() { return m_io->IniSavingRate; }
-			virtual void set(float value) { m_io->IniSavingRate = value; }
-		}
-
-	private:
-		StringHolder^ strIniFilename = gcnew StringHolder();
-		StringHolder^ strLogFilename = gcnew StringHolder();
-
-	public:
-		virtual property System::String^ IniFilename {
-			virtual String^ get() {
-				strIniFilename->Set(m_io->IniFilename);
-				return strIniFilename->Get();
-			}
-			virtual void set(String^ value) {
-				strIniFilename->Set(value);
-				m_io->IniFilename = strIniFilename->c_str();
-			}
-		}
-
-		virtual property System::String^ LogFilename {
-			virtual String^ get() {
-				strLogFilename->Set(m_io->LogFilename);
-				return strLogFilename->Get();
-			}
-			virtual void set(String^ value) {
-				strLogFilename->Set(value);
-				m_io->LogFilename = strLogFilename->c_str();
-			}
-		}
-
-		virtual property float MouseDoubleClickTime {
-			virtual float get() { return m_io->MouseDoubleClickTime; }
-			virtual void set(float value) { m_io->MouseDoubleClickTime = value; }
-		}
-
-		virtual property float MouseDoubleClickMaxDist {
-			virtual float get() { return m_io->MouseDoubleClickMaxDist; }
-			virtual void set(float value) { m_io->MouseDoubleClickMaxDist = value; }
-		}
-
-		virtual property float MouseDragThreshold {
-			virtual float get() { return m_io->MouseDragThreshold; }
-			virtual void set(float value) { m_io->MouseDragThreshold = value; }
-		}
-
-		virtual property float KeyRepeatDelay {
-			virtual float get() { return m_io->KeyRepeatDelay; }
-			virtual void set(float value) { m_io->KeyRepeatDelay = value; }
-		}
-
-		virtual property float KeyRepeatRate {
-			virtual float get() { return m_io->KeyRepeatRate; }
-			virtual void set(float value) { m_io->KeyRepeatRate = value; }
-		}
-
-		virtual property Tesseract::ImGui::IImFontAtlas^ Fonts {
-			virtual Tesseract::ImGui::IImFontAtlas^ get() {
-				return m_fonts;
-			}
-		}
-
-		virtual property float FontGlobalScale {
-			virtual float get() { return m_io->FontGlobalScale; }
-			virtual void set(float value) { m_io->FontGlobalScale = value; }
-		}
-
-		virtual property bool FontAllowUserScaling {
-			virtual bool get() { return m_io->FontAllowUserScaling; }
-			virtual void set(bool value) { m_io->FontAllowUserScaling = value; }
-		}
-
-		virtual property Tesseract::ImGui::IImFont^ FontDefault {
-			virtual Tesseract::ImGui::IImFont^ get() {
-				ImFont* font = m_io->FontDefault;
-				if (font) return gcnew ImFontCLI(font);
-				else return nullptr;
-			}
-			virtual void set(Tesseract::ImGui::IImFont^ value) {
-				m_io->FontDefault = m_fontdefault->m_font;
-			}
-		}
-
-		virtual property System::Numerics::Vector2 DisplayFramebufferScale {
-			virtual Vector2 get() { return Vector2(m_io->DisplayFramebufferScale.x, m_io->DisplayFramebufferScale.y); }
-			virtual void set(Vector2 value) { m_io->DisplayFramebufferScale = { value.X, value.Y }; }
-		}
-
-		virtual property bool MouseDrawCursor {
-			virtual bool get() { return m_io->MouseDrawCursor; }
-			virtual void set(bool value) { m_io->MouseDrawCursor = value; }
-		}
-
-		virtual property bool ConfigMacOSXBehaviors {
-			virtual bool get() { return m_io->ConfigMacOSXBehaviors; }
-			virtual void set(bool value) { m_io->ConfigMacOSXBehaviors = value; }
-		}
-
-		virtual property bool ConfigInputTrickleEventQueue {
-			virtual bool get() { return m_io->ConfigInputTrickleEventQueue; }
-			virtual void set(bool value) { m_io->ConfigInputTrickleEventQueue = value; }
-		}
-
-		virtual property bool ConfigInputTextCursorBlink {
-			virtual bool get() { return m_io->ConfigInputTextCursorBlink; }
-			virtual void set(bool value) { m_io->ConfigInputTextCursorBlink = value; }
-		}
-
-		virtual property bool ConfigDragClickToInputText {
-			virtual bool get() { return m_io->ConfigDragClickToInputText; }
-			virtual void set(bool value) { m_io->ConfigDragClickToInputText = value; }
-		}
-
-		virtual property bool ConfigWindowsResizeFromEdges {
-			virtual bool get() { return m_io->ConfigWindowsResizeFromEdges; }
-			virtual void set(bool value) { m_io->ConfigWindowsResizeFromEdges = value; }
-		}
-
-		virtual property bool ConfigWindowsMoveFromTitleBarOnly {
-			virtual bool get() { return m_io->ConfigWindowsMoveFromTitleBarOnly; }
-			virtual void set(bool value) { m_io->ConfigWindowsMoveFromTitleBarOnly = value; }
-		}
-
-		virtual property float ConfigMemoryCompactTimer {
-			virtual float get() { return m_io->ConfigMemoryCompactTimer; }
-			virtual void set(float value) { m_io->ConfigMemoryCompactTimer = value; }
-		}
-
-		// Platform Functions
-
-	private:
-		StringHolder^ strBackendPlatformName = gcnew StringHolder();
-		StringHolder^ strBackendRendererName = gcnew StringHolder();
-
-	public:
-		virtual property System::String^ BackendPlatformName {
-			virtual String^ get() {
-				strBackendPlatformName->Set(m_io->BackendPlatformName);
-				return strBackendPlatformName->Get();
-			}
-			virtual void set(String^ value) {
-				strBackendPlatformName->Set(value);
-				m_io->BackendPlatformName = strBackendPlatformName->c_str();
-			}
-		}
-
-		virtual property System::String^ BackendRendererName {
-			virtual String^ get() {
-				strBackendRendererName->Set(m_io->BackendRendererName);
-				return strBackendRendererName->Get();
-			}
-			virtual void set(String^ value) {
-				strBackendRendererName->Set(value);
-				m_io->BackendRendererName = strBackendRendererName->c_str();
-			}
-		}
-
-	private:
-		static Func<String^>^ getClipboardTextFn = nullptr;
-		static StringHolder^ clipboardTextSet = gcnew StringHolder();
-		static const char* getClipboardTextCbk(void*) {
-			clipboardTextSet->Set(getClipboardTextFn->Invoke());
-			return clipboardTextSet->c_str();
-		}
-
-		static Action<String^>^ setClipboardTextFn = nullptr;
-		static void setClipboardTextCbk(void*, const char* str) {
-			setClipboardTextFn->Invoke(gcnew String(str));
-		}
-
-		static Action<Tesseract::ImGui::ImGuiViewport, Tesseract::ImGui::ImGuiPlatformImeData>^ setPlatformImeDataFn = nullptr;
-		static void setPlatformImeDataCbk(ImGuiViewport* viewport, ImGuiPlatformImeData* data) {
-			Tesseract::ImGui::ImGuiViewport m_viewport = {};
-			m_viewport.Flags = (Tesseract::ImGui::ImGuiViewportFlags)viewport->Flags;
-			m_viewport.Pos = Vector2(viewport->Pos.x, viewport->Pos.y);
-			m_viewport.Size = Vector2(viewport->Size.x, viewport->Size.y);
-			m_viewport.WorkPos = Vector2(viewport->WorkPos.x, viewport->WorkPos.y);
-			m_viewport.WorkSize = Vector2(viewport->WorkSize.x, viewport->WorkSize.y);
-			m_viewport.PlatformHandleRaw = (IntPtr)viewport->PlatformHandleRaw;
-
-			Tesseract::ImGui::ImGuiPlatformImeData m_data = {};
-			m_data.WantVisible = data->WantVisible;
-			m_data.InputPos = Vector2(data->InputPos.x, data->InputPos.y);
-			m_data.InputLineHeight = data->InputLineHeight;
-
-			setPlatformImeDataFn->Invoke(m_viewport, m_data);
-		}
-
-	public:
-		virtual property System::Func<System::String^>^ GetClipboardTextFn {
-			virtual void set(Func<String^>^ value) {
-				getClipboardTextFn = value;
-				m_io->GetClipboardTextFn = (const char* (*)(void*))getClipboardTextCbk;
-			}
-		}
-
-		virtual property System::Action<System::String^>^ SetClipboardTextFn {
-			virtual void set(Action<String^>^ value) {
-				setClipboardTextFn = value;
-				m_io->SetClipboardTextFn = (void(*)(void*, const char*))setClipboardTextCbk;
-			}
-		}
-
-		virtual property System::Action<Tesseract::ImGui::ImGuiViewport, Tesseract::ImGui::ImGuiPlatformImeData>^ SetPlatformImeDataFn {
-			virtual void set(Action<Tesseract::ImGui::ImGuiViewport, Tesseract::ImGui::ImGuiPlatformImeData>^ value) {
-				setPlatformImeDataFn = value;
-				m_io->SetPlatformImeDataFn = (void(*)(ImGuiViewport*, ImGuiPlatformImeData*))setPlatformImeDataCbk;
-			}
-		}
-
-		// Output
-
-		virtual property bool WantCaptureMouse {
-			virtual bool get() { return m_io->WantCaptureMouse; }
-		}
-
-		virtual property bool WantCaptureKeyboard {
-			virtual bool get() { return m_io->WantCaptureKeyboard; }
-		}
-
-		virtual property bool WantTextInput {
-			virtual bool get() { return m_io->WantTextInput; }
-		}
-
-		virtual property bool WantSetMousePos {
-			virtual bool get() { return m_io->WantSetMousePos; }
-		}
-
-		virtual property bool WantSaveIniSettings {
-			virtual bool get() { return m_io->WantSaveIniSettings; }
-			virtual void set(bool value) { m_io->WantSaveIniSettings = value; }
-		}
-
-		virtual property bool NavActive {
-			virtual bool get() { return m_io->NavActive; }
-		}
-
-		virtual property bool NavVisible {
-			virtual bool get() { return m_io->NavVisible; }
-		}
-
-		virtual property float Framerate {
-			virtual float get() { return m_io->Framerate; }
-		}
-
-		virtual property int MetricsRenderVertices {
-			virtual int get() { return m_io->MetricsRenderVertices; }
-		}
-
-		virtual property int MetricsRenderIndices {
-			virtual int get() { return m_io->MetricsRenderIndices; }
-		}
-
-		virtual property int MetricsRenderWindows {
-			virtual int get() { return m_io->MetricsRenderWindows; }
-		}
-
-		virtual property int MetricsActiveWindows {
-			virtual int get() { return m_io->MetricsActiveWindows; }
-		}
-
-		virtual property int MetricsActiveAllocations {
-			virtual int get() { return m_io->MetricsActiveAllocations; }
-		}
-
-		virtual property System::Numerics::Vector2 MouseDelta {
-			virtual Vector2 get() { return Vector2(m_io->MouseDelta.x, m_io->MouseDelta.y); }
-		}
-
-		// Input
-
-		virtual void AddKeyEvent(Tesseract::ImGui::ImGuiKey key, bool down) {
-			m_io->AddKeyEvent((ImGuiKey)key, down);
-		}
-
-		virtual void AddKeyAnalogEvent(Tesseract::ImGui::ImGuiKey key, bool down, float v) {
-			m_io->AddKeyAnalogEvent((ImGuiKey)key, down, v);
-		}
-
-		virtual void AddMousePosEvent(float x, float y) {
-			m_io->AddMousePosEvent(x, y);
-		}
-
-		virtual void AddMouseButtonEvent(int button, bool down) {
-			m_io->AddMouseButtonEvent(button, down);
-		}
-
-		virtual void AddMouseWheelEvent(float x, float y) {
-			m_io->AddMouseWheelEvent(x, y);
-		}
-
-		virtual void AddFocusEvent(bool focused) {
-			m_io->AddFocusEvent(focused);
-		}
-
-		virtual void AddInputCharacter(int c) {
-			m_io->AddInputCharacter(c);
-		}
-
-		virtual void AddInputCharacterUTF16(wchar_t c) {
-			m_io->AddInputCharacterUTF16(c);
-		}
-
-		virtual void AddInputCharactersUTF8(System::ReadOnlySpan<unsigned char> str) {
-			pin_ptr<unsigned char> pStr = &MemoryMarshal::GetReference(str);
-			m_io->AddInputCharactersUTF8((const char*)pStr);
-		}
-
-		virtual void AddInputCharacters(System::String^ str) {
-			StringParam pStr(str);
-			m_io->AddInputCharactersUTF8(pStr.c_str());
-		}
-
-		// [Internal]
-
-		virtual property System::Numerics::Vector2 MousePos {
-			virtual Vector2 get() {
-				return Vector2(m_io->MousePos.x, m_io->MousePos.y);
-			}
-		}
-
-	};
-
 	public ref class ImGuiTableSortSpecsCLI : Tesseract::ImGui::IImGuiTableSortSpecs {
 	internal:
 		ImGuiTableSortSpecs* m_specs;
@@ -1910,9 +136,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		ImGuiPayloadCLI(const ImGuiPayload* payload) : m_payload(payload) {}
 
 	public:
-		virtual property System::ReadOnlySpan<unsigned char> Data {
-			virtual ReadOnlySpan<unsigned char> get() {
-				return ReadOnlySpan<unsigned char>(m_payload->Data, m_payload->DataSize);
+		virtual property System::ReadOnlySpan<byte> Data {
+			virtual ReadOnlySpan<byte> get() {
+				return ReadOnlySpan<byte>(m_payload->Data, m_payload->DataSize);
 			}
 		}
 
@@ -2116,19 +342,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::ShowDemoWindow(pOpen);
 		}
 
-		virtual void ShowDemoWindow(System::Nullable<bool> open) {
-			bool pOpen = open.GetValueOrDefault();
-			::ImGui::ShowDemoWindow(open.HasValue ? &pOpen : nullptr);
-		}
-
 		virtual void ShowMetricsWindow(bool% open) {
 			pin_ptr<bool> pOpen = &open;
 			::ImGui::ShowMetricsWindow(pOpen);
-		}
-
-		virtual void ShowMetricsWindow(System::Nullable<bool> open) {
-			bool pOpen = open.GetValueOrDefault();
-			::ImGui::ShowMetricsWindow(open.HasValue ? &pOpen : nullptr);
 		}
 
 		virtual void ShowStackToolWindow(bool% open) {
@@ -2136,19 +352,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::ShowStackToolWindow(pOpen);
 		}
 
-		virtual void ShowStackToolWindow(System::Nullable<bool> open) {
-			bool pOpen = open.GetValueOrDefault();
-			::ImGui::ShowStackToolWindow(open.HasValue ? &pOpen : nullptr);
-		}
-
 		virtual void ShowAboutWindow(bool% open) {
 			pin_ptr<bool> pOpen = &open;
 			::ImGui::ShowAboutWindow(pOpen);
-		}
-
-		virtual void ShowAboutWindow(System::Nullable<bool> open) {
-			bool pOpen = open.GetValueOrDefault();
-			::ImGui::ShowAboutWindow(open.HasValue ? &pOpen : nullptr);
 		}
 
 		virtual void ShowStyleEditor(Tesseract::ImGui::IImGuiStyle^ style) {
@@ -2157,14 +363,14 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::ShowStyleEditor(pStyle);
 		}
 
-		virtual void ShowStyleSelector(System::String^ label) {
-			StringParam pLabel(label);
-			::ImGui::ShowStyleSelector(pLabel.c_str());
+		virtual void ShowStyleSelector(ReadOnlySpan<byte> label) {
+			IM_SPAN_TO_STR(pLabel, label);
+			::ImGui::ShowStyleSelector(pLabel);
 		}
 
-		virtual void ShowFontSelector(System::String^ label) {
-			StringParam pLabel(label);
-			::ImGui::ShowFontSelector(pLabel.c_str());
+		virtual void ShowFontSelector(ReadOnlySpan<byte> label) {
+			IM_SPAN_TO_STR(pLabel, label);
+			::ImGui::ShowFontSelector(pLabel);
 		}
 		
 		virtual void ShowUserGuide() {
@@ -2210,20 +416,10 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
 		// - Note that the bottom of window stack always contains a window called "Debug".
 
-		virtual void Begin(System::String^ name, bool% open, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pName(name);
+		virtual bool Begin(ReadOnlySpan<byte> name, bool% open, Tesseract::ImGui::ImGuiWindowFlags flags) {
+			IM_SPAN_TO_STR(pName, name);
 			pin_ptr<bool> pOpen = &open;
-			::ImGui::Begin(pName.c_str(), pOpen, (ImGuiWindowFlags)flags);
-		}
-
-		virtual void Begin(System::String^ name, System::Nullable<bool> open, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pName(name);
-			bool vopen, *pvopen = nullptr;
-			if (open.HasValue) {
-				vopen = open.Value;
-				pvopen = &vopen;
-			}
-			::ImGui::Begin(pName.c_str(), pvopen, (ImGuiWindowFlags)flags);
+			return ::ImGui::Begin(pName, pOpen, (ImGuiWindowFlags)flags);
 		}
 
 		virtual void End() {
@@ -2239,9 +435,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//    BeginPopup/EndPopup, etc. where the EndXXX call should only be called if the corresponding BeginXXX function
 		//    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
 
-		virtual void BeginChild(System::String^ strId, System::Numerics::Vector2 size, bool border, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pStrID(strId);
-			::ImGui::BeginChild(pStrID.c_str(), { size.X, size.Y }, border, (ImGuiWindowFlags)flags);
+		virtual void BeginChild(ReadOnlySpan<byte> strId, System::Numerics::Vector2 size, bool border, Tesseract::ImGui::ImGuiWindowFlags flags) {
+			IM_SPAN_TO_STR(pStrId, strId);
+			::ImGui::BeginChild(pStrId, { size.X, size.Y }, border, (ImGuiWindowFlags)flags);
 		}
 
 		virtual void BeginChild(unsigned int id, System::Numerics::Vector2 size, bool border, Tesseract::ImGui::ImGuiWindowFlags flags) {
@@ -2355,24 +551,24 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::SetWindowFontScale(scale);
 		}
 
-		virtual void SetWindowPos(System::String^ name, System::Numerics::Vector2 pos, Tesseract::ImGui::ImGuiCond cond) {
-			StringParam pName(name);
-			::ImGui::SetWindowPos(pName.c_str(), { pos.X, pos.Y }, (ImGuiCond)cond);
+		virtual void SetWindowPos(ReadOnlySpan<byte> name, System::Numerics::Vector2 pos, Tesseract::ImGui::ImGuiCond cond) {
+			IM_SPAN_TO_STR(pName, name);
+			::ImGui::SetWindowPos(pName, { pos.X, pos.Y }, (ImGuiCond)cond);
 		}
 
-		virtual void SetWindowSize(System::String^ name, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiCond cond) {
-			StringParam pName(name);
-			::ImGui::SetWindowSize(pName.c_str(), { size.X, size.Y }, (ImGuiCond)cond);
+		virtual void SetWindowSize(ReadOnlySpan<byte> name, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiCond cond) {
+			IM_SPAN_TO_STR(pName, name);
+			::ImGui::SetWindowSize(pName, { size.X, size.Y }, (ImGuiCond)cond);
 		}
 
-		virtual void SetWindowCollapsed(System::String^ name, bool collapsed, Tesseract::ImGui::ImGuiCond cond) {
-			StringParam pName(name);
-			::ImGui::SetWindowCollapsed(pName.c_str(), collapsed, (ImGuiCond)cond);
+		virtual void SetWindowCollapsed(ReadOnlySpan<byte> name, bool collapsed, Tesseract::ImGui::ImGuiCond cond) {
+			IM_SPAN_TO_STR(pName, name);
+			::ImGui::SetWindowCollapsed(pName, collapsed, (ImGuiCond)cond);
 		}
 
-		virtual void SetWindowFocus(System::String^ name) {
-			StringParam pName(name);
-			::ImGui::SetWindowFocus(pName.c_str());
+		virtual void SetWindowFocus(ReadOnlySpan<byte> name) {
+			IM_SPAN_TO_STR(pName, name);
+			::ImGui::SetWindowFocus(pName);
 		}
 
 		// Content region
@@ -2665,9 +861,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - In this header file we use the "label"/"name" terminology to denote a string that will be displayed + used as an ID,
 		//   whereas "str_id" denote a string that is only used as an ID and not normally displayed.
 
-		virtual void PushID(System::String^ strID) {
-			StringParam pStrID(strID);
-			::ImGui::PushID(pStrID.c_str());
+		virtual void PushID(ReadOnlySpan<byte> strID) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			::ImGui::PushID((const char*)pStrID);
 		}
 
 		virtual void PushID(System::IntPtr ptrID) {
@@ -2682,9 +878,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::PopID();
 		}
 
-		virtual unsigned int GetID(System::String^ strID) {
-			StringParam pStrID(strID);
-			return ::ImGui::GetID(pStrID.c_str());
+		virtual unsigned int GetID(ReadOnlySpan<byte> strID) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::GetID((const char*)pStrID);
 		}
 
 		virtual unsigned int GetID(System::IntPtr ptrID) {
@@ -2693,58 +889,60 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 
 		// Widgets: Text
 
-		virtual void Text(System::String^ text) {
-			StringParam pText(text);
-			::ImGui::TextUnformatted(pText.begin(), pText.end());
+		virtual void Text(ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			const char* pcText = (const char*)pText;
+			::ImGui::TextUnformatted(pcText, pcText + text.Length);
 		}
 
-		virtual void TextColored(System::Numerics::Vector4 col, System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::TextColored({ col.X, col.Y, col.Z, col.W }, pFmt.c_str());
+		virtual void TextColored(System::Numerics::Vector4 col, ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::TextColored({ col.X, col.Y, col.Z, col.W }, "%s", (const char*)pText);
 		}
 
-		virtual void TextDisabled(System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::TextDisabled(pFmt.c_str());
+		virtual void TextDisabled(ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::TextDisabled("%s", (const char*)pText);
 		}
 
-		virtual void TextWrapped(System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::TextWrapped(pFmt.c_str());
+		virtual void TextWrapped(ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::TextWrapped("%s", (const char*)pText);
 		}
 
-		virtual void LabelText(System::String^ label, System::String^ fmt) {
-			StringParam pLabel(label), pFmt(fmt, true);
-			::ImGui::LabelText(pLabel.c_str(), pFmt.c_str());
+		virtual void LabelText(ReadOnlySpan<byte> label, ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::LabelText((const char*)pLabel, "%s", (const char*)pText);
 		}
 
-		virtual void BulletText(System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::BulletText(pFmt.c_str());
+		virtual void BulletText(ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::BulletText("%s", (const char*)pText);
 		}
 
 		// Widgets: Main
 		// - Most widgets return true when the value has been changed or when pressed/selected
 		// - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
 
-		virtual bool Button(System::String^ label, System::Numerics::Vector2 size) {
-			StringParam pLabel(label);
-			return ::ImGui::Button(pLabel.c_str(), { size.X, size.Y });
+		virtual bool Button(ReadOnlySpan<byte> label, System::Numerics::Vector2 size) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::Button((const char*)pLabel, { size.X, size.Y });
 		}
 
-		virtual bool SmallButton(System::String^ label) {
-			StringParam pLabel(label);
-			return ::ImGui::SmallButton(pLabel.c_str());
+		virtual bool SmallButton(ReadOnlySpan<byte> label) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::SmallButton((const char*)pLabel);
 		}
 
-		virtual bool InvisibleButton(System::String^ strID, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiButtonFlags flags) {
-			StringParam pStrID(strID);
-			return ::ImGui::InvisibleButton(pStrID.c_str(), { size.X, size.Y }, (ImGuiButtonFlags)flags);
+		virtual bool InvisibleButton(ReadOnlySpan<byte> strID, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiButtonFlags flags) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::InvisibleButton((const char*)pStrID, { size.X, size.Y }, (ImGuiButtonFlags)flags);
 		}
 
-		virtual bool ArrowButton(System::String^ strID, Tesseract::ImGui::ImGuiDir dir) {
-			StringParam pStrID(strID);
-			return ::ImGui::ArrowButton(pStrID.c_str(), (ImGuiDir)dir);
+		virtual bool ArrowButton(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiDir dir) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::ArrowButton((const char*)pStrID, (ImGuiDir)dir);
 		}
 
 		virtual void Image(System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0, System::Numerics::Vector2 uv1, System::Numerics::Vector4 tintCol, System::Numerics::Vector4 borderCol) {
@@ -2771,38 +969,38 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			return ImageButton(userTextureID, size, uv0, Vector2::One, -1, Vector4::Zero);
 		}
 
-		virtual bool Checkbox(System::String^ label, bool% v) {
-			StringParam pLabel(label);
+		virtual bool Checkbox(ReadOnlySpan<byte> label, bool% v) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<bool> pv = &v;
-			return ::ImGui::Checkbox(pLabel.c_str(), pv);
+			return ::ImGui::Checkbox((const char*)pLabel, pv);
 		}
 
-		virtual bool CheckboxFlags(System::String^ label, int% flags, int flagsValue) {
-			StringParam pLabel(label);
+		virtual bool CheckboxFlags(ReadOnlySpan<byte> label, int% flags, int flagsValue) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pFlags = &flags;
-			return ::ImGui::CheckboxFlags(pLabel.c_str(), pFlags, flagsValue);
+			return ::ImGui::CheckboxFlags((const char*)pLabel, pFlags, flagsValue);
 		}
 
-		virtual bool CheckboxFlags(System::String^ label, unsigned int% flags, unsigned int flagsValue) {
-			StringParam pLabel(label);
+		virtual bool CheckboxFlags(ReadOnlySpan<byte> label, unsigned int% flags, unsigned int flagsValue) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<unsigned int> pFlags = &flags;
-			return ::ImGui::CheckboxFlags(pLabel.c_str(), pFlags, flagsValue);
+			return ::ImGui::CheckboxFlags((const char*)pLabel, pFlags, flagsValue);
 		}
 
-		virtual bool RadioButton(System::String^ label, bool active) {
-			StringParam pLabel(label);
-			return ::ImGui::RadioButton(pLabel.c_str(), active);
+		virtual bool RadioButton(ReadOnlySpan<byte> label, bool active) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::RadioButton((const char*)pLabel, active);
 		}
 
-		virtual bool RadioButton(System::String^ label, int% v, int vButton) {
-			StringParam pLabel(label);
+		virtual bool RadioButton(ReadOnlySpan<byte> label, int% v, int vButton) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pv = &v;
-			return ::ImGui::RadioButton(pLabel.c_str(), pv, vButton);
+			return ::ImGui::RadioButton((const char*)pLabel, pv, vButton);
 		}
 
-		virtual void ProgressBar(float fraction, System::Numerics::Vector2 sizeArg, System::String^ overlay) {
-			StringParam pOverlay(overlay);
-			::ImGui::ProgressBar(fraction, { sizeArg.X, sizeArg.Y }, pOverlay.c_str());
+		virtual void ProgressBar(float fraction, System::Numerics::Vector2 sizeArg, ReadOnlySpan<byte> overlay) {
+			IM_SPAN_TO_STR(pOverlay, overlay);
+			::ImGui::ProgressBar(fraction, { sizeArg.X, sizeArg.Y }, overlay.IsEmpty ? nullptr : (const char*)pOverlay);
 		}
 
 		virtual void ProgressBar(float fraction) {
@@ -2817,26 +1015,28 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - The BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() items.
 		// - The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose. This is analogous to how ListBox are created.
 
-		virtual bool BeginCombo(System::String^ label, System::String^ previewValue, Tesseract::ImGui::ImGuiComboFlags flags) {
-			StringParam pLabel(label), pPreviewValue(previewValue);
-			return ::ImGui::BeginCombo(pLabel.c_str(), pPreviewValue.c_str(), (ImGuiComboFlags)flags);
+		virtual bool BeginCombo(ReadOnlySpan<byte> label, ReadOnlySpan<byte> previewValue, Tesseract::ImGui::ImGuiComboFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR(pPreviewValue, previewValue);
+			return ::ImGui::BeginCombo((const char*)pLabel, (const char*)pPreviewValue, (ImGuiComboFlags)flags);
 		}
 
 		virtual void EndCombo() {
 			::ImGui::EndCombo();
 		}
 
-		virtual bool Combo(System::String^ label, int% currentItem, System::Collections::Generic::IEnumerable<System::String^>^ items, int popupMaxHeightInItems) {
-			StringParam pLabel(label);
+		virtual bool Combo(ReadOnlySpan<byte> label, int% currentItem, System::Collections::Generic::IEnumerable<System::String^>^ items, int popupMaxHeightInItems) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pCurrentItem = &currentItem;
 			StringArrayParam pItems(items);
-			return ::ImGui::Combo(pLabel.c_str(), pCurrentItem, pItems.data(), (int)pItems.length(), popupMaxHeightInItems);
+			return ::ImGui::Combo((const char*)pLabel, pCurrentItem, pItems.data(), (int)pItems.length(), popupMaxHeightInItems);
 		}
 
-		virtual bool Combo(System::String^ label, int% currentItem, System::String^ itemsSeparatedByZeros, int popupMaxHeightInItems) {
-			StringParam pLabel(label), pItemsSeparatedByZeros(itemsSeparatedByZeros);
+		virtual bool Combo(ReadOnlySpan<byte> label, int% currentItem, ReadOnlySpan<byte> itemsSeparatedByZeros, int popupMaxHeightInItems) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR(pItemsSeparatedByZeros, itemsSeparatedByZeros);
 			pin_ptr<int> pCurrentItem = &currentItem;
-			return ::ImGui::Combo(pLabel.c_str(), pCurrentItem, pItemsSeparatedByZeros.c_str(), popupMaxHeightInItems);
+			return ::ImGui::Combo((const char*)pLabel, pCurrentItem, (const char*)pItemsSeparatedByZeros, popupMaxHeightInItems);
 		}
 
 	private:
@@ -2849,11 +1049,11 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 	public:
-		virtual bool Combo(System::String^ label, int% currentItem, Tesseract::ImGui::IImGui::ComboItemsGetter^ itemsGetter, int itemscount, int popupMaxHeightInItems) {
-			StringParam pLabel(label);
+		virtual bool Combo(ReadOnlySpan<byte> label, int% currentItem, Tesseract::ImGui::IImGui::ComboItemsGetter^ itemsGetter, int itemscount, int popupMaxHeightInItems) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pCurrentItem = &currentItem;
 			comboGetterFn = itemsGetter;
-			return ::ImGui::Combo(pLabel.c_str(), pCurrentItem, (bool(*)(void*,int,const char**))comboGetterCbk, nullptr, itemscount, popupMaxHeightInItems);
+			return ::ImGui::Combo((const char*)pLabel, pCurrentItem, (bool(*)(void*,int,const char**))comboGetterCbk, nullptr, itemscount, popupMaxHeightInItems);
 		}
 
 		// Widgets: Drag Sliders
@@ -2869,70 +1069,82 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - Legacy: Pre-1.78 there are DragXXX() function signatures that takes a final `float power=1.0f' argument instead of the `ImGuiSliderFlags flags=0' argument.
 		//   If you get a warning converting a float to ImGuiSliderFlags, read https://github.com/ocornut/imgui/issues/3361
 
-		virtual bool DragFloat(System::String^ label, float% v, float vSpeed, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragFloat(ReadOnlySpan<byte> label, float% v, float vSpeed, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<float> pv = &v;
-			return ::ImGui::DragFloat(pLabel.c_str(), pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragFloat(pLabel, pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragFloat2(System::String^ label, System::Numerics::Vector2% v, float vSpeed, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragFloat2(ReadOnlySpan<byte> label, System::Numerics::Vector2% v, float vSpeed, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector2> pv = &v;
-			return ::ImGui::DragFloat2(pLabel.c_str(), (float*)pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragFloat2(pLabel, (float*)pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragFloat3(System::String^ label, System::Numerics::Vector3% v, float vSpeed, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragFloat3(ReadOnlySpan<byte> label, System::Numerics::Vector3% v, float vSpeed, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector3> pv = &v;
-			return ::ImGui::DragFloat3(pLabel.c_str(), (float*)pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragFloat3(pLabel, (float*)pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragFloat4(System::String^ label, System::Numerics::Vector4% v, float vSpeed, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragFloat4(ReadOnlySpan<byte> label, System::Numerics::Vector4% v, float vSpeed, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector4> pv = &v;
-			return ::ImGui::DragFloat4(pLabel.c_str(), (float*)pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragFloat4(pLabel, (float*)pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragFloatRange2(System::String^ label, float% vCurrentMin, float% vCurrentMax, float vSpeed, float vMin, float vMax, System::String^ format, System::String^ formatMax, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format), pFormatMax(formatMax);
+		virtual bool DragFloatRange2(ReadOnlySpan<byte> label, float% vCurrentMin, float% vCurrentMax, float vSpeed, float vMin, float vMax, ReadOnlySpan<byte> format, ReadOnlySpan<byte> formatMax, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
+			IM_SPAN_TO_STR_DEFAULT(pFormatMax, formatMax, nullptr);
 			pin_ptr<float> pvCurrentMin = &vCurrentMin, pvCurrentMax = &vCurrentMax;
-			return ::ImGui::DragFloatRange2(pLabel.c_str(), pvCurrentMin, pvCurrentMax, vSpeed, vMin, vMax, pFormat.c_str(), pFormatMax.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragFloatRange2(pLabel, pvCurrentMin, pvCurrentMax, vSpeed, vMin, vMax, pFormat, pFormatMax, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragInt(System::String^ label, int% v, float vSpeed, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragInt(ReadOnlySpan<byte> label, int% v, float vSpeed, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &v;
-			return ::ImGui::DragInt(pLabel.c_str(), pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragInt(pLabel, pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool DragInt2(System::String^ label, System::Span<int> v, float vSpeed, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool DragInt2(ReadOnlySpan<byte> label, System::Span<int> v, float vSpeed, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 2) throw gcnew System::ArgumentException("Value span must have length >= 2", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			bool retn = ::ImGui::DragInt2(pLabel.c_str(), pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			bool retn = ::ImGui::DragInt2(pLabel, pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 			return retn;
 		}
 
-		virtual bool DragInt3(System::String^ label, System::Span<int> v, float vSpeed, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool DragInt3(ReadOnlySpan<byte> label, System::Span<int> v, float vSpeed, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 2) throw gcnew System::ArgumentException("Value span must have length >= 3", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			bool retn = ::ImGui::DragInt3(pLabel.c_str(), pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			bool retn = ::ImGui::DragInt3(pLabel, pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 			return retn;
 		}
 
-		virtual bool DragInt4(System::String^ label, System::Span<int> v, float vSpeed, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool DragInt4(ReadOnlySpan<byte> label, System::Span<int> v, float vSpeed, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 2) throw gcnew System::ArgumentException("Value span must have length >= 4", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			bool retn = ::ImGui::DragInt4(pLabel.c_str(), pv, vSpeed, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			bool retn = ::ImGui::DragInt4(pLabel, pv, vSpeed, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 			return retn;
 		}
 
-		virtual bool DragIntRange2(System::String^ label, int% vCurrentMin, int% vCurrentMax, float vSpeed, int vMin, int vMax, System::String^ format, System::String^ formatMax, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format), pFormatMax(formatMax);
+		virtual bool DragIntRange2(ReadOnlySpan<byte> label, int% vCurrentMin, int% vCurrentMax, float vSpeed, int vMin, int vMax, ReadOnlySpan<byte> format, ReadOnlySpan<byte> formatMax, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
+			IM_SPAN_TO_STR_DEFAULT(pFormatMax, formatMax, nullptr);
 			pin_ptr<int> pvCurrentMin = &vCurrentMin, pvCurrentMax = &vCurrentMax;
-			return ::ImGui::DragIntRange2(pLabel.c_str(), pvCurrentMin, pvCurrentMax, vSpeed, vMin, vMax, pFormat.c_str(), pFormatMax.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragIntRange2(pLabel, pvCurrentMin, pvCurrentMax, vSpeed, vMin, vMax, pFormat, pFormatMax, (ImGuiSliderFlags)flags);
 		}
 
 	private:
@@ -2954,8 +1166,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 	public:
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool DragScalar(System::String^ label, T% data, float vSpeed, Tesseract::ImGui::ImNullable<T> min, Tesseract::ImGui::ImNullable<T> max, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool DragScalar(ReadOnlySpan<byte> label, T% data, float vSpeed, Tesseract::ImGui::ImNullable<T> min, Tesseract::ImGui::ImNullable<T> max, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &data;
 			T vMin = {}, vMax = {};
 			pin_ptr<T> pMin = nullptr, pMax = nullptr;
@@ -2967,13 +1180,15 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 				vMax = max.Value;
 				pMax = &vMax;
 			}
-			return ::ImGui::DragScalar(pLabel.c_str(), GetDataType<T>(), pData, vSpeed, pMin, pMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragScalar(pLabel, GetDataType<T>(), pData, vSpeed, pMin, pMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool DragScalarN(System::String^ label, System::Span<T> data, float vSpeed, Tesseract::ImGui::ImNullable<T> min, Tesseract::ImGui::ImNullable<T> max, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			pin_ptr<T> pData = &MemoryMarshal::GetReference(data); StringParam pLabel(label), pFormat(format);
+		virtual bool DragScalarN(ReadOnlySpan<byte> label, System::Span<T> data, float vSpeed, Tesseract::ImGui::ImNullable<T> min, Tesseract::ImGui::ImNullable<T> max, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
+			pin_ptr<T> pData = &MemoryMarshal::GetReference(data);
 			T vMin = {}, vMax = {};
 			pin_ptr<T> pMin = nullptr, pMax = nullptr;
 			if (min.HasValue) {
@@ -2984,7 +1199,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 				vMax = max.Value;
 				pMax = &vMax;
 			}
-			return ::ImGui::DragScalarN(pLabel.c_str(), GetDataType<T>(), pData, data.Length, vSpeed, pMin, pMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::DragScalarN(pLabel, GetDataType<T>(), pData, data.Length, vSpeed, pMin, pMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		// Widgets: Regular Sliders
@@ -2994,97 +1209,111 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - Legacy: Pre-1.78 there are SliderXXX() function signatures that takes a final `float power=1.0f' argument instead of the `ImGuiSliderFlags flags=0' argument.
 		//   If you get a warning converting a float to ImGuiSliderFlags, read https://github.com/ocornut/imgui/issues/3361
 
-		virtual bool SliderFloat(System::String^ label, float% v, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderFloat(ReadOnlySpan<byte> label, float% v, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<float> pv = &v;
-			return ::ImGui::SliderFloat(pLabel.c_str(), pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderFloat(pLabel, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderFloat2(System::String^ label, System::Numerics::Vector2% v, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderFloat2(ReadOnlySpan<byte> label, System::Numerics::Vector2% v, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector2> pv = &v;
-			return ::ImGui::SliderFloat2(pLabel.c_str(), (float*)pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderFloat2(pLabel, (float*)pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderFloat3(System::String^ label, System::Numerics::Vector3% v, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderFloat3(ReadOnlySpan<byte> label, System::Numerics::Vector3% v, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector3> pv = &v;
-			return ::ImGui::SliderFloat3(pLabel.c_str(), (float*)pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderFloat3(pLabel, (float*)pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderFloat4(System::String^ label, System::Numerics::Vector4% v, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderFloat4(ReadOnlySpan<byte> label, System::Numerics::Vector4% v, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector4> pv = &v;
-			return ::ImGui::SliderFloat4(pLabel.c_str(), (float*)pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderFloat4(pLabel, (float*)pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderAngle(System::String^ label, float% vRad, float vDegreesMin, float vDegreesMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderAngle(ReadOnlySpan<byte> label, float% vRad, float vDegreesMin, float vDegreesMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.0f deg");
 			pin_ptr<float> pv = &vRad;
-			return ::ImGui::SliderAngle(pLabel.c_str(), pv, vDegreesMin, vDegreesMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderAngle(pLabel, pv, vDegreesMin, vDegreesMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderInt(System::String^ label, int% v, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderInt(ReadOnlySpan<byte> label, int% v, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &v;
-			return ::ImGui::SliderInt(pLabel.c_str(), pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderInt(pLabel, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderInt2(System::String^ label, System::Span<int> v, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool SliderInt2(ReadOnlySpan<byte> label, System::Span<int> v, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 2) throw gcnew System::ArgumentException("Value span must have length >= 2", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::SliderInt2(pLabel.c_str(), pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderInt2(pLabel, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderInt3(System::String^ label, System::Span<int> v, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool SliderInt3(ReadOnlySpan<byte> label, System::Span<int> v, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 3) throw gcnew System::ArgumentException("Value span must have length >= 3", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::SliderInt3(pLabel.c_str(), pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderInt3(pLabel, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool SliderInt4(System::String^ label, System::Span<int> v, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+		virtual bool SliderInt4(ReadOnlySpan<byte> label, System::Span<int> v, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
 			if (v.Length < 4) throw gcnew System::ArgumentException("Value span must have length >= 4", "v");
-			StringParam pLabel(label), pFormat(format);
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::SliderInt4(pLabel.c_str(), pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderInt4(pLabel, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool SliderScalar(System::String^ label, T% data, T min, T max, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderScalar(ReadOnlySpan<byte> label, T% data, T min, T max, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &data, pMin = &min, pMax = &max;
-			return ::ImGui::SliderScalar(pLabel.c_str(), GetDataType<T>(), pData, pMin, pMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::SliderScalar(pLabel, GetDataType<T>(), pData, pMin, pMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool SliderScalarN(System::String^ label, System::Span<T> data, T min, T max, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool SliderScalarN(ReadOnlySpan<byte> label, System::Span<T> data, T min, T max, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &MemoryMarshal::GetReference(data), pMin = &min, pMax = &max;
-			return ::ImGui::SliderScalarN(pLabel.c_str(), GetDataType<T>(), pData, data.Length, pMin, pMax, pFormat.c_str(), (ImGuiSliderFlags)flags);;
+			return ::ImGui::SliderScalarN(pLabel, GetDataType<T>(), pData, data.Length, pMin, pMax, pFormat, (ImGuiSliderFlags)flags);;
 		}
 
-		virtual bool VSliderFloat(System::String^ label, System::Numerics::Vector2 size, float% v, float vMin, float vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool VSliderFloat(ReadOnlySpan<byte> label, System::Numerics::Vector2 size, float% v, float vMin, float vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<float> pv = &v;
-			return ::ImGui::VSliderFloat(pLabel.c_str(), {size.X, size.Y}, pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::VSliderFloat(pLabel, {size.X, size.Y}, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
-		virtual bool VSliderInt(System::String^ label, System::Numerics::Vector2 size, int% v, int vMin, int vMax, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool VSliderInt(ReadOnlySpan<byte> label, System::Numerics::Vector2 size, int% v, int vMin, int vMax, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%d");
 			pin_ptr<int> pv = &v;
-			return ::ImGui::VSliderInt(pLabel.c_str(), {size.X, size.Y}, pv, vMin, vMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::VSliderInt(pLabel, {size.X, size.Y}, pv, vMin, vMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool VSliderScalar(System::String^ label, System::Numerics::Vector2 size, T% data, T min, T max, System::String^ format, Tesseract::ImGui::ImGuiSliderFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool VSliderScalar(ReadOnlySpan<byte> label, System::Numerics::Vector2 size, T% data, T min, T max, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiSliderFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &data, pMin = &min, pMax = &max;
-			return ::ImGui::VSliderScalar(pLabel.c_str(), { size.X, size.Y }, GetDataType<T>(), pData, pMin, pMax, pFormat.c_str(), (ImGuiSliderFlags)flags);
+			return ::ImGui::VSliderScalar(pLabel, { size.X, size.Y }, GetDataType<T>(), pData, pMin, pMax, pFormat, (ImGuiSliderFlags)flags);
 		}
 
 		// Widgets: Input with Keyboard
@@ -3098,88 +1327,95 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 	public:
-		virtual bool InputText(System::String^ label, Tesseract::ImGui::ImGuiTextBuffer^ buf, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
-			StringParam pLabel(label);
-			pin_ptr<unsigned char> pBuf = &MemoryMarshal::GetReference(buf->Buf);
+		virtual bool InputText(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTextBuffer^ buf, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
+			IM_SPAN_TO_STR(pLabel, label);
+			pin_ptr<byte> pBuf = &MemoryMarshal::GetReference(buf->Buf);
 			inputTextFn = callback;
-			return ::ImGui::InputText(pLabel.c_str(), (char*)pBuf, buf->Buf.Length, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
+			return ::ImGui::InputText(pLabel, (char*)pBuf, buf->Buf.Length, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
 		}
 
-		virtual bool InputTextMultiline(System::String^ label, Tesseract::ImGui::ImGuiTextBuffer^ buf, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
-			StringParam pLabel(label);
-			pin_ptr<unsigned char> pBuf = &MemoryMarshal::GetReference(buf->Buf);
+		virtual bool InputTextMultiline(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTextBuffer^ buf, System::Numerics::Vector2 size, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
+			IM_SPAN_TO_STR(pLabel, label);
+			pin_ptr<byte> pBuf = &MemoryMarshal::GetReference(buf->Buf);
 			inputTextFn = callback;
-			return ::ImGui::InputTextMultiline(pLabel.c_str(), (char*)pBuf, buf->Buf.Length, { size.X, size.Y }, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
+			return ::ImGui::InputTextMultiline(pLabel, (char*)pBuf, buf->Buf.Length, { size.X, size.Y }, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
 		}
 		
-		virtual bool InputTextWithHint(System::String^ label, System::String^ hint, Tesseract::ImGui::ImGuiTextBuffer^ buf, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
-			StringParam pLabel(label), pHint(hint);
-			pin_ptr<unsigned char> pBuf = &MemoryMarshal::GetReference(buf->Buf);
+		virtual bool InputTextWithHint(ReadOnlySpan<byte> label, ReadOnlySpan<byte> hint, Tesseract::ImGui::ImGuiTextBuffer^ buf, Tesseract::ImGui::ImGuiInputTextFlags flags, Tesseract::ImGui::ImGuiInputTextCallback^ callback) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR(pHint, hint);
+			pin_ptr<byte> pBuf = &MemoryMarshal::GetReference(buf->Buf);
 			inputTextFn = callback;
-			return ::ImGui::InputTextWithHint(pLabel.c_str(), pHint.c_str(), (char*)pBuf, buf->Buf.Length, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
+			return ::ImGui::InputTextWithHint(pLabel, pHint, (char*)pBuf, buf->Buf.Length, (ImGuiInputTextFlags)flags, (ImGuiInputTextCallback)inputTextCbk);
 		}
 		
-		virtual bool InputFloat(System::String^ label, float% v, float step, float stepFast, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputFloat(ReadOnlySpan<byte> label, float% v, float step, float stepFast, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<float> pv = &v;
-			return ::ImGui::InputFloat(pLabel.c_str(), pv, step, stepFast, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputFloat(pLabel, pv, step, stepFast, pFormat, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputFloat2(System::String^ label, System::Numerics::Vector2% v, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputFloat2(ReadOnlySpan<byte> label, System::Numerics::Vector2% v, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector2> pv = &v;
-			return ::ImGui::InputFloat2(pLabel.c_str(), (float*)pv, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputFloat2(pLabel, (float*)pv, pFormat, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputFloat3(System::String^ label, System::Numerics::Vector3% v, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputFloat3(ReadOnlySpan<byte> label, System::Numerics::Vector3% v, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector3> pv = &v;
-			return ::ImGui::InputFloat3(pLabel.c_str(), (float*)pv, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputFloat3(pLabel, (float*)pv, pFormat, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputFloat4(System::String^ label, System::Numerics::Vector4% v, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputFloat4(ReadOnlySpan<byte> label, System::Numerics::Vector4% v, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.3f");
 			pin_ptr<Vector4> pv = &v;
-			return ::ImGui::InputFloat4(pLabel.c_str(), (float*)pv, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputFloat4(pLabel, (float*)pv, pFormat, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputInt(System::String^ label, int% v, int step, int stepFast, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label);
+		virtual bool InputInt(ReadOnlySpan<byte> label, int% v, int step, int stepFast, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pv = &v;
-			return ::ImGui::InputInt(pLabel.c_str(), pv, step, stepFast, (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputInt(pLabel, pv, step, stepFast, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputInt2(System::String^ label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+		virtual bool InputInt2(ReadOnlySpan<byte> label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
 			if (v.Length < 2) throw gcnew System::ArgumentException("Value span must have length >= 2", "v");
-			StringParam pLabel(label);
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::InputInt2(pLabel.c_str(), pv, (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputInt2(pLabel, pv, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputInt3(System::String^ label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+		virtual bool InputInt3(ReadOnlySpan<byte> label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
 			if (v.Length < 3) throw gcnew System::ArgumentException("Value span must have length >= 3", "v");
-			StringParam pLabel(label);
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::InputInt3(pLabel.c_str(), pv, (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputInt3(pLabel, pv, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputInt4(System::String^ label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+		virtual bool InputInt4(ReadOnlySpan<byte> label, System::Span<int> v, Tesseract::ImGui::ImGuiInputTextFlags flags) {
 			if (v.Length < 4) throw gcnew System::ArgumentException("Value span must have length >= 4", "v");
-			StringParam pLabel(label);
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pv = &MemoryMarshal::GetReference(v);
-			return ::ImGui::InputInt4(pLabel.c_str(), pv, (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputInt4(pLabel, pv, (ImGuiInputTextFlags)flags);
 		}
 		
-		virtual bool InputDouble(System::String^ label, double% v, double step, double stepFast, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputDouble(ReadOnlySpan<byte> label, double% v, double step, double stepFast, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, "%.6f");
 			pin_ptr<double> pv = &v;
-			return ::ImGui::InputDouble(pLabel.c_str(), pv, step, stepFast, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputDouble(pLabel, pv, step, stepFast, pFormat, (ImGuiInputTextFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool InputScalar(System::String^ label, T% data, Tesseract::ImGui::ImNullable<T> step, Tesseract::ImGui::ImNullable<T> stepFast, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputScalar(ReadOnlySpan<byte> label, T% data, Tesseract::ImGui::ImNullable<T> step, Tesseract::ImGui::ImNullable<T> stepFast, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &data;
 			T vStep = {}, vStepFast = {};
 			pin_ptr<T> pStep = nullptr, pStepFast = nullptr;
@@ -3191,13 +1427,14 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 				vStepFast = stepFast.Value;
 				pStepFast = &vStepFast;
 			}
-			return ::ImGui::InputScalar(pLabel.c_str(), GetDataType<T>(), pData, pStep, pStepFast, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputScalar(pLabel, GetDataType<T>(), pData, pStep, pStepFast, pFormat, (ImGuiInputTextFlags)flags);
 		}
 
 		generic<typename T>
 		where T : value class, gcnew()
-		virtual bool InputScalarN(System::String^ label, System::Span<T> data, Tesseract::ImGui::ImNullable<T> step, Tesseract::ImGui::ImNullable<T> stepFast, System::String^ format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
-			StringParam pLabel(label), pFormat(format);
+		virtual bool InputScalarN(ReadOnlySpan<byte> label, System::Span<T> data, Tesseract::ImGui::ImNullable<T> step, Tesseract::ImGui::ImNullable<T> stepFast, ReadOnlySpan<byte> format, Tesseract::ImGui::ImGuiInputTextFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pFormat, format, nullptr);
 			pin_ptr<T> pData = &MemoryMarshal::GetReference(data);
 			T vStep = {}, vStepFast = {};
 			pin_ptr<T> pStep = nullptr, pStepFast = nullptr;
@@ -3209,33 +1446,33 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 				vStepFast = stepFast.Value;
 				pStepFast = &vStepFast;
 			}
-			return ::ImGui::InputScalarN(pLabel.c_str(), GetDataType<T>(), pData, data.Length, pStep, pStepFast, pFormat.c_str(), (ImGuiInputTextFlags)flags);
+			return ::ImGui::InputScalarN(pLabel, GetDataType<T>(), pData, data.Length, pStep, pStepFast, pFormat, (ImGuiInputTextFlags)flags);
 		}
 
 		// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 		// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible.
 		// - You can pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
 
-		virtual bool ColorEdit3(System::String^ label, System::Numerics::Vector3% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
-			StringParam pLabel(label);
+		virtual bool ColorEdit3(ReadOnlySpan<byte> label, System::Numerics::Vector3% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
 			pin_ptr<Vector3> pCol = &col;
-			return ::ImGui::ColorEdit3(pLabel.c_str(), (float*)pCol, (ImGuiColorEditFlags)flags);
+			return ::ImGui::ColorEdit3(pLabel, (float*)pCol, (ImGuiColorEditFlags)flags);
 		}
 
-		virtual bool ColorEdit4(System::String^ label, System::Numerics::Vector4% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
-			StringParam pLabel(label);
+		virtual bool ColorEdit4(ReadOnlySpan<byte> label, System::Numerics::Vector4% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
 			pin_ptr<Vector4> pCol = &col;
-			return ::ImGui::ColorEdit4(pLabel.c_str(), (float*)pCol, (ImGuiColorEditFlags)flags);
+			return ::ImGui::ColorEdit4(pLabel, (float*)pCol, (ImGuiColorEditFlags)flags);
 		}
 		
-		virtual bool ColorPicker3(System::String^ label, System::Numerics::Vector3% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
-			StringParam pLabel(label);
+		virtual bool ColorPicker3(ReadOnlySpan<byte> label, System::Numerics::Vector3% col, Tesseract::ImGui::ImGuiColorEditFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
 			pin_ptr<Vector3> pCol = &col;
-			return ::ImGui::ColorPicker3(pLabel.c_str(), (float*)pCol, (ImGuiColorEditFlags)flags);
+			return ::ImGui::ColorPicker3(pLabel, (float*)pCol, (ImGuiColorEditFlags)flags);
 		}
 		
-		virtual bool ColorPicker4(System::String^ label, System::Numerics::Vector4% col, Tesseract::ImGui::ImGuiColorEditFlags flags, System::Nullable<System::Numerics::Vector4> refCol) {
-			StringParam pLabel(label);
+		virtual bool ColorPicker4(ReadOnlySpan<byte> label, System::Numerics::Vector4% col, Tesseract::ImGui::ImGuiColorEditFlags flags, System::Nullable<System::Numerics::Vector4> refCol) {
+			IM_SPAN_TO_STR(pLabel, label)
 			pin_ptr<Vector4> pCol = &col;
 			Vector4 vRef = {};
 			pin_ptr<Vector4> pRef = nullptr;
@@ -3243,12 +1480,12 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 				vRef = refCol.Value;
 				pRef = &vRef;
 			}
-			return ::ImGui::ColorPicker4(pLabel.c_str(), (float*)pCol, (ImGuiColorEditFlags)flags, (float*)pRef);
+			return ::ImGui::ColorPicker4(pLabel, (float*)pCol, (ImGuiColorEditFlags)flags, (float*)pRef);
 		}
 		
-		virtual bool ColorButton(System::String^ descId, System::Numerics::Vector4 col, Tesseract::ImGui::ImGuiColorEditFlags flags, System::Numerics::Vector2 size) {
-			StringParam pDescID(descId);
-			return ::ImGui::ColorButton(pDescID.c_str(), { col.X, col.Y, col.Z, col.W }, (ImGuiColorEditFlags)flags, { size.X, size.Y });
+		virtual bool ColorButton(ReadOnlySpan<byte> descId, System::Numerics::Vector4 col, Tesseract::ImGui::ImGuiColorEditFlags flags, System::Numerics::Vector2 size) {
+			IM_SPAN_TO_STR(pDescId, descId)
+			return ::ImGui::ColorButton(pDescId, { col.X, col.Y, col.Z, col.W }, (ImGuiColorEditFlags)flags, { size.X, size.Y });
 		}
 		
 		virtual void SetColorEditOptions(Tesseract::ImGui::ImGuiColorEditFlags flags) {
@@ -3258,39 +1495,41 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// Widgets: Trees
 		// - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you are finished displaying the tree node contents.
 
-		virtual bool TreeNode(System::String^ label) {
-			StringParam pLabel(label);
-			return ::ImGui::TreeNode(pLabel.c_str());
+		virtual bool TreeNode(ReadOnlySpan<byte> label) {
+			IM_SPAN_TO_STR(pLabel, label)
+			return ::ImGui::TreeNode(pLabel);
 		}
 
-		virtual bool TreeNode(System::String^ strID, System::String^ fmt) {
-			StringParam pStrID(strID), pFmt(fmt, true);
-			return ::ImGui::TreeNode(pStrID.c_str(), pFmt.c_str());
+		virtual bool TreeNode(ReadOnlySpan<byte> strID, ReadOnlySpan<byte> fmt) {
+			IM_SPAN_TO_STR(pStrID, strID)
+			IM_SPAN_TO_STR(pFmt, fmt)
+			return ::ImGui::TreeNode(pStrID, "%s", pFmt);
 		}
 
-		virtual bool TreeNode(System::IntPtr ptrID, System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			return ::ImGui::TreeNode((void*)ptrID, pFmt.c_str());
+		virtual bool TreeNode(System::IntPtr ptrID, ReadOnlySpan<byte> fmt) {
+			IM_SPAN_TO_STR(pFmt, fmt)
+			return ::ImGui::TreeNode((void*)ptrID, "%s", pFmt);
 		}
 
-		virtual bool TreeNodeEx(System::String^ label, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
-			StringParam pLabel(label);
-			return ::ImGui::TreeNodeEx(pLabel.c_str(), (ImGuiTreeNodeFlags)flags);
+		virtual bool TreeNodeEx(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
+			return ::ImGui::TreeNodeEx(pLabel, (ImGuiTreeNodeFlags)flags);
 		}
 
-		virtual bool TreeNodeEx(System::String^ strID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, System::String^ fmt) {
-			StringParam pStrID(strID), pFmt(fmt, true);
-			return ::ImGui::TreeNodeEx(pStrID.c_str(), (ImGuiTreeNodeFlags)flags, pFmt.c_str());
+		virtual bool TreeNodeEx(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, ReadOnlySpan<byte> fmt) {
+			IM_SPAN_TO_STR(pStrID, strID)
+			IM_SPAN_TO_STR(pFmt, fmt)
+			return ::ImGui::TreeNodeEx(pStrID, (ImGuiTreeNodeFlags)flags, pFmt);
 		}
 
-		virtual bool TreeNodeEx(System::IntPtr ptrID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			return ::ImGui::TreeNodeEx((void*)ptrID, (ImGuiTreeNodeFlags)flags, pFmt.c_str());
+		virtual bool TreeNodeEx(System::IntPtr ptrID, Tesseract::ImGui::ImGuiTreeNodeFlags flags, ReadOnlySpan<byte> fmt) {
+			IM_SPAN_TO_STR(pFmt, fmt)
+			return ::ImGui::TreeNodeEx((void*)ptrID, (ImGuiTreeNodeFlags)flags, pFmt);
 		}
 
-		virtual void TreePush(System::String^ strID) {
-			StringParam pStrID(strID);
-			::ImGui::TreePush(pStrID.c_str());
+		virtual void TreePush(ReadOnlySpan<byte> strID) {
+			IM_SPAN_TO_STR(pStrID, strID)
+			::ImGui::TreePush(pStrID);
 		}
 
 		virtual void TreePush(System::IntPtr ptrID) {
@@ -3305,15 +1544,15 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			virtual float get() { return ::ImGui::GetTreeNodeToLabelSpacing(); }
 		}
 
-		virtual bool CollapsingHeader(System::String^ label, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
-			StringParam pLabel(label);
-			return ::ImGui::CollapsingHeader(pLabel.c_str(), (ImGuiTreeNodeFlags)flags);
+		virtual bool CollapsingHeader(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
+			return ::ImGui::CollapsingHeader(pLabel, (ImGuiTreeNodeFlags)flags);
 		}
 
-		virtual bool CollapsingHeader(System::String^ label, bool% visible, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
-			StringParam pLabel(label);
+		virtual bool CollapsingHeader(ReadOnlySpan<byte> label, bool% visible, Tesseract::ImGui::ImGuiTreeNodeFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label)
 			pin_ptr<bool> pVisible = &visible;
-			return ::ImGui::CollapsingHeader(pLabel.c_str(), pVisible, (ImGuiTreeNodeFlags)flags);
+			return ::ImGui::CollapsingHeader(pLabel, pVisible, (ImGuiTreeNodeFlags)flags);
 		}
 
 		virtual void SetNextItemOpen(bool isOpen, Tesseract::ImGui::ImGuiCond cond) {
@@ -3324,15 +1563,15 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - A selectable highlights when hovered, and can display another color when selected.
 		// - Neighbors selectable extend their highlight bounds in order to leave no gap between them. This is so a series of selected Selectable appear contiguous.
 
-		virtual bool Selectable(System::String^ label, bool selected, Tesseract::ImGui::ImGuiSelectableFlags flags, System::Numerics::Vector2 size) {
-			StringParam pLabel(label);
-			return ::ImGui::Selectable(pLabel.c_str(), selected, (ImGuiSelectableFlags)flags, { size.X, size.Y });
+		virtual bool Selectable(ReadOnlySpan<byte> label, bool selected, Tesseract::ImGui::ImGuiSelectableFlags flags, System::Numerics::Vector2 size) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::Selectable(pLabel, selected, (ImGuiSelectableFlags)flags, { size.X, size.Y });
 		}
 
-		virtual bool Selectable(System::String^ label, bool% selected, Tesseract::ImGui::ImGuiSelectableFlags flags, System::Numerics::Vector2 size) {
-			StringParam pLabel(label);
+		virtual bool Selectable(ReadOnlySpan<byte> label, bool% selected, Tesseract::ImGui::ImGuiSelectableFlags flags, System::Numerics::Vector2 size) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<bool> pSelected = &selected;
-			return ::ImGui::Selectable(pLabel.c_str(), pSelected, (ImGuiSelectableFlags)flags, { size.X, size.Y });
+			return ::ImGui::Selectable(pLabel, pSelected, (ImGuiSelectableFlags)flags, { size.X, size.Y });
 		}
 
 		// Widgets: List Boxes
@@ -3342,20 +1581,20 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// - Choose frame width:   size.x > 0.0f: custom  /  size.x < 0.0f or -FLT_MIN: right-align   /  size.x = 0.0f (default): use current ItemWidth
 		// - Choose frame height:  size.y > 0.0f: custom  /  size.y < 0.0f or -FLT_MIN: bottom-align  /  size.y = 0.0f (default): arbitrary default height which can fit ~7 items
 
-		virtual bool BeginListBox(System::String^ label, System::Numerics::Vector2 size) {
-			StringParam pLabel(label);
-			return ::ImGui::BeginListBox(pLabel.c_str(), { size.X, size.Y });
+		virtual bool BeginListBox(ReadOnlySpan<byte> label, System::Numerics::Vector2 size) {
+			IM_SPAN_TO_STR(pLabel, label)
+			return ::ImGui::BeginListBox(pLabel, { size.X, size.Y });
 		}
 
 		virtual void EndListBox() {
 			::ImGui::EndListBox();
 		}
 
-		virtual bool ListBox(System::String^ label, int% currentItem, System::Collections::Generic::IEnumerable<System::String^>^ items, int heightInItems) {
-			StringParam pLabel(label);
+		virtual bool ListBox(ReadOnlySpan<byte> label, int% currentItem, System::Collections::Generic::IEnumerable<System::String^>^ items, int heightInItems) {
+			IM_SPAN_TO_STR(pLabel, label);
 			StringArrayParam pItems(items);
 			pin_ptr<int> pCurrentItem = &currentItem;
-			return ::ImGui::ListBox(pLabel.c_str(), pCurrentItem, pItems.data(), (int)pItems.length(), heightInItems);
+			return ::ImGui::ListBox(pLabel, pCurrentItem, pItems.data(), (int)pItems.length(), heightInItems);
 		}
 
 	private:
@@ -3368,11 +1607,11 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 	public:
-		virtual bool ListBox(System::String^ label, int% currentItem, Tesseract::ImGui::IImGui::ListBoxItemsGetter^ itemsGetter, int itemsCount, int heightInItems) {
-			StringParam pLabel(label);
+		virtual bool ListBox(ReadOnlySpan<byte> label, int% currentItem, Tesseract::ImGui::IImGui::ListBoxItemsGetter^ itemsGetter, int itemsCount, int heightInItems) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<int> pCurrentItem = &currentItem;
 			listBoxGetterFn = itemsGetter;
-			return ::ImGui::ListBox(pLabel.c_str(), pCurrentItem, (bool(*)(void*, int, const char**))listBoxGetterCbk, nullptr, itemsCount, heightInItems);
+			return ::ImGui::ListBox(pLabel, pCurrentItem, (bool(*)(void*, int, const char**))listBoxGetterCbk, nullptr, itemsCount, heightInItems);
 		}
 
 		// Widgets: Data Plotting
@@ -3385,55 +1624,56 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 
 	public:
-		virtual void PlotLines(System::String^ label, System::ReadOnlySpan<float> values, int valuesCount, System::String^ overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize, int stride) {
-			StringParam pLabel(label);
+		virtual void PlotLines(ReadOnlySpan<byte> label, System::ReadOnlySpan<float> values, int valuesCount, ReadOnlySpan<byte> overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize, int stride) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pOverlayText, overlayText, nullptr)
 			pin_ptr<const float> pValues = &MemoryMarshal::GetReference(values);
-			StringParam pOverlayText(overlayText);
-			::ImGui::PlotLines(pLabel.c_str(), (const float*)pValues, valuesCount < 0 ? values.Length : valuesCount, 0, pOverlayText.c_str(), scaleMin, scaleMax, { graphSize.X, graphSize.Y }, stride * sizeof(float));
+			::ImGui::PlotLines(pLabel, (const float*)pValues, valuesCount < 0 ? values.Length : valuesCount, 0, pOverlayText, scaleMin, scaleMax, { graphSize.X, graphSize.Y }, stride * sizeof(float));
 		}
 
-		virtual void PlotLines(System::String^ label, System::Func<int, float>^ valuesGetter, int valuesCount, int valuesOffset, System::String^ overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize) {
-			StringParam pLabel(label);
-			StringParam pOverlayText(overlayText);
+		virtual void PlotLines(ReadOnlySpan<byte> label, System::Func<int, float>^ valuesGetter, int valuesCount, int valuesOffset, ReadOnlySpan<byte> overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pOverlayText, overlayText, nullptr)
 			plotValuesGetterFn = valuesGetter;
-			::ImGui::PlotLines(pLabel.c_str(), (float(*)(void*,int))plotValuesGetterCbk, nullptr, valuesCount, valuesOffset, pOverlayText.c_str(), scaleMin, scaleMax, { graphSize.X, graphSize.Y });
+			::ImGui::PlotLines(pLabel, (float(*)(void*,int))plotValuesGetterCbk, nullptr, valuesCount, valuesOffset, pOverlayText, scaleMin, scaleMax, { graphSize.X, graphSize.Y });
 		}
 
-		virtual void PlotHistogram(System::String^ label, System::ReadOnlySpan<float> values, int valuesCount, System::String^ overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize, int stride) {
-			StringParam pLabel(label);
+		virtual void PlotHistogram(ReadOnlySpan<byte> label, System::ReadOnlySpan<float> values, int valuesCount, ReadOnlySpan<byte> overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize, int stride) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pOverlayText, overlayText, nullptr)
 			pin_ptr<const float> pValues = &MemoryMarshal::GetReference(values);
-			StringParam pOverlayText(overlayText);
-			::ImGui::PlotHistogram(pLabel.c_str(), (const float*)pValues, valuesCount < 0 ? values.Length : valuesCount, 0, pOverlayText.c_str(), scaleMin, scaleMax, { graphSize.X, graphSize.Y }, stride * sizeof(float));
+			::ImGui::PlotHistogram(pLabel, (const float*)pValues, valuesCount < 0 ? values.Length : valuesCount, 0, pOverlayText, scaleMin, scaleMax, { graphSize.X, graphSize.Y }, stride * sizeof(float));
 		}
 
-		virtual void PlotHistogram(System::String^ label, System::Func<int, float>^ valuesGetter, int valuesCount, int valuesOffset, System::String^ overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize) {
-			StringParam pLabel(label);
-			StringParam pOverlayText(overlayText);
+		virtual void PlotHistogram(ReadOnlySpan<byte> label, System::Func<int, float>^ valuesGetter, int valuesCount, int valuesOffset, ReadOnlySpan<byte> overlayText, float scaleMin, float scaleMax, System::Numerics::Vector2 graphSize) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pOverlayText, overlayText, nullptr)
 			plotValuesGetterFn = valuesGetter;
-			::ImGui::PlotHistogram(pLabel.c_str(), (float(*)(void*, int))plotValuesGetterCbk, nullptr, valuesCount, valuesOffset, pOverlayText.c_str(), scaleMin, scaleMax, { graphSize.X, graphSize.Y });
+			::ImGui::PlotHistogram(pLabel, (float(*)(void*, int))plotValuesGetterCbk, nullptr, valuesCount, valuesOffset, pOverlayText, scaleMin, scaleMax, { graphSize.X, graphSize.Y });
 		}
 
 		// Widgets: Value() Helpers.
 		// - Those are merely shortcut to calling Text() with a format string. Output single value in "name: value" format (tip: freely declare more in your code to handle your types. you can add functions to the ImGui namespace)
 
-		virtual void Value(System::String^ prefix, bool b) {
-			StringParam pPrefix(prefix);
-			::ImGui::Value(pPrefix.c_str(), b);
+		virtual void Value(ReadOnlySpan<byte> prefix, bool b) {
+			IM_SPAN_TO_STR(pPrefix, prefix)
+			::ImGui::Value(pPrefix, b);
 		}
 
-		virtual void Value(System::String^ prefix, int v) {
-			StringParam pPrefix(prefix);
-			::ImGui::Value(pPrefix.c_str(), v);
+		virtual void Value(ReadOnlySpan<byte> prefix, int v) {
+			IM_SPAN_TO_STR(pPrefix, prefix)
+			::ImGui::Value(pPrefix, v);
 		}
 
-		virtual void Value(System::String^ prefix, unsigned int v) {
-			StringParam pPrefix(prefix);
-			::ImGui::Value(pPrefix.c_str(), v);
+		virtual void Value(ReadOnlySpan<byte> prefix, unsigned int v) {
+			IM_SPAN_TO_STR(pPrefix, prefix)
+			::ImGui::Value(pPrefix, v);
 		}
 
-		virtual void Value(System::String^ prefix, float v, System::String^ floatFormat) {
-			StringParam pPrefix(prefix), pFloatFormat(floatFormat);
-			::ImGui::Value(pPrefix.c_str(), v, pFloatFormat.c_str());
+		virtual void Value(ReadOnlySpan<byte> prefix, float v, ReadOnlySpan<byte> floatFormat) {
+			IM_SPAN_TO_STR(pPrefix, prefix);
+			IM_SPAN_TO_STR_DEFAULT(pFloatFormat, floatFormat, nullptr);
+			::ImGui::Value(pPrefix, v, pFloatFormat);
 		}
 
 		// Widgets: Menus
@@ -3458,24 +1698,26 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::EndMainMenuBar();
 		}
 
-		virtual bool BeginMenu(System::String^ label, bool enabled) {
-			StringParam pLabel(label);
-			return ::ImGui::BeginMenu(pLabel.c_str(), enabled);
+		virtual bool BeginMenu(ReadOnlySpan<byte> label, bool enabled) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::BeginMenu(pLabel, enabled);
 		}
 
 		virtual void EndMenu() {
 			::ImGui::EndMenu();
 		}
 
-		virtual bool MenuItem(System::String^ label, System::String^ shortcut, bool selected, bool enabled) {
-			StringParam pLabel(label), pShortcut(shortcut);
-			return ::ImGui::MenuItem(pLabel.c_str(), pShortcut.c_str(), selected, enabled);
+		virtual bool MenuItem(ReadOnlySpan<byte> label, ReadOnlySpan<byte> shortcut, bool selected, bool enabled) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pShortcut, shortcut, nullptr);
+			return ::ImGui::MenuItem(pLabel, pShortcut, selected, enabled);
 		}
 
-		virtual bool MenuItem(System::String^ label, System::String^ shortcut, bool% selected, bool enabled) {
-			StringParam pLabel(label), pShortcut(shortcut);
+		virtual bool MenuItem(ReadOnlySpan<byte> label, ReadOnlySpan<byte> shortcut, bool% selected, bool enabled) {
+			IM_SPAN_TO_STR(pLabel, label);
+			IM_SPAN_TO_STR_DEFAULT(pShortcut, shortcut, nullptr);
 			pin_ptr<bool> pSelected = &selected;
-			return ::ImGui::MenuItem(pLabel.c_str(), pShortcut.c_str(), pSelected, enabled);
+			return ::ImGui::MenuItem(pLabel, pShortcut, pSelected, enabled);
 		}
 
 		// Tooltips
@@ -3489,9 +1731,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::EndTooltip();
 		}
 
-		virtual void SetTooltip(System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::SetTooltip(pFmt.c_str());
+		virtual void SetTooltip(ReadOnlySpan<byte> text) {
+			IM_SPAN_TO_STR(pText, text);
+			::ImGui::SetTooltip("%s", pText);
 		}
 
 		// Popups, Modals
@@ -3507,25 +1749,15 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//  - BeginPopup(): query popup state, if open start appending into the window. Call EndPopup() afterwards. ImGuiWindowFlags are forwarded to the window.
 		//  - BeginPopupModal(): block every interactions behind the window, cannot be closed by user, add a dimming background, has a title bar.
 
-		virtual bool BeginPopup(System::String^ strID, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginPopup(pStrID.c_str(), (ImGuiWindowFlags)flags);
+		virtual bool BeginPopup(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiWindowFlags flags) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::BeginPopup(pStrID, (ImGuiWindowFlags)flags);
 		}
 
-		virtual bool BeginPopupModal(System::String^ name, bool% open, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pName(name);
+		virtual bool BeginPopupModal(ReadOnlySpan<byte> name, bool% open, Tesseract::ImGui::ImGuiWindowFlags flags) {
+			IM_SPAN_TO_STR(pName, name);
 			pin_ptr<bool> pOpen = &open;
-			return ::ImGui::BeginPopupModal(pName.c_str(), pOpen, (ImGuiWindowFlags)flags);
-		}
-		
-		virtual bool BeginPopupModal(System::String^ name, System::Nullable<bool> open, Tesseract::ImGui::ImGuiWindowFlags flags) {
-			StringParam pName(name);
-			bool vOpen, *pOpen = nullptr;
-			if (open.HasValue) {
-				vOpen = open.Value;
-				pOpen = &vOpen;
-			}
-			return ::ImGui::BeginPopupModal(pName.c_str(), pOpen, (ImGuiWindowFlags)flags);
+			return ::ImGui::BeginPopupModal(pName, pOpen, (ImGuiWindowFlags)flags);
 		}
 		
 		virtual void EndPopup() {
@@ -3541,18 +1773,18 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//  - Use IsWindowAppearing() after BeginPopup() to tell if a window just opened.
 		//  - IMPORTANT: Notice that for OpenPopupOnItemClick() we exceptionally default flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter
 
-		virtual void OpenPopup(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
-			StringParam pStrID(strID);
-			::ImGui::OpenPopup(pStrID.c_str(), (ImGuiPopupFlags)popupFlags);
+		virtual void OpenPopup(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			::ImGui::OpenPopup(pStrID, (ImGuiPopupFlags)popupFlags);
 		}
 
 		virtual void OpenPopup(unsigned int id, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
 			::ImGui::OpenPopup(id, (ImGuiPopupFlags)popupFlags);
 		}
 		
-		virtual void OpenPopupOnItemClick(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
-			StringParam pStrID(strID);
-			::ImGui::OpenPopupOnItemClick(pStrID.c_str(), (ImGuiPopupFlags)popupFlags);
+		virtual void OpenPopupOnItemClick(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
+			IM_SPAN_TO_STR_DEFAULT(pStrID, strID, nullptr);
+			::ImGui::OpenPopupOnItemClick(pStrID, (ImGuiPopupFlags)popupFlags);
 		}
 		
 		virtual void CloseCurrentPopup() {
@@ -3565,19 +1797,19 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//  - IMPORTANT: Notice that BeginPopupContextXXX takes ImGuiPopupFlags just like OpenPopup() and unlike BeginPopup(). For full consistency, we may add ImGuiWindowFlags to the BeginPopupContextXXX functions in the future.
 		//  - IMPORTANT: Notice that we exceptionally default their flags to 1 (== ImGuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter, so if you add other flags remember to re-add the ImGuiPopupFlags_MouseButtonRight.
 
-		virtual bool BeginPopupContextItem(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginPopupContextItem(pStrID.c_str(), (ImGuiPopupFlags)popupFlags);
+		virtual bool BeginPopupContextItem(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
+			IM_SPAN_TO_STR_DEFAULT(pStrID, strID, nullptr);
+			return ::ImGui::BeginPopupContextItem(pStrID, (ImGuiPopupFlags)popupFlags);
 		}
 
-		virtual bool BeginPopupContextWindow(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginPopupContextWindow(pStrID.c_str(), (ImGuiPopupFlags)popupFlags);
+		virtual bool BeginPopupContextWindow(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
+			IM_SPAN_TO_STR_DEFAULT(pStrID, strID, nullptr);
+			return ::ImGui::BeginPopupContextWindow(pStrID, (ImGuiPopupFlags)popupFlags);
 		}
 
-		virtual bool BeginPopupContextVoid(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginPopupContextVoid(pStrID.c_str(), (ImGuiPopupFlags)popupFlags);
+		virtual bool BeginPopupContextVoid(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags popupFlags) {
+			IM_SPAN_TO_STR_DEFAULT(pStrID, strID, nullptr);
+			return ::ImGui::BeginPopupContextVoid(pStrID, (ImGuiPopupFlags)popupFlags);
 		}
 
 		// Popups: query functions
@@ -3585,9 +1817,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId: return true if any popup is open at the current BeginPopup() level of the popup stack.
 		//  - IsPopupOpen() with ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel: return true if any popup is open.
 
-		virtual bool IsPopupOpen(System::String^ strID, Tesseract::ImGui::ImGuiPopupFlags flags) {
-			StringParam pStrID(strID);
-			return ::ImGui::IsPopupOpen(pStrID.c_str(), (ImGuiPopupFlags)flags);
+		virtual bool IsPopupOpen(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiPopupFlags flags) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::IsPopupOpen(pStrID, (ImGuiPopupFlags)flags);
 		}
 
 		// Tables
@@ -3615,9 +1847,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//        --------------------------------------------------------------------------------------------------------
 		// - 5. Call EndTable()
 
-		virtual bool BeginTable(System::String^ strID, int column, Tesseract::ImGui::ImGuiTableFlags flags, System::Numerics::Vector2 outerSize, float innerWidth) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginTable(pStrID.c_str(), column, (ImGuiTableFlags)flags, { outerSize.X, outerSize.Y }, innerWidth);
+		virtual bool BeginTable(ReadOnlySpan<byte> strID, int column, Tesseract::ImGui::ImGuiTableFlags flags, System::Numerics::Vector2 outerSize, float innerWidth) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::BeginTable(pStrID, column, (ImGuiTableFlags)flags, { outerSize.X, outerSize.Y }, innerWidth);
 		}
 
 		virtual void EndTable() {
@@ -3645,9 +1877,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		//   some advanced use cases (e.g. adding custom widgets in header row).
 		// - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
 
-		virtual void TableSetupColumn(System::String^ label, Tesseract::ImGui::ImGuiTableColumnFlags flags, float initWidthOrWeight, unsigned int userID) {
-			StringParam pLabel(label);
-			::ImGui::TableSetupColumn(pLabel.c_str(), (ImGuiTableColumnFlags)flags, initWidthOrWeight, userID);
+		virtual void TableSetupColumn(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTableColumnFlags flags, float initWidthOrWeight, unsigned int userID) {
+			IM_SPAN_TO_STR(pLabel, label);
+			::ImGui::TableSetupColumn(pLabel, (ImGuiTableColumnFlags)flags, initWidthOrWeight, userID);
 		}
 		
 		virtual void TableSetupScrollFreeze(int cols, int rows) {
@@ -3658,9 +1890,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::TableHeadersRow();
 		}
 		
-		virtual void TableHeader(System::String^ label) {
-			StringParam pLabel(label);
-			::ImGui::TableHeader(pLabel.c_str());
+		virtual void TableHeader(ReadOnlySpan<byte> label) {
+			IM_SPAN_TO_STR(pLabel, label);
+			::ImGui::TableHeader(pLabel);
 		}
 
 		// Tables: Sorting
@@ -3712,9 +1944,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		// Legacy Columns API (prefer using Tables!)
 		// - You can also use SameLine(pos_x) to mimic simplified columns.
 
-		virtual void Columns(int count, System::String^ id, bool border) {
-			StringParam pID(id);
-			::ImGui::Columns(count, pID.c_str(), border);
+		virtual void Columns(int count, ReadOnlySpan<byte> id, bool border) {
+			IM_SPAN_TO_STR_DEFAULT(pID, id, nullptr);
+			::ImGui::Columns(count, pID, border);
 		}
 
 		virtual void NextColumn() {
@@ -3747,43 +1979,33 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 
 		// Tab Bars, Tabs
 
-		virtual bool BeginTabBar(System::String^ strID, Tesseract::ImGui::ImGuiTabBarFlags flags) {
-			StringParam pStrID(strID);
-			return ::ImGui::BeginTabBar(pStrID.c_str(), (ImGuiTabBarFlags)flags);
+		virtual bool BeginTabBar(ReadOnlySpan<byte> strID, Tesseract::ImGui::ImGuiTabBarFlags flags) {
+			IM_SPAN_TO_STR(pStrID, strID);
+			return ::ImGui::BeginTabBar(pStrID, (ImGuiTabBarFlags)flags);
 		}
 		
 		virtual void EndTabBar() {
 			::ImGui::EndTabBar();
 		}
 		
-		virtual bool BeginTabItem(System::String^ label, bool% open, Tesseract::ImGui::ImGuiTabItemFlags flags) {
-			StringParam pLabel(label);
+		virtual bool BeginTabItem(ReadOnlySpan<byte> label, bool% open, Tesseract::ImGui::ImGuiTabItemFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
 			pin_ptr<bool> pOpen = &open;
-			return ::ImGui::BeginTabItem(pLabel.c_str(), pOpen, (ImGuiTabItemFlags)flags);
-		}
-		
-		virtual bool BeginTabItem(System::String^ label, System::Nullable<bool> open, Tesseract::ImGui::ImGuiTabItemFlags flags) {
-			StringParam pLabel(label);
-			bool vOpen, *pOpen = nullptr;
-			if (open.HasValue) {
-				vOpen = open.Value;
-				pOpen = &vOpen;
-			}
-			return ::ImGui::BeginTabItem(pLabel.c_str(), pOpen, (ImGuiTabItemFlags)flags);
+			return ::ImGui::BeginTabItem(pLabel, pOpen, (ImGuiTabItemFlags)flags);
 		}
 		
 		virtual void EndTabItem() {
 			::ImGui::EndTabItem();
 		}
 		
-		virtual bool TabItemButton(System::String^ label, Tesseract::ImGui::ImGuiTabItemFlags flags) {
-			StringParam pLabel(label);
-			return ::ImGui::TabItemButton(pLabel.c_str(), (ImGuiTabItemFlags)flags);
+		virtual bool TabItemButton(ReadOnlySpan<byte> label, Tesseract::ImGui::ImGuiTabItemFlags flags) {
+			IM_SPAN_TO_STR(pLabel, label);
+			return ::ImGui::TabItemButton(pLabel, (ImGuiTabItemFlags)flags);
 		}
 
-		virtual void SetTabItemClosed(System::String^ tabOrDockedWindowLabel) {
-			StringParam pTabOrDockedWindowLabel(tabOrDockedWindowLabel);
-			::ImGui::SetTabItemClosed(pTabOrDockedWindowLabel.c_str());
+		virtual void SetTabItemClosed(ReadOnlySpan<byte> tabOrDockedWindowLabel) {
+			IM_SPAN_TO_STR(pTabOrDockedWindowLabel, tabOrDockedWindowLabel);
+			::ImGui::SetTabItemClosed(pTabOrDockedWindowLabel);
 		}
 
 		// Logging/Capture
@@ -3811,8 +2033,8 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 		}
 		
 		virtual void LogText(System::String^ fmt) {
-			StringParam pFmt(fmt, true);
-			::ImGui::LogText(pFmt.c_str());
+			StringParam pFmt(fmt);
+			::ImGui::LogText("%s", pFmt.c_str());
 		}
 
 		// Drag and Drop
@@ -3825,9 +2047,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			return ::ImGui::BeginDragDropSource((ImGuiDragDropFlags)flags);
 		}
 		
-		virtual bool SetDragDropPayload(System::String^ type, System::ReadOnlySpan<unsigned char> data, Tesseract::ImGui::ImGuiCond cond) {
+		virtual bool SetDragDropPayload(System::String^ type, System::ReadOnlySpan<byte> data, Tesseract::ImGui::ImGuiCond cond) {
 			StringParam pType(type);
-			pin_ptr<unsigned char> pData = &MemoryMarshal::GetReference(data);
+			pin_ptr<byte> pData = &MemoryMarshal::GetReference(data);
 			return ::ImGui::SetDragDropPayload(pType.c_str(), pData, data.Length, (ImGuiCond)cond);
 		}
 		
@@ -4063,9 +2285,9 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 
 		// Text Utilities
 
-		virtual System::Numerics::Vector2 CalcTextSize(System::String^ text, bool hideTextAfterDoubleHash, float wrapWidth) {
-			StringParam pText(text);
-			auto retn = ::ImGui::CalcTextSize(pText.begin(), pText.end(), hideTextAfterDoubleHash, wrapWidth);
+		virtual System::Numerics::Vector2 CalcTextSize(ReadOnlySpan<byte> text, bool hideTextAfterDoubleHash, float wrapWidth) {
+			IM_SPAN_TO_STR(pText, text);
+			auto retn = ::ImGui::CalcTextSize(pText, pText + text.Length, hideTextAfterDoubleHash, wrapWidth);
 			return Vector2(retn.x, retn.y);
 		}
 
@@ -4202,8 +2424,8 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::LoadIniSettingsFromDisk(pIniFilename.c_str());
 		}
 
-		virtual void LoadIniSettingsFromMemory(System::ReadOnlySpan<unsigned char> iniData) {
-			pin_ptr<const unsigned char> pIniData = &MemoryMarshal::GetReference(iniData);
+		virtual void LoadIniSettingsFromMemory(System::ReadOnlySpan<byte> iniData) {
+			pin_ptr<const byte> pIniData = &MemoryMarshal::GetReference(iniData);
 			::ImGui::LoadIniSettingsFromMemory((const char*)pIniData, iniData.Length);
 		}
 
@@ -4212,10 +2434,10 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::SaveIniSettingsToDisk(pIniFilename.c_str());
 		}
 
-		virtual System::ReadOnlySpan<unsigned char> SaveIniSettingsToMemory() {
+		virtual System::ReadOnlySpan<byte> SaveIniSettingsToMemory() {
 			size_t size = 0;
 			const char* pData = ::ImGui::SaveIniSettingsToMemory(&size);
-			return ReadOnlySpan<unsigned char>((void*)pData, (int)size);
+			return ReadOnlySpan<byte>((void*)pData, (int)size);
 		}
 
 	};

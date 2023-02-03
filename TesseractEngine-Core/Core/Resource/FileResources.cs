@@ -25,6 +25,8 @@ namespace Tesseract.Core.Resource {
 			return extension;
 		}
 
+		public override bool Writable { get; }
+
 		// The absolute path of the root directory of the domain
 		private readonly string directory;
 
@@ -33,8 +35,10 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		/// <param name="name">Name of the resource domain</param>
 		/// <param name="directory">Path to root directory of resource domain</param>
-		public FileResourceDomain(string name, string directory) : base(name) {
+		/// <param name="isReadOnly">If access to the file system is read-only</param>
+		public FileResourceDomain(string name, string directory, bool isReadOnly = true) : base(name) {
 			this.directory = Path.GetFullPath(directory);
+			Writable = !isReadOnly;
 		}
 
 		// Converts a resource location to an absolute path to the file
@@ -53,7 +57,7 @@ namespace Tesseract.Core.Resource {
 
 		public override Stream OpenStream(ResourceLocation file) {
 			if (file.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(file));
-			return new FileStream(ToFilePath(file), FileMode.Open);
+			return new FileStream(ToFilePath(file), Writable ? FileMode.OpenOrCreate : FileMode.Open, Writable ? FileAccess.ReadWrite : FileAccess.Read);
 		}
 
 		public override ResourceMetadata GetMetadata(ResourceLocation file) {
