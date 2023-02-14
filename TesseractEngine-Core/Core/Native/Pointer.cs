@@ -2,15 +2,15 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Native {
 
-	/// <summary>
-	/// A constant pointer stores a memory reference to a read-only object.
-	/// </summary>
-	/// <typeparam name="T">Type referenced</typeparam>
-	public interface IConstPointer<T> : IReadOnlyIndexer<int, T> {
+    /// <summary>
+    /// A constant pointer stores a memory reference to a read-only object.
+    /// </summary>
+    /// <typeparam name="T">Type referenced</typeparam>
+    public interface IConstPointer<T> : IReadOnlyIndexer<int, T> {
 
 		/// <summary>
 		/// The underlying memory pointer.

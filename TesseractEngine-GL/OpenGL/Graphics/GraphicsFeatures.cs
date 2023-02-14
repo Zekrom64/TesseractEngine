@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Utilities;
 
 namespace Tesseract.OpenGL.Graphics {
 
-	public class GLGraphicsFeatures : IGraphicsFeatures {
+    public class GLGraphicsFeatures : IGraphicsFeatures {
 
 		public static uint GetRequiredContextFlags(GraphicsHardwareFeatures features) {
 			uint flags = 0;

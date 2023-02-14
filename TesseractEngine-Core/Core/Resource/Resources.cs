@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Resource {
 
-	/// <summary>
-	/// <para>A resource domain specifies how resources are accessed from some particular source.</para>
-	/// <para>
-	/// The default resource domain is a globally set domain that will be used if no specific
-	/// domain is specified as part of a resource location.
-	/// </para>
-	/// <para>
-	/// Each thread also has its own 'contextual' domain which is initialized to the default domain
-	/// and may be modified in a thread-local manner and will be used to initialize resource
-	/// locations when no domain is specified. This contextual domain is useful in situations
-	/// such as mod loading where the domain can be inferred as being the loaded mod.
-	/// </para>
-	/// </summary>
-	public abstract class ResourceDomain {
+    /// <summary>
+    /// <para>A resource domain specifies how resources are accessed from some particular source.</para>
+    /// <para>
+    /// The default resource domain is a globally set domain that will be used if no specific
+    /// domain is specified as part of a resource location.
+    /// </para>
+    /// <para>
+    /// Each thread also has its own 'contextual' domain which is initialized to the default domain
+    /// and may be modified in a thread-local manner and will be used to initialize resource
+    /// locations when no domain is specified. This contextual domain is useful in situations
+    /// such as mod loading where the domain can be inferred as being the loaded mod.
+    /// </para>
+    /// </summary>
+    public abstract class ResourceDomain {
 
 		private static readonly ThreadLocal<ResourceDomain?> contextualDomain = new(() => null);
 		private static readonly Dictionary<string, ResourceDomain> allDomains = new();
@@ -163,7 +163,7 @@ namespace Tesseract.Core.Resource {
 
 		private NullResourceDomain() : base("null") { }
 
-		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collections<ResourceLocation>.EmptyList;
+		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collection<ResourceLocation>.EmptyList;
 
 		public override bool Exists(ResourceLocation file) => false;
 

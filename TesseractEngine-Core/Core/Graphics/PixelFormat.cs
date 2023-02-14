@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Graphics {
 
-	/// <summary>
-	/// Enumeration of pixel format channel types.
-	/// </summary>
-	public enum ChannelType {
+    /// <summary>
+    /// Enumeration of pixel format channel types.
+    /// </summary>
+    public enum ChannelType {
 		/// <summary>
 		/// Red color component channel.
 		/// </summary>
@@ -181,7 +181,7 @@ namespace Tesseract.Core.Graphics {
 		/// <summary>
 		/// The channels defined in the format.
 		/// </summary>
-		public IReadOnlyList<PixelChannel> Channels { get; init; } = Collections<PixelChannel>.EmptyList;
+		public IReadOnlyList<PixelChannel> Channels { get; init; } = Collection<PixelChannel>.EmptyList;
 
 		/// <summary>
 		/// The size of the pixel format in bytes.

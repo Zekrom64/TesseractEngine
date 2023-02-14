@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Tesseract.Core.Native;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Vulkan {
 
-	public class VKPhysicalDevice : IVKInstanceObject, IPrimitiveHandle<IntPtr> {
+    public class VKPhysicalDevice : IVKInstanceObject, IPrimitiveHandle<IntPtr> {
 
 		public VKInstance Instance { get; }
 

@@ -4,16 +4,16 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Input;
-using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Engine.Input {
 
-	/// <summary>
-	/// An input handler manages input sources for a particular type of input.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class InputHandler<T> where T : struct {
+    /// <summary>
+    /// An input handler manages input sources for a particular type of input.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class InputHandler<T> where T : struct {
 
 		/// <summary>
 		/// The empty handler for a given input type, used when no handler implementation is present.

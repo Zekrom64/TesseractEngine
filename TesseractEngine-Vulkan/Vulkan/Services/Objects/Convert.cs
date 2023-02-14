@@ -9,10 +9,11 @@ using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Vulkan.Services.Objects {
 
-	public class VulkanConverter {
+    public class VulkanConverter {
 
 		private static readonly Dictionary<PixelFormat, VKFormat> stdToVk = new() {
 			{ PixelFormat.R4G4UNormPack8, VKFormat.R4G4UnormPack8 },
@@ -451,14 +452,14 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public static VKPipelineVertexInputStateCreateInfo Convert(MemoryStack sp, VertexFormat format) => new() {
 			Type = VKStructureType.PipelineVertexInputStateCreateInfo,
 			VertexAttributeDescriptionCount = (uint)format.Attributes.Count,
-			VertexAttributeDescriptions = sp.Values(Collections.ConvertAll(format.Attributes, attrib => new VKVertexInputAttributeDescription() {
+			VertexAttributeDescriptions = sp.Values(Collection.ConvertAll(format.Attributes, attrib => new VKVertexInputAttributeDescription() {
 				Binding = attrib.Binding,
 				Format = Convert(attrib.Format),
 				Location = attrib.Location,
 				Offset = attrib.Offset
 			})),
 			VertexBindingDescriptionCount = (uint)format.Bindings.Count,
-			VertexBindingDescriptions = sp.Values(Collections.ConvertAll(format.Bindings, bind => new VKVertexInputBindingDescription() {
+			VertexBindingDescriptions = sp.Values(Collection.ConvertAll(format.Bindings, bind => new VKVertexInputBindingDescription() {
 				Binding = bind.Binding,
 				InputRate = Convert(bind.InputRate),
 				Stride = bind.Stride
@@ -628,7 +629,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			var gfxInfo = createInfo.GraphicsInfo;
 			var dynInfo = gfxInfo!.DynamicInfo;
 			
-			ManagedPointer<VKPipelineShaderStageCreateInfo> pStages = new(Collections.ConvertAll(gfxInfo.Shaders, Convert));
+			ManagedPointer<VKPipelineShaderStageCreateInfo> pStages = new(Collection.ConvertAll(gfxInfo.Shaders, Convert));
 			disposables.Add(pStages);
 			
 			bool hasTessState = false;
@@ -696,7 +697,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 					LogicOpEnable = gfxInfo.LogicOpEnable,
 					LogicOp = Convert(dynInfo.LogicOp),
 					AttachmentCount = (uint)gfxInfo.Attachments.Count,
-					Attachments = sp.Values(Collections.ConvertAll(gfxInfo.Attachments, Convert)),
+					Attachments = sp.Values(Collection.ConvertAll(gfxInfo.Attachments, Convert)),
 					BlendConstant = dynInfo.BlendConstant
 				}),
 				DynamicState = sp.Values(new VKPipelineDynamicStateCreateInfo() {

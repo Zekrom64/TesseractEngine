@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
-	/// <summary>
-	/// Enumeration of general types of graphics environments.
-	/// </summary>
-	public enum GraphicsType {
+    /// <summary>
+    /// Enumeration of general types of graphics environments.
+    /// </summary>
+    public enum GraphicsType {
 		/// <summary>
 		/// Unknown type.
 		/// </summary>
@@ -949,12 +950,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// List of sync objects to wait on and their respective pipeline stages. Granularity may be
 			/// smaller than that of individual pipeline stages in some cases.
 			/// </summary>
-			public IReadOnlyList<(ISync, PipelineStage)> WaitSync { get; init; } = Collections<(ISync, PipelineStage)>.EmptyList;
+			public IReadOnlyList<(ISync, PipelineStage)> WaitSync { get; init; } = Collection<(ISync, PipelineStage)>.EmptyList;
 
 			/// <summary>
 			/// List of sync objects to signal once all commands in the buffer are completed.
 			/// </summary>
-			public IReadOnlyList<ISync> SignalSync { get; init; } = Collections<ISync>.EmptyList;
+			public IReadOnlyList<ISync> SignalSync { get; init; } = Collection<ISync>.EmptyList;
 
 			public CommandBufferSubmitInfo() { }
 

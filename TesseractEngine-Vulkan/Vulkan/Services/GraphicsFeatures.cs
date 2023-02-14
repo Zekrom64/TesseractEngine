@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Graphics.Accelerated;
-using Tesseract.Core.Utilities;
 using Tesseract.Vulkan.Services.Objects;
 
 namespace Tesseract.Vulkan.Services {
-	public class VulkanGraphicsFeatures : IGraphicsFeatures {
+    public class VulkanGraphicsFeatures : IGraphicsFeatures {
 
 		public static GraphicsHardwareFeatures FromVK(VulkanPhysicalDeviceInfo info) {
 			VKPhysicalDeviceFeatures features = info.Features;

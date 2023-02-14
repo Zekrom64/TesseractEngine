@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tesseract.Core.Utilities {
-
+namespace Tesseract.Core.Collections {
 	/// <summary>
 	/// A keyed tree implements a tree data structure where each branch and sub-branch is identified by a key.
 	/// Because this is internally implemented using dictionaries, the tree should be considered unordered,
@@ -12,7 +10,7 @@ namespace Tesseract.Core.Utilities {
 	/// </summary>
 	/// <typeparam name="K"></typeparam>
 	/// <typeparam name="L"></typeparam>
-	public class KeyedTree<K,L> where K : notnull {
+	public class KeyedTree<K, L> where K : notnull {
 
 		/// <summary>
 		/// A branch is an entry in a tree with an associated leaf and collection of sub-branches.
@@ -242,173 +240,9 @@ namespace Tesseract.Core.Utilities {
 		/// Recursively iterates over each branch of this tree.
 		/// </summary>
 		/// <param name="iterator">Iterator function</param>
-		public void Iterate(Action<IReadOnlyList<K>,Branch> iterator) {
+		public void Iterate(Action<IReadOnlyList<K>, Branch> iterator) {
 			foreach (Branch branch in branches.Values) branch.Iterate(iterator);
 		}
-
-	}
-
-	/// <summary>
-	/// A threadsafe list implementation which provides atomicity by creating a copy of the list every time it is modified.
-	/// Enumeration will always be consistent with the list at the time the enumerator was created.
-	/// </summary>
-	/// <typeparam name="T">The element type</typeparam>
-	public class CopyOnWriteList<T> : IList<T>, IReadOnlyList<T> {
-
-		// The lock for atomically modifying the array
-		private readonly object arrayLock = new();
-		// The current array value
-		private volatile T[] array = Array.Empty<T>();
-
-		public T this[int index] {
-			get => array[index];
-			set {
-				lock(arrayLock) {
-					T[] newarray = new T[array.Length];
-					array.CopyTo(newarray.AsSpan());
-					newarray[index] = value;
-					array = newarray;
-				}
-			}
-		}
-
-		public int Count => array.Length;
-
-		public bool IsReadOnly => false;
-
-		public void Add(T item) {
-			lock(arrayLock) {
-				Insert(array.Length, item);
-			}
-		}
-
-		public void Clear() {
-			lock(arrayLock) {
-				array = Array.Empty<T>();
-			}
-		}
-
-		public bool Contains(T item) => IndexOf(item) >= 0;
-
-		public void CopyTo(T[] array, int arrayIndex) {
-			this.array.CopyTo(array, arrayIndex);
-		}
-
-		public IEnumerator<T> GetEnumerator() {
-			T[] array = this.array;
-			for(int i = 0; i < array.Length; i++) yield return array[i];
-		}
-
-		public int IndexOf(T item) {
-			T[] array = this.array;
-			for (int i = 0; i < array.Length; i++) if (Equals(item, array[i])) return i;
-			return -1;
-		}
-
-		public void Insert(int index, T item) {
-			lock (arrayLock) {
-				if (index < 0 || index > array.Length) throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be in the range [0, Count]");
-				T[] newarray = new T[array.Length + 1];
-				if (index != 0) Array.Copy(array, 0, newarray, 0, index);
-				if (index != array.Length) Array.Copy(array, index, newarray, index + 1, array.Length - index);
-				newarray[array.Length] = item;
-				array = newarray;
-			}
-		}
-
-		public bool Remove(T item) {
-			lock (arrayLock) {
-				int index = IndexOf(item);
-				if (index >= 0) {
-					RemoveAt(index);
-					return true;
-				} else return false;
-			}
-		}
-
-		public void RemoveAt(int index) {
-			lock(arrayLock) {
-				if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be in the range [0, Count)");
-				T[] newarray = new T[array.Length - 1];
-				if (index != 0) Array.Copy(array, 0, newarray, 0, index);
-				if (index != array.Length - 1) Array.Copy(array, index + 1, newarray, index, array.Length - index - 1);
-				array = newarray;
-			}
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-	}
-
-	/// <summary>
-	/// Collection utilities.
-	/// </summary>
-	public static class Collections {
-
-		/// <summary>
-		/// Converts all the elements in a collection using a converter function.
-		/// </summary>
-		/// <typeparam name="T1">Source type</typeparam>
-		/// <typeparam name="T2">Destination type</typeparam>
-		/// <param name="e">Enumerable collection</param>
-		/// <param name="convert">Converter function</param>
-		/// <returns>List of converted elements</returns>
-		public static List<T2> ConvertAll<T1, T2>(IEnumerable<T1> e, Func<T1, T2> convert) {
-			List<T2> list = new();
-			foreach (T1 t in e) list.Add(convert(t));
-			return list;
-		}
-
-		/// <summary>
-		/// Converts all the elements in a collection using a converter function.
-		/// </summary>
-		/// <typeparam name="T1">Source type</typeparam>
-		/// <typeparam name="T2">Destination type</typeparam>
-		/// <param name="c">Read-only collection</param>
-		/// <param name="convert">Converter function</param>
-		/// <returns>List of converted elements</returns>
-		public static List<T2> ConvertAll<T1, T2>(IReadOnlyCollection<T1> c, Func<T1, T2> convert) {
-			List<T2> list = new(c.Count);
-			foreach (T1 t in c) list.Add(convert(t));
-			return list;
-		}
-
-		/// <summary>
-		/// Creates a tuple with two duplicate elements.
-		/// </summary>
-		/// <typeparam name="T">Tuple element type</typeparam>
-		/// <param name="val">Value to duplicate</param>
-		/// <returns>Duplicate tuple</returns>
-		public static (T, T) TupleDup2<T>(T val) => (val, val);
-
-		/// <summary>
-		/// Creates a tuple with three duplicate elements.
-		/// </summary>
-		/// <typeparam name="T">Tuple element type</typeparam>
-		/// <param name="val">Value to duplicate</param>
-		/// <returns>Duplicate tuple</returns>
-		public static (T, T, T) TupleDup3<T>(T val) => (val, val, val);
-
-		/// <summary>
-		/// Creates a tuple with four duplicate elements.
-		/// </summary>
-		/// <typeparam name="T">Tuple element type</typeparam>
-		/// <param name="val">Value to duplicate</param>
-		/// <returns>Duplicate tuple</returns>
-		public static (T, T, T, T) TupleDup4<T>(T val) => (val, val, val, val);
-
-	}
-
-	/// <summary>
-	/// Collection utilities.
-	/// </summary>
-	/// <typeparam name="T">Element type</typeparam>
-	public static class Collections<T> {
-
-		/// <summary>
-		/// A read-only list that is always empty.
-		/// </summary>
-		public static readonly IReadOnlyList<T> EmptyList = Array.Empty<T>();
 
 	}
 
