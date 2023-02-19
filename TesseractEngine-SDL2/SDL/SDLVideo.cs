@@ -24,6 +24,7 @@ namespace Tesseract.SDL {
 		public IntPtr DriverData { get => driverData; init => driverData = value; }
 	}
 
+	[Flags]
 	public enum SDLWindowFlags : uint {
 		Fullscreen = 0x00000001,
 		OpenGL = 0x00000002,
@@ -111,12 +112,14 @@ namespace Tesseract.SDL {
 		ContextNoError
 	}
 
+	[Flags]
 	public enum SDLGLProfile {
 		Core = 0x0001,
 		Compatibility = 0x0002,
 		ES = 0x0004
 	}
 
+	[Flags]
 	public enum SDLGLContextFlag {
 		DebugFlag = 0x0001,
 		ForwardCompatibleFlag = 0x0002,
@@ -124,11 +127,13 @@ namespace Tesseract.SDL {
 		ResetIsolationFlag = 0x0008
 	}
 
+	[Flags]
 	public enum SDLGLContextReleaseFlag {
 		None = 0x0000,
 		Flush = 0x0001
 	}
 
+	[Flags]
 	public enum SDLGLContextResetNotification {
 		NoNotification = 0x0000,
 		LoseContext = 0x0001

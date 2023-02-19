@@ -92,6 +92,12 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		public static readonly IWindowAttribute<bool> Resizable = new OpaqueWindowAttribute<bool>();
 
+		/// <summary>
+		/// If the window should attempt to ignore any resolution scaling the operating system may request. By default scaling is not ignored.
+		/// Note that some implementations may force scaling when in windowed mode.
+		/// </summary>
+		public static readonly IWindowAttribute<bool> NoScaling = new OpaqueWindowAttribute<bool>();
+
 	}
 
 	/// <summary>

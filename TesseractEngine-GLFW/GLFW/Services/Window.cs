@@ -163,14 +163,17 @@ namespace Tesseract.GLFW.Services {
 
 		public GLFWServiceWindow(string title, int w, int h, WindowAttributeList? attribs) {
 			this.title = title;
+			bool ignoreScaling = false;
 			if (attribs != null) {
 				if (attribs.TryGet(WindowAttributes.Focused, out bool focused)) GLFW3.WindowHint(GLFWWindowAttrib.Focused, focused ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Maximized, out bool maximized)) GLFW3.WindowHint(GLFWWindowAttrib.Maximized, maximized ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Minimized, out bool minimized)) GLFW3.WindowHint(GLFWWindowAttrib.Iconified, minimized ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Resizable, out bool resizable)) GLFW3.WindowHint(GLFWWindowAttrib.Resizable, resizable ? 1 : 0);
 				if (attribs.TryGet(WindowAttributes.Visible, out bool visible)) GLFW3.WindowHint(GLFWWindowAttrib.Visible, visible ? 1 : 0);
+				if (attribs.TryGet(WindowAttributes.NoScaling, out bool noScaling)) ignoreScaling = noScaling;
 				OnParseAttributes?.Invoke(attribs);
 			}
+			if (!ignoreScaling) GLFW3.WindowHint(GLFWWindowAttrib.ScaleToMonitor, 1);
 			Window = new(new Vector2i(w, h), title);
 			if (attribs != null) {
 				if (attribs.TryGet(WindowAttributes.Closing, out bool closing)) Window.ShouldClose = closing;

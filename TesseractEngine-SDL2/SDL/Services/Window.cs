@@ -217,6 +217,7 @@ namespace Tesseract.SDL.Services {
 			if (attributes.TryGet(WindowAttributes.Minimized, out bool minimized) && minimized) flags |= SDLWindowFlags.Minimized;
 			if (attributes.TryGet(WindowAttributes.Maximized, out bool maximized) && maximized) flags |= SDLWindowFlags.Maximized;
 			if (attributes.TryGet(WindowAttributes.Focused, out bool focused) && focused) flags |= SDLWindowFlags.InputFocus;
+			if (attributes.TryGet(WindowAttributes.NoScaling, out bool noScaling) && noScaling) flags |= SDLWindowFlags.AllowHighDPI;
 			OnParseAttributes?.Invoke(attributes, ref flags);
 			return flags;
 		}

@@ -318,8 +318,7 @@ namespace Tesseract.ImGui.SDL {
 			IImGuiIO io = GImGui.IO;
 			Vector2i size = window.Size, displaySize;
 			if ((window.Flags & SDLWindowFlags.Minimized) != 0) size = default;
-			if (renderer != null) displaySize = window.DrawableSize;
-			else displaySize = size;
+			displaySize = window.DrawableSize;
 			io.DisplaySize = (Vector2)size;
 			if (size.X > 0 && size.Y > 0)
 				io.DisplayFramebufferScale = (Vector2)displaySize / (Vector2)size;
