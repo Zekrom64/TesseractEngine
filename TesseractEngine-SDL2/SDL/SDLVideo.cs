@@ -452,6 +452,26 @@ namespace Tesseract.SDL {
 			}
 		}
 
+		private delegate void GetDrawableSize(nint window, out int w, out int h);
+
+		private GetDrawableSize? fnGetDrawableSize;
+
+		/// <summary>
+		/// Gets the drawable size by invoking the appropriate underlying API function (eg. <c>SDL_GL_GetDrawableSize</c>).
+		/// </summary>
+		public Vector2i DrawableSize {
+			get {
+				if (fnGetDrawableSize == null) {
+					if ((Flags & SDLWindowFlags.OpenGL) != 0) fnGetDrawableSize = new GetDrawableSize(SDL2.Functions.SDL_GL_GetDrawableSize);
+					else if ((Flags & SDLWindowFlags.Vulkan) != 0) fnGetDrawableSize = new GetDrawableSize(SDL2.Functions.SDL_Vulkan_GetDrawableSize);
+					else fnGetDrawableSize = (nint pwnd, out int w, out int h) => { var sz = Size; w = sz.X; h = sz.Y; };
+				}
+				Vector2i sz = default;
+				fnGetDrawableSize(Window.Ptr, out sz.X, out sz.Y);
+				return sz;
+			}
+		}
+
 	}
 
 }

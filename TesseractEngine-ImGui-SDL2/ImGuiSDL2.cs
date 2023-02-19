@@ -156,15 +156,15 @@ namespace Tesseract.ImGui.SDL {
 					return true;
 				case SDLEventType.MouseButtonDown:
 				case SDLEventType.MouseButtonUp:
-					int mouseButton = evt.Button.Button switch {
-						SDL2.ButtonLeft => 0,
-						SDL2.ButtonRight => 1,
-						SDL2.ButtonMiddle => 2,
-						_ => -1
+					ImGuiMouseButton mouseButton = evt.Button.Button switch {
+						SDL2.ButtonLeft => ImGuiMouseButton.Left,
+						SDL2.ButtonRight => ImGuiMouseButton.Right,
+						SDL2.ButtonMiddle => ImGuiMouseButton.Middle,
+						_ => (ImGuiMouseButton)(-1)
 					};
-					if (mouseButton == -1) break;
+					if ((int)mouseButton == -1) break;
 					io.AddMouseButtonEvent(mouseButton, evt.Type == SDLEventType.MouseButtonDown);
-					mouseButtonsDown = (evt.Type == SDLEventType.MouseButtonDown) ? (mouseButtonsDown | (1 << mouseButton)) : (mouseButtonsDown & ~(1 << mouseButton));
+					mouseButtonsDown = (evt.Type == SDLEventType.MouseButtonDown) ? (mouseButtonsDown | (1 << (int)mouseButton)) : (mouseButtonsDown & ~(1 << (int)mouseButton));
 					return true;
 				case SDLEventType.TextInput:
 					io.AddInputCharacters(evt.Text.Text);
@@ -225,6 +225,7 @@ namespace Tesseract.ImGui.SDL {
 					viewport.PlatformHandleRaw = ((SDLSysWMInfoWin)info.Info).HWnd;
 				}
 			}
+
 
 			return true;
 		}
@@ -317,7 +318,7 @@ namespace Tesseract.ImGui.SDL {
 			IImGuiIO io = GImGui.IO;
 			Vector2i size = window.Size, displaySize;
 			if ((window.Flags & SDLWindowFlags.Minimized) != 0) size = default;
-			if (renderer != null) displaySize = renderer.OutputSize;
+			if (renderer != null) displaySize = window.DrawableSize;
 			else displaySize = size;
 			io.DisplaySize = (Vector2)size;
 			if (size.X > 0 && size.Y > 0)
