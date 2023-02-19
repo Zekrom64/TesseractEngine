@@ -302,6 +302,24 @@ namespace Tesseract.Core.Graphics {
 	}
 
 	/// <summary>
+	/// Enumeration of modes for cursor movement within a window.
+	/// </summary>
+	public enum CursorMode {
+		/// <summary>
+		/// The cursor can move freely as normal.
+		/// </summary>
+		Default,
+		/// <summary>
+		/// The cursor is hidden but can otherwise move normally.
+		/// </summary>
+		Hidden,
+		/// <summary>
+		/// The cursor is hidden and locked to the center of the window.
+		/// </summary>
+		Locked
+	}
+
+	/// <summary>
 	/// A window is a configurable surface created in a windowing system that can be used for presentation
 	/// to a display. The window is only fully destroyed when explicitly disposed. Input for windows is
 	/// "local"; positions will be relative to the client area and input may be disabled if the window
@@ -320,6 +338,12 @@ namespace Tesseract.Core.Graphics {
 		/// with borders may be greater.
 		/// </summary>
 		public Vector2i Size { get; set; }
+
+		/// <summary>
+		/// The size of the drawable area for the window. This may not be the
+		/// same as the window size due to display scaling or high-DPI side effects.
+		/// </summary>
+		public Vector2i DrawableSize { get; }
 
 		/// <summary>
 		/// The position of the window.
@@ -413,6 +437,11 @@ namespace Tesseract.Core.Graphics {
 		public event Action OnClosing;
 
 		/// <summary>
+		/// The mode of the mouse cursor when this window is focused.
+		/// </summary>
+		public CursorMode CursorMode { get; set; }
+
+		/// <summary>
 		/// Restores this window to its regular windowed state, exiting any minimization, maximization, or fullscreen mode.
 		/// </summary>
 		public void Restore();
@@ -430,13 +459,6 @@ namespace Tesseract.Core.Graphics {
 		/// </summary>
 		/// <param name="cursor">Cursor to set</param>
 		public void SetCursor(ICursor? cursor);
-
-		/// <summary>
-		/// If the window captures the mouse when focused. When the mouse is captured the cursor is hidden
-		/// and locked inside of the client area, allowing unlimited movement. When in this mode the the
-		/// absolute position of mouse events is undefined and should be ignored.
-		/// </summary>
-		public bool CaptureMouse { get; set; }
 
 		/// <summary>
 		/// The window surface, if present.

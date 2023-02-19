@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Native;
 using Tesseract.Core.Utilities;
 
 namespace Tesseract.Vulkan.Services.Objects {
 
-	/// <summary>
-	/// Vulkan implementation for a pipeline layout.
-	/// </summary>
-	public class VulkanPipelineLayout : IPipelineLayout {
+    /// <summary>
+    /// Vulkan implementation for a pipeline layout.
+    /// </summary>
+    public class VulkanPipelineLayout : IPipelineLayout {
 
 		/// <summary>
 		/// The underlying Vulkan pipeline layout.

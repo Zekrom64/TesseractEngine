@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Input;
@@ -132,7 +133,6 @@ namespace Tesseract.GLFW.Services {
 
 		public string Name => "GLFW Keyboard";
 
-#pragma warning disable 0067
 		public event Action? OnDisconnected;
 		
 		public event Action<KeyEvent>? OnKey;
@@ -140,7 +140,6 @@ namespace Tesseract.GLFW.Services {
 		public event Action<TextInputEvent>? OnTextInput;
 
 		public event Action<TextEditEvent>? OnTextEdit;
-#pragma warning restore 0067
 
 		public void EndTextInput() => throw new NotImplementedException();
 
@@ -192,21 +191,31 @@ namespace Tesseract.GLFW.Services {
 
 		public bool IsGamepad => Joystick.IsGamepad;
 
-		public bool[] Buttons {
+		private static int nextID = 0;
+
+		public int ID { get; } = nextID++;
+
+		public int PlayerIndex { get; internal set; }
+
+		private bool[] buttons = Array.Empty<bool>();
+
+		public ReadOnlySpan<bool> Buttons {
 			get {
 				ReadOnlySpan<GLFWButtonState> state = Joystick.Buttons;
-				bool[] buttons = new bool[state.Length];
+				if (state.Length > buttons.Length) buttons = new bool[state.Length];
 				for (int i = 0; i < buttons.Length; i++) buttons[i] = state[i] != GLFWButtonState.Release;
-				return buttons;
+				return buttons.AsSpan()[..state.Length];
 			}
 		}
 
-		public float[] Axes => Joystick.Axes.ToArray();
+		public ReadOnlySpan<float> Axes => Joystick.Axes;
 
-		public HatState[] Hats {
+		private HatState[] hats = Array.Empty<HatState>();
+
+		public ReadOnlySpan<HatState> Hats {
 			get {
 				ReadOnlySpan<GLFWHat> state = Joystick.Hats;
-				HatState[] hats = new HatState[state.Length];
+				if (state.Length > hats.Length) hats = new HatState[state.Length];
 				for (int i = 0; i < hats.Length; i++) {
 					GLFWHat hat = state[i];
 					HatState hs = HatState.Centered;
@@ -222,7 +231,7 @@ namespace Tesseract.GLFW.Services {
 					else if ((hat & GLFWHat.Right) != 0) hs = HatState.Right;
 					hats[i] = hs;
 				}
-				return hats;
+				return hats.AsSpan()[..state.Length];
 			}
 		}
 
@@ -235,24 +244,26 @@ namespace Tesseract.GLFW.Services {
 
 	public class GLFWServiceGamepad : GLFWServiceJoystick, IGamepad {
 
-		public bool[] GamepadButtons {
+		private bool[] gamepadButtons = Array.Empty<bool>();
+
+		public ReadOnlySpan<bool> GamepadButtons {
 			get {
 				GLFWGamepadState? state = Joystick.GamepadState;
 				if (!state.HasValue) return Array.Empty<bool>();
 				else {
 					ReadOnlySpan<GLFWButtonState> glfwbuttons = state.Value.Buttons;
-					bool[] buttons = new bool[glfwbuttons.Length];
-					for (int i = 0; i < buttons.Length; i++) buttons[i] = glfwbuttons[i] != GLFWButtonState.Release;
-					return buttons;
+					if (glfwbuttons.Length > gamepadButtons.Length) gamepadButtons = new bool[glfwbuttons.Length];
+					for (int i = 0; i < gamepadButtons.Length; i++) gamepadButtons[i] = glfwbuttons[i] != GLFWButtonState.Release;
+					return gamepadButtons.AsSpan()[..glfwbuttons.Length];
 				}
 			}
 		}
 
-		public float[] GamepadAxes {
+		public ReadOnlySpan<float> GamepadAxes {
 			get {
 				GLFWGamepadState? state = Joystick.GamepadState;
 				if (!state.HasValue) return Array.Empty<float>();
-				else return state.Value.Axes.ToArray();
+				else return state.Value.Axes;
 			}
 		}
 
@@ -300,35 +311,49 @@ namespace Tesseract.GLFW.Services {
 		public GLFWServiceInputSystem() {
 			OnJoystickConnect += (int id, GLFWConnectState state) => {
 				switch(state) {
-					case GLFWConnectState.Connected:
-						GLFWJoystick joy = new() { ID = id };
-						if (joy.IsGamepad) {
-							GLFWServiceGamepad gamepad = new() { Joystick = joy };
-							joysticks.Add(gamepad);
-							gamepads.Add(gamepad);
-							OnConnected?.Invoke(gamepad);
-						} else {
-							GLFWServiceJoystick joystick = new() { Joystick = joy };
-							joysticks.Add(joystick);
-							OnConnected?.Invoke(joystick);
-						}
-						break;
-					case GLFWConnectState.Disconnected:
-						for(int i = 0; i < gamepads.Count; i++) {
-							GLFWServiceGamepad gamepad = gamepads[i];
-							if (gamepad.Joystick.ID == id) {
-								gamepad.DoOnDisconnect();
-								gamepads.RemoveAt(i);
-								joysticks.Remove(gamepad);
-								return;
+					case GLFWConnectState.Connected: {
+							GLFWJoystick joy = new() { ID = id };
+							// Use the next highest player index for the connected joystick
+							int playerIndex = 0;
+							foreach (GLFWServiceJoystick joy2 in joysticks) if (joy2.PlayerIndex > playerIndex) playerIndex = joy2.PlayerIndex;
+							playerIndex++;
+							if (joy.IsGamepad) {
+								GLFWServiceGamepad gamepad = new() { Joystick = joy, PlayerIndex = playerIndex };
+								joysticks.Add(gamepad);
+								gamepads.Add(gamepad);
+								OnConnected?.Invoke(gamepad);
+							} else {
+								GLFWServiceJoystick joystick = new() { Joystick = joy, PlayerIndex = playerIndex };
+								joysticks.Add(joystick);
+								OnConnected?.Invoke(joystick);
 							}
 						}
-						for(int i = 0; i < joysticks.Count; i++) {
-							GLFWServiceJoystick joystick = joysticks[i];
-							if (joystick.Joystick.ID == id) {
-								joystick.DoOnDisconnect();
-								joysticks.RemoveAt(i);
-								return;
+						break;
+					case GLFWConnectState.Disconnected: {
+							// Find the player index of the disconnecting joystick
+							int playerIndex = 0;
+							for (int i = 0; i < gamepads.Count; i++) {
+								GLFWServiceGamepad gamepad = gamepads[i];
+								if (gamepad.Joystick.ID == id) {
+									playerIndex = gamepad.PlayerIndex;
+									gamepad.DoOnDisconnect();
+									gamepads.RemoveAt(i);
+									joysticks.Remove(gamepad);
+									return;
+								}
+							}
+							for (int i = 0; i < joysticks.Count; i++) {
+								GLFWServiceJoystick joystick = joysticks[i];
+								if (joystick.Joystick.ID == id) {
+									playerIndex = joystick.PlayerIndex;
+									joystick.DoOnDisconnect();
+									joysticks.RemoveAt(i);
+									return;
+								}
+							}
+							// Decrement the player index for every joystick with a higher player index
+							foreach(GLFWServiceJoystick joy in joysticks) {
+								if (joy.PlayerIndex > playerIndex) joy.PlayerIndex--;
 							}
 						}
 						break;
@@ -336,9 +361,10 @@ namespace Tesseract.GLFW.Services {
 			};
 			InstallCallbacks();
 
+			int playerIndex = 0;
 			foreach(GLFWJoystick joy in GLFW3.Joysticks) {
 				if (joy.IsGamepad) {
-					GLFWServiceGamepad gamepad = new() { Joystick = joy };
+					GLFWServiceGamepad gamepad = new() { Joystick = joy, PlayerIndex = playerIndex++ };
 					joysticks.Add(gamepad);
 					gamepads.Add(gamepad);
 				} else joysticks.Add(new GLFWServiceJoystick() { Joystick = joy });

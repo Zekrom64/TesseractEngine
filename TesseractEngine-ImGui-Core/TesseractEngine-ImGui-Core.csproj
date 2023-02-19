@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>Tesseract.ImGui.Core</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractEngine-Core\TesseractEngine-Core.csproj" />
+    <ProjectReference Include="..\TesseractEngine-ImGui\TesseractEngine-ImGui.csproj" />
+  </ItemGroup>
+
+</Project>

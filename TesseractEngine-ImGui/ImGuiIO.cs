@@ -166,7 +166,7 @@ namespace Tesseract.ImGui {
 		/// </summary>
 		/// <param name="button">Which mouse button changed</param>
 		/// <param name="down">If the button was pressed or released</param>
-		public void AddMouseButtonEvent(int button, bool down);
+		public void AddMouseButtonEvent(ImGuiMouseButton button, bool down);
 
 		/// <summary>
 		/// Queue a mouse wheel update

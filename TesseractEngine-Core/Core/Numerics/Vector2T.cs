@@ -6,15 +6,15 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Numerics {
 
-	/// <summary>
-	/// Generic 2-component vector implementation.
-	/// </summary>
-	/// <typeparam name="T">Vector element type</typeparam>
-	public struct Vector2<T> :
+    /// <summary>
+    /// Generic 2-component vector implementation.
+    /// </summary>
+    /// <typeparam name="T">Vector element type</typeparam>
+    public struct Vector2<T> :
 		IVector2<Vector2<T>, T>
 		where T : unmanaged, INumber<T>, IEquatable<T> {
 

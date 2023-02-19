@@ -260,22 +260,32 @@ namespace Tesseract.SDL.Services {
 
 		public bool IsGamepad { get; protected set; } = false;
 
-		public bool[] Buttons {
+		public int ID => Joystick.InstanceID;
+
+		public int PlayerIndex => Joystick.PlayerIndex;
+
+		private bool[] buttons = Array.Empty<bool>();
+
+		public ReadOnlySpan<bool> Buttons {
 			get {
-				bool[] buttons = new bool[Joystick.NumButtons];
-				for (int i = 0; i < buttons.Length; i++) buttons[i] = Joystick.GetButton(i) != SDLButtonState.Released;
-				return buttons;
+				int numButtons = Joystick.NumButtons;
+				if (numButtons > buttons.Length) buttons = new bool[numButtons];
+				for (int i = 0; i < numButtons; i++) buttons[i] = Joystick.GetButton(i) != SDLButtonState.Released;
+				return buttons.AsSpan()[..numButtons];
 			}
 		}
 
-		public float[] Axes {
+		private float[] axes = Array.Empty<float>();
+
+		public ReadOnlySpan<float> Axes {
 			get {
-				float[] axes = new float[Joystick.NumAxes];
-				for (int i = 0; i < axes.Length; i++) {
+				int numAxes = Joystick.NumAxes;
+				if (numAxes > axes.Length) axes = new float[numAxes];
+				for (int i = 0; i < numAxes; i++) {
 					float unorm = (Joystick.GetAxis(i) - SDL2.JoystickAxisMin) / (float)(SDL2.JoystickAxisMax - SDL2.JoystickAxisMin);
 					axes[i] = (unorm * 2.0f) - 1.0f;
 				}
-				return axes;
+				return axes.AsSpan()[..numAxes];
 			}
 		}
 
@@ -298,11 +308,14 @@ namespace Tesseract.SDL.Services {
 			_ => default
 		};
 
-		public HatState[] Hats {
+		private HatState[] hats = Array.Empty<HatState>();
+
+		public ReadOnlySpan<HatState> Hats {
 			get {
-				HatState[] hats = new HatState[Joystick.NumHats];
-				for (int i = 0; i < hats.Length; i++) hats[i] = SDLToStdHat(Joystick.GetHat(i));
-				return hats;
+				int numHats = Joystick.NumHats;
+				if (numHats > hats.Length) hats = new HatState[numHats];
+				for (int i = 0; i < numHats; i++) hats[i] = SDLToStdHat(Joystick.GetHat(i));
+				return hats.AsSpan()[..numHats];
 			}
 		}
 
@@ -352,27 +365,29 @@ namespace Tesseract.SDL.Services {
 
 		public const int NumButtons = 21;
 
-		public bool[] GamepadButtons {
+		private readonly bool[] gamepadButtons = new bool[NumButtons];
+
+		public ReadOnlySpan<bool> GamepadButtons {
 			get {
-				bool[] buttons = new bool[NumButtons];
 				for (int i = 0; i < NumButtons; i++) {
 					SDLGameControllerButton button = (SDLGameControllerButton)i;
-					buttons[i] = GameController.HasButton(button) && GameController.GetButton(button);
+					gamepadButtons[i] = GameController.HasButton(button) && GameController.GetButton(button);
 				}
-				return buttons;
+				return gamepadButtons;
 			}
 		}
 
 		public const int NumAxes = 6;
 
-		public float[] GamepadAxes {
+		private readonly float[] gamepadAxes = new float[NumAxes];
+
+		public ReadOnlySpan<float> GamepadAxes {
 			get {
-				float[] axes = new float[NumAxes];
 				for (int i = 0; i < NumAxes; i++) {
 					SDLGameControllerAxis axis = (SDLGameControllerAxis)i;
-					axes[i] = GameController.HasAxis(axis) ? GameController.GetAxis(axis) : 0.0f;
+					gamepadAxes[i] = GameController.HasAxis(axis) ? GameController.GetAxis(axis) : 0.0f;
 				}
-				return axes;
+				return gamepadAxes;
 			}
 		}
 

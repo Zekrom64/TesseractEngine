@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Tesseract.Core.Resource {
 
@@ -196,7 +197,7 @@ namespace Tesseract.Core.Resource {
 		/// <param name="extension">The extension part of the resource's name</param>
 		/// <param name="mime">The MIME type if found</param>
 		/// <returns>If a MIME type was found for the extension</returns>
-		public static bool TryGuessFromExtension(string? extension, out string? mime) {
+		public static bool TryGuessFromExtension(string? extension, [NotNullWhen(true)] out string? mime) {
 			if (extension == null) {
 				mime = null;
 				return false;

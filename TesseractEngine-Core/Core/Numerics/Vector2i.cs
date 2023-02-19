@@ -182,7 +182,11 @@ namespace Tesseract.Core.Numerics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator >>(Vector2i left, int right) => new(left.X >> right, left.Y >> right);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2i operator >>(Vector2i left, Vector2i right) => new(left.X >> right.X, left.Y >> right.Y);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator <<(Vector2i left, int right) => new(left.X << right, left.Y << right);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2i operator <<(Vector2i left, Vector2i right) => new(left.X << right.X, left.Y << right.Y);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2i operator ~(Vector2i value) => new(~value.X, ~value.Y);

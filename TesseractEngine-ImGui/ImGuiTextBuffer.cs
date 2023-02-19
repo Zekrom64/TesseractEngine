@@ -10,26 +10,25 @@ namespace Tesseract.ImGui {
 
 	public class ImGuiTextBuffer {
 
-		private byte[] buf = Array.Empty<byte>();
+		private byte[] buf;
 
-		public Span<byte> Buf => buf.AsSpan()[..Size];
-
-		private int size;
-		public int Size {
-			get => size;
-			set {
-				Reserve(value);
-				size = value;
-			}
-		}
+		public Span<byte> Buf => buf;
 
 		public int Capacity => buf.Length;
 
-		public bool Empty => size <= 1;
+		public int Length {
+			get {
+				int len = Array.IndexOf<byte>(buf, 0);
+				return len < 0 ? Capacity : len;
+			}
+		}
+
+		public ImGuiTextBuffer(int? capacity = null) {
+			buf = new byte[capacity ?? 256];
+		}
 
 		public void Clear() {
 			buf = Array.Empty<byte>();
-			size = 0;
 		}
 
 		public void ClearText() => Buf.Fill(0);
@@ -38,18 +37,21 @@ namespace Tesseract.ImGui {
 			if (buf.Length < capacity) Array.Resize(ref buf, capacity);
 		}
 
+		public int Callback(IImGuiInputTextCallbackData data) {
+			if ((data.EventFlag & ImGuiInputTextFlags.CallbackResize) != 0) Reserve(data.BufTextLen + 1);
+			return 0;
+		}
+
 		public void Append(string str) {
 			byte[] bytes = Encoding.UTF8.GetBytes(str);
-			Reserve(size + bytes.Length + 1);
-			bytes.CopyTo(buf, size);
-			size += bytes.Length;
-			buf[size] = 0;
+			int len = Length;
+			Reserve(len + bytes.Length + 1);
+			bytes.CopyTo(buf, len);
+			buf[len + bytes.Length] = 0;
 		}
 
 		public static implicit operator string(ImGuiTextBuffer buf) {
-			int strlen = Array.IndexOf(buf.buf, 0);
-			if (strlen < 0) strlen = buf.buf.Length;
-			return Encoding.UTF8.GetString(buf.buf, 0, strlen);
+			return Encoding.UTF8.GetString(buf.buf, 0, buf.Length);
 		}
 
 	}

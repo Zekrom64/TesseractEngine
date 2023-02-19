@@ -6,14 +6,14 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Resource {
 
-	/// <summary>
-	/// An HTTP resource domain maps resources to HTTP requests at a specified URL.
-	/// </summary>
-	public class HTTPResourceDomain : ResourceDomain, IDisposable {
+    /// <summary>
+    /// An HTTP resource domain maps resources to HTTP requests at a specified URL.
+    /// </summary>
+    public class HTTPResourceDomain : ResourceDomain, IDisposable {
 
 		/// <summary>
 		/// The HTTP client used to fetch resources for this domain.
@@ -45,7 +45,7 @@ namespace Tesseract.Core.Resource {
 
 		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) {
 			if (dir.Domain != this) throw new ArgumentException("Cannot operate on a resource location from a different domain", nameof(dir));
-			return Collections<ResourceLocation>.EmptyList;
+			return Collection<ResourceLocation>.EmptyList;
 		}
 
 		public override ResourceMetadata GetMetadata(ResourceLocation file) {
@@ -70,6 +70,11 @@ namespace Tesseract.Core.Resource {
 			HttpClient.Dispose();
 		}
 
+		public override bool Exists(ResourceLocation file) {
+			var areq = HttpClient.GetAsync(URLPrefix + PathPrefix + file.Path);
+			if (!areq.Wait(Timeout)) return false;
+			return areq.Result.IsSuccessStatusCode;
+		}
 	}
 
 }

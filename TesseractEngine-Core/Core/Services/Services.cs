@@ -93,13 +93,14 @@ namespace Tesseract.Core.Services {
 			// Dictionary of injected objects for this object by service
 			public readonly Dictionary<IService, object> InjectedObjects = new();
 
-			public T? Lookup<T>(IService<T> service) where T : notnull {
+			private delegate object AbstractConstructor(IServiceProvider provider);
+
+			public T? Lookup<T>(IService<T> service, IServiceProvider provider) where T : notnull {
 				lock (this) {
 					if (InjectedObjects.TryGetValue(service, out object? value)) return (T)value;
 					else {
-						if (constructors.TryGetValue((SelfType, service), out object? ctor)) {
-							dynamic dctor = ctor;
-							T tvalue = dctor.Invoke(service);
+						if (constructors.TryGetValue((SelfType, service), out Func<IServiceProvider, object>? ctor)) {
+							T tvalue = (T)ctor.Invoke(provider);
 							InjectedObjects.Add(service, tvalue);
 							return tvalue;
 						} else return default;
@@ -110,7 +111,7 @@ namespace Tesseract.Core.Services {
 		}
 
 		// Dictionary of injected service constructors by the provider type and service object
-		private static readonly Dictionary<(Type, IService), object> constructors = new();
+		private static readonly Dictionary<(Type, IService), Func<IServiceProvider, object>> constructors = new();
 		// Dictionary of injected registries per provider
 		private static readonly ConditionalWeakTable<IServiceProvider, InjectedRegistry> registry = new();
 
@@ -124,7 +125,7 @@ namespace Tesseract.Core.Services {
 		public static void Inject<P, T>(IService<T> service, Func<P, T> getter)
 			where P : IServiceProvider
 			where T : notnull {
-			constructors[(typeof(P), service)] = getter;
+			constructors[(typeof(P), service)] = (IServiceProvider p) => getter((P)p);
 		}
 
 		/// <summary>
@@ -140,7 +141,7 @@ namespace Tesseract.Core.Services {
 					reg = new() { SelfType = provider.GetType() };
 					registry.Add(provider, reg);
 				}
-				return reg.Lookup(service);
+				return reg.Lookup(service, provider);
 			}
 		}
 

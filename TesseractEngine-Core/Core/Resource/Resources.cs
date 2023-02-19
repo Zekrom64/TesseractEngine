@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Resource {
 
-	/// <summary>
-	/// <para>A resource domain specifies how resources are accessed from some particular source.</para>
-	/// <para>
-	/// The default resource domain is a globally set domain that will be used if no specific
-	/// domain is specified as part of a resource location.
-	/// </para>
-	/// <para>
-	/// Each thread also has its own 'contextual' domain which is initialized to the default domain
-	/// and may be modified in a thread-local manner and will be used to initialize resource
-	/// locations when no domain is specified. This contextual domain is useful in situations
-	/// such as mod loading where the domain can be inferred as being the loaded mod.
-	/// </para>
-	/// </summary>
-	public abstract class ResourceDomain {
+    /// <summary>
+    /// <para>A resource domain specifies how resources are accessed from some particular source.</para>
+    /// <para>
+    /// The default resource domain is a globally set domain that will be used if no specific
+    /// domain is specified as part of a resource location.
+    /// </para>
+    /// <para>
+    /// Each thread also has its own 'contextual' domain which is initialized to the default domain
+    /// and may be modified in a thread-local manner and will be used to initialize resource
+    /// locations when no domain is specified. This contextual domain is useful in situations
+    /// such as mod loading where the domain can be inferred as being the loaded mod.
+    /// </para>
+    /// </summary>
+    public abstract class ResourceDomain {
 
 		private static readonly ThreadLocal<ResourceDomain?> contextualDomain = new(() => null);
 		private static readonly Dictionary<string, ResourceDomain> allDomains = new();
@@ -106,9 +106,22 @@ namespace Tesseract.Core.Resource {
 		/// </summary>
 		public string PathPrefix { get; init; } = string.Empty;
 
+		/// <summary>
+		/// If the domain is considered 'writable', such that streams opened via <see cref="OpenStream(ResourceLocation)"/> support
+		/// writing operations and will create the required underlying resource file.
+		/// </summary>
+		public virtual bool Writable { get; } = false;
+
 		protected ResourceDomain(string name) {
 			Name = name;
 		}
+
+		/// <summary>
+		/// Tests if the given file resource exists.
+		/// </summary>
+		/// <param name="file">The resource to test</param>
+		/// <returns>If the resource exists as a file</returns>
+		public abstract bool Exists(ResourceLocation file);
 
 		/// <summary>
 		/// Opens a resource location from this domain as a stream.
@@ -150,7 +163,9 @@ namespace Tesseract.Core.Resource {
 
 		private NullResourceDomain() : base("null") { }
 
-		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collections<ResourceLocation>.EmptyList;
+		public override IEnumerable<ResourceLocation> EnumerateDirectory(ResourceLocation dir) => Collection<ResourceLocation>.EmptyList;
+
+		public override bool Exists(ResourceLocation file) => false;
 
 		public override ResourceMetadata GetMetadata(ResourceLocation file) => new() { Size = -1, Local = true };
 
@@ -167,7 +182,7 @@ namespace Tesseract.Core.Resource {
 	/// or as only the path and the domain will be inferred from <see cref="ResourceDomain.Current"/>.
 	/// </para>
 	/// </summary>
-	public record struct ResourceLocation {
+	public readonly record struct ResourceLocation {
 
 		/// <summary>
 		/// The domain component of this resource location.
@@ -205,6 +220,11 @@ namespace Tesseract.Core.Resource {
 		/// The metadata of the resource.
 		/// </summary>
 		public ResourceMetadata Metadata => Domain.GetMetadata(this);
+
+		/// <summary>
+		/// If the resource exists as a file.
+		/// </summary>
+		public bool Exists => Domain.Exists(this);
 
 		/// <summary>
 		/// Creates a new resource location from a resource domain and path.

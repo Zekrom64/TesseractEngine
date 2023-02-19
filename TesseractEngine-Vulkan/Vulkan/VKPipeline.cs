@@ -32,6 +32,27 @@ namespace Tesseract.Vulkan {
 			Device.VK10Functions.vkDestroyPipeline(Device, Pipeline, Allocator);
 		}
 
+		// VK_KHR_ray_tracing_pipeline
+
+		public void GetRayTracingCaptureReplayShaderGroupHandles(uint firstGroup, uint groupCount, Span<byte> data) {
+			unsafe {
+				fixed (byte* pData = data) {
+					VK.CheckError(Device.KHRRayTracingPipeline!.vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(Device, Pipeline, firstGroup, groupCount, (nuint)data.Length, (IntPtr)pData));
+				}
+			}
+		}
+
+		public void GetRayTracingShaderGroupHandles(uint firstGroup, uint groupCount, Span<byte> data) {
+			unsafe {
+				fixed (byte* pData = data) {
+					VK.CheckError(Device.KHRRayTracingPipeline!.vkGetRayTracingShaderGroupHandlesKHR(Device, Pipeline, firstGroup, groupCount, (nuint)data.Length, (IntPtr)pData));
+				}
+			}
+		}
+
+		public ulong GetRayTracingShaderGroupStackSize(uint group, VKShaderGroupShaderKHR groupShader) =>
+			Device.KHRRayTracingPipeline!.vkGetRayTracingShaderGroupStackSizeKHR(Device, Pipeline, group, groupShader);
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ulong(VKPipeline? pipeline) => pipeline != null ? pipeline.Pipeline : 0;
 

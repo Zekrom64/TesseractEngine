@@ -230,7 +230,7 @@ namespace Tesseract.Core.Utilities {
 		/// <param name="v">This vector</param>
 		/// <param name="span">Span to copy to</param>
 		/// <param name="offset">Offset to copy to</param>
-		public static void CopyTo(this Vector3 v, Span<float> span, int offset = 1) {
+		public static void CopyTo(this Vector3 v, Span<float> span, int offset = 0) {
 			span[offset++] = v.X;
 			span[offset++] = v.Y;
 			span[offset] = v.Z;
@@ -242,7 +242,7 @@ namespace Tesseract.Core.Utilities {
 		/// <param name="v">This vector</param>
 		/// <param name="span">Span to copy to</param>
 		/// <param name="offset">Offset to copy to</param>
-		public static void CopyTo(this Vector4 v, Span<float> span, int offset = 1) {
+		public static void CopyTo(this Vector4 v, Span<float> span, int offset = 0) {
 			span[offset++] = v.X;
 			span[offset++] = v.Y;
 			span[offset++] = v.Z;

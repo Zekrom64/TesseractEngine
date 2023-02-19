@@ -5,15 +5,15 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Numerics {
-	
-	/// <summary>
-	/// Interface for numeric vector types.
-	/// </summary>
-	/// <typeparam name="T">Vector element type</typeparam>
-	public interface IVector<T> :
+
+    /// <summary>
+    /// Interface for numeric vector types.
+    /// </summary>
+    /// <typeparam name="T">Vector element type</typeparam>
+    public interface IVector<T> :
 		IIndexer<int, T>
 		where T : struct, INumber<T> {
 

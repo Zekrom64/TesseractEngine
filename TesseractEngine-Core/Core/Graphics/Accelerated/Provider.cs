@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
-	/// <summary>
-	/// A graphics provider offers a specific 
-	/// </summary>
-	public interface IGraphicsProvider {
+    /// <summary>
+    /// A graphics provider offers a specific 
+    /// </summary>
+    public interface IGraphicsProvider {
 
 		/// <summary>
 		/// Graphics properties for the provided graphics.
@@ -187,7 +188,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			GC.SuppressFinalize(this);
 		}
 
-		public IEnumerable<IGraphicsProvider> EnumerateProviders() => Collections<IGraphicsProvider>.EmptyList;
+		public IEnumerable<IGraphicsProvider> EnumerateProviders() => Collection<IGraphicsProvider>.EmptyList;
 
 		public bool TryGetProvider(Guid uniqueID, [NotNullWhen(true)] out IGraphicsProvider? provider) {
 			provider = null;

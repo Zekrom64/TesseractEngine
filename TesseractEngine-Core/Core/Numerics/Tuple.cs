@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Numerics {
 
-	// IReadOnlyTuple
+    // IReadOnlyTuple
 
-	/// <summary>
-	/// A read-only tuple of 2 values.
-	/// </summary>
-	/// <typeparam name="T1">First value type</typeparam>
-	/// <typeparam name="T2">Second value type</typeparam>
-	public interface IReadOnlyTuple<T1, T2> {
+    /// <summary>
+    /// A read-only tuple of 2 values.
+    /// </summary>
+    /// <typeparam name="T1">First value type</typeparam>
+    /// <typeparam name="T2">Second value type</typeparam>
+    public interface IReadOnlyTuple<T1, T2> {
 
 		/// <summary>
 		/// First tuple value.

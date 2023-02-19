@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -90,6 +92,132 @@ namespace Tesseract.ImGui.Utilities {
 			}
 
 			public abstract void RemoveAt(int index);
+
+		}
+
+		public class DictionaryKeyCollection<K, V> : ICollection<K> {
+
+			public IDictionary<K, V> Dictionary { get; }
+
+			public DictionaryKeyCollection(IDictionary<K, V> dictionary) {
+				Dictionary = dictionary;
+			}
+
+			public int Count => Dictionary.Count;
+
+			public bool IsReadOnly => true;
+
+			public void Add(K item) => throw new NotSupportedException();
+
+			public void Clear() => throw new NotSupportedException();
+
+			public bool Contains(K item) => Dictionary.ContainsKey(item);
+
+			public void CopyTo(K[] array, int arrayIndex) {
+				foreach (var entry in Dictionary) array[arrayIndex++] = entry.Key;
+			}
+
+			public IEnumerator<K> GetEnumerator() {
+				foreach (var entry in Dictionary) yield return entry.Key;
+			}
+
+			public bool Remove(K item) => throw new NotSupportedException();
+
+			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+		}
+
+		public class DictionaryValueCollection<K,V> : ICollection<V> {
+			
+			public IDictionary<K,V> Dictionary { get; }
+
+			public DictionaryValueCollection(IDictionary<K, V> dictionary) {
+				Dictionary = dictionary;
+			}
+
+			public int Count => Dictionary.Count;
+
+			public bool IsReadOnly => true;
+
+			public void Add(V item) => throw new NotSupportedException();
+
+			public void Clear() => throw new NotSupportedException();
+
+			public bool Contains(V item) {
+				foreach(var entry in Dictionary)
+					if (Equals(entry.Value, item)) return true;
+				return false;
+			}
+
+			public void CopyTo(V[] array, int arrayIndex) {
+				foreach (var entry in Dictionary) array[arrayIndex++] = entry.Value;
+			}
+
+			public IEnumerator<V> GetEnumerator() {
+				foreach (var entry in Dictionary) yield return entry.Value;
+			}
+
+			public bool Remove(V item) => throw new NotSupportedException();
+
+			IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+		}
+
+		/// <summary>
+		/// Container class for string parameters passed to ImGui. ImGui expects ASCII/UTF-8 strings while
+		/// .NET uses UTF-16 strings, so this will convert as needed. This is primarily used internally
+		/// for marshalling to the CLI implementation.
+		/// </summary>
+		public ref struct StringParam {
+
+			private const int StackBufferSize = 1024;
+
+			private unsafe fixed byte stackBuffer[StackBufferSize];
+
+			private Span<byte> StackBufferSpan {
+				get {
+					unsafe {
+						fixed (byte* ptr = stackBuffer) {
+							return new Span<byte>(ptr, StackBufferSize - 1);
+						}
+					}
+				}
+			}
+
+			private readonly Memory<byte> heapBuffer;
+
+			private readonly int byteLength;
+
+			/// <summary>
+			/// Gets the underlying bytes for this string.
+			/// </summary>
+			public ReadOnlySpan<byte> Bytes => (byteLength < StackBufferSize ? StackBufferSpan : heapBuffer.Span)[..byteLength];
+
+			/// <summary>
+			/// Creates a new temporary string parameter.
+			/// </summary>
+			/// <param name="str">String value to set</param>
+			public StringParam(string? str) {
+				heapBuffer = default;
+				byteLength = 0;
+				StackBufferSpan.Fill(0);
+
+				if (str != null) {
+					// Try to convert into the stack allocated buffer first
+					var encode = Encoding.UTF8.GetEncoder();
+					encode.Convert(str, StackBufferSpan, false, out _, out byteLength, out bool completed);
+
+					// If unable to convert the whole string, convert via heap-allocated memory
+					if (!completed) {
+						heapBuffer = Encoding.UTF8.GetBytes(str + '\0');
+						byteLength = heapBuffer.Length - 1;
+					}
+				}
+			}
+
+			public static implicit operator StringParam(string? str) => new(str);
+
+			public static implicit operator ReadOnlySpan<byte>(StringParam param) => param.Bytes;
 
 		}
 

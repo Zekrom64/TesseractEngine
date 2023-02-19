@@ -159,18 +159,22 @@ namespace Tesseract.SDL.Services {
 		internal void DoOnRestored() => OnRestored?.Invoke();
 		public event Action? OnFocused;
 		internal void DoOnFocused() {
-			if (captureMouse) SDL2.RelativeMouseMode = true;
+			UpdateCursorMode();
 			if (windowCursor != null) SDL2.Cursor = windowCursor;
 			OnFocused?.Invoke();
 		}
 		public event Action? OnUnfocused;
 		internal void DoOnUnfocused() {
-			if (captureMouse) SDL2.RelativeMouseMode = false;
+			SDL2.ShowCursor = true;
+			SDL2.RelativeMouseMode = false;
 			if (windowCursor != null) SDL2.Cursor = SDLCursor.DefaultCursor;
 			OnUnfocused?.Invoke();
 		}
 		public event Action? OnClosing;
-		internal void DoOnClosing() => OnClosing?.Invoke();
+		internal void DoOnClosing() {
+			Closing = true;
+			OnClosing?.Invoke();
+		}
 		public event Action<KeyEvent>? OnKey;
 		internal void DoOnKey(KeyEvent evt) => OnKey?.Invoke(evt);
 		private bool textInput = false;
@@ -191,15 +195,6 @@ namespace Tesseract.SDL.Services {
 		internal void DoOnMouseButton(MouseButtonEvent evt) => OnMouseButton?.Invoke(evt);
 		public event Action<MouseWheelEvent>? OnMouseWheel;
 		internal void DoOnMouseWheel(MouseWheelEvent evt) => OnMouseWheel?.Invoke(evt);
-
-		private bool captureMouse;
-		public bool CaptureMouse {
-			get => captureMouse;
-			set {
-				if (Focused) SDL2.RelativeMouseMode = value;
-				captureMouse = value;
-			}
-		}
 
 		public IWindowSurface Surface => this;
 
@@ -228,6 +223,8 @@ namespace Tesseract.SDL.Services {
 
 		public static event Action<WindowAttributeList>? OnWindowSetup;
 
+		private delegate void GetDrawableSize(nint window, out int width, out int height);
+
 		public SDLServiceWindow(string title, int w, int h, WindowAttributeList? attributes) {
 			Vector2i position = new(SDL2.WindowPosUndefined);
 			if (attributes != null) {
@@ -235,12 +232,25 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Position, out Vector2i newPosition)) position = newPosition;
 				if (attributes.TryGet(WindowAttributes.Size, out Vector2i newSize)) { w = newSize.X; h = newSize.Y; }
 			}
-			OnWindowSetup?.Invoke(attributes);
-			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes));
+			if (attributes != null) OnWindowSetup?.Invoke(attributes);
+			Window = new SDLWindow(title, position.X, position.Y, w, h, GetAttributeFlags(attributes) | SDLWindowFlags.AllowHighDPI);
 			if (attributes != null) {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;
 			}
+
+			var flags = Window.Flags;
+			Func<Vector2i> MakeGetter(GetDrawableSize fn) {
+				return () => {
+					Vector2i size = new();
+					fn(Window.Window.Ptr, out size.X, out size.Y);
+					return size;
+				};
+			}
+			if ((flags & SDLWindowFlags.OpenGL) != 0) drawableSizeGetter = MakeGetter(new GetDrawableSize(SDL2.Functions.SDL_GL_GetDrawableSize));
+			else if ((flags & SDLWindowFlags.Vulkan) != 0) drawableSizeGetter = MakeGetter(new GetDrawableSize(SDL2.Functions.SDL_Vulkan_GetDrawableSize));
+			else drawableSizeGetter = () => Size;
+
 			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
 		}
 
@@ -305,6 +315,37 @@ namespace Tesseract.SDL.Services {
 						}
 					}
 				}
+			}
+		}
+
+		private readonly Func<Vector2i> drawableSizeGetter;
+		public Vector2i DrawableSize => drawableSizeGetter();
+
+		private void UpdateCursorMode() {
+			if (Focused) {
+				switch (cursorMode) {
+					case CursorMode.Default:
+						SDL2.ShowCursor = true;
+						SDL2.RelativeMouseMode = false;
+						break;
+					case CursorMode.Hidden:
+						SDL2.ShowCursor = false;
+						SDL2.RelativeMouseMode = false;
+						break;
+					case CursorMode.Locked:
+						SDL2.ShowCursor = false;
+						SDL2.RelativeMouseMode = true;
+						break;
+				}
+			}
+		}
+
+		private CursorMode cursorMode = CursorMode.Default;
+		public CursorMode CursorMode {
+			get => cursorMode;
+			set {
+				cursorMode = value;
+				UpdateCursorMode();
 			}
 		}
 

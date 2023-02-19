@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Tesseract.Core.Collections;
 using Tesseract.Core.Numerics;
-using Tesseract.Core.Utilities;
 
 namespace Tesseract.Core.Graphics.Accelerated {
 
-	/// <summary>
-	/// Enumeration of pipeline types.
-	/// </summary>
-	public enum PipelineType {
+    /// <summary>
+    /// Enumeration of pipeline types.
+    /// </summary>
+    public enum PipelineType {
 		/// <summary>
 		/// A graphics pipeline.
 		/// </summary>
@@ -429,12 +429,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The viewports used by this pipeline. Ignored if <see cref="PipelineDynamicState.Viewport"/> is specified.
 		/// </summary>
-		public EquatableList<Viewport> Viewports { get; init; } = new EquatableList<Viewport>(Collections<Viewport>.EmptyList);
+		public EquatableList<Viewport> Viewports { get; init; } = new EquatableList<Viewport>(Collection<Viewport>.EmptyList);
 
 		/// <summary>
 		/// The scissors used by this pipeline. Ignored if <see cref="PipelineDynamicState.Scissor"/> is specified.
 		/// </summary>
-		public EquatableList<Recti> Scissors { get; init; } = new EquatableList<Recti>(Collections<Recti>.EmptyList);
+		public EquatableList<Recti> Scissors { get; init; } = new EquatableList<Recti>(Collection<Recti>.EmptyList);
 
 		// Rasterization state
 
@@ -535,7 +535,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The color write enable flags used for color output.
 		/// </summary>
-		public EquatableList<bool> ColorWriteEnable { get; init; } = new EquatableList<bool>(Collections<bool>.EmptyList);
+		public EquatableList<bool> ColorWriteEnable { get; init; } = new EquatableList<bool>(Collection<bool>.EmptyList);
 
 	}
 

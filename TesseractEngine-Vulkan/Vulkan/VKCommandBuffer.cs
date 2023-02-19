@@ -812,9 +812,68 @@ namespace Tesseract.Vulkan {
 
 		public void WriteTimestamp2(VKPipelineStageFlagBits2 stage, VKQueryPool queryPool, uint query) => Device.KHRSynchronization2!.vkCmdWriteTimestamp2(CommandBuffer, stage, queryPool, query);
 
-		public void WritePrimitiveHandle(IntPtr ptr) {
-			throw new NotImplementedException();
+		// VK_KHR_acceleration_structure
+
+		public void BuildAccelerationStructuresIndirect(in ReadOnlySpan<VKAccelerationStructureBuildGeometryInfoKHR> infos, in ReadOnlySpan<ulong> indirectDeviceAddresses, in ReadOnlySpan<uint> indirectStrides, IReadOnlyList<IConstPointer<uint>> maxPrimitiveCounts) {
+			Span<IntPtr> pMaxPrimitiveCounts = stackalloc IntPtr[maxPrimitiveCounts.Count];
+			for (int i = 0; i < pMaxPrimitiveCounts.Length; i++) pMaxPrimitiveCounts[i] = maxPrimitiveCounts[i].Ptr;
+			unsafe {
+				fixed(VKAccelerationStructureBuildGeometryInfoKHR* pInfos = infos) {
+					fixed(ulong* pIndirectDeviceAddresses = indirectDeviceAddresses) {
+						fixed(uint* pIndirectStrides = indirectStrides) {
+							fixed(IntPtr* ppMaxPrimitiveCounts = pMaxPrimitiveCounts) {
+								Device.KHRAccelerationStructure!.vkCmdBuildAccelerationStructuresIndirectKHR(CommandBuffer, (uint)infos.Length, (IntPtr)pInfos, (IntPtr)pIndirectDeviceAddresses, (IntPtr)pIndirectStrides, (IntPtr)ppMaxPrimitiveCounts);
+							}
+						}
+					}
+				}
+			}
 		}
+
+		public void BuildAccelerationStructuresKHR(in ReadOnlySpan<VKAccelerationStructureBuildGeometryInfoKHR> infos, IReadOnlyList<IConstPointer<VkAccelerationStructureBuildRangeInfoKHR>> buildRangeInfos) {
+			Span<IntPtr> pBuildRangeInfos = stackalloc IntPtr[buildRangeInfos.Count];
+			for(int i = 0; i < pBuildRangeInfos.Length; i++) pBuildRangeInfos[i] = buildRangeInfos[i].Ptr;
+			unsafe {
+				fixed(VKAccelerationStructureBuildGeometryInfoKHR* pInfos = infos) {
+					fixed(IntPtr* ppBuildRangeInfos = pBuildRangeInfos) {
+						Device.KHRAccelerationStructure!.vkCmdBuildAccelerationStructuresKHR(CommandBuffer, (uint)infos.Length, (IntPtr)pInfos, (IntPtr)ppBuildRangeInfos);
+					}
+				}
+			}
+		}
+
+		public void CopyAccelerationStructure(in VKCopyAccelerationStructureInfoKHR info) => Device.KHRAccelerationStructure!.vkCmdCopyAccelerationStructureKHR(CommandBuffer, info);
+
+		public void CopyAccelerationStructureToMemory(in VKCopyAccelerationStructureToMemoryInfoKHR info) => Device.KHRAccelerationStructure!.vkCmdCopyAccelerationStructureToMemoryKHR(CommandBuffer, info);
+
+		public void CopyMemoryToAccelerationStructure(in VKCopyMemoryToAccelerationStructureInfoKHR info) => Device.KHRAccelerationStructure!.vkCmdCopyMemoryToAccelerationStructureKHR(CommandBuffer, info);
+
+		public void WriteAccelerationStructuresProperties(VKAccelerationStructureKHR accelerationStructure, VKQueryType queryType, VKQueryPool queryPool, uint firstQuery) {
+			ulong accelStruct = accelerationStructure.AccelerationStructure;
+			unsafe {
+				Device.KHRAccelerationStructure!.vkCmdWriteAccelerationStructuresPropertiesKHR(CommandBuffer, 1, (IntPtr)(&accelStruct), queryType, queryPool.QueryPool, firstQuery);
+			}
+		}
+
+		public void WriteAccelerationStructuresProperties(IReadOnlyList<VKAccelerationStructureKHR> accelerationStructures, VKQueryType queryType, VKQueryPool queryPool, uint firstQuery) {
+			Span<ulong> accelStructs = stackalloc ulong[accelerationStructures.Count];
+			for (int i = 0; i < accelStructs.Length; i++) accelStructs[i] = accelerationStructures[i].AccelerationStructure;
+			unsafe {
+				fixed(ulong* pAccelerationStructures = accelStructs) {
+					Device.KHRAccelerationStructure!.vkCmdWriteAccelerationStructuresPropertiesKHR(CommandBuffer, (uint)accelStructs.Length, (IntPtr)pAccelerationStructures, queryType, queryPool.QueryPool, firstQuery);
+				}
+			}
+		}
+
+		// VK_KHR_ray_tracing_pipeline
+
+		public void SetRayTracingPipelineStackSize(uint pipelineStackSize) => Device.KHRRayTracingPipeline!.vkCmdSetRayTracingPipelineStackSizeKHR(CommandBuffer, pipelineStackSize);
+
+		public void TraceRaysIndirect(in VKStridedDeviceAddressRegionKHR raygenShaderBindingTable, in VKStridedDeviceAddressRegionKHR missShaderBindingTable, in VKStridedDeviceAddressRegionKHR hitShaderBindingTable, in VKStridedDeviceAddressRegionKHR callableShaderBindingTable, ulong indirectDeviceAddress) =>
+			Device.KHRRayTracingPipeline!.vkCmdTraceRaysIndirectKHR(CommandBuffer, raygenShaderBindingTable, missShaderBindingTable, hitShaderBindingTable, callableShaderBindingTable, indirectDeviceAddress);
+
+		public void TraceRays(in VKStridedDeviceAddressRegionKHR raygenShaderBindingTable, in VKStridedDeviceAddressRegionKHR missShaderBindingTable, in VKStridedDeviceAddressRegionKHR hitShaderBindingTable, in VKStridedDeviceAddressRegionKHR callableShaderBindingTable, Vector3ui size) =>
+			Device.KHRRayTracingPipeline!.vkCmdTraceRaysKHR(CommandBuffer, raygenShaderBindingTable, missShaderBindingTable, hitShaderBindingTable, callableShaderBindingTable, size.X, size.Y, size.Z);
 
 		public static implicit operator IntPtr(VKCommandBuffer? commandBuffer) => commandBuffer != null ? commandBuffer.CommandBuffer : IntPtr.Zero;
 

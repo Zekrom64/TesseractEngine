@@ -219,78 +219,15 @@ public:
 
 };
 
-/*
-generic<typename T>
-ref class ImVectorCLI : Tesseract::ImGui::IImVector<T> {
-internal:
+#define IM_SPAN_TO_STR(LOCAL, SRC) \
+	pin_ptr<uint8_t> _##LOCAL = &MemoryMarshal::GetReference(SRC); \
+	const char* LOCAL = (const char*)_##LOCAL; \
+	IM_ASSERT(LOCAL[SRC.Length + 1] == '\0');
 
-public:
-	// Inherited via IEnumerable
-	virtual System::Collections::IEnumerator^ GetEnumeratorBase() = System::Collections::IEnumerable::GetEnumerator {
-		throw gcnew System::NotImplementedException();
-		// // O: insert return statement here
+#define IM_SPAN_TO_STR_DEFAULT(LOCAL, SRC, DEFAULT) \
+	const char* LOCAL = DEFAULT; \
+	pin_ptr<uint8_t> _##LOCAL = &MemoryMarshal::GetReference(SRC); \
+	if (SRC.Length != 0) { \
+		IM_ASSERT(LOCAL[SRC.Length + 1] == '\0'); \
+		LOCAL = (const char*)_##LOCAL; \
 	}
-
-	// Inherited via ICollection
-	virtual System::Collections::Generic::IEnumerator<T>^ GetEnumerator()
-	{
-		throw gcnew System::NotImplementedException();
-		// // O: insert return statement here
-	}
-
-	// Inherited via IList
-	virtual property int Count;
-	virtual property bool IsReadOnly;
-	virtual void Add(T item)
-	{
-		throw gcnew System::NotImplementedException();
-	}
-	virtual void Clear()
-	{
-		throw gcnew System::NotImplementedException();
-	}
-	virtual bool Contains(T item)
-	{
-		return false;
-	}
-	virtual void CopyTo(array<T, 1>^ array, int arrayIndex)
-	{
-		throw gcnew System::NotImplementedException();
-	}
-	virtual bool Remove(T item)
-	{
-		return false;
-	}
-
-	// Inherited via IImVector
-	virtual int IndexOf(T item)
-	{
-		return 0;
-	}
-	virtual void Insert(int index, T item)
-	{
-		throw gcnew System::NotImplementedException();
-	}
-	virtual void RemoveAt(int index)
-	{
-		throw gcnew System::NotImplementedException();
-	}
-	virtual System::Span<T> AsSpan()
-	{
-		return System::Span<T>();
-	}
-	virtual void Resize(int newSize)
-	{
-		throw gcnew System::NotImplementedException();
-	}
-
-	virtual property T default[int] {
-		virtual T get(int index) {
-
-		}
-		virtual void set(int index, T value) {
-
-		}
-	}
-};
-*/

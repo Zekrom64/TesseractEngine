@@ -6,11 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Numerics {
 
-	[StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
 	public struct Vector3b : IVector3Int<Vector3b, byte>, IEquatable<IReadOnlyTuple3<byte>> {
 
 		public byte X;

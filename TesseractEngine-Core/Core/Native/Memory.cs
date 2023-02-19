@@ -11,41 +11,17 @@ namespace Tesseract.Core.Native {
 
 	/// <summary>
 	/// A primitive handle is an object whose native representation is that
-	/// of a handle of a simple primitive type. This interface is the non-generic form
-	/// which only provides a method to write the handle to memory.
-	/// <seealso cref="IPrimitiveHandle{T}"/>
-	/// </summary>
-	public interface IPrimitiveHandle {
-
-		public void WritePrimitiveHandle(IntPtr ptr) { }
-
-	}
-
-	/// <summary>
-	/// A primitive handle is an object whose native representation is that
 	/// of a handle of a simple primitive type.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IPrimitiveHandle<T> : IPrimitiveHandle where T : unmanaged {
+	public interface IPrimitiveHandle<T> where T : unmanaged {
 
 		/// <summary>
 		/// The primitive handle value.
 		/// </summary>
 		public T PrimitiveHandle { get; }
 
-		void IPrimitiveHandle.WritePrimitiveHandle(IntPtr ptr) => MemoryUtil.WriteUnmanaged(ptr, PrimitiveHandle);
-
 	}
-
-	/*
-	public interface IBlittable {
-
-		public void WriteToMemory(IntPtr ptr);
-
-		public void ReadFromMemory(IntPtr ptr);
-
-	}
-	*/
 
 	/// <summary>
 	/// Provides utilities for interacting with native memory.
@@ -134,79 +110,6 @@ namespace Tesseract.Core.Native {
 		/// <param name="ptr"></param>
 		/// <param name="value"></param>
 		public static unsafe void WriteUnmanaged<T>(IntPtr ptr, T value) where T : unmanaged { unsafe { *(T*)ptr = value; } }
-
-		/* TODO: Wait for more consideration on the need and practicality of a reader/writer system for complex types
-		public interface IReaderWriter {
-
-			public object ReadRaw(IntPtr ptr);
-
-			public void WriteRaw(object value, IntPtr ptr);
-
-		}
-
-		public struct ReaderWriter<T> : IReaderWriter where T : struct {
-
-			public Func<IntPtr, T> Reader { get; init; }
-
-			public Action<T, IntPtr> Writer { get; init; }
-
-			public object ReadRaw(IntPtr ptr) => Reader(ptr);
-
-			public void WriteRaw(object value, IntPtr ptr) => Writer((T)value, ptr);
-		}
-
-		// Cache of reader/writer objects for different types
-		private static readonly Dictionary<Type, object> rwcache = new();
-
-		/// <summary>
-		/// Gets a <see cref="ReaderWriter{T}"/> instance for the given type.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static ReaderWriter<T> GetReaderWriter<T>() where T : struct {
-			Type type = typeof(T);
-			lock (rwcache) {
-				if (rwcache.TryGetValue(type, out object rw)) return (ReaderWriter<T>)rw;
-				else {
-					ReaderWriter<T> readwrite;
-					if (type.IsEnum) { // For enum types
-						// Get the underlying type
-						Type enumType = type.GetEnumUnderlyingType();
-						// Get the raw reader/writer for the type
-						IReaderWriter etrw = (IReaderWriter)rwcache[enumType];
-						// Initialize the new reader/writer using the raw version and casting
-						readwrite = new() {
-							Reader = ptr => (T)etrw.ReadRaw(ptr),
-							Writer = (val, ptr) => etrw.WriteRaw(val, ptr)
-						};
-					} else if (type.IsSubclassOf(typeof(IPrimitiveHandle))) { // For IPrimitiveHandle objects
-						// Cannot read, but can use the writer method of the class
-						readwrite = new() {
-							Reader = ptr => throw new InvalidOperationException("Cannot read primitive handle value"),
-							Writer = (val, ptr) => ((IPrimitiveHandle)val).WritePrimitiveHandle(ptr)
-						};
-					} else if (type.IsSubclassOf(typeof(IBlittable))) { // For IBlittable objects
-						// The reader/writer will call the methods on the object
-						readwrite = new() {
-							Reader = ptr => {
-								T t = new();
-								((IBlittable)t).ReadFromMemory(ptr);
-								return t;
-							},
-							Writer = (val, ptr) => ((IBlittable)val).WriteToMemory(ptr)
-						};
-					} else {
-						readwrite = new() {
-							Reader = ptr => Marshal.PtrToStructure<T>(ptr),
-							Writer = (val, ptr) => Marshal.StructureToPtr(val, ptr, false)
-						};
-					}
-					rwcache[type] = readwrite;
-					return readwrite;
-				}
-			}
-		}
-		*/
 
 		// Span <-> Pointer Copying
 
@@ -361,7 +264,7 @@ namespace Tesseract.Core.Native {
 		/// <returns>String encoded in span</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string GetASCII(ReadOnlySpan<byte> span, bool nullTerminated = true) {
-			int length = span.Length;
+			int length = -1;
 			if (nullTerminated) length = FindFirst<byte>(span, 0);
 			if (length == -1) length = span.Length;
 			return Encoding.ASCII.GetString(span[..length]);
@@ -415,7 +318,7 @@ namespace Tesseract.Core.Native {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string? GetUTF16(IntPtr ptr, int length = -1, bool nullTerminated = true) {
 			if (ptr == IntPtr.Zero) return null;
-			if (length < 0) length = FindFirst<byte>(ptr, 0);
+			if (length < 0) length = FindFirst<ushort>(ptr, 0);
 			else if (nullTerminated) length = FindFirst<ushort>(ptr, 0, length);
 			unsafe {
 				return Encoding.Unicode.GetString(new ReadOnlySpan<byte>((void*)ptr, length * sizeof(ushort)));
@@ -430,26 +333,20 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminated">If the string is null terminated. If true the supplied length is the maximum length, else it is a fixed string length.</param>
 		/// <returns>String at pointer</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string? GetUTF16(IConstPointer<byte> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
+		public static string? GetUTF16(IConstPointer<char> ptr, int length = -1, bool nullTerminated = true) => GetUTF16(ptr != null ? ptr.Ptr : IntPtr.Zero, length, nullTerminated);
 
 		/// <summary>
-		/// Gets a UTF-16 encoded string from a span of bytes.
+		/// Gets a UTF-16 encoded string from a span of characters.
 		/// </summary>
 		/// <param name="span">Span to get string from</param>
 		/// <param name="nullTerminated">If the string is null terminated.</param>
 		/// <returns>String encoded in span</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static string GetUTF16(ReadOnlySpan<byte> span, bool nullTerminated = true) {
-			int length = span.Length;
-			if (nullTerminated) {
-				unsafe {
-					fixed (byte* pSpan = span) {
-						length = FindFirst<ushort>((IntPtr)pSpan, 0) * sizeof(ushort);
-					}
-				}
-			}
+		public static string GetUTF16(ReadOnlySpan<char> span, bool nullTerminated = true) {
+			int length = -1;
+			if (nullTerminated) length = FindFirst(span, '\0');
 			if (length < 0) length = span.Length;
-			return Encoding.Unicode.GetString(span[..length]);
+			return new string(span[..length]);
 		}
 
 		/// <summary>

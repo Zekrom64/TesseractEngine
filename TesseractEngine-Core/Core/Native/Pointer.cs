@@ -2,15 +2,15 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Collections;
 
 namespace Tesseract.Core.Native {
 
-	/// <summary>
-	/// A constant pointer stores a memory reference to a read-only object.
-	/// </summary>
-	/// <typeparam name="T">Type referenced</typeparam>
-	public interface IConstPointer<T> : IReadOnlyIndexer<int, T> {
+    /// <summary>
+    /// A constant pointer stores a memory reference to a read-only object.
+    /// </summary>
+    /// <typeparam name="T">Type referenced</typeparam>
+    public interface IConstPointer<T> : IReadOnlyIndexer<int, T> {
 
 		/// <summary>
 		/// The underlying memory pointer.
@@ -67,7 +67,7 @@ namespace Tesseract.Core.Native {
 	public delegate void Releaser(IntPtr ptr);
 
 	/// <summary>
-	/// A managed pointer references memory that is manually managed by the developer.
+	/// A managed pointer references memory whose lifetime is controlled by the managed environment.
 	/// </summary>
 	/// <typeparam name="T">Type referenced</typeparam>
 	public readonly struct ManagedPointer<T> : IDisposable, IPointer<T> where T : struct {
@@ -247,6 +247,10 @@ namespace Tesseract.Core.Native {
 
 		public static implicit operator IntPtr(ManagedPointer<T> mptr) => mptr.Ptr;
 
+		/// <summary>
+		/// Checks if this pointer is valid (ie. not a null pointer).
+		/// </summary>
+		/// <param name="mptr">The pointer to check</param>
 		public static implicit operator bool(ManagedPointer<T> mptr) => mptr.Ptr != IntPtr.Zero;
 
 		public T this[int index] {
@@ -312,6 +316,10 @@ namespace Tesseract.Core.Native {
 
 		public static explicit operator UnmanagedPointer<T>(IntPtr ptr) => new(ptr);
 
+		/// <summary>
+		/// Checks if this pointer is valid (ie. not a null pointer).
+		/// </summary>
+		/// <param name="uptr">The pointer to check</param>
 		public static implicit operator bool(UnmanagedPointer<T> uptr) => uptr.Ptr != IntPtr.Zero;
 
 		public T this[int index] {
@@ -325,6 +333,18 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
+		/// <summary>
+		/// <para>Offsets this pointer by the given number of elements.</para>
+		/// <para>
+		/// The array size of the resulting pointer is modified based on the offset and current
+		/// array size; If the offset is outside the bounds of the array (&lt;0 or &gt;=Length)
+		/// the new array size will be -1 (undefined). Otherwise the size will shrink to fit
+		/// the remaining known elements of the array.
+		/// </para>
+		/// </summary>
+		/// <param name="ptr">The pointer to offset</param>
+		/// <param name="offset">The offset to apply in elements</param>
+		/// <returns>The offset pointer.</returns>
 		public static UnmanagedPointer<T> operator +(UnmanagedPointer<T> ptr, int offset) {
 			unsafe {
 				int sz = ptr.ArraySize;
@@ -367,6 +387,9 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
+		/// <summary>
+		/// The corresponding <see cref="GCHandle"/> for this pointer.
+		/// </summary>
 		public GCHandle Handle => GCHandle.FromIntPtr(Ptr);
 
 		public ReadOnlySpan<T?> ReadOnlySpan => throw new InvalidOperationException("Cannot get an object pointer as a span, underlying memory is opaque");
@@ -401,6 +424,10 @@ namespace Tesseract.Core.Native {
 
 		public static implicit operator IntPtr(ObjectPointer<T> optr) => optr.Ptr;
 
+		/// <summary>
+		/// Checks if this pointer is valid (ie. not a null pointer).
+		/// </summary>
+		/// <param name="optr">The pointer to check</param>
 		public static implicit operator bool(ObjectPointer<T> optr) => optr.Ptr != IntPtr.Zero;
 
 	}
