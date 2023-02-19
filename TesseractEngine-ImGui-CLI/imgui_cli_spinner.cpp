@@ -40,6 +40,9 @@ namespace Tesseract { namespace CLI { namespace ImGui { namespace Addon {
 
 	public delegate Vector4 LeafColorFn(int index);
 
+	/// <summary>
+	/// Contains methods for idle spinner widgets.
+	/// </summary>
 	public ref class ImSpinner abstract sealed {
 	public:
 		DECLVAR(float, DefaultRadius, 6)

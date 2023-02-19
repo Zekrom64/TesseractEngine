@@ -178,13 +178,13 @@ namespace Tesseract.ImGui.Core {
 			Debug.Assert(window != null);
 			UpdateModifiers(evt.Mod);
 
-			int button = evt.Button switch {
-				IMouse.LeftButton => 0,
-				IMouse.RightButton => 1,
-				IMouse.MiddleButton => 2,
-				_ => -1
+			ImGuiMouseButton button = evt.Button switch {
+				IMouse.LeftButton => ImGuiMouseButton.Left,
+				IMouse.RightButton => ImGuiMouseButton.Right,
+				IMouse.MiddleButton => ImGuiMouseButton.Middle,
+				_ => (ImGuiMouseButton)(-1)
 			};
-			if (button != -1) GImGui.IO.AddMouseButtonEvent(button, evt.State);
+			if ((int)button != -1) GImGui.IO.AddMouseButtonEvent(button, evt.State);
 		}
 
 		private static void OnMouseWheel(MouseWheelEvent evt) => GImGui.IO.AddMouseWheelEvent(evt.Delta.X, evt.Delta.Y);

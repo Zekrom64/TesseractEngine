@@ -75,4 +75,18 @@ namespace Tesseract.Core.Collections {
 
 	}
 
+	/// <summary>
+	/// Collection utilities.
+	/// </summary>
+	/// <typeparam name="T1">First element type</typeparam>
+	/// <typeparam name="T2">Second element type</typeparam>
+	public static class Collection<T1, T2> where T1 : notnull {
+
+		/// <summary>
+		/// A read-only dictionary that is always empty.
+		/// </summary>
+		public static readonly IReadOnlyDictionary<T1, T2> EmptyDictionary = new Dictionary<T1, T2>();
+
+	}
+
 }

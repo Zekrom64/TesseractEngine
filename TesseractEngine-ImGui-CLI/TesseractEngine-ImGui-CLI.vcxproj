@@ -81,6 +81,7 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);IMGUI_DISABLE_OBSOLETE_FUNCTIONS</PreprocessorDefinitions>
       <DisableSpecificWarnings>4793;4996</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -132,6 +133,14 @@
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="imgui_md.h" />
     <ClInclude Include="imgui_notify.h" />
+    <ClInclude Include="imgui_offset_rect.h" />
+    <ClInclude Include="imgui_toggle.h" />
+    <ClInclude Include="imgui_toggle_math.h" />
+    <ClInclude Include="imgui_toggle_palette.h" />
+    <ClInclude Include="imgui_toggle_presets.h" />
+    <ClInclude Include="imgui_toggle_renderer.h" />
+    <ClInclude Include="implot.h" />
+    <ClInclude Include="implot_internal.h" />
     <ClInclude Include="imspinner.h" />
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
@@ -147,13 +156,20 @@
     <ClCompile Include="imgui_cli_md.cpp" />
     <ClCompile Include="imgui_cli_notify.cpp" />
     <ClCompile Include="imgui_cli_pie.cpp" />
+    <ClCompile Include="imgui_cli_plot.cpp" />
     <ClCompile Include="imgui_cli_textedit.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_md.cpp" />
     <ClCompile Include="imgui_tables.cpp" />
+    <ClCompile Include="imgui_toggle.cpp" />
+    <ClCompile Include="imgui_toggle_palette.cpp" />
+    <ClCompile Include="imgui_toggle_presets.cpp" />
+    <ClCompile Include="imgui_toggle_renderer.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="imgui_cli_spinner.cpp" />
+    <ClCompile Include="implot.cpp" />
+    <ClCompile Include="implot_items.cpp" />
     <ClCompile Include="md4c.cpp" />
     <ClCompile Include="TextEditor.cpp" />
   </ItemGroup>

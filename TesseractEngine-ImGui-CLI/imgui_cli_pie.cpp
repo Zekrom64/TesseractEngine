@@ -355,54 +355,129 @@ bool PieMenuItem(const char* pName, bool bEnabled)
 
 namespace Tesseract { namespace CLI { namespace ImGui { namespace Addon {
 
+	/// <summary>
+	/// Implements a popup 'pie'-style menu.
+	/// </summary>
 	public ref class ImGuiPieMenu abstract sealed {
 	public:
+		/// <summary>
+		/// The maximum depth the pie menu can go.
+		/// </summary>
+		static initonly int MaxDepth = PieMenuContext::c_iMaxPieMenuStack;
+
+		/// <summary>
+		/// The maximum number of items that can be used on any one level of the pie menu.
+		/// </summary>
+		static initonly int MaxItemsPerLevel = PieMenuContext::c_iMaxPieItemCount;
+
+		/// <summary>
+		/// Begins the pie popup with the given name.
+		/// </summary>
+		/// <param name="name">The name of the popup</param>
+		/// <param name="mouseButton">The mouse button to track to navigate the popup</param>
+		/// <returns>If the popup is open</returns>
 		static bool BeginPiePopup(ReadOnlySpan<Byte> name, int mouseButton) {
 			pin_ptr<unsigned char> pName = &MemoryMarshal::GetReference(name);
 			return ::BeginPiePopup((const char*)pName, mouseButton);
 		}
 
+		/// <summary>
+		/// Begins the pie popup with the given name.
+		/// </summary>
+		/// <param name="name">The name of the popup</param>
+		/// <param name="mouseButton">The mouse button to track to navigate the popup</param>
+		/// <returns>If the popup is open</returns>
 		static bool BeginPiePopup(String^ name, int mouseButton) {
 			StringParam pName(name);
 			return ::BeginPiePopup(pName.c_str(), mouseButton);
 		}
 
+		/// <summary>
+		/// Ends the pie popup.
+		/// </summary>
 		static void EndPiePopup() { ::EndPiePopup(); }
 
+		/// <summary>
+		/// Begins a submenu within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the submenu</param>
+		/// <param name="enabled">If the submenu is enabled</param>
+		/// <returns>If the submenu is open</returns>
 		static bool BeginPieMenu(ReadOnlySpan<Byte> name, bool enabled) {
 			pin_ptr<unsigned char> pName = &MemoryMarshal::GetReference(name);
 			return ::BeginPiePopup((const char*)pName, enabled);
 		}
 
+		/// <summary>
+		/// Begins a submenu within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the submenu</param>
+		/// <returns>If the submenu is open</returns>
 		static bool BeginPieMenu(ReadOnlySpan<Byte> name) {
 			return BeginPieMenu(name, true);
 		}
 
+		/// <summary>
+		/// Begins a submenu within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the submenu</param>
+		/// <param name="enabled">If the submenu is enabled</param>
+		/// <returns>If the submenu is open</returns>
 		static bool BeginPieMenu(String^ name, bool enabled) {
 			StringParam pName(name);
 			return ::BeginPiePopup(pName.c_str(), enabled);
 		}
 
+		/// <summary>
+		/// Begins a submenu within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the submenu</param>
+		/// <returns>If the submenu is open</returns>
 		static bool BeginPieMenu(String^ name) {
 			return BeginPieMenu(name, true);
 		}
 
+		/// <summary>
+		/// Ends a submenu within a pie menu.
+		/// </summary>
 		static void EndPieMenu() { ::EndPieMenu(); }
 
+		/// <summary>
+		/// Creates a selectable item within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the item</param>
+		/// <param name="enabled">If the item is enabled</param>
+		/// <returns>If the menu item is hovered</returns>
 		static bool PieMenuItem(ReadOnlySpan<Byte> name, bool enabled) {
 			pin_ptr<unsigned char> pName = &MemoryMarshal::GetReference(name);
 			return ::PieMenuItem((const char*)pName, enabled);
 		}
 
+		/// <summary>
+		/// Creates a selectable item within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the item</param>
+		/// <returns>If the menu item is hovered</returns>
 		static bool PieMenuItem(ReadOnlySpan<Byte> name) {
 			return PieMenuItem(name, true);
 		}
 
+		/// <summary>
+		/// Creates a selectable item within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the item</param>
+		/// <param name="enabled">If the item is enabled</param>
+		/// <returns>If the menu item is hovered</returns>
 		static bool PieMenuItem(String^ name, bool enabled) {
 			StringParam pName(name);
 			return ::PieMenuItem(pName.c_str(), enabled);
 		}
 
+		/// <summary>
+		/// Creates a selectable item within a pie menu.
+		/// </summary>
+		/// <param name="name">The name of the item</param>
+		/// <returns>If the menu item is hovered</returns>
 		static bool PieMenuItem(String^ name) {
 			return PieMenuItem(name, true);
 		}

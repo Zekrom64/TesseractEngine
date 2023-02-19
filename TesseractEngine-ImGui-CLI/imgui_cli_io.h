@@ -325,8 +325,8 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			m_io->AddMousePosEvent(x, y);
 		}
 
-		virtual void AddMouseButtonEvent(int button, bool down) {
-			m_io->AddMouseButtonEvent(button, down);
+		virtual void AddMouseButtonEvent(Tesseract::ImGui::ImGuiMouseButton button, bool down) {
+			m_io->AddMouseButtonEvent((ImGuiMouseButton)button, down);
 		}
 
 		virtual void AddMouseWheelEvent(float x, float y) {

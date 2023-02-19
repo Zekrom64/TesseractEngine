@@ -26,13 +26,32 @@ namespace Tesseract { namespace CLI { namespace ImGui { namespace Addon {
 
 	class imgui_md_impl;
 
+	/// <summary>
+	/// ImGui Markdown renderer.
+	/// </summary>
 	public ref class ImGuiMD abstract {
 	private:
 		imgui_md_impl* m_md;
 	protected:
 
+		/// <summary>
+		/// Called to get an image using the given reference.
+		/// </summary>
+		/// <param name="href">The reference string for the image</param>
+		/// <param name="info">Image information</param>
+		/// <returns>If the image was retrieved</returns>
 		virtual bool GetImage(String^ href, [OutAttribute] ImGuiMDImageInfo% info);
+
+		/// <summary>
+		/// Gets the appropriate font given the current renderer state.
+		/// </summary>
+		/// <returns></returns>
 		virtual ImFontCLI^ GetFont();
+
+		/// <summary>
+		/// Gets the appropriate text color for the current renderer state.
+		/// </summary>
+		/// <returns></returns>
 		virtual Vector4 GetColor();
 
 		/// <summary>
@@ -53,14 +72,41 @@ namespace Tesseract { namespace CLI { namespace ImGui { namespace Addon {
 		/// <param name="enter">If the tag is a begin or end tag</param>
 		virtual void HTMLDiv(String^ htmlClass, bool enter) { }
 
+		/// <summary>
+		/// If the current rendered text is underlined.
+		/// </summary>
 		property bool IsUnderline { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text has a strike through it.
+		/// </summary>
 		property bool IsStrikethrough { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text is emphasized (italic).
+		/// </summary>
 		property bool IsEm { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text is strong (bold).
+		/// </summary>
 		property bool IsStrong { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text is a table header.
+		/// </summary>
 		property bool IsTableHeader { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text is a table body.
+		/// </summary>
 		property bool IsTableBody { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered element is an image.
+		/// </summary>
 		property bool IsImage { bool get(); void set(bool v); }
+		/// <summary>
+		/// If the current rendered text is code.
+		/// </summary>
 		property bool IsCode { bool get(); void set(bool v); }
+		/// <summary>
+		/// The header level of the current text, or 0 if it is not in a header.
+		/// </summary>
 		property int HLevel { int get(); void set(int v); }
 
 	internal:
@@ -92,7 +138,7 @@ namespace Tesseract { namespace CLI { namespace ImGui { namespace Addon {
 		/// <summary>
 		/// Renders the given Markdown text.
 		/// </summary>
-		/// <param name="text">Tex tto render</param>
+		/// <param name="text">Text to render</param>
 		/// <returns>If rendering succeeded</returns>
 		bool Print(String^ text);
 	};

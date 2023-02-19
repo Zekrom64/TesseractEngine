@@ -75,6 +75,30 @@
     <ClInclude Include="imgui_cli_io.h">
       <Filter>CLI Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="implot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="implot_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_offset_rect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_toggle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_toggle_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_toggle_palette.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_toggle_presets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_toggle_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui.cpp">
@@ -124,6 +148,27 @@
     </ClCompile>
     <ClCompile Include="imgui_cli_md.cpp">
       <Filter>CLI Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="implot.cpp">
+      <Filter>C++ Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="implot_items.cpp">
+      <Filter>C++ Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cli_plot.cpp">
+      <Filter>CLI Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_toggle.cpp">
+      <Filter>C++ Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_toggle_palette.cpp">
+      <Filter>C++ Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_toggle_presets.cpp">
+      <Filter>C++ Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_toggle_renderer.cpp">
+      <Filter>C++ Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
