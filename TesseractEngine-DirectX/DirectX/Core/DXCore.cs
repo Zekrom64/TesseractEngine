@@ -1077,4 +1077,22 @@ namespace Tesseract.DirectX.Core {
 
 	}
 
+	public static class DXCoreAdapterExtensions {
+
+		/// <summary>
+		/// Helper for invocations of <see cref="IDXCoreAdapter.GetProperty(DXCoreAdapterProperty, nuint, nint)"/> with unmanaged types of a fixed size.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged type to get</typeparam>
+		/// <param name="adapter">The adapter to get the property from</param>
+		/// <param name="property">The property to get from the adapter</param>
+		/// <returns>The unmanaged property value</returns>
+		public static T GetProperty<T>(this IDXCoreAdapter adapter, DXCoreAdapterProperty property) where T : unmanaged {
+			using MemoryStack sp = MemoryStack.Push();
+			var ptr = sp.Alloc<T>();
+			adapter.GetProperty(property, (nuint)Marshal.SizeOf<T>(), ptr.Ptr);
+			return ptr.Value;
+		}
+
+	}
+
 }

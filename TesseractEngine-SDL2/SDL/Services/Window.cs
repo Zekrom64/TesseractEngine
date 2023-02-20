@@ -217,6 +217,7 @@ namespace Tesseract.SDL.Services {
 			if (attributes.TryGet(WindowAttributes.Minimized, out bool minimized) && minimized) flags |= SDLWindowFlags.Minimized;
 			if (attributes.TryGet(WindowAttributes.Maximized, out bool maximized) && maximized) flags |= SDLWindowFlags.Maximized;
 			if (attributes.TryGet(WindowAttributes.Focused, out bool focused) && focused) flags |= SDLWindowFlags.InputFocus;
+			if (attributes.TryGet(WindowAttributes.NoScaling, out bool noScaling) && noScaling) flags |= SDLWindowFlags.AllowHighDPI;
 			OnParseAttributes?.Invoke(attributes, ref flags);
 			return flags;
 		}
@@ -238,18 +239,6 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;
 			}
-
-			var flags = Window.Flags;
-			Func<Vector2i> MakeGetter(GetDrawableSize fn) {
-				return () => {
-					Vector2i size = new();
-					fn(Window.Window.Ptr, out size.X, out size.Y);
-					return size;
-				};
-			}
-			if ((flags & SDLWindowFlags.OpenGL) != 0) drawableSizeGetter = MakeGetter(new GetDrawableSize(SDL2.Functions.SDL_GL_GetDrawableSize));
-			else if ((flags & SDLWindowFlags.Vulkan) != 0) drawableSizeGetter = MakeGetter(new GetDrawableSize(SDL2.Functions.SDL_Vulkan_GetDrawableSize));
-			else drawableSizeGetter = () => Size;
 
 			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
 		}
@@ -318,8 +307,7 @@ namespace Tesseract.SDL.Services {
 			}
 		}
 
-		private readonly Func<Vector2i> drawableSizeGetter;
-		public Vector2i DrawableSize => drawableSizeGetter();
+		public Vector2i DrawableSize => Window.DrawableSize;
 
 		private void UpdateCursorMode() {
 			if (Focused) {

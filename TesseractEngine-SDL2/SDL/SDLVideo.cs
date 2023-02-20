@@ -24,6 +24,7 @@ namespace Tesseract.SDL {
 		public IntPtr DriverData { get => driverData; init => driverData = value; }
 	}
 
+	[Flags]
 	public enum SDLWindowFlags : uint {
 		Fullscreen = 0x00000001,
 		OpenGL = 0x00000002,
@@ -111,12 +112,14 @@ namespace Tesseract.SDL {
 		ContextNoError
 	}
 
+	[Flags]
 	public enum SDLGLProfile {
 		Core = 0x0001,
 		Compatibility = 0x0002,
 		ES = 0x0004
 	}
 
+	[Flags]
 	public enum SDLGLContextFlag {
 		DebugFlag = 0x0001,
 		ForwardCompatibleFlag = 0x0002,
@@ -124,11 +127,13 @@ namespace Tesseract.SDL {
 		ResetIsolationFlag = 0x0008
 	}
 
+	[Flags]
 	public enum SDLGLContextReleaseFlag {
 		None = 0x0000,
 		Flush = 0x0001
 	}
 
+	[Flags]
 	public enum SDLGLContextResetNotification {
 		NoNotification = 0x0000,
 		LoseContext = 0x0001
@@ -449,6 +454,26 @@ namespace Tesseract.SDL {
 					Subsystem = info.Subsystem,
 					Info = wminfo
 				};
+			}
+		}
+
+		private delegate void GetDrawableSize(nint window, out int w, out int h);
+
+		private GetDrawableSize? fnGetDrawableSize;
+
+		/// <summary>
+		/// Gets the drawable size by invoking the appropriate underlying API function (eg. <c>SDL_GL_GetDrawableSize</c>).
+		/// </summary>
+		public Vector2i DrawableSize {
+			get {
+				if (fnGetDrawableSize == null) {
+					if ((Flags & SDLWindowFlags.OpenGL) != 0) fnGetDrawableSize = new GetDrawableSize(SDL2.Functions.SDL_GL_GetDrawableSize);
+					else if ((Flags & SDLWindowFlags.Vulkan) != 0) fnGetDrawableSize = new GetDrawableSize(SDL2.Functions.SDL_Vulkan_GetDrawableSize);
+					else fnGetDrawableSize = (nint pwnd, out int w, out int h) => { var sz = Size; w = sz.X; h = sz.Y; };
+				}
+				Vector2i sz = default;
+				fnGetDrawableSize(Window.Ptr, out sz.X, out sz.Y);
+				return sz;
 			}
 		}
 
