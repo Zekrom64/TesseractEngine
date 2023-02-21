@@ -15,7 +15,7 @@ namespace Tesseract.Vulkan {
 
 		public IntPtr Next;
 
-		public bool ExtendedDynamicState;
+		public VKBool32 ExtendedDynamicState;
 
 	}
 

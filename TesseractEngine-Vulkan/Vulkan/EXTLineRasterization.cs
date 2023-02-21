@@ -22,17 +22,17 @@ namespace Tesseract.Vulkan {
 
 		public IntPtr Next;
 
-		public bool RectangularLlines;
+		public VKBool32 RectangularLlines;
 
-		public bool BresenhamLines;
+		public VKBool32 BresenhamLines;
 
-		public bool SmoothLines;
+		public VKBool32 SmoothLines;
 
-		public bool StippledRectangularLines;
+		public VKBool32 StippledRectangularLines;
 
-		public bool StippledBresenhamLines;
+		public VKBool32 StippledBresenhamLines;
 
-		public bool StippledSmoothLines;
+		public VKBool32 StippledSmoothLines;
 
 	}
 
@@ -56,7 +56,7 @@ namespace Tesseract.Vulkan {
 
 		public VKLineRasterizationModeEXT LineRasterizationMode;
 
-		public bool StippleLineEnabled;
+		public VKBool32 StippleLineEnabled;
 
 		public uint LineStippleFactor;
 

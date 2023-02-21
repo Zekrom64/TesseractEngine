@@ -183,8 +183,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 			// Get the surface provider from the window associated with creation info, if possible
 			IVKSurfaceProvider? windowSurface = null;
 			if (enumCreateInfo.Window != null) {
-				if (enumCreateInfo.Window is IVKSurfaceProvider surf) windowSurface = surf;
-				else throw new ArgumentException("Provided window cannot create a Vulkan surface", nameof(enumCreateInfo));
+				windowSurface = enumCreateInfo.Window.GetService(VKServices.SurfaceProvider);
+				if (windowSurface == null) throw new ArgumentException("Provided window cannot create a Vulkan surface", nameof(enumCreateInfo));
 			}
 
 			// Get/create the loader and Vulkan API object
@@ -194,7 +194,12 @@ namespace Tesseract.Vulkan.Services.Objects {
 			{ // Gather instance layers/extensions and create instance
 				HashSet<string> availExts = VK.InstanceExtensionProperties.ConvertAll(p => p.ExtensionName).ToHashSet();
 				HashSet<string> availLayers = VK.InstanceLayerProperties.ConvertAll(p => p.LayerName).ToHashSet();
-				List<string> exts = new(), layers = new();
+				HashSet<string> exts = new(), layers = new();
+
+				if (exInfo != null) {
+					if (exInfo.RequiredExtensions != null) exts.AddAll(exInfo.RequiredExtensions);
+					if (exInfo.RequiredLayers != null) layers.AddAll(exInfo.RequiredLayers);
+				}
 
 				// If the window surface is provided add its required extensions
 				if (windowSurface != null)
@@ -203,7 +208,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 				// 
 				if (enumCreateInfo.EnableDebugExtensions) {
 					if (availLayers.Contains(KHRONOSValidation)) layers.Add(KHRONOSValidation);
-					if (availExts.Contains(EXTDebugUtils.ExtensionName)) exts.Add(EXTDebugUtils.ExtensionName);
+					//if (availExts.Contains(EXTDebugUtils.ExtensionName)) exts.Add(EXTDebugUtils.ExtensionName);
 				}
 
 				VKApplicationInfo appInfo = new() {
@@ -220,7 +225,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 					if (exInfo.EngineName != null) appInfo.EngineName = exInfo.EngineName;
 					if (exInfo.EngineVersion != 0) appInfo.EngineVersion = exInfo.EngineVersion;
 				}
-				ManagedPointer<VKApplicationInfo> pAppInfo = new(appInfo);
+				using ManagedPointer<VKApplicationInfo> pAppInfo = new(appInfo);
 
 				VKInstanceCreateInfo createInfo = new() {
 					Type = VKStructureType.InstanceCreateInfo,
@@ -232,8 +237,6 @@ namespace Tesseract.Vulkan.Services.Objects {
 				};
 
 				Instance = VK.CreateInstance(createInfo);
-
-				pAppInfo.Dispose();
 			}
 
 			// Create window surface as needed
@@ -264,8 +267,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.Dispose();
 			foreach (var surface in surfaces) surface.Value.Dispose();
+			Instance.Dispose();
 		}
 
 		public IEnumerable<IGraphicsProvider> EnumerateProviders() => providers;

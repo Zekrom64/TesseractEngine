@@ -38,9 +38,9 @@ namespace Tesseract.Vulkan {
 
 		public IntPtr Next;
 
-		public bool CustomBorderColors;
+		public VKBool32 CustomBorderColors;
 
-		public bool CustomBorderColorsWithoutFormat;
+		public VKBool32 CustomBorderColorsWithoutFormat;
 
 	}
 
