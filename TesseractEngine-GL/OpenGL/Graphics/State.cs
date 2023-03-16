@@ -122,6 +122,16 @@ namespace Tesseract.OpenGL.Graphics {
 		private uint framebufferDraw;
 		private uint framebufferRead;
 
+		/// <summary>
+		/// The current draw framebuffer object.
+		/// </summary>
+		public uint DrawFramebuffer => framebufferDraw;
+
+		/// <summary>
+		/// The current read framebuffer object.
+		/// </summary>
+		public uint ReadFramebuffer => framebufferRead;
+
 		// Renderbuffer state
 		private uint renderbuffer;
 
@@ -130,6 +140,9 @@ namespace Tesseract.OpenGL.Graphics {
 		private int packImageHeight;
 		private int unpackRowLength;
 		private int unpackImageHeight;
+
+		// Dynamic rendering state
+		
 
 
 		// Gets the reference to a buffer binding state
@@ -241,6 +254,7 @@ namespace Tesseract.OpenGL.Graphics {
 				gl33.ColorMask((uint)i, true, true, true, true);
 				colorWriteEnable[i] = true;
 			}
+			gl33.Enable(GLCapability.ScissorTest);
 		}
 
 		/// <summary>
@@ -497,7 +511,7 @@ namespace Tesseract.OpenGL.Graphics {
 		/// Begins a render pass.
 		/// </summary>
 		/// <param name="beginInfo">Render pass begin information</param>
-		public void BeginRenderPass(ICommandSink.RenderPassBegin beginInfo) {
+		public void BeginRenderPass(in ICommandSink.RenderPassBegin beginInfo) {
 			CurrentRenderPass = (GLRenderPass)beginInfo.RenderPass;
 			CurrentFramebuffer = (GLFramebuffer)beginInfo.Framebuffer;
 			CurrentRenderArea = beginInfo.RenderArea;
@@ -749,7 +763,25 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void SetViewports(in ReadOnlySpan<Viewport> viewports, uint first = 0) => Graphics.Interface.SetViewports(first, viewports);
 
-		public void SetScissors(in ReadOnlySpan<Recti> scissors, uint first = 0) => Graphics.Interface.SetScissors(first, scissors);
+		private Recti[] cachedScissors = Array.Empty<Recti>();
+		private int cachedScissorCount = 0;
+		private uint cachedFirstScissor = 0;
+
+		public void SetScissors(in ReadOnlySpan<Recti> scissors, uint first = 0) {
+			Graphics.Interface.SetScissors(first, scissors);
+			if (cachedScissors.Length < scissors.Length) cachedScissors = new Recti[scissors.Length];
+			scissors.CopyTo(cachedScissors.AsSpan());
+			cachedScissorCount = scissors.Length;
+			cachedFirstScissor = first;
+		}
+
+		public void SetTempScissor(Recti scissor) {
+			Graphics.Interface.SetScissors(0, stackalloc Recti[] { scissor });
+		}
+
+		public void UnsetTempScissor() {
+			Graphics.Interface.SetScissors(cachedFirstScissor, cachedScissors.AsSpan()[..cachedScissorCount]);
+		}
 
 		public void SetRasterizerDiscardEnable(bool enable) {
 			var gl33 = GL.GL33!;

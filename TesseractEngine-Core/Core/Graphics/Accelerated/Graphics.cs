@@ -84,6 +84,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public CoordinateSystem CoordinateSystem { get; }
 
+		/// <summary>
+		/// The preferred mode for submitting commands.
+		/// </summary>
+		public CommandMode PreferredCommandMode { get; }
+
 	}
 
 	/// <summary>
@@ -799,7 +804,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// An graphics object provides an interface for rendering 3D graphics
 	/// using a lower-level API (OpenGL, Vulkan, etc.).
 	/// </summary>
-	public interface IGraphics {
+	public interface IGraphics : IDisposable {
 
 		/// <summary>
 		/// The properties of this graphics object.
@@ -944,7 +949,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The command buffers to submit.
 			/// </summary>
-			public required IReadOnlyList<ICommandBuffer> CommandBuffer { get; init; }
+			public IReadOnlyList<ICommandBuffer> CommandBuffer { get; init; } = Array.Empty<ICommandBuffer>();
 
 			/// <summary>
 			/// List of sync objects to wait on and their respective pipeline stages. Granularity may be

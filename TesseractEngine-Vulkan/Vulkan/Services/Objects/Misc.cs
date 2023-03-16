@@ -67,8 +67,11 @@ namespace Tesseract.Vulkan.Services.Objects {
 		/// </summary>
 		public VKRenderPass RenderPass { get; }
 
-		public VulkanRenderPass(VKRenderPass renderPass) {
+		public IReadOnlyList<RenderPassAttachment> Attachments { get; }
+
+		public VulkanRenderPass(VKRenderPass renderPass, RenderPassCreateInfo createInfo) {
 			RenderPass = renderPass;
+			Attachments = createInfo.Attachments;
 		}
 
 		public void Dispose() {

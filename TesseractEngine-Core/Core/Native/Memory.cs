@@ -480,6 +480,16 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
+		/// <summary>
+		/// Performs a 'bitwise' cast of one type to another, reinterpreting the underlying bytes.
+		/// </summary>
+		/// <typeparam name="T1">Type to cast from</typeparam>
+		/// <typeparam name="T2">Type to cast to</typeparam>
+		/// <param name="x">The value to cast</param>
+		/// <returns>The reinterpreted value</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static T2 BitwiseCast<T1,T2>(T1 x) where T1 : unmanaged where T2 : unmanaged => MemoryMarshal.Cast<T1, T2>(stackalloc T1[] { x })[0];
+
 	}
 
 	/// <summary>

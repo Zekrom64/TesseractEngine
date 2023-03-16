@@ -63,14 +63,14 @@ namespace Tesseract.Vulkan.Services.Objects {
 			Graphics = graphics;
 			baseInfo = info;
 
-			if (info.PresentWindow is IVKSurfaceProvider sp) SurfaceProvider = sp;
-			else throw new VulkanException("Cannot create Vulkan swapchain for window which is not a surface provider");
+			IVKSurfaceProvider sp = info.PresentWindow.GetService(VKServices.SurfaceProvider);
+			SurfaceProvider = sp ?? throw new VulkanException("Cannot create Vulkan swapchain for window which is not a surface provider");
 			Surface = graphics.Provider.Enumerator.GetOrCreateSurface(SurfaceProvider);
 
 			VulkanCommands.CommandBank cmdbank = null;
 			void CheckCommandBank(VulkanCommands.CommandBank bank) {
 				if (cmdbank != null) return;
-				if (graphics.Device.PhysicalDevice.PhysicalDevice.GetSurfaceSupportKHR(cmdbank.QueueInfo.QueueFamily, Surface))
+				if (graphics.Device.PhysicalDevice.PhysicalDevice.GetSurfaceSupportKHR(bank.QueueInfo.QueueFamily, Surface))
 					cmdbank = bank;
 			}
 			CheckCommandBank(graphics.Commands.CommandBankTransfer);
@@ -87,11 +87,15 @@ namespace Tesseract.Vulkan.Services.Objects {
 			VKDevice device = vkdevice.Device;
 			VKPhysicalDevice pd = vkdevice.PhysicalDevice.PhysicalDevice;
 
+			// If zero extent, avoid recreating
+			Vector2ui size = (Vector2ui)SurfaceProvider.SurfaceExtent;
+			if (size == new Vector2ui(0, 0)) return;
+
 			var caps = pd.GetSurfaceCapabilitiesKHR(Surface);
 			var fmts = pd.GetSurfaceFormatsKHR(Surface);
 
 			// Select image size
-			Vector2ui size = ((Vector2ui)SurfaceProvider.SurfaceExtent).Max(caps.MinImageExtent).Min(caps.MinImageExtent);
+			size = size.Max(caps.MinImageExtent).Min(caps.MinImageExtent);
 			Size = (Vector2i)size;
 
 			// Select present mode
@@ -139,8 +143,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 				ImageSharingMode = vkdevice.ResourceSharingMode,
 				QueueFamilyIndexCount = (uint)vkdevice.ResourceSharingIndices.ArraySize,
 				QueueFamilyIndices = vkdevice.ResourceSharingIndices,
-				PreTransform = VKSurfaceTransformFlagBitsKHR.Inherit,
-				CompositeAlpha = VKCompositeAlphaFlagBitsKHR.Inherit,
+				PreTransform = caps.CurrentTransform,
+				CompositeAlpha = VKCompositeAlphaFlagBitsKHR.Opaque,
 				PresentMode = presentMode,
 				Clipped = true,
 				OldSwapchain = Swapchain?.SwapchainKHR ?? 0

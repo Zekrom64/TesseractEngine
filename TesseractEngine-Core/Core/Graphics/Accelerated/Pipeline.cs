@@ -461,7 +461,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// If depth biasing is enabled.
 		/// </summary>
-		public bool DepthBiasEnable { get; init; }
+		public bool DepthBiasEnable { get; init; } = false;
 
 		/// <summary>
 		/// The constant factor to bias depth values by.

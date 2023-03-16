@@ -454,11 +454,11 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 
 		public void Barrier(in ICommandSink.PipelineBarriers barriers) {
-			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Length];
+			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Count];
 			for (int i = 0; i < mems.Length; i++) mems[i] = VulkanConverter.Convert(barriers.MemoryBarriers[i]);
-			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Length];
+			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Count];
 			for (int i = 0; i < bufs.Length; i++) bufs[i] = VulkanConverter.Convert(barriers.BufferMemoryBarriers[i]);
-			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Length];
+			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Count];
 			for (int i = 0; i < imgs.Length; i++) imgs[i] = VulkanConverter.Convert(barriers.TextureMemoryBarriers[i]);
 
 			CommandBuffer.PipelineBarrier(VulkanConverter.Convert(barriers.ProvokingStages), VulkanConverter.Convert(barriers.AwaitingStages), 0, mems, bufs, imgs);
@@ -483,10 +483,10 @@ namespace Tesseract.Vulkan.Services.Objects {
 				foreach (PipelineDynamicState dyn in vkpipelineset.BaseInfo.GraphicsInfo!.DynamicState) {
 					switch (dyn) {
 						case PipelineDynamicState.Viewport:
-							SetViewports(0, state.Viewports.ToArray());
+							SetViewports(state.Viewports.ToArray());
 							break;
 						case PipelineDynamicState.Scissor:
-							SetScissors(0, state.Scissors.ToArray());
+							SetScissors(state.Scissors.ToArray());
 							break;
 						case PipelineDynamicState.LineWidth:
 							SetLineWidth(state.LineWidth);
@@ -585,9 +585,18 @@ namespace Tesseract.Vulkan.Services.Objects {
 				CommandBuffer.BindIndexBuffer(index.Item1.Buffer, index.Item2.Offset, index.Item3);
 			}
 		}
+			
 
-		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets) =>
-			CommandBuffer.BindDescriptorSets(VulkanConverter.Convert(bindPoint), ((VulkanPipelineLayout)layout).Layout, sets.ConvertAll(set => ((VulkanBindSet)set).Set));
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IBindSet set) {
+			Span<ulong> vksets = stackalloc ulong[] { ((VulkanBindSet)set).Set };
+			CommandBuffer.BindDescriptorSets(VulkanConverter.Convert(bindPoint), ((VulkanPipelineLayout)layout).Layout, 0, vksets);
+		}
+
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IReadOnlyList<IBindSet> sets) {
+			Span<ulong> vksets = stackalloc ulong[sets.Count];
+			for (int i = 0; i < sets.Count; i++) vksets[i] = ((VulkanBindSet)sets[i]).Set;
+			CommandBuffer.BindDescriptorSets(VulkanConverter.Convert(bindPoint), ((VulkanPipelineLayout)layout).Layout, 0, vksets);
+		}
 
 		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) {
 			VulkanFramebuffer vkdst = (VulkanFramebuffer)dst, vksrc = (VulkanFramebuffer)src;
@@ -616,17 +625,10 @@ namespace Tesseract.Vulkan.Services.Objects {
 					MipLevel = vksrcview.SubresourceRange.BaseMipLevel
 				}
 			};
-			CommandBuffer.BlitImage(vksrcimg.Image, VulkanConverter.Convert(srcLayout), vkdstimg.Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(filter), blit);
+			CommandBuffer.BlitImage(vksrcimg.Image, VulkanConverter.Convert(srcLayout), vkdstimg.Image, VulkanConverter.Convert(dstLayout), blit, VulkanConverter.Convert(filter));
 		}
 
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<ICommandSink.BlitTextureRegion> regions) {
-			VulkanTexture vkdst = (VulkanTexture)dst, vksrc = (VulkanTexture)src;
-			Span<VKImageBlit> blits = stackalloc VKImageBlit[regions.Length];
-			for (int i = 0; i < blits.Length; i++) blits[i] = VulkanConverter.Convert(regions[i], vksrc, vkdst);
-			CommandBuffer.BlitImage(vksrc.Image, VulkanConverter.Convert(srcLayout), vkdst.Image, VulkanConverter.Convert(dstLayout), blits, VulkanConverter.Convert(filter));
-		}
-
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, params ICommandSink.BlitTextureRegion[] regions) {
 			VulkanTexture vkdst = (VulkanTexture)dst, vksrc = (VulkanTexture)src;
 			Span<VKImageBlit> blits = stackalloc VKImageBlit[regions.Length];
 			for (int i = 0; i < blits.Length; i++) blits[i] = VulkanConverter.Convert(regions[i], vksrc, vkdst);
@@ -647,42 +649,16 @@ namespace Tesseract.Vulkan.Services.Objects {
 			CommandBuffer.ClearAttachments(attachments, rects);
 		}
 
-		public void ClearAttachments(in ReadOnlySpan<ICommandSink.ClearAttachment> values, params ICommandSink.ClearRect[] regions) {
-			Span<VKClearRect> rects = stackalloc VKClearRect[regions.Length];
-			for (int i = 0; i < rects.Length; i++) rects[i] = VulkanConverter.Convert(regions[i]);
-			Span<VKClearAttachment> attachments = stackalloc VKClearAttachment[values.Length];
-			for (int i = 0; i < values.Length; i++) attachments[i] = VulkanConverter.Convert(values[i]);
-			CommandBuffer.ClearAttachments(attachments, rects);
-		}
-
 		public void ClearAttachments(in ReadOnlySpan<ICommandSink.ClearAttachment> values, in ICommandSink.ClearRect region) {
 			Span<VKClearAttachment> attachments = stackalloc VKClearAttachment[values.Length];
 			for (int i = 0; i < values.Length; i++) attachments[i] = VulkanConverter.Convert(values[i]);
 			CommandBuffer.ClearAttachments(attachments, stackalloc VKClearRect[] { VulkanConverter.Convert(region) });
 		}
 
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) {
-			Span<VKImageSubresourceRange> ranges = stackalloc VKImageSubresourceRange[regions.Length];
-			for (int i = 0; i < ranges.Length; i++) ranges[i] = VulkanConverter.Convert(regions[i]);
-			CommandBuffer.ClearColorImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(color), ranges);
-		}
-
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, params TextureSubresourceRange[] regions) {
-			Span<VKImageSubresourceRange> ranges = stackalloc VKImageSubresourceRange[regions.Length];
-			for (int i = 0; i < ranges.Length; i++) ranges[i] = VulkanConverter.Convert(regions[i]);
-			CommandBuffer.ClearColorImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(color), ranges);
-		}
-
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in TextureSubresourceRange region) =>
 			CommandBuffer.ClearColorImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(color), VulkanConverter.Convert(region));
 
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions) {
-			Span<VKImageSubresourceRange> ranges = stackalloc VKImageSubresourceRange[regions.Length];
-			for (int i = 0; i < ranges.Length; i++) ranges[i] = VulkanConverter.Convert(regions[i]);
-			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = stencil }, ranges);
-		}
-
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions) {
 			Span<VKImageSubresourceRange> ranges = stackalloc VKImageSubresourceRange[regions.Length];
 			for (int i = 0; i < ranges.Length; i++) ranges[i] = VulkanConverter.Convert(regions[i]);
 			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = stencil }, ranges);
@@ -697,21 +673,9 @@ namespace Tesseract.Vulkan.Services.Objects {
 			CommandBuffer.CopyBuffer(((VulkanBuffer)src).Buffer, ((VulkanBuffer)dst).Buffer, copies);
 		}
 
-		public void CopyBuffer(IBuffer dst, IBuffer src, params ICommandSink.CopyBufferRegion[] regions) {
-			Span<VKBufferCopy> copies = stackalloc VKBufferCopy[regions.Length];
-			for (int i = 0; i < copies.Length; i++) copies[i] = VulkanConverter.Convert(regions[i]);
-			CommandBuffer.CopyBuffer(((VulkanBuffer)src).Buffer, ((VulkanBuffer)dst).Buffer, copies);
-		}
-
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ICommandSink.CopyBufferRegion region) => CommandBuffer.CopyBuffer(((VulkanBuffer)src).Buffer, ((VulkanBuffer)dst).Buffer, VulkanConverter.Convert(region));
 
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
-			Span<VKBufferImageCopy> vkcopies = stackalloc VKBufferImageCopy[copies.Length];
-			for (int i = 0; i < copies.Length; i++) vkcopies[i] = VulkanConverter.Convert(copies[i]);
-			CommandBuffer.CopyBufferToImage(((VulkanBuffer)src).Buffer, ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), vkcopies);
-		}
-
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, params ICommandSink.CopyBufferTexture[] copies) {
 			Span<VKBufferImageCopy> vkcopies = stackalloc VKBufferImageCopy[copies.Length];
 			for (int i = 0; i < copies.Length; i++) vkcopies[i] = VulkanConverter.Convert(copies[i]);
 			CommandBuffer.CopyBufferToImage(((VulkanBuffer)src).Buffer, ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), vkcopies);
@@ -726,22 +690,10 @@ namespace Tesseract.Vulkan.Services.Objects {
 			CommandBuffer.CopyImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), vkcopies);
 		}
 
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params ICommandSink.CopyTextureRegion[] regions) {
-			Span<VKImageCopy> vkcopies = stackalloc VKImageCopy[regions.Length];
-			for (int i = 0; i < regions.Length; i++) vkcopies[i] = VulkanConverter.ConvertImageCopy(regions[i]);
-			CommandBuffer.CopyImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), vkcopies);
-		}
-
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ICommandSink.CopyTextureRegion copy) =>
 			CommandBuffer.CopyImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.ConvertImageCopy(copy));
 
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
-			Span<VKBufferImageCopy> vkcopies = stackalloc VKBufferImageCopy[copies.Length];
-			for (int i = 0; i < copies.Length; i++) vkcopies[i] = VulkanConverter.Convert(copies[i]);
-			CommandBuffer.CopyImageToBuffer(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanBuffer)dst).Buffer, vkcopies);
-		}
-
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, params ICommandSink.CopyBufferTexture[] copies) {
 			Span<VKBufferImageCopy> vkcopies = stackalloc VKBufferImageCopy[copies.Length];
 			for (int i = 0; i < copies.Length; i++) vkcopies[i] = VulkanConverter.Convert(copies[i]);
 			CommandBuffer.CopyImageToBuffer(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanBuffer)dst).Buffer, vkcopies);
@@ -764,15 +716,9 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public void EndRenderPass() => CommandBuffer.EndRenderPass();
 
-		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers) {
-			Span<VKCommandBuffer> cmdbufs = new VKCommandBuffer[buffers.Length];
-			for (int i = 0; i < buffers.Length; i++) cmdbufs[i] = ((VulkanCommandBuffer)buffers[i]).CommandBuffer;
-			CommandBuffer.ExecuteCommands(cmdbufs);
-		}
-
-		public void ExecuteCommands(params ICommandBuffer[] buffers) {
-			Span<VKCommandBuffer> cmdbufs = new VKCommandBuffer[buffers.Length];
-			for (int i = 0; i < buffers.Length; i++) cmdbufs[i] = ((VulkanCommandBuffer)buffers[i]).CommandBuffer;
+		public void ExecuteCommands(IReadOnlyList<ICommandBuffer> buffers) {
+			Span<IntPtr> cmdbufs = stackalloc IntPtr[buffers.Count];
+			for (int i = 0; i < buffers.Count; i++) cmdbufs[i] = ((VulkanCommandBuffer)buffers[i]).CommandBuffer;
 			CommandBuffer.ExecuteCommands(cmdbufs);
 		}
 
@@ -946,12 +892,6 @@ namespace Tesseract.Vulkan.Services.Objects {
 			CommandBuffer.ResolveImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), resolves);
 		}
 
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params ICommandSink.CopyTextureRegion[] regions) {
-			Span<VKImageResolve> resolves = stackalloc VKImageResolve[regions.Length];
-			for (int i = 0; i < resolves.Length; i++) resolves[i] = VulkanConverter.ConvertImageResolve(regions[i]);
-			CommandBuffer.ResolveImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), resolves);
-		}
-
 		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ICommandSink.CopyTextureRegion region) =>
 			CommandBuffer.ResolveImage(((VulkanTexture)src).Image, VulkanConverter.Convert(srcLayout), ((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.ConvertImageResolve(region));
 
@@ -993,15 +933,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public void SetRasterizerDiscardEnable(bool enabled) => CommandBuffer.SetRasterizerDiscardEnableEXT(enabled);
 
-		public void SetScissor(Recti scissor, uint firstScissor = 0) => CommandBuffer.SetScissor(scissor, firstScissor);
-
 		public void SetScissors(in ReadOnlySpan<Recti> scissors, uint firstScissor = 0) {
-			Span<VKRect2D> rects = stackalloc VKRect2D[scissors.Length];
-			for (int i = 0; i < rects.Length; i++) rects[i] = scissors[i];
-			CommandBuffer.SetScissor(rects, firstScissor);
-		}
-
-		public void SetScissors(uint firstScissor, params Recti[] scissors) {
 			Span<VKRect2D> rects = stackalloc VKRect2D[scissors.Length];
 			for (int i = 0; i < rects.Length; i++) rects[i] = scissors[i];
 			CommandBuffer.SetScissor(rects, firstScissor);
@@ -1038,15 +970,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			CommandBuffer.SetVertexInputEXT(bindings, attributes);
 		}
 
-		public void SetViewport(Viewport viewport, uint firstViewport = 0) => CommandBuffer.SetViewport(viewport, firstViewport);
-
 		public void SetViewports(in ReadOnlySpan<Viewport> viewports, uint firstViewport = 0) {
-			Span<VKViewport> views = stackalloc VKViewport[viewports.Length];
-			for (int i = 0; i < views.Length; i++) views[i] = viewports[i];
-			CommandBuffer.SetViewport(views, firstViewport);
-		}
-
-		public void SetViewports(uint firstViewport, params Viewport[] viewports) {
 			Span<VKViewport> views = stackalloc VKViewport[viewports.Length];
 			for (int i = 0; i < views.Length; i++) views[i] = viewports[i];
 			CommandBuffer.SetViewport(views, firstViewport);
@@ -1064,29 +988,15 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public void UpdateBuffer<T>(IBuffer dst, nuint dstOffset, params T[] data) where T : unmanaged => CommandBuffer.UpdateBuffer(((VulkanBuffer)dst).Buffer, dstOffset, data);
 
-		public void WaitSync(in ICommandSink.PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs) {
-			Span<VKEvent> events = new VKEvent[syncs.Length];
-			for (int i = 0; i < events.Length; i++) events[i] = ((VulkanEventSync)syncs[i]).Event;
-
-			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Length];
-			for (int i = 0; i < mems.Length; i++) mems[i] = VulkanConverter.Convert(barriers.MemoryBarriers[i]);
-			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Length];
-			for (int i = 0; i < bufs.Length; i++) bufs[i] = VulkanConverter.Convert(barriers.BufferMemoryBarriers[i]);
-			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Length];
-			for (int i = 0; i < imgs.Length; i++) imgs[i] = VulkanConverter.Convert(barriers.TextureMemoryBarriers[i]);
-
-			CommandBuffer.WaitEvents(events, VulkanConverter.Convert(barriers.ProvokingStages), VulkanConverter.Convert(barriers.AwaitingStages), mems, bufs, imgs);
-		}
-
 		public void WaitSync(in ICommandSink.PipelineBarriers barriers, params ISync[] syncs) {
-			Span<VKEvent> events = new VKEvent[syncs.Length];
+			Span<ulong> events = stackalloc ulong[syncs.Length];
 			for (int i = 0; i < events.Length; i++) events[i] = ((VulkanEventSync)syncs[i]).Event;
 
-			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Length];
+			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Count];
 			for (int i = 0; i < mems.Length; i++) mems[i] = VulkanConverter.Convert(barriers.MemoryBarriers[i]);
-			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Length];
+			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Count];
 			for (int i = 0; i < bufs.Length; i++) bufs[i] = VulkanConverter.Convert(barriers.BufferMemoryBarriers[i]);
-			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Length];
+			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Count];
 			for (int i = 0; i < imgs.Length; i++) imgs[i] = VulkanConverter.Convert(barriers.TextureMemoryBarriers[i]);
 
 			CommandBuffer.WaitEvents(events, VulkanConverter.Convert(barriers.ProvokingStages), VulkanConverter.Convert(barriers.AwaitingStages), mems, bufs, imgs);
@@ -1095,11 +1005,11 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public void WaitSync(in ICommandSink.PipelineBarriers barriers, ISync sync) {
 			VKEvent evt = ((VulkanEventSync)sync).Event;
 
-			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Length];
+			Span<VKMemoryBarrier> mems = stackalloc VKMemoryBarrier[barriers.MemoryBarriers.Count];
 			for (int i = 0; i < mems.Length; i++) mems[i] = VulkanConverter.Convert(barriers.MemoryBarriers[i]);
-			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Length];
+			Span<VKBufferMemoryBarrier> bufs = stackalloc VKBufferMemoryBarrier[barriers.BufferMemoryBarriers.Count];
 			for (int i = 0; i < bufs.Length; i++) bufs[i] = VulkanConverter.Convert(barriers.BufferMemoryBarriers[i]);
-			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Length];
+			Span<VKImageMemoryBarrier> imgs = stackalloc VKImageMemoryBarrier[barriers.TextureMemoryBarriers.Count];
 			for (int i = 0; i < imgs.Length; i++) imgs[i] = VulkanConverter.Convert(barriers.TextureMemoryBarriers[i]);
 
 			CommandBuffer.WaitEvents(evt, VulkanConverter.Convert(barriers.ProvokingStages), VulkanConverter.Convert(barriers.AwaitingStages), mems, bufs, imgs);
@@ -1117,8 +1027,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 			if (renderingInfo.ColorAttachments != null) {
 				var colors = renderingInfo.ColorAttachments;
-				vkInfo.ColorAttachmentCount = (uint)colors.Length;
-				vkInfo.ColorAttachments = sp.Values<VKRenderingAttachmentInfo>(colors.ConvertAll(info => VulkanConverter.Convert(info)));
+				vkInfo.ColorAttachmentCount = (uint)colors.Count;
+				vkInfo.ColorAttachments = sp.Values(colors.ConvertAll(info => VulkanConverter.Convert(info)));
 			}
 			if (renderingInfo.DepthAttachment != null)
 				vkInfo.DepthAttachment = sp.Values(VulkanConverter.Convert(renderingInfo.DepthAttachment.Value));
@@ -1129,6 +1039,14 @@ namespace Tesseract.Vulkan.Services.Objects {
 		}
 
 		public void EndRendering() => CommandBuffer.EndRendering();
+
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			throw new NotImplementedException();
+		}
+
+		public void WaitSync(in ICommandSink.PipelineBarriers barriers, IReadOnlyList<ISync> syncs) {
+			throw new NotImplementedException();
+		}
 	}
 
 }

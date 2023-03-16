@@ -33,7 +33,12 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearTexImage<T>(uint texture, int level, GLFormat format, GLType type, in ReadOnlySpan<T> data) where T : unmanaged {
+		public void ClearTexImage(uint texture, int level, GLFormat format, GLTextureType type, IntPtr data) {
+			Functions.glClearTexImage(texture, level, (uint)format, (uint)type, data);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearTexImage<T>(uint texture, int level, GLFormat format, GLTextureType type, in ReadOnlySpan<T> data) where T : unmanaged {
 			unsafe {
 				fixed(T* pData = data) {
 					Functions.glClearTexImage(texture, level, (uint)format, (uint)type, (IntPtr)pData);
@@ -42,7 +47,12 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearTexSubImage<T>(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLType type, in ReadOnlySpan<T> data) where T : unmanaged {
+		public void ClearTexSubImage(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, IntPtr data) {
+			Functions.glClearTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, (uint)format, (uint)type, data);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearTexSubImage<T>(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, in ReadOnlySpan<T> data) where T : unmanaged {
 			unsafe {
 				fixed (T* pData = data) {
 					Functions.glClearTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, (uint)format, (uint)type, (IntPtr)pData);

@@ -450,13 +450,14 @@ namespace Tesseract.Vulkan.Services.Objects {
 		}
 		*/
 
-		public VulkanDevice(VulkanPhysicalDeviceInfo physicalDevice, GraphicsCreateInfo createInfo) {
+		public VulkanDevice(VulkanPhysicalDeviceInfo physicalDevice, VulkanGraphicsProvider provider, GraphicsCreateInfo createInfo) {
 			using MemoryStack sp = MemoryStack.Push();
 			PhysicalDevice = physicalDevice;
 			var hwfeatures = createInfo.EnabledFeatures;
 
 			// Enable extensions
 			HashSet<string> enabledExts = new();
+			if (provider.Enumerator.NeedsSwapchain) enabledExts.Add(KHRSwapchain.ExtensionName);
 
 			EnabledExtensions = enabledExts;
 

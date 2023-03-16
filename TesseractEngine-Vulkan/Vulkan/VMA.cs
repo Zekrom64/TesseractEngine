@@ -10,8 +10,91 @@ using Tesseract.Vulkan.Native;
 
 namespace Tesseract.Vulkan {
 
+	#region Enumerations
+
+	[Flags]
+	public enum VMAAllocatorCreateFlagBits : int {
+		ExternallySynchronized = 0x00000001,
+		KHRDedicatedAllocation = 0x00000002,
+		KHRBindMemory2 = 0x00000004,
+		EXTMemoryBudget = 0x00000008,
+		AMDDeviceCoherentMemory = 0x00000010,
+		BufferDeviceAddress = 0x00000020,
+		EXTMemoryPriority = 0x00000040
+	}
+
+	public enum VMAMemoryUsage : int {
+		Unknown = 0,
+		GPUOnly = 1,
+		CPUOnly = 2,
+		CPUToGPU = 3,
+		GPUToCPU = 4,
+		CPUCopy = 5,
+		GPULazilyAllocated = 6,
+		Auto = 7,
+		AutoPreferDevice = 8,
+		AutoPreferHost = 9
+	}
+
+	[Flags]
+	public enum VMAAllocationCreateFlagBits : int {
+		DedicatedMemory = 0x00000001,
+		NeverAllocate = 0x00000002,
+		Mapped = 0x00000004,
+		CanBecomeLost = 0x00000008,
+		CanMakeOtherLost = 0x00000010,
+		UserDataCopyString = 0x00000020,
+		UpperAddress = 0x00000040,
+		DontBind = 0x00000080,
+		WithinBudget = 0x00000100,
+		CanAlias = 0x00000200,
+		HostAccessSequentialWrite = 0x00000400,
+		HostAccessRandom = 0x00000800,
+		HostAccessAllowTransferInstead = 0x00001000,
+		StrategyMinMemory = 0x00010000,
+		StrategyMinTime = 0x00020000,
+		StrategyMinOffset = 0x00040000
+	}
+
+	[Flags]
+	public enum VMAPoolCreateFlagBits : int {
+		IgnoreBufferImageGranularity = 0x00000002,
+		LinearAlgorithm = 0x00000004
+	}
+
+	[Flags]
+	public enum VMADefragmentationFlagBits : int {
+		AlgorithmFast = 0x00000001,
+		AlgorithmBalanced = 0x00000002,
+		AlgorithmFull = 0x00000004,
+		AlgorithmExtensive = 0x00000008
+	}
+
+	public enum VMADefragmentationMoveOperation : int {
+		Copy = 0,
+		Ignore = 1,
+		Destroy = 2
+	}
+
+	[Flags]
+	public enum VMAVirtualBlockCreateFlagBits : int {
+		LinearAlgorithm = 0x00000001
+	}
+
+	[Flags]
+	public enum VMAVirtualAllocationCreateFlagBits : int {
+		UpperAddress = VMAAllocationCreateFlagBits.UpperAddress,
+		StrategyMinMemory = VMAAllocationCreateFlagBits.StrategyMinMemory,
+		StrategyMinTime = VMAAllocationCreateFlagBits.StrategyMinTime,
+		StrategyMinOffset = VMAAllocationCreateFlagBits.StrategyMinOffset
+	}
+
+	#endregion
+
 	public delegate void VMAAllocateDeviceMemoryFunction([NativeType("VmaAllocator")] IntPtr allocator, uint memoryType, [NativeType("VkDeviceMemory")] ulong memory, [NativeType("VkDeviceSize")] ulong size, IntPtr userData);
 	public delegate void VMAFreeDeviceMemoryFunction([NativeType("VmaAllocator")] IntPtr allocator, uint memoryType, [NativeType("VkDeviceMemory")] ulong memory, [NativeType("VkDeviceSize")] ulong size, IntPtr userData);
+
+	#region Structures
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VMADeviceMemoryCallbacks {
@@ -24,19 +107,13 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public enum VMAAllocatorCreateFlagBits : int {
-		ExternallySynchronized = 0x00000001,
-		KHRDedicatedAllocation = 0x00000002,
-		KHRBindMemory2 = 0x00000004,
-		EXTMemoryBudget = 0x00000008,
-		AMDDeviceCoherentMemory = 0x00000010,
-		BufferDeviceAddress = 0x00000020,
-		EXTMemoryPriority = 0x00000040
-	}
-
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VMAVulkanFunctions {
 
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public VKGetInstanceProcAddr vkGetInstanceProcAddr;
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public VKGetDeviceProcAddr vkGetDeviceProcAddr;
 		[MarshalAs(UnmanagedType.FunctionPtr)]
 		public VK10InstanceFunctions.PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
 		[MarshalAs(UnmanagedType.FunctionPtr)]
@@ -81,20 +158,10 @@ namespace Tesseract.Vulkan {
 		public VK11DeviceFunctions.PFN_vkBindImageMemory2 vkBindImageMemory2;
 		[MarshalAs(UnmanagedType.FunctionPtr)]
 		public VK11InstanceFunctions.PFN_vkGetPhysicalDeviceMemoryProperties2 vkGetPhysicalDeviceMemoryProperties2;
-
-	}
-
-	public enum VMARecordFlagBits : int {
-		FlushAfterCall = 0x00000001
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMARecordSettings {
-
-		public VMARecordFlagBits Flags;
-
-		[MarshalAs(UnmanagedType.LPStr)]
-		public string FilePath;
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public KHRMaintenance4Functions.PFN_vkGetDeviceBufferMemoryRequirementsKHR vkGetDeviceBufferMemoryRequirementsKHR;
+		[MarshalAs(UnmanagedType.FunctionPtr)]
+		public KHRMaintenance4Functions.PFN_vkGetDeviceImageMemoryRequirementsKHR vkGetDeviceImageMemoryRequirementsKHR;
 
 	}
 
@@ -103,36 +170,41 @@ namespace Tesseract.Vulkan {
 
 		private readonly VMAAllocatorCreateFlagBits flags;
 		public VMAAllocatorCreateFlagBits Flags { get => flags; init => flags = value; }
+
 		private readonly IntPtr physicalDevice;
 		[NativeType("VkPhysicalDevice")]
 		public IntPtr PhysicalDevice { get => physicalDevice; init => physicalDevice = value; }
+
 		private readonly IntPtr device;
 		[NativeType("VkDevice")]
 		public IntPtr Device { get => device; init => device = value; }
+
 		private readonly ulong preferredLargeHeapBlockSize;
 		public ulong PreferredLargeHeapBlockSize { get => preferredLargeHeapBlockSize; init => preferredLargeHeapBlockSize = value; }
+
 		private readonly IntPtr allocationCallbacks;
 		[NativeType("const VkAllocationCallbacks*")]
 		public IntPtr AllocationCallbacks { get => allocationCallbacks; init => allocationCallbacks = value; }
+
 		private readonly IntPtr deviceMemoryCallbacks;
 		[NativeType("const VmaDeviceMemoryCallbacks*")]
 		public IntPtr DeviceMemoryCallbacks { get => deviceMemoryCallbacks; init => deviceMemoryCallbacks = value; }
-		private readonly uint frameInUseCount;
-		public uint FrameInUseCount { get => frameInUseCount; init => frameInUseCount = value; }
+
 		private readonly IntPtr heapSizeLimit;
 		[NativeType("const VkDeviceSize*")]
 		public IntPtr HeapSizeLimit { get => heapSizeLimit; init => heapSizeLimit = value; }
+
 		private readonly IntPtr vulkanFunctions;
 		[NativeType("const VmaVulkanFunctions*")]
 		public IntPtr VulkanFunctions { get => vulkanFunctions; init => vulkanFunctions = value; }
-		private readonly IntPtr recordSettings;
-		[NativeType("const VmaRecordSettings*")]
-		public IntPtr RecordSettings { get => recordSettings; init => recordSettings = value; }
+
 		private readonly IntPtr instance;
 		[NativeType("VkInstance")]
 		public IntPtr Instance { get => instance; init => instance = value; }
+
 		private readonly uint vulkanApiVerison;
 		public uint VulkanApiVersion { get => vulkanApiVerison; init => vulkanApiVerison = value; }
+
 		private readonly IntPtr typeExternalMemoryHandleTypes;
 		[NativeType("const VkExternalMemoryHandleTypeFlagBitsKHR*")]
 		public IntPtr TypeExternalMemoryHandleTypes { get => typeExternalMemoryHandleTypes; init => typeExternalMemoryHandleTypes = value; }
@@ -154,55 +226,54 @@ namespace Tesseract.Vulkan {
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public struct VMAStatInfo {
+	public struct VMAStatistics {
 
 		public uint BlockCount;
 
 		public uint AllocationCount;
-
-		public uint UnusedRangeCount;
-
-		[NativeType("VkDeviceSize")]
-		public ulong UsedBytes;
-
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedBytes;
-
-		[NativeType("VkDeviceSize")]
-		public ulong AllocationSizeMin;
-		[NativeType("VkDeviceSize")]
-		public ulong AllocationSizeAvg;
-		[NativeType("VkDeviceSize")]
-		public ulong AllocationSizeMax;
-
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedRangeSizeMin;
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedRangeSizeAvg;
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedRangeSizeMax;
-
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMAStats {
-
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryTypes)]
-		public VMAStatInfo[] MemoryType;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryHeaps)]
-		public VMAStatInfo[] MemoryHeap;
-		public VMAStatInfo Total;
-
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMABudget {
 
 		[NativeType("VkDeviceSize")]
 		public ulong BlockBytes;
 
 		[NativeType("VkDeviceSize")]
 		public ulong AllocationBytes;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMADetailedStatistics {
+
+		public VMAStatistics Statistics;
+
+		public uint UnusedRangeCount;
+
+		[NativeType("VkDeviceSize")]
+		public ulong AllocationSizeMin;
+		[NativeType("VkDeviceSize")]
+		public ulong AllocationSizeMax;
+
+		[NativeType("VkDeviceSize")]
+		public ulong UnusedRangeSizeMin;
+		[NativeType("VkDeviceSize")]
+		public ulong UnusedRangeSizeMax;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMATotalStatistics {
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryTypes)]
+		public VMADetailedStatistics[] MemoryType;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryHeaps)]
+		public VMADetailedStatistics[] MemoryHeap;
+		public VMADetailedStatistics Total;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMABudget {
+
+		public VMAStatistics Statistics;
 
 		[NativeType("VkDeviceSize")]
 		public ulong Usage;
@@ -212,61 +283,34 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public enum VMAMemoryUsage : int {
-		Unknown = 0,
-		GPUOnly = 1,
-		CPUOnly = 2,
-		CPUToGPU = 3,
-		GPUToCPU = 4,
-		CPUCopy = 5,
-		GPULazilyAllocated = 6
-	}
-
-	public enum VMAAllocationCreateFlagBits : int {
-		DedicatedMemory = 0x00000001,
-		NeverAllocate = 0x00000002,
-		Mapped = 0x00000004,
-		CanBecomeLost = 0x00000008,
-		CanMakeOtherLost = 0x00000010,
-		UserDataCopyString = 0x00000020,
-		UpperAddress = 0x00000040,
-		DontBind = 0x00000080,
-		WithinBudget = 0x00000100,
-		StrategyBestFit = 0x00010000,
-		StrategyWorstFit = 0x00020000,
-		StrategyFirstFit = 0x00040000,
-		StrategyMinMemory = StrategyBestFit,
-		StrategyMinTime = StrategyFirstFit,
-		StrategyMinFragmentation = StrategyWorstFit
-	}
-
 	[StructLayout(LayoutKind.Sequential)]
 	public readonly struct VMAAllocationCreateInfo {
 
 		private readonly VMAAllocationCreateFlagBits flags;
 		public VMAAllocationCreateFlagBits Flags { get => flags; init => flags = value; }
+
 		private readonly VMAMemoryUsage usage;
 		public VMAMemoryUsage Usage { get => usage; init => usage = value; }
+
 		private readonly VKMemoryPropertyFlagBits requiredFlags;
 		public VKMemoryPropertyFlagBits RequiredFlags { get => requiredFlags; init => requiredFlags = value; }
+
 		private readonly VKMemoryPropertyFlagBits preferredFlags;
 		public VKMemoryPropertyFlagBits PreferredFlags { get => preferredFlags; init => preferredFlags = value; }
+
 		private readonly uint memoryTypeBits;
 		public uint MemoryTypeBits { get => memoryTypeBits; init => memoryTypeBits = value; }
+
 		private readonly IntPtr pool;
 		[NativeType("VmaPool")]
 		public IntPtr Pool { get => pool; init => pool = value; }
+
 		private readonly IntPtr userData;
 		public IntPtr UserData { get => userData; init => userData = value; }
+
 		private readonly float priority;
 		public float Priority { get => priority; init => priority = value; }
 
-	}
-
-	public enum VMAPoolCreateFlagBits : int {
-		IgnoreBufferImageGranularity = 0x00000002,
-		LinearAlgorithm = 0x00000004,
-		BuddyAlgorithm = 0x00000008
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -274,44 +318,29 @@ namespace Tesseract.Vulkan {
 
 		private readonly uint memoryTypeIndex;
 		public uint MemoryTypeIndex { get => memoryTypeIndex; init => memoryTypeIndex = value; }
+
 		private readonly VMAPoolCreateFlagBits flags;
 		public VMAPoolCreateFlagBits Flags { get => flags; init => flags = value; }
+
 		private readonly ulong blockSize;
 		[NativeType("VkDeviceSize")]
 		public ulong BlockSize { get => blockSize; init => blockSize = value; }
+
 		private readonly nuint minBlockCount;
 		public nuint MinBlockCount { get => minBlockCount; init => minBlockCount = value; }
+
 		private readonly nuint maxBlockCount;
 		public nuint MaxBlockCount { get => maxBlockCount; init => maxBlockCount = value; }
-		private readonly uint frameInUseCount;
-		public uint FrameInUseCount { get => frameInUseCount; init => frameInUseCount = value; }
+
 		private readonly float priority;
 		public float Priority { get => priority; init => priority = value; }
+
 		private readonly ulong minAllocationAlignment;
 		[NativeType("VkDeviceSize")]
 		public ulong MinAllocationAlignment { get => minAllocationAlignment; init => minAllocationAlignment = value; }
+
 		private readonly IntPtr memoryAllocateNext;
 		public IntPtr MemoryAllocateNext { get => memoryAllocateNext; init => memoryAllocateNext = value; }
-
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMAPoolStats {
-
-		[NativeType("VkDeviceSize")]
-		public ulong Size;
-
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedSize;
-
-		public nuint AllocationCount;
-
-		public nuint UnusedRangeCount;
-
-		[NativeType("VkDeviceSize")]
-		public ulong UnusedRangeSizeMax;
-
-		public nuint BlockCount;
 
 	}
 
@@ -333,75 +362,46 @@ namespace Tesseract.Vulkan {
 
 		public IntPtr UserData;
 
-	}
-
-	public enum VMADefragmentationFlagBits : int {
-		Incremental = 0x00000001
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public readonly struct VMADefragmentationInfo2 {
-
-		private readonly VMADefragmentationFlagBits flags;
-		public VMADefragmentationFlagBits Flags { get => flags; init => flags = value; }
-		private readonly uint allocationCount;
-		public uint AllocationCount { get => allocationCount; init => allocationCount = value; }
-		private readonly IntPtr allocations;
-		[NativeType("const VmaAllocation*")]
-		public IntPtr Allocations { get => allocations; init => allocations = value; }
-		private readonly IntPtr allocationsChanged;
-		[NativeType("VkBool32*")]
-		public IntPtr AllocationsChanged { get => allocationsChanged; init => allocationsChanged = value; }
-		private readonly uint poolCount;
-		public uint PoolCount { get => poolCount; init => poolCount = value; }
-		private readonly IntPtr pools;
-		[NativeType("const VmaPool*")]
-		public IntPtr Pools { get => pools; init => pools = value; }
-		private readonly ulong maxCpuBytesToMove;
-		public ulong MaxCpuBytesToMove { get => maxCpuBytesToMove; init => maxCpuBytesToMove = value; }
-		private readonly uint maxCpuAllocationsToMove;
-		public uint MaxCpuAllocationsToMove { get => maxCpuAllocationsToMove; init => maxCpuAllocationsToMove = value; }
-		private readonly ulong maxGpuBytesToMove;
-		public ulong MaxGpuBytesToMove { get => maxGpuBytesToMove; init => maxGpuBytesToMove = value; }
-		private readonly uint maxGpuAllocationsToMove;
-		public uint MaxGpuAllocationsToMove { get => maxGpuAllocationsToMove; init => maxGpuAllocationsToMove = value; }
-		private readonly IntPtr commandBuffer;
-		[NativeType("VkCommandBuffer")]
-		public IntPtr CommandBuffer { get => commandBuffer; init => commandBuffer = value; }
-
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMADefragmentationPassMoveInfo {
-		
-		[NativeType("VmaAllocation")]
-		public IntPtr Allocation;
-		
-		[NativeType("VkDeviceMemory")]
-		public ulong Memory;
-
-		[NativeType("VkDeviceSize")]
-		public ulong Offset;
-
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct VMADefragmentationPassInfo {
-
-		public uint MoveCount;
-
-		[NativeType("VmaDefragmentationPassMoveInfo*")]
-		public IntPtr Moves;
+		[NativeType("const char*")]
+		public IntPtr Name;
 
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VMADefragmentationInfo {
 
-		[NativeType("VkDeviceSize")]
-		public ulong MaxBytesToMove;
+		public VMADefragmentationFlagBits Flags;
 
-		public uint MaxAllocationsToMove;
+		[NativeType("VmaPool")]
+		public IntPtr Pool;
+
+		[NativeType("VkDeviceSize")]
+		public ulong MaxBytesPerPass;
+
+		public uint MaxAllocationsPerPass;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMADefragmentationMove {
+
+		public VMADefragmentationMoveOperation Operation;
+
+		[NativeType("VmaAllocation")]
+		public IntPtr SrcAllocation;
+
+		[NativeType("VmaAllocation")]
+		public IntPtr DstTmpAllocation;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMADefragmentationPassMoveInfo {
+
+		public uint MoveCount;
+
+		[NativeType("VmaDefragmentationMove*")]
+		public IntPtr Moves;
 
 	}
 
@@ -419,6 +419,49 @@ namespace Tesseract.Vulkan {
 		public uint DeviceMemoryBlocksFreed;
 
 	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMAVirtualBlockCreateInfo {
+
+		[NativeType("VkDeviceSize")]
+		public ulong Size;
+
+		public VMAVirtualBlockCreateFlagBits Flags;
+
+		[NativeType("const VkAllocationCallbacks*")]
+		public IntPtr AllocationCallbacks;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMAVirtualAllocationCreateInfo {
+
+		[NativeType("VkDeviceSize")]
+		public ulong Size;
+
+		[NativeType("VkDeviceSize")]
+		public ulong Alignment;
+
+		public VMAVirtualAllocationCreateFlagBits Flags;
+
+		public IntPtr UserData;
+
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct VMAVirtualAllocationInfo {
+
+		[NativeType("VkDeviceSize")]
+		public ulong Offset;
+
+		[NativeType("VkDeviceSize")]
+		public ulong Size;
+
+		public IntPtr UserData;
+
+	}
+
+	#endregion
 
 #nullable disable
 	public class VMAFunctions {
@@ -441,19 +484,13 @@ namespace Tesseract.Vulkan {
 		public PFN_vmaGetMemoryTypeProperties vmaGetMemoryTypeProperties;
 		public PFN_vmaSetCurrentFrameIndex vmaSetCurrentFrameIndex;
 
-		public delegate void PFN_vmaCalculateStats([NativeType("VmaAllocator")] IntPtr allocator, out VMAStats stats);
+		public delegate void PFN_vmaCalculateStatistics([NativeType("VmaAllocator")] IntPtr allocator, out VMATotalStatistics stats);
 
-		public PFN_vmaCalculateStats vmaCalculateStats;
+		public PFN_vmaCalculateStatistics vmaCalculateStatistics;
 
-		public delegate void PFN_vmaGetBudget([NativeType("VmaAllocator")] IntPtr allocator, out VMABudget budget);
+		public delegate void PFN_vmaGetHeapBudgets([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaBudget*")] IntPtr pBudgets);
 
-		public PFN_vmaGetBudget vmaGetBudget;
-
-		public delegate void PFN_vmaBuildStatsString([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("char**")] out IntPtr statsString, bool detailedMap);
-		public delegate void PFN_vmaFreeStatsString([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("char*")] IntPtr statsString);
-
-		public PFN_vmaBuildStatsString vmaBuildStatsString;
-		public PFN_vmaFreeStatsString vmaFreeStatsString;
+		public PFN_vmaGetHeapBudgets vmaGetHeapBudgets;
 
 		public delegate VKResult PFN_vmaFindMemoryTypeIndex([NativeType("VmaAllocator")] IntPtr allocator, uint memoryTypeBits, in VMAAllocationCreateInfo createInfo, out uint memoryTypeIndex);
 		public delegate VKResult PFN_vmaFindMemoryTypeIndexForBufferInfo([NativeType("VmaAllocator")] IntPtr allocator, in VKBufferCreateInfo bufferCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, out uint memoryTypeIndex);
@@ -465,16 +502,16 @@ namespace Tesseract.Vulkan {
 
 		public delegate VKResult PFN_vmaCreatePool([NativeType("VmaAllocator")] IntPtr allocator, in VMAPoolCreateInfo createInfo, [NativeType("VmaPool*")] out IntPtr pool);
 		public delegate void PFN_vmaDestroyPool([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool);
-		public delegate void PFN_vmaGetPoolStats([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, out VMAPoolStats poolStats);
-		public delegate void PFN_vmaMakePoolAllocationsLost([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, out nuint lostAllocationCount);
+		public delegate void PFN_vmaGetPoolStatistics([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, out VMAStatistics poolStats);
+		public delegate void PFN_vmaCalculatePoolStatistics([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, out VMADetailedStatistics poolStats);
 		public delegate VKResult PFN_vmaCheckPoolCorruption([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool);
 		public delegate void PFN_vmaGetPoolName([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, [NativeType("const char**")] out IntPtr name);
-		public delegate void PFN_vmaSetPoolName([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, [NativeType("const char*")] IntPtr name);
+		public delegate void PFN_vmaSetPoolName([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaPool")] IntPtr pool, [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
 
 		public PFN_vmaCreatePool vmaCreatePool;
 		public PFN_vmaDestroyPool vmaDestroyPool;
-		public PFN_vmaGetPoolStats vmaGetPoolStats;
-		public PFN_vmaMakePoolAllocationsLost vmaMakePoolAllocationsLost;
+		public PFN_vmaGetPoolStatistics vmaGetPoolStatistics;
+		public PFN_vmaCalculatePoolStatistics vmaCalculatePoolStatistics;
 		public PFN_vmaCheckPoolCorruption vmaCheckPoolCorruption;
 		public PFN_vmaGetPoolName vmaGetPoolName;
 		public PFN_vmaSetPoolName vmaSetPoolName;
@@ -486,9 +523,9 @@ namespace Tesseract.Vulkan {
 		public delegate void PFN_vmaFreeMemory([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation);
 		public delegate void PFN_vmaFreeMemoryPages([NativeType("VmaAllocator")] IntPtr allocator, nuint allocationCount, [NativeType("const VmaAllocation*")] IntPtr allocation);
 		public delegate void PFN_vmaGetAllocationInfo([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, out VMAAllocationInfo allocationInfo);
-		public delegate bool PFN_vmaTouchAllocation([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation);
 		public delegate void PFN_vmaSetAllocationUserData([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, IntPtr userData);
-		public delegate void PFN_vmaCreateLostAllocation([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation*")] out IntPtr allocation);
+		public delegate void PFN_vmaSetAllocationName([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
+		public delegate void PFN_vmaGetAllocationMemoryProperties([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, out VKMemoryPropertyFlagBits flags);
 		public delegate VKResult PFN_vmaMapMemory([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, out IntPtr data);
 		public delegate void PFN_vmaUnmapMemory([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation);
 		public delegate VKResult PFN_vmaFlushAllocation([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, ulong offset, ulong size);
@@ -504,9 +541,9 @@ namespace Tesseract.Vulkan {
 		public PFN_vmaFreeMemory vmaFreeMemory;
 		public PFN_vmaFreeMemoryPages vmaFreeMemoryPages;
 		public PFN_vmaGetAllocationInfo vmaGetAllocationInfo;
-		public PFN_vmaTouchAllocation vmaTouchAllocation;
 		public PFN_vmaSetAllocationUserData vmaSetAllocationUserData;
-		public PFN_vmaCreateLostAllocation vmaCreateLostAllocation;
+		public PFN_vmaSetAllocationName vmaSetAllocationName;
+		public PFN_vmaGetAllocationMemoryProperties vmaGetAllocationMemoryProperties;
 		public PFN_vmaMapMemory vmaMapMemory;
 		public PFN_vmaUnmapMemory vmaUnmapMemory;
 		public PFN_vmaFlushAllocation vmaFlushAllocation;
@@ -515,35 +552,69 @@ namespace Tesseract.Vulkan {
 		public PFN_vmaInvalidateAllocations vmaInvalidateAllocations;
 		public PFN_vmaCheckCorruption vmaCheckCorruption;
 
-		public delegate VKResult PFN_vmaDefragmentationBegin([NativeType("VmaAllocator")] IntPtr allocator, in VMADefragmentationInfo2 info, [NativeType("VmaDefragmentationStats*")] IntPtr stats, [NativeType("VmaDefragmentationContext*")] out IntPtr context);
-		public delegate VKResult PFN_vmaDefragmentationEnd([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context);
-		public delegate VKResult PFN_vmaBeginDefragmentationPass([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context, [NativeType("VmaDefragmentationPassInfo*")] IntPtr info);
-		public delegate VKResult PFN_vmaEndDefragmentationPass([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context);
-		public delegate VKResult PFN_vmaDefragment([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("const VmaAllocation*")] IntPtr allocations, uint allocationCount, [NativeType("VkBool32*")] IntPtr allocationsChanged, in VMADefragmentationInfo info, out VMADefragmentationStats stats);
+		public delegate VKResult PFN_vmaBeginDefragmentation([NativeType("VmaAllocator")] IntPtr allocator, in VMADefragmentationInfo info, [NativeType("VmaDefragmentationContext*")] out IntPtr context);
+		public delegate VKResult PFN_vmaEndDefragmentation([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context, out VMADefragmentationStats stats);
+		public delegate VKResult PFN_vmaBeginDefragmentationPass([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context, out VMADefragmentationPassMoveInfo passInfo);
+		public delegate VKResult PFN_vmaEndDefragmentationPass([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaDefragmentationContext")] IntPtr context, ref VMADefragmentationPassMoveInfo passInfo);
 		public delegate VKResult PFN_vmaBindBufferMemory([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, [NativeType("VkBuffer")] ulong buffer);
 		public delegate VKResult PFN_vmaBindBufferMemory2([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, ulong allocationLocalOffset, [NativeType("VkBuffer")] ulong buffer, IntPtr next);
 		public delegate VKResult PFN_vmaBindImageMemory([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, [NativeType("VkImage")] ulong image);
 		public delegate VKResult PFN_vmaBindImageMemory2([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, ulong allocationLocalOffset, [NativeType("VkImage")] ulong image, IntPtr next);
 		public delegate VKResult PFN_vmaCreateBuffer([NativeType("VmaAllocator")] IntPtr allocator, in VKBufferCreateInfo bufferCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, [NativeType("VkBuffer*")] out ulong buffer, [NativeType("VmaAllocation*")] out IntPtr allocation, out VMAAllocationInfo allocationInfo);
 		public delegate VKResult PFN_vmaCreateBufferWithAlignment([NativeType("VmaAllocator")] IntPtr allocator, in VKBufferCreateInfo bufferCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, ulong minAlignment, [NativeType("VkBuffer*")] out ulong buffer, [NativeType("VmaAllocation*")] out IntPtr allocation, out VMAAllocationInfo allocationInfo);
+		public delegate VKResult PFN_vmaCreateAliasingBuffer([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, in VKBufferCreateInfo bufferCreateInfo, [NativeType("VkBuffer*")] out ulong buffer);
 		public delegate void PFN_vmaDestroyBuffer([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VkBuffer")] ulong buffer, [NativeType("VmaAllocation")] IntPtr allocation);
 		public delegate VKResult PFN_vmaCreateImage([NativeType("VmaAllocator")] IntPtr allocator, in VKImageCreateInfo imageCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, [NativeType("VkImage*")] out ulong image, [NativeType("VmaAllocation*")] out IntPtr allocation, out VMAAllocationInfo allocationInfo);
+		public delegate VKResult PFN_vmaCreateAliasingImage([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VmaAllocation")] IntPtr allocation, in VKImageCreateInfo imageCreateInfo, [NativeType("VkImage*")] out ulong image);
 		public delegate void PFN_vmaDestroyImage([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("VkImage")] ulong image, [NativeType("VmaAllocation")] IntPtr allocation);
 
-		public PFN_vmaDefragmentationBegin vmaDefragmentationBegin;
-		public PFN_vmaDefragmentationEnd vmaDefragmentationEnd;
+		public PFN_vmaBeginDefragmentation vmaBeginDefragmentation;
+		public PFN_vmaEndDefragmentation vmaEndDefragmentation;
 		public PFN_vmaBeginDefragmentationPass vmaBeginDefragmentationPass;
 		public PFN_vmaEndDefragmentationPass vmaEndDefragmentationPass;
-		public PFN_vmaDefragment vmaDefragment;
 		public PFN_vmaBindBufferMemory vmaBindBufferMemory;
 		public PFN_vmaBindBufferMemory2 vmaBindBufferMemory2;
 		public PFN_vmaBindImageMemory vmaBindImageMemory;
 		public PFN_vmaBindImageMemory2 vmaBindImageMemory2;
 		public PFN_vmaCreateBuffer vmaCreateBuffer;
 		public PFN_vmaCreateBufferWithAlignment vmaCreateBufferWithAlignment;
+		public PFN_vmaCreateAliasingBuffer vmaCreateAliasingBuffer;
 		public PFN_vmaDestroyBuffer vmaDestroyBuffer;
 		public PFN_vmaCreateImage vmaCreateImage;
+		public PFN_vmaCreateAliasingImage vmaCreateAliasingImage;
 		public PFN_vmaDestroyImage vmaDestroyImage;
+
+		public delegate VKResult PFN_vmaCreateVirtualBlock(in VMAVirtualBlockCreateInfo createInfo, [NativeType("VmaVirtualBlock*")] out IntPtr virtualBlock);
+		public delegate void PFN_vmaDestroyVirtualBlock([NativeType("VmaVirtualBlock")] IntPtr virtualBlock);
+		public delegate bool PFN_vmaIsVirtualBlockEmpty([NativeType("VmaVirtualBlock")] IntPtr virtualBlock);
+		public delegate void PFN_vmaGetVirtualAllocationInfo([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("VmaVirtualAllocation")] IntPtr allocation, out VMAVirtualAllocationInfo virtualAllocInfo);
+		public delegate VKResult PFN_vmaVirtualAllocate([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, in VMAVirtualAllocationCreateInfo createInfo, [NativeType("VmaVirtualAllocation*")] out IntPtr allocation, [NativeType("VkDeviceSize*")] out ulong offset);
+		public delegate void PFN_vmaVirtualFree([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("VmaVirtualAllocation")] IntPtr allocation);
+		public delegate void PFN_vmaClearVirtualBlock([NativeType("VmaVirtualBlock")] IntPtr virtualBlock);
+		public delegate void PFN_vmaSetVirtualAllocationUserData([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("VmaVirtualAllocation")] IntPtr allocation, IntPtr userData);
+		public delegate void PFN_vmaGetVirtualBlockStatistics([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("VmaStatistics*")] out VMAStatistics stats);
+		public delegate void PFN_vmaCalculateVirtualBlockStatistics([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("VmaDetailedStatistics*")] out VMADetailedStatistics stats);
+		public delegate void PFN_vmaBuildVirtualBlockStatsString([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("char**")] out IntPtr pStatsString, bool detailedMap);
+		public delegate void PFN_vmaFreeVirtualBlockStatsString([NativeType("VmaVirtualBlock")] IntPtr virtualBlock, [NativeType("char*")] IntPtr pStatsString);
+
+		public PFN_vmaCreateVirtualBlock vmaCreateVirtualBlock;
+		public PFN_vmaDestroyVirtualBlock vmaDestroyVirtualBlock;
+		public PFN_vmaIsVirtualBlockEmpty vmaIsVirtualBlockEmpty;
+		public PFN_vmaGetVirtualAllocationInfo vmaGetVirtualAllocationInfo;
+		public PFN_vmaVirtualAllocate vmaVirtualAllocate;
+		public PFN_vmaVirtualFree vmaVirtualFree;
+		public PFN_vmaClearVirtualBlock vmaClearVirtualBlock;
+		public PFN_vmaSetVirtualAllocationUserData vmaSetVirtualAllocationUserData;
+		public PFN_vmaGetVirtualBlockStatistics vmaGetVirtualBlockStatistics;
+		public PFN_vmaCalculateVirtualBlockStatistics vmaCalculateVirtualBlockStatistics;
+		public PFN_vmaBuildVirtualBlockStatsString vmaBuildVirtualBlockStatsString;
+		public PFN_vmaFreeVirtualBlockStatsString vmaFreeVirtualBlockStatsString;
+
+		public delegate void PFN_vmaBuildStatsString([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("char**")] out IntPtr statsString, bool detailedMap);
+		public delegate void PFN_vmaFreeStatsString([NativeType("VmaAllocator")] IntPtr allocator, [NativeType("char*")] IntPtr statsString);
+
+		public PFN_vmaBuildStatsString vmaBuildStatsString;
+		public PFN_vmaFreeStatsString vmaFreeStatsString;
 
 	}
 #nullable restore
@@ -564,6 +635,11 @@ namespace Tesseract.Vulkan {
 			VK.CheckError(Functions.vmaCreateAllocator(createInfo, out IntPtr allocator), "Failed to create VMA allocator");
 			if (createInfo.Device != device) throw new ArgumentException("Supplied device does not match that of the creation information", nameof(device));
 			return new VMAAllocator(allocator, device, createInfo.AllocationCallbacks);
+		}
+
+		public static VMAVirtualBlock CreateVirtualBlock(in VMAVirtualBlockCreateInfo createInfo) {
+			VK.CheckError(Functions.vmaCreateVirtualBlock(createInfo, out IntPtr virtualBlock));
+			return new VMAVirtualBlock(virtualBlock);
 		}
 
 	}
@@ -620,17 +696,10 @@ namespace Tesseract.Vulkan {
 			set => VMA.Functions.vmaSetCurrentFrameIndex(Allocator, value);
 		}
 
-		public VMAStats Stats {
+		public VMATotalStatistics Statistics {
 			get {
-				VMA.Functions.vmaCalculateStats(Allocator, out VMAStats stats);
+				VMA.Functions.vmaCalculateStatistics(Allocator, out VMATotalStatistics stats);
 				return stats;
-			}
-		}
-
-		public VMABudget Budget {
-			get {
-				VMA.Functions.vmaGetBudget(Allocator, out VMABudget budget);
-				return budget;
 			}
 		}
 
@@ -706,11 +775,6 @@ namespace Tesseract.Vulkan {
 			for (int i = 0; i < allocations.Length; i++) allocations[i].Allocation = IntPtr.Zero;
 		}
 
-		public VMAAllocation CreateLostAllocation() {
-			VMA.Functions.vmaCreateLostAllocation(Allocator, out IntPtr allocation);
-			return new VMAAllocation(this, allocation);
-		}
-
 		public void FlushAllocations(in ReadOnlySpan<VMAAllocation> allocations, in ReadOnlySpan<ulong> offsets, in ReadOnlySpan<ulong> sizes) {
 			int n = ExMath.Min(allocations.Length, offsets.Length, sizes.Length);
 			Span<IntPtr> allocs = stackalloc IntPtr[n];
@@ -743,22 +807,9 @@ namespace Tesseract.Vulkan {
 
 		public void CheckCorruption(uint memoryTypeBits) => VK.CheckError(VMA.Functions.vmaCheckCorruption(Allocator, memoryTypeBits), "Failure while checking memory corruption");
 
-		public VMADefragmentationContext BeginDefragmentation(in VMADefragmentationInfo2 info, IPointer<VMADefragmentationStats>? stats = null) {
-			VK.CheckError(VMA.Functions.vmaDefragmentationBegin(Allocator, info, stats != null ? stats.Ptr : IntPtr.Zero, out IntPtr context), "Failed to begin defragmentation");
+		public VMADefragmentationContext BeginDefragmentation(in VMADefragmentationInfo info) {
+			VK.CheckError(VMA.Functions.vmaBeginDefragmentation(Allocator, info, out IntPtr context), "Failed to begin defragmentation");
 			return new VMADefragmentationContext(this, context);
-		}
-
-		public void Defragment(in ReadOnlySpan<VMAAllocation> allocations, out bool[] allocationsChanged, in VMADefragmentationInfo info, out VMADefragmentationStats stats) {
-			Span<IntPtr> allocs = stackalloc IntPtr[allocations.Length];
-			for (int i = 0; i < allocs.Length; i++) allocs[i] = allocations[i];
-			allocationsChanged = new bool[allocations.Length];
-			unsafe {
-				fixed(IntPtr* pAllocs = allocs) {
-					fixed(bool* pAllocsChanged = allocationsChanged) {
-						VK.CheckError(VMA.Functions.vmaDefragment(Allocator, (IntPtr)pAllocs, (uint)allocs.Length, (IntPtr)pAllocsChanged, info, out stats), "Failed to defragment memory");
-					}
-				}
-			}
 		}
 
 		public VKBuffer CreateBuffer(in VKBufferCreateInfo bufferCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, out VMAAllocation allocation, out VMAAllocationInfo allocationInfo) {
@@ -773,9 +824,19 @@ namespace Tesseract.Vulkan {
 			return new VKBuffer(Device, buffer, AllocationCallbacks);
 		}
 
+		public VKBuffer CreateAliasingBuffer(VMAAllocation allocation, in VKBufferCreateInfo bufferCreateInfo) {
+			VK.CheckError(VMA.Functions.vmaCreateAliasingBuffer(Allocator, allocation, bufferCreateInfo, out ulong buffer));
+			return new VKBuffer(Device, buffer, AllocationCallbacks);
+		}
+
 		public VKImage CreateImage(in VKImageCreateInfo imageCreateInfo, in VMAAllocationCreateInfo allocationCreateInfo, out VMAAllocation allocation, out VMAAllocationInfo allocationInfo) {
 			VK.CheckError(VMA.Functions.vmaCreateImage(Allocator, imageCreateInfo, allocationCreateInfo, out ulong image, out IntPtr alloc, out allocationInfo), "Failed to create image");
 			allocation = new VMAAllocation(this, alloc);
+			return new VKImage(Device, image, AllocationCallbacks);
+		}
+
+		public VKImage CreateAliasingImage(VMAAllocation allocation, in VKImageCreateInfo imageCreateInfo) {
+			VK.CheckError(VMA.Functions.vmaCreateAliasingImage(Allocator, allocation, imageCreateInfo, out ulong image));
 			return new VKImage(Device, image, AllocationCallbacks);
 		}
 
@@ -800,16 +861,11 @@ namespace Tesseract.Vulkan {
 			VMA.Functions.vmaDestroyPool(Allocator, Pool);
 		}
 
-		public VMAPoolStats Stats {
+		public VMAStatistics Stats {
 			get {
-				VMA.Functions.vmaGetPoolStats(Allocator, Pool, out VMAPoolStats stats);
+				VMA.Functions.vmaGetPoolStatistics(Allocator, Pool, out VMAStatistics stats);
 				return stats;
 			}
-		}
-
-		public nuint MakePoolAllocationsLost() {
-			VMA.Functions.vmaMakePoolAllocationsLost(Allocator, Pool, out nuint lostAllocationCount);
-			return lostAllocationCount;
 		}
 
 		public void CheckPoolCorruption() => VK.CheckError(VMA.Functions.vmaCheckPoolCorruption(Allocator, Pool), "Failure during pool corruption check");
@@ -819,11 +875,7 @@ namespace Tesseract.Vulkan {
 				VMA.Functions.vmaGetPoolName(Allocator, Pool, out IntPtr name);
 				return MemoryUtil.GetUTF8(name);
 			}
-			set {
-				if (value == null) throw new ArgumentNullException(nameof(value));
-				using var pName = MemoryUtil.AllocUTF8(value);
-				VMA.Functions.vmaSetPoolName(Allocator, Pool, pName);
-			}
+			set => VMA.Functions.vmaSetPoolName(Allocator, Pool, value);
 		}
 
 		public static implicit operator IntPtr(VMAPool pool) => pool != null ? pool.Pool : IntPtr.Zero;
@@ -857,11 +909,21 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public void Touch() => VMA.Functions.vmaTouchAllocation(Allocator, Allocation);
-
 		public IntPtr UserData {
 			get => Info.UserData;
 			set => VMA.Functions.vmaSetAllocationUserData(Allocator, Allocation, value);
+		}
+
+		public string? Name {
+			get => MemoryUtil.GetUTF8(Info.Name);
+			set => VMA.Functions.vmaSetAllocationName(Allocator, Allocation, value);
+		}
+
+		public VKMemoryPropertyFlagBits MemoryProperties {
+			get {
+				VMA.Functions.vmaGetAllocationMemoryProperties(Allocator, Allocation, out VKMemoryPropertyFlagBits flags);
+				return flags;
+			}
 		}
 
 		public IntPtr MapMemory() {
@@ -891,7 +953,7 @@ namespace Tesseract.Vulkan {
 
 	}
 
-	public struct VMADefragmentationContext {
+	public readonly struct VMADefragmentationContext {
 
 		public readonly VMAAllocator Allocator;
 
@@ -903,11 +965,84 @@ namespace Tesseract.Vulkan {
 			Context = context;
 		}
 
-		public void End() => VK.CheckError(VMA.Functions.vmaDefragmentationEnd(Allocator, Context), "Failure while ending defragmentation");
+		public void End(out VMADefragmentationStats stats) => VK.CheckError(VMA.Functions.vmaEndDefragmentation(Allocator, Context, out stats));
 
-		public void BeginPass(IPointer<VMADefragmentationPassInfo>? info = null) => VK.CheckError(VMA.Functions.vmaBeginDefragmentationPass(Allocator, Context, info != null ? info.Ptr : IntPtr.Zero), "Failed to begin defragmentation pass");
+		public void BeginPass(out VMADefragmentationPassMoveInfo passInfo) => VK.CheckError(VMA.Functions.vmaBeginDefragmentationPass(Allocator, Context, out passInfo));
 
-		public void EndPass() => VK.CheckError(VMA.Functions.vmaEndDefragmentationPass(Allocator, Context), "Failure while ending defragmentation pass");
+		public void EndPass(ref VMADefragmentationPassMoveInfo passInfo) => VK.CheckError(VMA.Functions.vmaEndDefragmentationPass(Allocator, Context, ref passInfo));
+
+	}
+
+	public class VMAVirtualBlock : IDisposable {
+
+		public IntPtr VirtualBlock { get; }
+
+		public bool IsEmpty => VMA.Functions.vmaIsVirtualBlockEmpty(VirtualBlock);
+
+		public VMAStatistics Statistics {
+			get {
+				VMA.Functions.vmaGetVirtualBlockStatistics(VirtualBlock, out VMAStatistics statistics);
+				return statistics;
+			}
+		}
+
+		public VMAVirtualBlock(IntPtr virtualBlock) {
+			VirtualBlock = virtualBlock;
+		}
+
+		public VMAVirtualAllocation Allocate(in VMAVirtualAllocationCreateInfo createInfo, out ulong offset) {
+			VK.CheckError(VMA.Functions.vmaVirtualAllocate(VirtualBlock, createInfo, out IntPtr allocation, out offset));
+			return new VMAVirtualAllocation(allocation, this);
+		}
+
+		public void Clear() => VMA.Functions.vmaClearVirtualBlock(VirtualBlock);
+
+		public VMADetailedStatistics CalculateStatistics() {
+			VMA.Functions.vmaCalculateVirtualBlockStatistics(VirtualBlock, out VMADetailedStatistics stats);
+			return stats;
+		}
+
+		public string BuildStatsString(bool detailedMap = false) {
+			VMA.Functions.vmaBuildVirtualBlockStatsString(VirtualBlock, out IntPtr pStatsString, detailedMap);
+			string ret = MemoryUtil.GetUTF8(pStatsString)!;
+			VMA.Functions.vmaFreeVirtualBlockStatsString(VirtualBlock, pStatsString);
+			return ret;
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			VMA.Functions.vmaDestroyVirtualBlock(VirtualBlock);
+		}
+
+	}
+
+	public class VMAVirtualAllocation : IDisposable {
+
+		public IntPtr Allocation { get; }
+
+		public VMAVirtualBlock VirtualBlock { get; }
+
+		public VMAVirtualAllocationInfo AllocationInfo {
+			get {
+				VMA.Functions.vmaGetVirtualAllocationInfo(VirtualBlock.VirtualBlock, Allocation, out VMAVirtualAllocationInfo info);
+				return info;
+			}
+		}
+
+		public IntPtr UserData {
+			set => VMA.Functions.vmaSetVirtualAllocationUserData(VirtualBlock.VirtualBlock, Allocation, value);
+			get => AllocationInfo.UserData;
+		}
+
+		public VMAVirtualAllocation(IntPtr allocation, VMAVirtualBlock virtualBlock) {
+			Allocation = allocation;
+			VirtualBlock = virtualBlock;
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			VMA.Functions.vmaVirtualFree(VirtualBlock.VirtualBlock, Allocation);
+		}
 
 	}
 

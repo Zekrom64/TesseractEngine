@@ -69,12 +69,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetViewport(uint offset, params VKViewport[] viewports) => SetViewport(viewports, offset);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetViewport(params VKViewport[] viewports) => SetViewport(viewports);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetScissor(VKRect2D scissor, uint offset = 0) {
 			unsafe {
 				Device.VK10Functions.vkCmdSetScissor(CommandBuffer, offset, 1, (IntPtr)(&scissor));
@@ -89,12 +83,6 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetScissor(uint offset, params VKRect2D[] scissors) => SetScissor(scissors, offset);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetScissor(params VKRect2D[] scissors) => SetScissor(scissors);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetLineWidth(float width) => Device.VK10Functions.vkCmdSetLineWidth(CommandBuffer, width);
@@ -129,9 +117,9 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public void BindDescriptorSets(VKPipelineBindPoint bindPoint, VKPipelineLayout layout, uint firstSet, in ReadOnlySpan<VKDescriptorSet> descriptorSets, in ReadOnlySpan<uint> dynamicOffsets) {
-			Span<ulong> descSets = stackalloc ulong[descriptorSets.Length];
-			for (int i = 0; i < descriptorSets.Length; i++) descSets[i] = descriptorSets[i];
+		public void BindDescriptorSets(VKPipelineBindPoint bindPoint, VKPipelineLayout layout, uint firstSet, IReadOnlyList<VKDescriptorSet> descriptorSets, in ReadOnlySpan<uint> dynamicOffsets) {
+			Span<ulong> descSets = stackalloc ulong[descriptorSets.Count];
+			for (int i = 0; i < descriptorSets.Count; i++) descSets[i] = descriptorSets[i];
 			unsafe {
 				fixed (ulong* pDescSets = descSets) {
 					fixed (uint* pDynamicOffsets = dynamicOffsets) {
@@ -147,6 +135,14 @@ namespace Tesseract.Vulkan {
 			unsafe {
 				fixed (ulong* pDescSets = descSets) {
 					Device.VK10Functions.vkCmdBindDescriptorSets(CommandBuffer, bindPoint, layout, firstSet, (uint)descSets.Length, (IntPtr)pDescSets, 0, IntPtr.Zero);
+				}
+			}
+		}
+
+		public void BindDescriptorSets(VKPipelineBindPoint bindPoint, VKPipelineLayout layout, uint firstSet, in ReadOnlySpan<ulong> descriptorSets) {
+			unsafe {
+				fixed (ulong* pDescSets = descriptorSets) {
+					Device.VK10Functions.vkCmdBindDescriptorSets(CommandBuffer, bindPoint, layout, firstSet, (uint)descriptorSets.Length, (IntPtr)pDescSets, 0, IntPtr.Zero);
 				}
 			}
 		}
@@ -168,9 +164,9 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public void BindVertexBuffers(uint firstBinding, in ReadOnlySpan<VKBuffer> buffers, in ReadOnlySpan<ulong> offsets) {
-			Span<ulong> bufs = stackalloc ulong[buffers.Length];
-			for (int i = 0; i < buffers.Length; i++) bufs[i] = buffers[i];
+		public void BindVertexBuffers(uint firstBinding, IReadOnlyList<VKBuffer> buffers, in ReadOnlySpan<ulong> offsets) {
+			Span<ulong> bufs = stackalloc ulong[buffers.Count];
+			for (int i = 0; i < buffers.Count; i++) bufs[i] = buffers[i];
 			unsafe {
 				fixed (ulong* pBufs = bufs, pOffsets = offsets) {
 					Device.VK10Functions.vkCmdBindVertexBuffers(CommandBuffer, firstBinding, (uint)Math.Min(bufs.Length, offsets.Length), (IntPtr)pBufs, (IntPtr)pOffsets);
@@ -229,15 +225,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBuffer(VKBuffer srcBuffer, VKBuffer dstBuffer, params VKBufferCopy[] regions) {
-			unsafe {
-				fixed (VKBufferCopy* pRegions = regions) {
-					Device.VK10Functions.vkCmdCopyBuffer(CommandBuffer, srcBuffer, dstBuffer, (uint)regions.Length, (IntPtr)pRegions);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyImage(VKImage srcImage, VKImageLayout srcLayout, VKImage dstImage, VKImageLayout dstLayout, VKImageCopy region) {
 			unsafe {
 				Device.VK10Functions.vkCmdCopyImage(CommandBuffer, srcImage, srcLayout, dstImage, dstLayout, 1, (IntPtr)(&region));
@@ -246,15 +233,6 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyImage(VKImage srcImage, VKImageLayout srcLayout, VKImage dstImage, VKImageLayout dstLayout, in ReadOnlySpan<VKImageCopy> regions) {
-			unsafe {
-				fixed (VKImageCopy* pRegions = regions) {
-					Device.VK10Functions.vkCmdCopyImage(CommandBuffer, srcImage, srcLayout, dstImage, dstLayout, (uint)regions.Length, (IntPtr)pRegions);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyImage(VKImage srcImage, VKImageLayout srcLayout, VKImage dstImage, VKImageLayout dstLayout, params VKImageCopy[] regions) {
 			unsafe {
 				fixed (VKImageCopy* pRegions = regions) {
 					Device.VK10Functions.vkCmdCopyImage(CommandBuffer, srcImage, srcLayout, dstImage, dstLayout, (uint)regions.Length, (IntPtr)pRegions);
@@ -279,15 +257,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlitImage(VKImage srcImage, VKImageLayout srcLayout, VKImage dstImage, VKImageLayout dstLayout, VKFilter filter, params VKImageBlit[] regions) {
-			unsafe {
-				fixed (VKImageBlit* pRegions = regions) {
-					Device.VK10Functions.vkCmdBlitImage(CommandBuffer, srcImage, srcLayout, dstImage, dstLayout, (uint)regions.Length, (IntPtr)pRegions, filter);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyBufferToImage(VKBuffer srcBuffer, VKImage dstImage, VKImageLayout dstLayout, VKBufferImageCopy region) {
 			unsafe {
 				Device.VK10Functions.vkCmdCopyBufferToImage(CommandBuffer, srcBuffer, dstImage, dstLayout, 1, (IntPtr)(&region));
@@ -304,15 +273,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBufferToImage(VKBuffer srcBuffer, VKImage dstImage, VKImageLayout dstLayout, params VKBufferImageCopy[] regions) {
-			unsafe {
-				fixed (VKBufferImageCopy* pRegions = regions) {
-					Device.VK10Functions.vkCmdCopyBufferToImage(CommandBuffer, srcBuffer, dstImage, dstLayout, (uint)regions.Length, (IntPtr)pRegions);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyImageToBuffer(VKImage srcImage, VKImageLayout srcLayout, VKBuffer dstBuffer, VKBufferImageCopy region) {
 			unsafe {
 				Device.VK10Functions.vkCmdCopyImageToBuffer(CommandBuffer, srcImage, srcLayout, dstBuffer, 1, (IntPtr)(&region));
@@ -321,15 +281,6 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void CopyImageToBuffer(VKImage srcImage, VKImageLayout srcLayout, VKBuffer dstBuffer, in ReadOnlySpan<VKBufferImageCopy> regions) {
-			unsafe {
-				fixed (VKBufferImageCopy* pRegions = regions) {
-					Device.VK10Functions.vkCmdCopyImageToBuffer(CommandBuffer, srcImage, srcLayout, dstBuffer, (uint)regions.Length, (IntPtr)pRegions);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyImageToBuffer(VKImage srcImage, VKImageLayout srcLayout, VKBuffer dstBuffer, params VKBufferImageCopy[] regions) {
 			unsafe {
 				fixed (VKBufferImageCopy* pRegions = regions) {
 					Device.VK10Functions.vkCmdCopyImageToBuffer(CommandBuffer, srcImage, srcLayout, dstBuffer, (uint)regions.Length, (IntPtr)pRegions);
@@ -378,15 +329,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColorImage(VKImage image, VKImageLayout imageLayout, in VKClearColorValue color, params VKImageSubresourceRange[] range) {
-			unsafe {
-				fixed (VKImageSubresourceRange* pRange = range) {
-					Device.VK10Functions.vkCmdClearColorImage(CommandBuffer, image, imageLayout, color, (uint)range.Length, (IntPtr)pRange);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearDepthStencilImage(VKImage image, VKImageLayout imageLayout, in VKClearDepthStencilValue depthStencil, VKImageSubresourceRange range) {
 			unsafe {
 				Device.VK10Functions.vkCmdClearDepthStencilImage(CommandBuffer, image, imageLayout, depthStencil, 1, (IntPtr)(&range));
@@ -395,15 +337,6 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearDepthStencilImage(VKImage image, VKImageLayout imageLayout, in VKClearDepthStencilValue depthStencil, in ReadOnlySpan<VKImageSubresourceRange> range) {
-			unsafe {
-				fixed (VKImageSubresourceRange* pRange = range) {
-					Device.VK10Functions.vkCmdClearDepthStencilImage(CommandBuffer, image, imageLayout, depthStencil, (uint)range.Length, (IntPtr)pRange);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepthStencilImage(VKImage image, VKImageLayout imageLayout, in VKClearDepthStencilValue depthStencil, params VKImageSubresourceRange[] range) {
 			unsafe {
 				fixed (VKImageSubresourceRange* pRange = range) {
 					Device.VK10Functions.vkCmdClearDepthStencilImage(CommandBuffer, image, imageLayout, depthStencil, (uint)range.Length, (IntPtr)pRange);
@@ -439,29 +372,20 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ResolveImage(VKImage srcImage, VKImageLayout srcImageLayout, VKImage dstImage, VKImageLayout dstImageLayout, params VKImageResolve[] regions) {
-			unsafe {
-				fixed (VKImageResolve* pRegions = regions) {
-					Device.VK10Functions.vkCmdResolveImage(CommandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, (uint)regions.Length, (IntPtr)pRegions);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetEvent(VKEvent _event, VKPipelineStageFlagBits stageMask) => Device.VK10Functions.vkCmdSetEvent(CommandBuffer, _event, stageMask);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ResetEvent(VKEvent _event, VKPipelineStageFlagBits stageMask) => Device.VK10Functions.vkCmdResetEvent(CommandBuffer, _event, stageMask);
 
-		public void WaitEvents(in ReadOnlySpan<VKEvent> events, VKPipelineStageFlagBits srcStageMask, VKPipelineStageFlagBits dstStageMask, in ReadOnlySpan<VKMemoryBarrier> memoryBarriers, in ReadOnlySpan<VKBufferMemoryBarrier> bufferMemoryBarriers, in ReadOnlySpan<VKImageMemoryBarrier> imageMemoryBarriers) {
-			Span<ulong> evts = stackalloc ulong[events.Length];
-			for (int i = 0; i < events.Length; i++) evts[i] = events[i];
+		public void WaitEvents(IReadOnlyList<VKEvent> events, VKPipelineStageFlagBits srcStageMask, VKPipelineStageFlagBits dstStageMask, in ReadOnlySpan<VKMemoryBarrier> memoryBarriers, in ReadOnlySpan<VKBufferMemoryBarrier> bufferMemoryBarriers, in ReadOnlySpan<VKImageMemoryBarrier> imageMemoryBarriers) {
+			Span<ulong> evts = stackalloc ulong[events.Count];
+			for (int i = 0; i < events.Count; i++) evts[i] = events[i];
 			unsafe {
 				fixed(ulong* pEvts = evts) {
 					fixed(VKMemoryBarrier* pMemBarrier = memoryBarriers) {
 						fixed(VKBufferMemoryBarrier* pBufMemBarrier = bufferMemoryBarriers) {
 							fixed(VKImageMemoryBarrier* pImgMemBarrier = imageMemoryBarriers) {
-								Device.VK10Functions.vkCmdWaitEvents(CommandBuffer, (uint)events.Length, (IntPtr)pEvts, srcStageMask, dstStageMask, (uint)memoryBarriers.Length, (IntPtr)pMemBarrier, (uint)bufferMemoryBarriers.Length, (IntPtr)pBufMemBarrier, (uint)imageMemoryBarriers.Length, (IntPtr)pImgMemBarrier);
+								Device.VK10Functions.vkCmdWaitEvents(CommandBuffer, (uint)events.Count, (IntPtr)pEvts, srcStageMask, dstStageMask, (uint)memoryBarriers.Length, (IntPtr)pMemBarrier, (uint)bufferMemoryBarriers.Length, (IntPtr)pBufMemBarrier, (uint)imageMemoryBarriers.Length, (IntPtr)pImgMemBarrier);
 							}
  						}
 					}
@@ -477,6 +401,20 @@ namespace Tesseract.Vulkan {
 						fixed (VKBufferMemoryBarrier* pBufMemBarrier = bufferMemoryBarriers) {
 							fixed (VKImageMemoryBarrier* pImgMemBarrier = imageMemoryBarriers) {
 								Device.VK10Functions.vkCmdWaitEvents(CommandBuffer, 1, (IntPtr)pEvts, srcStageMask, dstStageMask, (uint)memoryBarriers.Length, (IntPtr)pMemBarrier, (uint)bufferMemoryBarriers.Length, (IntPtr)pBufMemBarrier, (uint)imageMemoryBarriers.Length, (IntPtr)pImgMemBarrier);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		public void WaitEvents(in ReadOnlySpan<ulong> events, VKPipelineStageFlagBits srcStageMask, VKPipelineStageFlagBits dstStageMask, in ReadOnlySpan<VKMemoryBarrier> memoryBarriers, in ReadOnlySpan<VKBufferMemoryBarrier> bufferMemoryBarriers, in ReadOnlySpan<VKImageMemoryBarrier> imageMemoryBarriers) {
+			unsafe {
+				fixed (ulong* pEvts = events) {
+					fixed (VKMemoryBarrier* pMemBarrier = memoryBarriers) {
+						fixed (VKBufferMemoryBarrier* pBufMemBarrier = bufferMemoryBarriers) {
+							fixed (VKImageMemoryBarrier* pImgMemBarrier = imageMemoryBarriers) {
+								Device.VK10Functions.vkCmdWaitEvents(CommandBuffer, (uint)events.Length, (IntPtr)pEvts, srcStageMask, dstStageMask, (uint)memoryBarriers.Length, (IntPtr)pMemBarrier, (uint)bufferMemoryBarriers.Length, (IntPtr)pBufMemBarrier, (uint)imageMemoryBarriers.Length, (IntPtr)pImgMemBarrier);
 							}
 						}
 					}
@@ -549,9 +487,9 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		public void ExecuteCommands(in ReadOnlySpan<VKCommandBuffer> commandBuffers) {
-			Span<IntPtr> cmdbufs = stackalloc IntPtr[commandBuffers.Length];
-			for (int i = 0; i < commandBuffers.Length; i++) cmdbufs[i] = commandBuffers[i];
+		public void ExecuteCommands(IReadOnlyList<VKCommandBuffer> commandBuffers) {
+			Span<IntPtr> cmdbufs = stackalloc IntPtr[commandBuffers.Count];
+			for (int i = 0; i < commandBuffers.Count; i++) cmdbufs[i] = commandBuffers[i];
 			unsafe {
 				fixed (IntPtr* pCmdBufs = cmdbufs) {
 					Device.VK10Functions.vkCmdExecuteCommands(CommandBuffer, (uint)cmdbufs.Length, (IntPtr)pCmdBufs);
@@ -565,6 +503,15 @@ namespace Tesseract.Vulkan {
 			unsafe {
 				fixed (IntPtr* pCmdBufs = cmdbufs) {
 					Device.VK10Functions.vkCmdExecuteCommands(CommandBuffer, (uint)cmdbufs.Length, (IntPtr)pCmdBufs);
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteCommands(in ReadOnlySpan<IntPtr> commandBuffers) {
+			unsafe {
+				fixed (IntPtr* pCmdBufs = commandBuffers) {
+					Device.VK10Functions.vkCmdExecuteCommands(CommandBuffer, (uint)commandBuffers.Length, (IntPtr)pCmdBufs);
 				}
 			}
 		}
@@ -609,15 +556,6 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetViewportWithCountEXT(params VKViewport[] viewports) {
-			unsafe {
-				fixed (VKViewport* pViewports = viewports) {
-					Device.EXTExtendedDynamicState!.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)viewports.Length, (IntPtr)pViewports);
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetScissorWithCountEXT(in ReadOnlySpan<VKRect2D> scissors) {
 			unsafe {
 				fixed (VKRect2D* pScissors = scissors) {
@@ -626,17 +564,8 @@ namespace Tesseract.Vulkan {
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetScissorWithCountEXT(params VKRect2D[] scissors) {
-			unsafe {
-				fixed (VKRect2D* pScissors = scissors) {
-					Device.EXTExtendedDynamicState!.vkCmdSetViewportWithCountEXT(CommandBuffer, (uint)scissors.Length, (IntPtr)pScissors);
-				}
-			}
-		}
-
-		public void BindVertexBuffers2EXT(uint firstBinding, in ReadOnlySpan<VKBuffer> buffers, in ReadOnlySpan<ulong> offsets, in ReadOnlySpan<ulong> sizes, in ReadOnlySpan<ulong> strides) {
-			uint n = (uint)ExMath.Min(buffers.Length, offsets.Length, sizes.Length, strides.Length);
+		public void BindVertexBuffers2EXT(uint firstBinding, IReadOnlyList<VKBuffer> buffers, in ReadOnlySpan<ulong> offsets, in ReadOnlySpan<ulong> sizes, in ReadOnlySpan<ulong> strides) {
+			uint n = (uint)ExMath.Min(buffers.Count, offsets.Length, sizes.Length, strides.Length);
 			Span<ulong> bufs = stackalloc ulong[(int)n];
 			for (int i = 0; i < n; i++) bufs[i] = buffers[i];
 			unsafe {

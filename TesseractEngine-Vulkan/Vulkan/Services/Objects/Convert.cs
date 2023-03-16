@@ -689,8 +689,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 					StencilTestEnable = dynInfo.StencilTestEnable,
 					Front = Convert(dynInfo.FrontStencilState),
 					Back = Convert(dynInfo.BackStencilState),
-					MinDepthBounds = dynInfo.DepthBounds.Item1,
-					MaxDepthBounds = dynInfo.DepthBounds.Item2
+					MinDepthBounds = dynInfo.DepthBounds.Min,
+					MaxDepthBounds = dynInfo.DepthBounds.Max
 				}),
 				ColorBlendState = sp.Values(new VKPipelineColorBlendStateCreateInfo() {
 					Type = VKStructureType.PipelineColorBlendStateCreateInfo,
@@ -728,23 +728,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			Extent = region.Size
 		};
 
-		public static VKClearColorValue Convert(ICommandSink.ClearColorValue value) {
-			VKClearColorValue vkvalue = new();
-			if (value.Format.IsNumberFormatNormalized) vkvalue.Float32 = value.Float32;
-			else {
-				switch(value.Format.NumberFormat) {
-					case ChannelNumberFormat.SignedInt:
-						vkvalue.Int32 = value.Int32;
-						break;
-					case ChannelNumberFormat.UnsignedInt:
-						vkvalue.UInt32 = value.UInt32;
-						break;
-					default:
-						break;
-				}
-			}
-			return vkvalue;
-		}
+		public static VKClearColorValue Convert(ICommandSink.ClearColorValue value) => new() { Float32 = value.AsFloat32 };
 
 		public static VKClearValue Convert(ICommandSink.ClearValue value) {
 			VKClearValue vkvalue = new();
@@ -756,14 +740,23 @@ namespace Tesseract.Vulkan.Services.Objects {
 			return vkvalue;
 		}
 
-		public static VKRenderPassBeginInfo Convert(MemoryStack sp, ICommandSink.RenderPassBegin begin) => new() {
-			Type = VKStructureType.RenderPassBeginInfo,
-			RenderPass = ((VulkanRenderPass)begin.RenderPass).RenderPass,
-			RenderArea = begin.RenderArea,
-			Framebuffer = ((VulkanFramebuffer)begin.Framebuffer).Framebuffer,
-			ClearValueCount = (uint)begin.ClearValues.Length,
-			ClearValues = sp.Values<VKClearValue>(begin.ClearValues.ConvertAll(Convert))
-		};
+		public static VKRenderPassBeginInfo Convert(MemoryStack sp, ICommandSink.RenderPassBegin begin) {
+			VulkanRenderPass renderPass = (VulkanRenderPass)begin.RenderPass;
+			UnmanagedPointer<VKClearValue> clearValues = default;
+			int clearValuesCount = begin.ClearValues.Count;
+			if (clearValuesCount > 0) {
+				clearValues = sp.Alloc<VKClearValue>(clearValuesCount);
+				for (int i = 0; i < clearValuesCount; i++) clearValues[i] = Convert(begin.ClearValues[i]);
+			}
+			return new() {
+				Type = VKStructureType.RenderPassBeginInfo,
+				RenderPass = renderPass.RenderPass,
+				RenderArea = begin.RenderArea,
+				Framebuffer = ((VulkanFramebuffer)begin.Framebuffer).Framebuffer,
+				ClearValueCount = (uint)begin.ClearValues.Count,
+				ClearValues = clearValues
+			};
+		}
 
 		public static VKBufferImageCopy Convert(ICommandSink.CopyBufferTexture copy) => new() {
 			BufferOffset = copy.BufferOffset,

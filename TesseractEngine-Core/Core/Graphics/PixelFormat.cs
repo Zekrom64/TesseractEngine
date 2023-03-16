@@ -91,7 +91,7 @@ namespace Tesseract.Core.Graphics {
 	/// <summary>
 	/// A pixel format channel 
 	/// </summary>
-	public struct PixelChannel : IEquatable<PixelChannel> {
+	public readonly struct PixelChannel : IEquatable<PixelChannel> {
 
 		/// <summary>
 		/// The type of this channel.
@@ -207,6 +207,16 @@ namespace Tesseract.Core.Graphics {
 		/// If the number format is normalized.
 		/// </summary>
 		public bool IsNumberFormatNormalized => NumberFormat == ChannelNumberFormat.UnsignedNorm || NumberFormat == ChannelNumberFormat.SignedNorm;
+
+		/// <summary>
+		/// If the number format is sampled as a floating-point number.
+		/// </summary>
+		public bool IsNumberFormatSampledFloating => NumberFormat != ChannelNumberFormat.Undefined && NumberFormat != ChannelNumberFormat.UnsignedInt && NumberFormat != ChannelNumberFormat.SignedInt;
+
+		/// <summary>
+		/// If the number format is unsigned.
+		/// </summary>
+		public bool IsNumberFormatUnsigned => NumberFormat == ChannelNumberFormat.UnsignedFloat || NumberFormat == ChannelNumberFormat.UnsignedInt || NumberFormat == ChannelNumberFormat.UnsignedNorm || NumberFormat == ChannelNumberFormat.UnsignedScaled;
 
 		private const int MaxChannels = 8;
 

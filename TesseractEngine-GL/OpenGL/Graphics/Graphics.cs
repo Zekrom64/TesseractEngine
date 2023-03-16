@@ -20,15 +20,43 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IGLContext Context => Provider.Context;
 
+		/// <summary>
+		/// The OpenGL API instance.
+		/// </summary>
 		public GL GL => Provider.GL;
 
+		/// <summary>
+		/// The provider for this graphics instance.
+		/// </summary>
 		public GLGraphicsProvider Provider { get; }
 
+		/// <summary>
+		/// The OpenGL state manager.
+		/// </summary>
 		public GLState State { get; }
 
+		/// <summary>
+		/// The OpenGL interface, provides abstracted function definitions.
+		/// </summary>
 		public GLInterface Interface { get; }
 
+		// The command sink for immediate submission
 		private readonly GLCommandSink immediateCommandSink;
+
+		/// <summary>
+		/// A 'transient' framebuffer which is a shared source to perform some operations.
+		/// </summary>
+		public uint TransientFramebufferSrc { get; }
+
+		/// <summary>
+		/// A 'transient' framebuffer which is a shared destination to perform some operations.
+		/// </summary>
+		public uint TransientFramebufferDst { get; }
+
+		/// <summary>
+		/// A 'transient' framebuffer which is shared to perform dynamic rendering.
+		/// </summary>
+		public uint TransientFramebufferDynamic { get; }
 
 		public GLGraphics(GLGraphicsProvider provider, GraphicsCreateInfo createInfo) {
 			Provider = provider;
@@ -40,6 +68,9 @@ namespace Tesseract.OpenGL.Graphics {
 			Features = new GLGraphicsFeatures(GL, hwfeatures);
 
 			immediateCommandSink = new GLCommandSink(this);
+			TransientFramebufferSrc = Interface.CreateFramebuffer();
+			TransientFramebufferDst = Interface.CreateFramebuffer();
+			TransientFramebufferDynamic = Interface.CreateFramebuffer();
 		}
 
 		public IBuffer CreateBuffer(BufferCreateInfo createInfo) => new GLBuffer(this, createInfo);
@@ -100,6 +131,20 @@ namespace Tesseract.OpenGL.Graphics {
 		public void WaitIdle() {
 			GL.GL11.Finish();
 		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			GL.GL33!.DeleteFramebuffers(TransientFramebufferSrc);
+			GL.GL33!.DeleteFramebuffers(TransientFramebufferDst);
+			GL.GL33!.DeleteFramebuffers(TransientFramebufferDynamic);
+		}
+
+		internal void SetAttachmentsForAspect(uint fbo, IGLTexture texture, TextureAspect aspect, int mipLevel, int arrayLayer) {
+			if ((aspect & TextureAspect.Color) != 0) Interface.FramebufferTexture(fbo, GLFramebufferAttachment.Color0, texture, mipLevel, arrayLayer);
+			if ((aspect & TextureAspect.Depth) != 0) Interface.FramebufferTexture(fbo, GLFramebufferAttachment.Depth, texture, mipLevel, arrayLayer);
+			if ((aspect & TextureAspect.Stencil) != 0) Interface.FramebufferTexture(fbo, GLFramebufferAttachment.Stencil, texture, mipLevel, arrayLayer);
+		}
+
 	}
 
 }

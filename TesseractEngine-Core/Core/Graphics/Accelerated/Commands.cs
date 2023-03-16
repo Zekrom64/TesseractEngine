@@ -59,7 +59,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="firstViewport">The index of the viewport in multi-view rendering</param>
 		/// <seealso cref="SetViewports(in ReadOnlySpan{Viewport}, uint)"/>
 		/// <seealso cref="SetViewports(uint, Viewport[])"/>
-		public void SetViewport(Viewport viewport, uint firstViewport = 0);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetViewport(Viewport viewport, uint firstViewport = 0) => SetViewports(stackalloc Viewport[] { viewport }, firstViewport);
 
 		/// <summary>
 		/// Sets the given viewports on the currently bound pipeline.
@@ -72,22 +73,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public void SetViewports(in ReadOnlySpan<Viewport> viewports, uint firstViewport = 0);
 
 		/// <summary>
-		/// Sets the given viewports on the currently bound pipeline.
-		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
-		/// </summary>
-		/// <param name="viewports">Viewports to set</param>
-		/// <param name="firstViewport">The index of the first viewport in multi-view rendering</param>
-		/// <seealso cref="SetViewport(in Viewport, uint)"/>
-		/// <seealso cref="SetViewports(in ReadOnlySpan{Viewport}, uint)"/>
-		public void SetViewports(uint firstViewport, params Viewport[] viewports) => SetViewports(viewports, firstViewport);
-
-		/// <summary>
 		/// Sets the given scissor on the currently bound pipeline.
 		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
 		/// </summary>
 		/// <param name="scissor">Scissor area to set</param>
 		/// <param name="firstScissor">The index of the scissor in multi-view rendering</param>
-		public void SetScissor(Recti scissor, uint firstScissor = 0);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetScissor(Recti scissor, uint firstScissor = 0) => SetScissors(stackalloc Recti[] { scissor }, firstScissor);
 
 		/// <summary>
 		/// Sets the given scissors on the currently bound pipeline.
@@ -96,14 +88,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="scissors">Scissor areas to set</param>
 		/// <param name="firstScissor">The index of the first scissor in multi-view rendering</param>
 		public void SetScissors(in ReadOnlySpan<Recti> scissors, uint firstScissor = 0);
-
-		/// <summary>
-		/// Sets the given scissors on the currently bound pipeline.
-		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
-		/// </summary>
-		/// <param name="scissors">Scissor areas to set</param>
-		/// <param name="firstScissor">The index of the first scissor in multi-view rendering</param>
-		public void SetScissors(uint firstScissor, params Recti[] scissors) => SetScissors(scissors, firstScissor);
 
 		/// <summary>
 		/// Sets the line width of the currently bound pipeline.
@@ -217,13 +201,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors);
 
 		/// <summary>
-		/// Sets the number of and values for scissors on the currently bound pipeline.
-		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
-		/// </summary>
-		/// <param name="scissors">Scissor areas to set</param>
-		public void SetScissorsWithCount(params Recti[] scissors) => SetScissorsWithCount(scissors.AsSpan());
-
-		/// <summary>
 		/// Sets the stencil operation values for the given stencil faces on the currently bound pipeline.
 		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
 		/// </summary>
@@ -247,13 +224,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="viewports">Viewport areas to set</param>
 		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports);
-
-		/// <summary>
-		/// Sets the number of and values for viewports on the currently bound pipeline.
-		/// This operation is only supported if the current pipeline was created with the corresponding dynamic state.
-		/// </summary>
-		/// <param name="viewports">Viewport areas to set</param>
-		public void SetViewportsWithCount(params Viewport[] viewports) => SetViewportsWithCount(viewports.AsSpan());
 
 		/// <summary>
 		/// Sets if depth biasing is enabled on the currently bound pipeline.
@@ -321,8 +291,25 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="bindPoint">The binding point, determined by the current pipeline's type</param>
 		/// <param name="layout">The current pipeline's layout</param>
+		/// <param name="set">The set to bind</param>
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IBindSet set);
+
+		/// <summary>
+		/// Binds a set of resources described by a list of bind sets to the current pipeline.
+		/// </summary>
+		/// <param name="bindPoint">The binding point, determined by the current pipeline's type</param>
+		/// <param name="layout">The current pipeline's layout</param>
 		/// <param name="sets">The list of sets to bind</param>
-		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets) => BindResources(bindPoint, layout, (IReadOnlyList<IBindSet>)sets);
+
+		/// <summary>
+		/// Binds a set of resources described by a list of bind sets to the current pipeline.
+		/// </summary>
+		/// <param name="bindPoint">The binding point, determined by the current pipeline's type</param>
+		/// <param name="layout">The current pipeline's layout</param>
+		/// <param name="sets">The list of sets to bind</param>
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IReadOnlyList<IBindSet> sets);
 
 		//=============//
 		// Dispatching //
@@ -341,6 +328,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Draws vertices based on the current binding state.
 		/// </summary>
 		/// <param name="drawParams">Parameters to use for drawing</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Draw(DrawParams drawParams) => Draw(drawParams.VertexCount, drawParams.InstanceCount, drawParams.FirstInstance, drawParams.FirstInstance);
 
 		/// <summary>
@@ -357,6 +345,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Draws indexed vertices based on the current binding state.
 		/// </summary>
 		/// <param name="drawParams">Parameters to use for drawing</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DrawIndexed(DrawIndexedParams drawParams) => DrawIndexed(drawParams.IndexCount, drawParams.InstanceCount, drawParams.FirstIndex, drawParams.VertexOffset, drawParams.FirstInstance);
 
 		/// <summary>
@@ -402,17 +391,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// Byte offset of the region in the source buffer.
 			/// </summary>
-			public nuint SrcOffset { get; init; }
+			public nuint SrcOffset { get; init; } = 0;
 
 			/// <summary>
 			/// Byte offset of the region in the destination buffer.
 			/// </summary>
-			public nuint DstOffset { get; init; }
+			public nuint DstOffset { get; init; } = 0;
 
 			/// <summary>
 			/// Byte length of the region.
 			/// </summary>
 			public required nuint Length { get; init; }
+
+			public CopyBufferRegion() { }
 
 		}
 
@@ -423,24 +414,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="src">Source buffer</param>
 		/// <param name="regions">Regions to copy</param>
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ReadOnlySpan<CopyBufferRegion> regions);
-
-		/// <summary>
-		/// Copies regions from the source buffer to the destination buffer.
-		/// </summary>
-		/// <param name="dst">Destination buffer</param>
-		/// <param name="src">Source buffer</param>
-		/// <param name="regions">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBuffer(IBuffer dst, IBuffer src, params CopyBufferRegion[] regions) => CopyBuffer(dst, src, new ReadOnlySpan<CopyBufferRegion>(regions));
-
-		/// <summary>
-		/// Copies regions from the source buffer to the destination buffer.
-		/// </summary>
-		/// <param name="dst">Destination buffer</param>
-		/// <param name="src">Source buffer</param>
-		/// <param name="regions">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBuffer(IBuffer dst, IBuffer src, IEnumerable<CopyBufferRegion> regions) => CopyBuffer(dst, src, regions.ToArray());
 
 		/// <summary>
 		/// Copies a region of the source buffer to the destination buffer.
@@ -459,7 +432,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The source offset in pixels.
 			/// </summary>
-			public Vector3ui SrcOffset { get; init; }
+			public Vector3ui SrcOffset { get; init; } = Vector3ui.Zero;
 
 			/// <summary>
 			/// The source subresource layers.
@@ -469,7 +442,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The destination offset in pixels.
 			/// </summary>
-			public Vector3ui DstOffset { get; init; }
+			public Vector3ui DstOffset { get; init; } = Vector3ui.Zero;
 
 			/// <summary>
 			/// The destination subresource layers.
@@ -486,6 +459,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// </summary>
 			public required TextureAspect Aspect { get; init; }
 
+			public CopyTextureRegion() { }
+
 		}
 
 		/// <summary>
@@ -499,30 +474,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<CopyTextureRegion> regions);
 
 		/// <summary>
-		/// Copies a set of texture regions from a source to a destination texture.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current layout of the destination texture</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current layout of the source texture</param>
-		/// <param name="regions">Texture regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
-			CopyTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
-
-		/// <summary>
-		/// Copies a set of texture regions from a source to a destination texture.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current layout of the destination texture</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current layout of the source texture</param>
-		/// <param name="regions">Texture regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, IEnumerable<CopyTextureRegion> regions) =>
-			CopyTexture(dst, dstLayout, src, srcLayout, regions.ToArray());
-
-		/// <summary>
 		/// Copies a texture region from a source to a destination texture.
 		/// </summary>
 		/// <param name="dst">Destination texture</param>
@@ -531,8 +482,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="srcLayout">Current layout of the source texture</param>
 		/// <param name="copy">Texture region to copy</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion copy) =>
-			CopyTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { copy });
+		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion copy) => CopyTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { copy });
 
 		/// <summary>
 		/// A descriptor for a region to "blit" (copy potentially performing scaling/conversion) between textures.
@@ -542,7 +492,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The offset defining the first corner of the source region to copy.
 			/// </summary>
-			public Vector3ui SrcOffset0 { get; init; }
+			public Vector3ui SrcOffset0 { get; init; } = Vector3ui.Zero;
 
 			/// <summary>
 			/// The offset defining the second corner of the source region to copy.
@@ -552,12 +502,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The source mip level to copy from.
 			/// </summary>
-			public uint SrcLevel { get; init; }
+			public uint SrcLevel { get; init; } = 0;
 
 			/// <summary>
 			/// The offset defining the first corner of the destination region.
 			/// </summary>
-			public Vector3ui DstOffset0 { get; init; }
+			public Vector3ui DstOffset0 { get; init; } = Vector3ui.Zero;
 
 			/// <summary>
 			/// The offset defining the second corner of the destination region.
@@ -567,12 +517,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The destination mip level to copy to.
 			/// </summary>
-			public uint DstLevel { get; init; }
+			public uint DstLevel { get; init; } = 0;
 
 			/// <summary>
 			/// A bitmask of texture aspects to copy.
 			/// </summary>
 			public required TextureAspect Aspect { get; init; }
+
+			public BlitTextureRegion() { }
 
 		}
 
@@ -595,36 +547,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="src">Source texture</param>
 		/// <param name="srcLayout">Current source texture layout</param>
 		/// <param name="filter">Filtering to apply if scaling is performed</param>
-		/// <param name="regions">Texture regions to blit</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, params BlitTextureRegion[] regions) =>
-			BlitTexture(dst, dstLayout, src, srcLayout, filter, new ReadOnlySpan<BlitTextureRegion>(regions));
-
-		/// <summary>
-		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
-		/// </summary>
-		/// <param name="dst">Desintation texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="filter">Filtering to apply if scaling is performed</param>
-		/// <param name="regions">Texture regions to blit</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, IEnumerable<BlitTextureRegion> regions) =>
-			BlitTexture(dst, dstLayout, src, srcLayout, filter, regions.ToArray());
-
-		/// <summary>
-		/// Performs a "blit" (block transfer) between textures, potentially performing scaling or format conversion.
-		/// </summary>
-		/// <param name="dst">Desintation texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="filter">Filtering to apply if scaling is performed</param>
 		/// <param name="blit">Texture region to blit</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in BlitTextureRegion blit) =>
-			BlitTexture(dst, dstLayout, src, srcLayout, filter, stackalloc BlitTextureRegion[] { blit });
+		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in BlitTextureRegion blit) => BlitTexture(dst, dstLayout, src, srcLayout, filter, stackalloc BlitTextureRegion[] { blit });
 
 		/// <summary>
 		/// A descriptor for a copy between a texture and a buffer.
@@ -634,24 +559,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The offset to perform the copy at in the buffer.
 			/// </summary>
-			public nuint BufferOffset { get; init; }
+			public nuint BufferOffset { get; init; } = 0;
 
 			/// <summary>
 			/// The number of pixels between rows of a larger image in the buffer, or 0 to indicate that the row length
 			/// is equal to the texture width.
 			/// </summary>
-			public uint BufferRowLength { get; init; }
+			public uint BufferRowLength { get; init; } = 0;
 
 			/// <summary>
 			/// The number of pixels between layers of a larger image in the buffer, or 0 to indicate that the image height
 			/// is equal to the texture height.
 			/// </summary>
-			public uint BufferImageHeight { get; init; }
+			public uint BufferImageHeight { get; init; } = 0;
 
 			/// <summary>
 			/// The offset of the copy region in the texture.
 			/// </summary>
-			public Vector3ui TextureOffset { get; init; }
+			public Vector3ui TextureOffset { get; init; } = Vector3ui.Zero;
 
 			/// <summary>
 			/// The size of the copy region in the texture.
@@ -662,6 +587,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// The subresource to be copied in the texture.
 			/// </summary>
 			public required TextureSubresourceLayers TextureSubresource { get; init; }
+
+			public CopyBufferTexture() { }
 
 		}
 
@@ -680,32 +607,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination texture</param>
 		/// <param name="dstLayout">Current destination texture layout</param>
 		/// <param name="src">Source buffer</param>
-		/// <param name="copies">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, params CopyBufferTexture[] copies) =>
-			CopyBufferToTexture(dst, dstLayout, src, new ReadOnlySpan<CopyBufferTexture>(copies));
-
-		/// <summary>
-		/// Copies pixels from a buffer to a texture.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source buffer</param>
-		/// <param name="copies">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, IEnumerable<CopyBufferTexture> copies) =>
-			CopyBufferToTexture(dst, dstLayout, src, copies.ToArray());
-
-		/// <summary>
-		/// Copies pixels from a buffer to a texture.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source buffer</param>
 		/// <param name="copy">Region to copy</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in CopyBufferTexture copy) =>
-			CopyBufferToTexture(dst, dstLayout, src, stackalloc CopyBufferTexture[] { copy });
+		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in CopyBufferTexture copy) => CopyBufferToTexture(dst, dstLayout, src, stackalloc CopyBufferTexture[] { copy });
 
 		/// <summary>
 		/// Copies pixels from texture to a buffer.
@@ -722,32 +626,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination buffer</param>
 		/// <param name="src">Source texture</param>
 		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="copies">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, params CopyBufferTexture[] copies) =>
-			CopyTextureToBuffer(dst, src, srcLayout, new ReadOnlySpan<CopyBufferTexture>(copies));
-
-		/// <summary>
-		/// Copies pixels from texture to a buffer.
-		/// </summary>
-		/// <param name="dst">Destination buffer</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="copies">Regions to copy</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, IEnumerable<CopyBufferTexture> copies) =>
-			CopyTextureToBuffer(dst, src, srcLayout, copies.ToArray());
-
-		/// <summary>
-		/// Copies pixels from texture to a buffer.
-		/// </summary>
-		/// <param name="dst">Destination buffer</param>
-		/// <param name="src">Source texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
 		/// <param name="copy">Region to copy</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in CopyBufferTexture copy) =>
-			CopyTextureToBuffer(dst, src, srcLayout, stackalloc CopyBufferTexture[] { copy });
+		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in CopyBufferTexture copy) => CopyTextureToBuffer(dst, src, srcLayout, stackalloc CopyBufferTexture[] { copy });
 
 		/// <summary>
 		/// Updates a region of a buffer with the supplied data. The supplied data is recorded with the command stream
@@ -812,29 +693,43 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data);
 
 		/// <summary>
-		/// A color value used for clearing attachments.
+		/// A color value used for clearing attachments. Note that this structure acts as a
+		/// bitwise union of different datatypes, and the intended representation is determined
+		/// by the color format of the texture/framebuffer attachment it is used with.
 		/// </summary>
-		public readonly struct ClearColorValue {
+		public struct ClearColorValue {
+
+			private Vector4 data;
 
 			/// <summary>
-			/// The format of the clear value.
+			/// The float components of the clear value.
 			/// </summary>
-			public required PixelFormat Format { get; init; }
+			public Vector4 AsFloat32 {
+				get => data;
+				set => data = value;
+			}
 
 			/// <summary>
-			/// The float components of the clear value, may be uninitialized if unused.
+			/// The signed integer components of the clear value.
 			/// </summary>
-			public Vector4 Float32 { get; init; }
+			public Vector4i AsInt32 {
+				get => MemoryUtil.BitwiseCast<Vector4, Vector4i>(data);
+				set => data = MemoryUtil.BitwiseCast<Vector4i, Vector4>(value);
+			}
 
 			/// <summary>
-			/// The signed integer components of the clear value, may be uninitialized if unused.
+			/// The unsigned integer components of the clear value.
 			/// </summary>
-			public Vector4i Int32 { get; init; }
+			public Vector4ui AsUInt32 {
+				get => MemoryUtil.BitwiseCast<Vector4, Vector4ui>(data);
+				set => data = MemoryUtil.BitwiseCast<Vector4ui, Vector4>(value);
+			}
 
-			/// <summary>
-			/// The unsigned integer components of the clear value, may be uninitialized if unused.
-			/// </summary>
-			public Vector4ui UInt32 { get; init; }
+			public static implicit operator ClearColorValue(Vector4 value) => new() { AsFloat32 = value };
+
+			public static implicit operator ClearColorValue(Vector4i value) => new() { AsInt32 = value };
+
+			public static implicit operator ClearColorValue(Vector4ui value) => new() { AsUInt32 = value };
 
 		}
 
@@ -853,32 +748,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dst">Destination texture</param>
 		/// <param name="dstLayout">Current destination texture layout</param>
 		/// <param name="color">The color value to clear to</param>
-		/// <param name="regions">The regions of the texture to clear</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, params TextureSubresourceRange[] regions) =>
-			ClearColorTexture(dst, dstLayout, color, new ReadOnlySpan<TextureSubresourceRange>(regions));
-
-		/// <summary>
-		/// Clears parts of the specified color texture to a constant value.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="color">The color value to clear to</param>
-		/// <param name="regions">The regions of the texture to clear</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, IEnumerable<TextureSubresourceRange> regions) =>
-			ClearColorTexture(dst, dstLayout, color, regions.ToArray());
-
-		/// <summary>
-		/// Clears parts of the specified color texture to a constant value.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="color">The color value to clear to</param>
 		/// <param name="region">The region of the texture to clear</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region) =>
-			ClearColorTexture(dst, dstLayout, color, stackalloc TextureSubresourceRange[] { region });
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ClearColorValue color, in TextureSubresourceRange region) => ClearColorTexture(dst, dstLayout, color, stackalloc TextureSubresourceRange[] { region });
 
 		/// <summary>
 		/// Clears parts of the specified depth/stencil texture to a constant value.
@@ -897,34 +769,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dstLayout">Current destination texture layout</param>
 		/// <param name="depth">The depth value to clear to</param>
 		/// <param name="stencil">The stencil value to clear to</param>
-		/// <param name="regions">The regions of the texture to clear</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, params TextureSubresourceRange[] regions) =>
-			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, new ReadOnlySpan<TextureSubresourceRange>(regions));
-
-		/// <summary>
-		/// Clears parts of the specified depth/stencil texture to a constant value.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="depth">The depth value to clear to</param>
-		/// <param name="stencil">The stencil value to clear to</param>
-		/// <param name="regions">The regions of the texture to clear</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, IEnumerable<TextureSubresourceRange> regions) =>
-			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, regions.ToArray());
-
-		/// <summary>
-		/// Clears parts of the specified depth/stencil texture to a constant value.
-		/// </summary>
-		/// <param name="dst">Destination texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="depth">The depth value to clear to</param>
-		/// <param name="stencil">The stencil value to clear to</param>
 		/// <param name="region">The region of the texture to clear</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) =>
-			ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) => ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
 
 		/// <summary>
 		/// A generic clear value for clearing attachments.
@@ -983,48 +830,39 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The base array layer of the attachment to clear.
 			/// </summary>
-			public uint BaseArrayLayer { get; init; }
+			public uint BaseArrayLayer { get; init; } = 0;
 
 			/// <summary>
 			/// The number of array layers within the attachment to clear, or 0 to clear just one.
 			/// </summary>
-			public uint LayerCount { get; init; }
+			public uint LayerCount { get; init; } = 0;
+
+			public ClearRect() { }
 
 		}
 
 		/// <summary>
-		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// Clears the set of specified attachments in the framebuffer currently used for rendering.
 		/// </summary>
 		/// <param name="values">Attachment clear values</param>
 		/// <param name="regions">Attachment clear regions</param>
 		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ReadOnlySpan<ClearRect> regions);
 
 		/// <summary>
-		/// Clears the set of specified attachments in the attachment set currently used for rendering.
-		/// </summary>
-		/// <param name="values">Attachment clear values</param>
-		/// <param name="regions">Attachment clear regions</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, params ClearRect[] regions) =>
-			ClearAttachments(values, new ReadOnlySpan<ClearRect>(regions));
-
-		/// <summary>
-		/// Clears the set of specified attachments in the attachment set currently used for rendering.
-		/// </summary>
-		/// <param name="values">Attachment clear values</param>
-		/// <param name="regions">Attachment clear regions</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, IEnumerable<ClearRect> regions) =>
-			ClearAttachments(values, regions.ToArray());
-
-		/// <summary>
-		/// Clears the set of specified attachments in the attachment set currently used for rendering.
+		/// Clears the set of specified attachments in the framebuffer currently used for rendering.
 		/// </summary>
 		/// <param name="values">Attachment clear values</param>
 		/// <param name="region">Attachment clear region</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region) =>
-			ClearAttachments(values, stackalloc ClearRect[] { region });
+		public void ClearAttachments(in ReadOnlySpan<ClearAttachment> values, in ClearRect region) => ClearAttachments(values, stackalloc ClearRect[] { region });
+
+		/// <summary>
+		/// Clears the set of specified attachments in the framebuffer currently used for rendering.
+		/// </summary>
+		/// <param name="value">Attachment clear value</param>
+		/// <param name="region">Attachment clear region</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ClearAttachments(in ClearAttachment value, in ClearRect region) => ClearAttachments(stackalloc ClearAttachment[] { value }, stackalloc ClearRect[] { region });
 
 		/// <summary>
 		/// Resolves the contents of a multisample texture to a regular texture.
@@ -1043,34 +881,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="dstLayout">Current destination texture layout</param>
 		/// <param name="src">Source multisample texture</param>
 		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="regions">Texture regions to resolve</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, params CopyTextureRegion[] regions) =>
-			ResolveTexture(dst, dstLayout, src, srcLayout, new ReadOnlySpan<CopyTextureRegion>(regions));
-
-		/// <summary>
-		/// Resolves the contents of a multisample texture to a regular texture.
-		/// </summary>
-		/// <param name="dst">Desintation texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source multisample texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
-		/// <param name="regions">Texture regions to resolve</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, IEnumerable<CopyTextureRegion> regions) =>
-			ResolveTexture(dst, dstLayout, src, srcLayout, regions.ToArray());
-
-		/// <summary>
-		/// Resolves the contents of a multisample texture to a regular texture.
-		/// </summary>
-		/// <param name="dst">Desintation texture</param>
-		/// <param name="dstLayout">Current destination texture layout</param>
-		/// <param name="src">Source multisample texture</param>
-		/// <param name="srcLayout">Current source texture layout</param>
 		/// <param name="region">Texture region to resolve</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region) =>
-			ResolveTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { region });
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in CopyTextureRegion region) => ResolveTexture(dst, dstLayout, src, srcLayout, stackalloc CopyTextureRegion[] { region });
 
 		/// <summary>
 		/// Generates mipmap levels for a texture using the first mip level. The filtering method for minifying the texture images may
@@ -1123,88 +936,88 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// A generic global memory barrier descriptor.
 		/// </summary>
-		public struct MemoryBarrier {
+		public readonly struct MemoryBarrier {
 
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public required MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; init; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public required MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; init; }
 
 		}
 
 		/// <summary>
 		/// A memory barrier descriptor for the contents of a buffer object.
 		/// </summary>
-		public struct BufferMemoryBarrier {
+		public readonly struct BufferMemoryBarrier {
 
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public required MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; init; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public required MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; init; }
 
 			/// <summary>
 			/// The buffer whose contents are the subject of the barrier.
 			/// </summary>
-			public required IBuffer Buffer { get; set; }
+			public required IBuffer Buffer { get; init; }
 
 			/// <summary>
 			/// The range of memory in the buffer subject to the barrier.
 			/// </summary>
-			public required MemoryRange Range { get; set; }
+			public required MemoryRange Range { get; init; }
 
 		}
 
 		/// <summary>
 		/// A memory barrier descriptor for the contents of a texture object.
 		/// </summary>
-		public struct TextureMemoryBarrier {
+		public readonly struct TextureMemoryBarrier {
 
 			/// <summary>
 			/// Bitmask of memory accesses that must occur before the barrier.
 			/// </summary>
-			public required MemoryAccess ProvokingAccess { get; set; }
+			public required MemoryAccess ProvokingAccess { get; init; }
 
 			/// <summary>
 			/// Bitmask of memory access that must occur after the barrier.
 			/// </summary>
-			public required MemoryAccess AwaitingAccess { get; set; }
+			public required MemoryAccess AwaitingAccess { get; init; }
 
 			/// <summary>
 			/// The layout of the texture before the barrier.
 			/// </summary>
-			public required TextureLayout OldLayout { get; set; }
+			public required TextureLayout OldLayout { get; init; }
 
 			/// <summary>
 			/// The layout to assign to the texture after the barrier.
 			/// </summary>
-			public required TextureLayout NewLayout { get; set; }
+			public required TextureLayout NewLayout { get; init; }
 
 			/// <summary>
 			/// The texture whose contents are the subject of the barrier.
 			/// </summary>
-			public required ITexture Texture { get; set; }
+			public required ITexture Texture { get; init; }
 
 			/// <summary>
 			/// The subresource range within the texture subject to the barrier.
 			/// </summary>
-			public required TextureSubresourceRange SubresourceRange { get; set; }
+			public required TextureSubresourceRange SubresourceRange { get; init; }
 
 		}
 
 		/// <summary>
 		/// A descriptor containing a set of memory barriers to enforce command order based on.
 		/// </summary>
-		public readonly ref struct PipelineBarriers {
+		public readonly struct PipelineBarriers {
 
 			/// <summary>
 			/// Bitmask of pipeline stages in which operations occur that must come before any of the barriers.
@@ -1219,17 +1032,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// List of global memory barriers.
 			/// </summary>
-			public ReadOnlySpan<MemoryBarrier> MemoryBarriers { get; init; }
+			public IReadOnlyList<MemoryBarrier> MemoryBarriers { get; init; } = Array.Empty<MemoryBarrier>();
 
 			/// <summary>
 			/// List of buffer memory barriers.
 			/// </summary>
-			public ReadOnlySpan<BufferMemoryBarrier> BufferMemoryBarriers { get; init; }
+			public IReadOnlyList<BufferMemoryBarrier> BufferMemoryBarriers { get; init; } = Array.Empty<BufferMemoryBarrier>();
 
 			/// <summary>
 			/// List of texture memory barriers.
 			/// </summary>
-			public ReadOnlySpan<TextureMemoryBarrier> TextureMemoryBarriers { get; init; }
+			public IReadOnlyList<TextureMemoryBarrier> TextureMemoryBarriers { get; init; } = Array.Empty<TextureMemoryBarrier>();
+
+			public PipelineBarriers() { }
 
 		}
 
@@ -1238,7 +1053,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="barriers">Pipeline memory barriers</param>
 		/// <param name="syncs">Sync objects to wait on</param>
-		public void WaitSync(in PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs);
+		public void WaitSync(in PipelineBarriers barriers, IReadOnlyList<ISync> syncs);
 
 		/// <summary>
 		/// Waits on the specified sync objects while introducing a set of memory barriers.
@@ -1246,7 +1061,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="barriers">Pipeline memory barriers</param>
 		/// <param name="syncs">Sync objects to wait on</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void WaitSync(in PipelineBarriers barriers, params ISync[] syncs) => WaitSync(barriers, new ReadOnlySpan<ISync>(syncs));
+		public void WaitSync(in PipelineBarriers barriers, params ISync[] syncs) => WaitSync(barriers, (IReadOnlyList<ISync>)syncs);
 
 		/// <summary>
 		/// Waits on the specified sync objects while introducing a set of memory barriers.
@@ -1254,7 +1069,10 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="barriers">Pipeline memory barriers</param>
 		/// <param name="syncs">Sync objects to wait on</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void WaitSync(in PipelineBarriers barriers, IEnumerable<ISync> syncs) => WaitSync(barriers, syncs.ToArray());
+		public void WaitSync(in PipelineBarriers barriers, IEnumerable<ISync> syncs) {
+			if (syncs is IReadOnlyList<ISync> list) WaitSync(barriers, list);
+			else WaitSync(barriers, syncs.ToArray());
+		}
 
 		/// <summary>
 		/// Waits on the specified sync object while introducing a set of memory barriers.
@@ -1336,7 +1154,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// Render pass begin information.
 		/// </summary>
-		public readonly ref struct RenderPassBegin {
+		public readonly struct RenderPassBegin {
 
 			/// <summary>
 			/// The render pass to being rendering with.
@@ -1351,13 +1169,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The area within the framebuffer that will be rendered to.
 			/// </summary>
-			public Recti RenderArea { get; init; }
+			public required Recti RenderArea { get; init; }
 
 			/// <summary>
 			/// The list of clear values for each attachment, corresponding by index. If an attachment
 			/// is not cleared the value is ignored.
 			/// </summary>
-			public ReadOnlySpan<ClearValue> ClearValues { get; init; }
+			public IReadOnlyList<ClearValue> ClearValues { get; init; } = Array.Empty<ClearValue>();
+
+			public RenderPassBegin() { }
 
 		}
 
@@ -1402,12 +1222,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The resolution mode to use for any resolve texture.
 			/// </summary>
-			public ResolveMode ResolveMode { get; init; }
+			public ResolveMode ResolveMode { get; init; } = ResolveMode.Default;
 
 			/// <summary>
 			/// The texture view to resolve a multisample attachment to at the end of rendering.
 			/// </summary>
-			public ITextureView? ResolveTextureView { get; init; }
+			public ITextureView? ResolveTextureView { get; init; } = null;
 
 			/// <summary>
 			/// The current layout of the resolve texture if there is one.
@@ -1429,12 +1249,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// </summary>
 			public ClearValue ClearValue { get; init; }
 
+			public RenderingAttachmentInfo() { }
+
 		}
 
 		/// <summary>
 		/// Dynamic rendering information.
 		/// </summary>
-		public readonly ref struct RenderingInfo {
+		public readonly struct RenderingInfo {
 
 			/// <summary>
 			/// The area to render to.
@@ -1449,7 +1271,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			/// <summary>
 			/// The list of color attachments to use during rendering, or null if there are no color attachments.
 			/// </summary>
-			public ReadOnlySpan<RenderingAttachmentInfo> ColorAttachments { get; init; } = Span<RenderingAttachmentInfo>.Empty;
+			public IReadOnlyList<RenderingAttachmentInfo> ColorAttachments { get; init; } = Array.Empty<RenderingAttachmentInfo>();
 
 			/// <summary>
 			/// The depth attachment to use during rendering, or null if there is no depth attachment.
@@ -1484,21 +1306,25 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Sequentially executes the commands in a list of secondary command buffers.
 		/// </summary>
 		/// <param name="buffers">Secondary command buffer list</param>
-		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ExecuteCommands(params ICommandBuffer[] buffers) => ExecuteCommands((IReadOnlyList<ICommandBuffer>)buffers);
 
 		/// <summary>
 		/// Sequentially executes the commands in a list of secondary command buffers.
 		/// </summary>
 		/// <param name="buffers">Secondary command buffer list</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ExecuteCommands(params ICommandBuffer[] buffers) => ExecuteCommands(new ReadOnlySpan<ICommandBuffer>(buffers));
+		public void ExecuteCommands(IEnumerable<ICommandBuffer> buffers) {
+			if (buffers is IReadOnlyList<ICommandBuffer> list) ExecuteCommands(list);
+			else ExecuteCommands(buffers.ToArray());
+		}
 
 		/// <summary>
 		/// Sequentially executes the commands in a list of secondary command buffers.
 		/// </summary>
 		/// <param name="buffers">Secondary command buffer list</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ExecuteCommands(IEnumerable<ICommandBuffer> buffers) => ExecuteCommands(buffers.ToArray());
+		public void ExecuteCommands(IReadOnlyList<ICommandBuffer> buffers);
 
 		/// <summary>
 		/// Executes the commands in the given secondary command buffer.

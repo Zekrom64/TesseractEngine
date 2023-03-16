@@ -29,9 +29,13 @@ namespace Tesseract.OpenGL {
 
 		// ARB_clear_texture
 
-		public void ClearTexImage<T>(uint texture, int level, GLFormat format, GLType type, in ReadOnlySpan<T> data) where T : unmanaged => GL.ARBClearTexture.ClearTexImage(texture, level, format, type, data);
+		public void ClearTexImage(uint texture, int level, GLFormat format, GLTextureType type, IntPtr data) => GL.ARBClearTexture.ClearTexImage(texture, level, format, type, data);
 
-		public void ClearTexSubImage<T>(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLType type, in ReadOnlySpan<T> data) where T : unmanaged => GL.ARBClearTexture.ClearTexSubImage(texture, level, offset, size, format, type, data);
+		public void ClearTexImage<T>(uint texture, int level, GLFormat format, GLTextureType type, in ReadOnlySpan<T> data) where T : unmanaged => GL.ARBClearTexture.ClearTexImage(texture, level, format, type, data);
+
+		public void ClearTexSubImage(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, IntPtr data) => GL.ARBClearTexture.ClearTexSubImage(texture, level, offset, size, format, type, data);
+
+		public void ClearTexSubImage<T>(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, in ReadOnlySpan<T> data) where T : unmanaged => GL.ARBClearTexture.ClearTexSubImage(texture, level, offset, size, format, type, data);
 
 		// ARB_enhanced_layouts
 

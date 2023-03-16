@@ -148,7 +148,7 @@ namespace Tesseract.Vulkan.Services {
 
 		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) {
 			using MemoryStack sp = MemoryStack.Push();
-			return new VulkanRenderPass(Device.Device.CreateRenderPass(VulkanConverter.Convert(sp, createInfo)));
+			return new VulkanRenderPass(Device.Device.CreateRenderPass(VulkanConverter.Convert(sp, createInfo)), createInfo);
 		}
 
 		public ISampler CreateSampler(SamplerCreateInfo createInfo) {
@@ -336,7 +336,7 @@ namespace Tesseract.Vulkan.Services {
 			fence!.HostReset();
 			var submitInfo2 = new IGraphics.CommandBufferSubmitInfo() {
 				CommandBuffer = new ICommandBuffer[] { cmdbuf },
-				SignalSync = submitInfo.SignalSync,
+				SignalSync = signalSyncs,
 				WaitSync = submitInfo.WaitSync
 			};
 			SubmitCommands(submitInfo2);
@@ -378,11 +378,12 @@ namespace Tesseract.Vulkan.Services {
 			// Parse the wait sync list
 			foreach(var wait in submitInfo.WaitSync) {
 				if (wait.Item1 is VulkanSemaphoreSync ssync) {
-					waits[waitcount++] = ssync.Semaphore.Semaphore;
+					waits[waitcount] = ssync.Semaphore.Semaphore;
+					waitStages[waitcount++] = VulkanConverter.Convert(wait.Item2);
 				} else throw new VulkanException("Unsupported command submit sync object in waiting list");
 			}
 
-			Commands.Submit(cmdbank, cmds, waits, waitStages, sigs, fence?.Fence);
+			Commands.Submit(cmdbank, cmds, waits, waitStages, sigs[..sigcount], fence?.Fence);
 		}
 
 		public void TrimCommandBufferMemory() => Commands.Trim();
@@ -404,6 +405,14 @@ namespace Tesseract.Vulkan.Services {
 			Properties = new VulkanGraphicsProperties(Device.PhysicalDevice, Memory);
 			Features = new VulkanGraphicsFeatures(Device.PhysicalDevice, Device);
 			Limits = new VulkanGraphicsLimits(Device.PhysicalDevice);
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+			WaitIdle();
+			Memory.Dispose();
+			Commands.Dispose();
+			Device.Dispose();
 		}
 
 	}

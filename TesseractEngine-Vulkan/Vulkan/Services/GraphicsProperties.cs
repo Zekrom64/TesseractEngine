@@ -89,6 +89,8 @@ namespace Tesseract.Vulkan.Services {
 
 		public CoordinateSystem CoordinateSystem => CoordinateSystem.RightHanded;
 
+		public CommandMode PreferredCommandMode => CommandMode.Buffered;
+
 		/// <summary>
 		/// Creates a new set of Vulkan graphics properties for the given physical device, with
 		/// either a provided memory interface or initializes one from the physical device.

@@ -78,7 +78,8 @@ namespace Tesseract.OpenGL {
 		UnsignedInt_8_8_8_8 = GLEnums.GL_UNSIGNED_INT_8_8_8_8,
 		UnsignedInt_8_8_8_8_Rev = GLEnums.GL_UNSIGNED_INT_8_8_8_8_REV,
 		UnsignedInt_10_10_10_2 = GLEnums.GL_UNSIGNED_INT_10_10_10_2,
-		UnsignedInt_2_10_10_10_Rev = GLEnums.GL_UNSIGNED_INT_2_10_10_10_REV
+		UnsignedInt_2_10_10_10_Rev = GLEnums.GL_UNSIGNED_INT_2_10_10_10_REV,
+		Float32UnsignedInt_24_8_Rev = GLEnums.GL_FLOAT_32_UNSIGNED_INT_24_8_REV
 	}
 
 	public enum GLFormat : uint {
@@ -87,7 +88,10 @@ namespace Tesseract.OpenGL {
 		RGB = GLEnums.GL_RGB,
 		BGR = GLEnums.GL_BGR,
 		RGBA = GLEnums.GL_RGBA,
-		BGRA = GLEnums.GL_BGRA
+		BGRA = GLEnums.GL_BGRA,
+		DepthComponent = GLEnums.GL_DEPTH_COMPONENT,
+		StencilIndex = GLEnums.GL_STENCIL_INDEX,
+		DepthStencil = GLEnums.GL_DEPTH_STENCIL
 	}
 
 	public enum GLInternalFormat : uint {

@@ -116,7 +116,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public ulong TotalVideoMemory { get; }
 
-		public ulong TotalCommittedMemory => allocator.Budget.AllocationBytes;
+		public ulong TotalCommittedMemory => allocator.Statistics.Total.Statistics.AllocationBytes;
 
 		/// <summary>
 		/// The device this memory manager will allocate from.
@@ -130,12 +130,19 @@ namespace Tesseract.Vulkan.Services.Objects {
 			TotalDeviceMemory = deviceMemory.TotalDeviceMemory;
 			TotalVideoMemory = deviceMemory.TotalVideoMemory;
 
+			// Provide *ProcAddr functions that we already use
+			using var funcs = new ManagedPointer<VMAVulkanFunctions>(new VMAVulkanFunctions() {
+				vkGetInstanceProcAddr = device.Device.Instance.InstanceGetProcAddr,
+				vkGetDeviceProcAddr = device.Device.DeviceGetProcAddress
+			});
+
 			// Create allocator
 			allocator = VMA.CreateAllocator(new VMAAllocatorCreateInfo() {
 				PhysicalDevice = device.PhysicalDevice.PhysicalDevice,
 				Device = device.Device,
 				Instance = device.Device.Instance,
-				VulkanApiVersion = device.Device.Instance.APIVersion
+				VulkanApiVersion = device.Device.Instance.APIVersion,
+				VulkanFunctions = funcs
 			}, device.Device);
 		}
 

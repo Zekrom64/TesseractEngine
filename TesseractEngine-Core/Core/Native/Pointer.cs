@@ -216,7 +216,7 @@ namespace Tesseract.Core.Native {
 			int count = values.Count;
 			Ptr = Marshal.AllocHGlobal(sz * count);
 			int i = 0;
-			foreach (T val in values) Marshal.StructureToPtr(val, Ptr + sz * i, false);
+			foreach (T val in values) Marshal.StructureToPtr(val, Ptr + sz * (i++), false);
 			release = ptr => {
 				for (int i = 0; i < count; i++) Marshal.DestroyStructure<T>(ptr + sz * i);
 				Marshal.FreeHGlobal(ptr);

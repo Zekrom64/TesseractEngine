@@ -39,7 +39,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// <para>A render pass manages framebuffer and attachment state during rendering.</para>
 	/// </summary>
-	public interface IRenderPass : IDisposable { }
+	public interface IRenderPass : IDisposable {
+	
+		/// <summary>
+		/// The attachments referenced by the render pass.
+		/// </summary>
+		public IReadOnlyList<RenderPassAttachment> Attachments { get; }
+
+	}
 
 	/// <summary>
 	/// A render pass attachment describes layout and load/store for an image that will be attached to a framebuffer.

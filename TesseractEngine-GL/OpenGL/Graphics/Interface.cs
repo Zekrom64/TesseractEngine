@@ -8,6 +8,9 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
+using Tesseract.Core.Graphics;
+using Tesseract.Core.Utilities;
+using System.Runtime.InteropServices;
 
 namespace Tesseract.OpenGL.Graphics {
 	
@@ -46,7 +49,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public OpCreateTexture CreateTexture { get; }
 		public delegate void OpTextureStorage(GLTextureTarget target, uint id, Vector3i size, int mipLevels, int samples, GLPixelFormat format);
 		public OpTextureStorage TextureStorage { get; }
-		public delegate void OpCopyImageSubData(GLTexture dstTexture, int dstMipLevel, Vector3i dstPos, GLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size);
+		public delegate void OpCopyImageSubData(IGLTexture dstTexture, int dstMipLevel, Vector3i dstPos, IGLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size);
 		public OpCopyImageSubData CopyImageSubData { get; }
 		public delegate void OpInvalidateTextureImage(uint tex, uint mipLevel);
 		public OpInvalidateTextureImage InvalidateTextureImage { get; }
@@ -58,11 +61,13 @@ namespace Tesseract.OpenGL.Graphics {
 		public OpGetTextureSubImage GetTextureSubImage { get; }
 		public delegate void OpTextureSubImage(GLTexture texture, int mipLevel, Vector3i offset, Vector3i size, IntPtr pixels, int layerStride);
 		public OpTextureSubImage TextureSubImage { get; }
+		public delegate void OpClearTexSubImage(IGLTexture texture, int mipLevel, Vector3i offset, Vector3i size, in ICommandSink.ClearValue value, GLBufferMask aspectMask);
+		public OpClearTexSubImage ClearTexSubImage { get; }
 
 		// Framebuffer
 		public Func<uint> CreateFramebuffer { get; }
 		public Action<uint[]> CreateFramebuffers { get; }
-		public delegate void OpInvalidateSubFramebuffer(uint id, Recti area, GLFramebufferAttachment[] attachments);
+		public delegate void OpInvalidateSubFramebuffer(uint id, in ReadOnlySpan<GLFramebufferAttachment> attachments, Recti area);
 		public OpInvalidateSubFramebuffer InvalidateSubFramebuffer { get; }
 		public delegate void OpClearFramebufferi(uint id, GLClearBuffer buffer, int drawbuffer, Vector4i value);
 		public OpClearFramebufferi ClearFramebufferi { get; }
@@ -74,6 +79,8 @@ namespace Tesseract.OpenGL.Graphics {
 		public OpClearFramebufferfi ClearFramebufferfi { get; }
 		public delegate void OpFramebufferTexture(uint id, GLFramebufferAttachment attachment, IGLTexture texture, int mipLevel, int arrayLayer);
 		public OpFramebufferTexture FramebufferTexture { get; }
+		public delegate void OpBlitFramebuffer(uint readFramebuffer, uint drawFramebuffer, Recti src, Recti dst, GLBufferMask mask, GLFilter filter);
+		public OpBlitFramebuffer BlitFramebuffer { get; }
 
 		// Misc. Objects
 		public Func<uint> CreateSampler { get; }
@@ -133,6 +140,7 @@ namespace Tesseract.OpenGL.Graphics {
 			var tsm = GL.ARBTextureStorageMultisample;
 			var ci = GL.ARBCopyImage;
 			var gtsi = GL.ARBGetTextureSubImage;
+			var ct = GL.ARBClearTexture;
 
 			if (dsa != null) {
 				CreateBuffer = dsa.CreateBuffers;
@@ -212,6 +220,10 @@ namespace Tesseract.OpenGL.Graphics {
 
 				CreateFramebuffer = dsa.CreateFramebuffers;
 				CreateFramebuffers = ids => dsa.CreateFramebuffers(ids);
+				ClearFramebufferi = dsa.ClearNamedFramebuffer;
+				ClearFramebufferu = dsa.ClearNamedFramebuffer;
+				ClearFramebufferf = dsa.ClearNamedFramebuffer;
+				ClearFramebufferfi = dsa.ClearNamedFramebuffer;
 				FramebufferTexture = (uint fbo, GLFramebufferAttachment attach, IGLTexture texture, int mipLevel, int arrayLayer) => {
 					if (texture.GLObjectType == GLTextureObjectType.Renderbuffer) {
 						dsa.NamedFramebufferRenderbuffer(fbo, attach, GLRenderbufferTarget.Renderbuffer, texture.ID);
@@ -232,10 +244,7 @@ namespace Tesseract.OpenGL.Graphics {
 						}
 					}
 				};
-				ClearFramebufferi = dsa.ClearNamedFramebuffer;
-				ClearFramebufferu = dsa.ClearNamedFramebuffer;
-				ClearFramebufferf = dsa.ClearNamedFramebuffer;
-				ClearFramebufferfi = dsa.ClearNamedFramebuffer;
+				BlitFramebuffer = dsa.BlitNamedFramebuffer;
 
 				CreateSampler = dsa.CreateSamplers;
 				CreateRenderbuffer = dsa.CreateRenderbuffers;
@@ -370,9 +379,7 @@ namespace Tesseract.OpenGL.Graphics {
 							Recti rdarea = new(size.X, size.Y);
 							size /= 2;
 							Recti drarea = new(size.X, size.Y);
-							gl33.BindFramebuffer(GLFramebufferTarget.Read, rdfbo);
-							gl33.BindFramebuffer(GLFramebufferTarget.Draw, drfbo);
-							gl33.BlitFramebuffer(rdarea, drarea, GLBufferMask.Color, filter.Value);
+							Graphics.Interface.BlitFramebuffer(rdfbo, drfbo, rdarea, drarea, GLBufferMask.Color, filter.Value);
 						}
 					}
 				};
@@ -404,6 +411,26 @@ namespace Tesseract.OpenGL.Graphics {
 
 				CreateFramebuffer = gl33.GenFramebuffers;
 				CreateFramebuffers = ids => gl33.GenFramebuffers(ids);
+				ClearFramebufferi = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4i value) => {
+					state.PushDrawFramebuffer(fbo);
+					gl33.ClearBuffer(buffer, drawbuffer, value);
+					state.PopDrawFramebuffer();
+				};
+				ClearFramebufferu = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4ui value) => {
+					state.PushDrawFramebuffer(fbo);
+					gl33.ClearBuffer(buffer, drawbuffer, value);
+					state.PopDrawFramebuffer();
+				};
+				ClearFramebufferf = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4 value) => {
+					state.PushDrawFramebuffer(fbo);
+					gl33.ClearBuffer(buffer, drawbuffer, value);
+					state.PopDrawFramebuffer();
+				};
+				ClearFramebufferfi = (uint fbo, GLClearBuffer buffer, int drawbuffer, float depth, int stencil) => {
+					state.PushDrawFramebuffer(fbo);
+					gl33.ClearBuffer(buffer, drawbuffer, depth, stencil);
+					state.PopDrawFramebuffer();
+				};
 				FramebufferTexture = (uint fbo, GLFramebufferAttachment attach, IGLTexture texture, int mipLevel, int arrayLayer) => {
 					gl33.BindFramebuffer(GLFramebufferTarget.Read, fbo);
 					if (texture.GLObjectType == GLTextureObjectType.Renderbuffer) {
@@ -425,21 +452,11 @@ namespace Tesseract.OpenGL.Graphics {
 						}
 					}
 				};
-				ClearFramebufferi = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4i value) => {
-					state.BindFramebuffer(GLFramebufferTarget.Draw, fbo);
-					gl33.ClearBuffer(buffer, drawbuffer, value);
-				};
-				ClearFramebufferu = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4ui value) => {
-					state.BindFramebuffer(GLFramebufferTarget.Draw, fbo);
-					gl33.ClearBuffer(buffer, drawbuffer, value);
-				};
-				ClearFramebufferf = (uint fbo, GLClearBuffer buffer, int drawbuffer, Vector4 value) => {
-					state.BindFramebuffer(GLFramebufferTarget.Draw, fbo);
-					gl33.ClearBuffer(buffer, drawbuffer, value);
-				};
-				ClearFramebufferfi = (uint fbo, GLClearBuffer buffer, int drawbuffer, float depth, int stencil) => {
-					state.BindFramebuffer(GLFramebufferTarget.Draw, fbo);
-					gl33.ClearBuffer(buffer, drawbuffer, depth, stencil);
+				BlitFramebuffer = (uint srcFBO, uint dstFBO, Recti src, Recti dst, GLBufferMask mask, GLFilter filter) => {
+					state.BindFramebuffer(GLFramebufferTarget.Read, srcFBO);
+					state.PushDrawFramebuffer(dstFBO);
+					gl33.BlitFramebuffer(src, dst, mask, filter);
+					state.PopDrawFramebuffer();
 				};
 
 				CreateSampler = gl33.GenSamplers;
@@ -461,15 +478,15 @@ namespace Tesseract.OpenGL.Graphics {
 				if (dsa != null) {
 					InvalidateSubFramebuffer = dsa.InvalidateNamedFramebufferSubData;
 				} else {
-					InvalidateSubFramebuffer = (uint fbo, Recti area, GLFramebufferAttachment[] attachments) => {
+					InvalidateSubFramebuffer = (uint fbo, in ReadOnlySpan<GLFramebufferAttachment> attachments, Recti area) => {
 						state.BindFramebuffer(GLFramebufferTarget.Read, fbo);
-						isd.InvalidateSubFramebuffer(GLFramebufferTarget.Read, area, attachments);
+						isd.InvalidateSubFramebuffer(GLFramebufferTarget.Read, attachments, area);
 					};
 				}
 				InvalidateTextureImage = (uint tex, uint mipLevel) => isd.InvalidateTexImage(tex, (int)mipLevel);
 			} else {
 				// Invalidates can be ignored as no-ops if not available, as they are just hints that resources don't need to be preserved
-				InvalidateSubFramebuffer = (uint fbo, Recti area, GLFramebufferAttachment[] attachments) => { };
+				InvalidateSubFramebuffer = (uint fbo, in ReadOnlySpan<GLFramebufferAttachment> attachments, Recti area) => { };
 				InvalidateTextureImage = (uint tex, uint mipLevel) => { };
 			}
 
@@ -589,7 +606,7 @@ namespace Tesseract.OpenGL.Graphics {
 						var viewport = viewports[i];
 						var area = viewport.Area;
 						va.ViewportIndexed((uint)i + first, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
-						va.DepthRangeIndexed((uint)i + first, viewport.DepthBounds.Item1, viewport.DepthBounds.Item2);
+						va.DepthRangeIndexed((uint)i + first, viewport.DepthBounds.Min, f: viewport.DepthBounds.Max);
 					}
 				};
 				SetScissors = (uint first, in ReadOnlySpan<Recti> scissors) => {
@@ -604,7 +621,7 @@ namespace Tesseract.OpenGL.Graphics {
 					var viewport = viewports[0];
 					var area = viewport.Area;
 					gl33.Viewport = new Recti((int)area.Position.X, (int)area.Position.Y, (int)area.Size.X, (int)area.Size.Y);
-					gl33.DepthRange = (viewport.DepthBounds.Item1, viewport.DepthBounds.Item2);
+					gl33.DepthRange = (viewport.DepthBounds.Min, viewport.DepthBounds.Max);
 				};
 				SetScissors = (uint first, in ReadOnlySpan<Recti> scissors) => {
 					if (first != 0) return;
@@ -631,11 +648,12 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 
 			if (ci != null) {
-				CopyImageSubData = (GLTexture dstTexture, int dstMipLevel, Vector3i dstPos, GLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size) =>
+				CopyImageSubData = (IGLTexture dstTexture, int dstMipLevel, Vector3i dstPos, IGLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size) =>
 					ci.CopyImageSubData(srcTexture.ID, GetCopyTarget(srcTexture), srcMipLevel, srcPos, dstTexture.ID, GetCopyTarget(dstTexture), dstMipLevel, dstPos, size);
 			} else {
-				CopyImageSubData = (GLTexture dstTexture, int dstMipLevel, Vector3i dstPos, GLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size) => {
-					
+				CopyImageSubData = (IGLTexture dstTexture, int dstMipLevel, Vector3i dstPos, IGLTexture srcTexture, int srcMipLevel, Vector3i srcPos, Vector3i size) => {
+					// TODO
+					throw new NotImplementedException();
 				};
 			}
 
@@ -649,11 +667,89 @@ namespace Tesseract.OpenGL.Graphics {
 					gl33.GetTexImage(texture.GLTarget, mipLevel, texture.GLFormat.Format, texture.GLFormat.Type, pixels);
 				};
 			}
+
+			void ClearTexSubImageCompat(IGLTexture texture, int mipLevel, Vector3i offset, Vector3i size, in ICommandSink.ClearValue data, GLBufferMask aspectMask) {
+				var iface = Graphics.Interface;
+				var fbo = Graphics.TransientFramebufferDst;
+				var fmt = texture.Format;
+				var glfmt = texture.GLFormat;
+				var attach = GLFramebuffer.GetBaseAttachment(aspectMask);
+				state.PushDrawFramebuffer(fbo);
+				state.SetTempScissor(new Recti(offset.Swizzle(0, 1), size.Swizzle(0, 1)));
+				// TODO: Handle 1D-Array textures and 3D textures
+				iface.FramebufferTexture(fbo, attach, texture, mipLevel, offset.Z);
+				for (int i = 0; i < size.Z; i++) iface.ClearFramebuffer(fbo, attach, data, texture.Format);
+				state.UnsetTempScissor();
+				state.PopDrawFramebuffer();
+			}
+
+			if (ct != null) {
+				ClearTexSubImage = (IGLTexture texture, int mipLevel, Vector3i offset, Vector3i size, in ICommandSink.ClearValue data, GLBufferMask aspectMask) => {
+					if (texture.GLObjectType == GLTextureObjectType.Texture) {
+						var fmt = texture.Format;
+						bool depth = fmt.HasChannel(ChannelType.Depth) && ((aspectMask & GLBufferMask.Depth) != 0);
+						bool stencil = fmt.HasChannel(ChannelType.Stencil) && ((aspectMask & GLBufferMask.Stencil) != 0);
+						GLFormat format;
+						GLTextureType type;
+						Span<byte> fmtData = stackalloc byte[16];
+						if (depth && stencil) {
+							BitConverter.TryWriteBytes(fmtData, data.Depth);
+							BitConverter.TryWriteBytes(fmtData[4..], data.Stencil);
+							format = GLFormat.DepthStencil;
+							type = GLTextureType.Float32UnsignedInt_24_8_Rev;
+						} else if (depth) {
+							BitConverter.TryWriteBytes(fmtData, data.Depth);
+							format = GLFormat.DepthComponent;
+							type = GLTextureType.Float;
+						} else if (stencil) {
+							BitConverter.TryWriteBytes(fmtData, data.Stencil);
+							format = GLFormat.StencilIndex;
+							type = GLTextureType.Int;
+						} else {
+							data.Color.AsFloat32.CopyTo(MemoryMarshal.Cast<byte, float>(fmtData));
+							format = GLFormat.RGBA;
+							if (fmt.IsNumberFormatSampledFloating) type = GLTextureType.Float;
+							else if (fmt.NumberFormat == ChannelNumberFormat.UnsignedInt) type = GLTextureType.UnsignedInt;
+							else type = GLTextureType.Int;
+						}
+						ct.ClearTexSubImage<byte>(texture.ID, mipLevel, offset, size, format, type, fmtData);
+					} else ClearTexSubImageCompat(texture, mipLevel, offset, size, data, aspectMask);
+				};
+			} else {
+				ClearTexSubImage = ClearTexSubImageCompat;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static GLCopyImageTarget GetCopyTarget(GLTexture texture) =>
+		private static GLCopyImageTarget GetCopyTarget(IGLTexture texture) =>
 			texture.GLObjectType == GLTextureObjectType.Renderbuffer ? GLCopyImageTarget.Renderbuffer : (GLCopyImageTarget)texture.GLTarget;
+
+		public void ClearFramebuffer(uint fbo, GLFramebufferAttachment attach, ICommandSink.ClearValue clearValue, PixelFormat format) {
+			int drawBuffer = 0;
+			if ((clearValue.Aspect & TextureAspect.Color) != 0) drawBuffer = (int)(attach - GLFramebufferAttachment.Color0);
+			ClearFramebuffer(fbo, drawBuffer, clearValue, format);
+		}
+
+		public void ClearFramebuffer(uint fbo, int drawBuffer, ICommandSink.ClearValue clearValue, PixelFormat format) {
+			if (clearValue.Aspect == 0) return;
+			if ((clearValue.Aspect & TextureAspect.Color) != 0) {
+				var color = clearValue.Color;
+				if (format.IsNumberFormatFloating || format.IsNumberFormatNormalized) {
+					ClearFramebufferf(fbo, GLClearBuffer.Color, drawBuffer, color.AsFloat32);
+				} else if (format.NumberFormat == ChannelNumberFormat.UnsignedInt) {
+					ClearFramebufferu(fbo, GLClearBuffer.Color, drawBuffer, color.AsUInt32);
+				} else {
+					ClearFramebufferi(fbo, GLClearBuffer.Color, drawBuffer, color.AsInt32);
+				}
+			} else {
+				bool depth = (clearValue.Aspect & TextureAspect.Depth) != 0;
+				bool stencil = (clearValue.Aspect & TextureAspect.Stencil) != 0;
+				GLClearBuffer clearBuffer = GLClearBuffer.DepthStencil;
+				if (!depth) clearBuffer = GLClearBuffer.Stencil;
+				else if (!stencil) clearBuffer = GLClearBuffer.Depth;
+				ClearFramebufferfi(fbo, clearBuffer, 0, clearValue.Depth, clearValue.Stencil);
+			}
+		}
 	
 	}
 }

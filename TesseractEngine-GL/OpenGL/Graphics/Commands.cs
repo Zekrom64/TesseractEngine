@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
+using System.Net.Mail;
 
 namespace Tesseract.OpenGL.Graphics {
 
@@ -64,38 +65,40 @@ namespace Tesseract.OpenGL.Graphics {
 			this.indirect = indirect;
 		}
 
-		// Performs the implementation of a command based on the sink's configuration (indirect or not).
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void DoImpl(Action act) {
-			if (indirect != null) indirect(act);
-			else act();
-		}
-
 		public void Barrier(in ICommandSink.PipelineBarriers barriers) {
-			
-		} // TODO: Should this call glMemoryBarrier?
+			// TODO: Should this call glMemoryBarrier?
+		}
 
 		// TODO
 		public void BeginRendering(in ICommandSink.RenderingInfo renderingInfo) {
+			var fbo = Graphics.TransientFramebufferDynamic;
+			var state = Graphics.State;
+
+
 			throw new NotImplementedException();
 		}
 
 		public void BeginRenderPass(in ICommandSink.RenderPassBegin begin, SubpassContents contents) {
-			IRenderPass renderPass = begin.RenderPass;
-			IFramebuffer framebuffer = begin.Framebuffer;
-			Recti renderArea = begin.RenderArea;
-			ICommandSink.ClearValue[] clearValues = begin.ClearValues.ToArray();
-			DoImpl(() => Graphics.State.BeginRenderPass(new ICommandSink.RenderPassBegin() {
-				RenderPass = renderPass,
-				Framebuffer = framebuffer,
-				RenderArea = renderArea,
-				ClearValues = clearValues
-			}));
+			if (indirect != null) {
+				IRenderPass renderPass = begin.RenderPass;
+				IFramebuffer framebuffer = begin.Framebuffer;
+				Recti renderArea = begin.RenderArea;
+				ICommandSink.ClearValue[] clearValues = begin.ClearValues.ToArray();
+				indirect(() => Graphics.State.BeginRenderPass(new ICommandSink.RenderPassBegin() {
+					RenderPass = renderPass,
+					Framebuffer = framebuffer,
+					RenderArea = renderArea,
+					ClearValues = clearValues
+				}));
+			} else {
+				Graphics.State.BeginRenderPass(begin);
+			}
 		}
 
 		public void BindPipeline(IPipeline pipeline) {
 			GLPipeline glpipeline = (GLPipeline)pipeline;
-			DoImpl(() => Graphics.State.BindPipeline(glpipeline));
+			if (indirect != null) indirect(() => Graphics.State.BindPipeline(glpipeline));
+			else Graphics.State.BindPipeline(glpipeline);
 		}
 
 		public void BindPipelineWithState(IPipelineSet set, PipelineDynamicCreateInfo state) {
@@ -119,24 +122,26 @@ namespace Tesseract.OpenGL.Graphics {
 			if (glset.IsVariable(PipelineDynamicState.StencilTestEnable)) SetStencilTestEnable(state.StencilTestEnable);
 			if (glset.IsVariable(PipelineDynamicState.StencilReference)) {
 				var reference = ((int)state.FrontStencilState.Reference, (int)state.BackStencilState.Reference);
-				if (reference.Item1 == reference.Item2) {
-					DoImpl(() => Graphics.State.SetStencilReference(GLFace.FrontAndBack, reference.Item1));
-				} else {
-					DoImpl(() => {
+				if (indirect != null) {
+					indirect(() => {
 						Graphics.State.SetStencilReference(GLFace.Front, reference.Item1);
 						Graphics.State.SetStencilReference(GLFace.Back, reference.Item2);
 					});
+				} else {
+					Graphics.State.SetStencilReference(GLFace.Front, reference.Item1);
+					Graphics.State.SetStencilReference(GLFace.Back, reference.Item2);
 				}
 			}
 			if (glset.IsVariable(PipelineDynamicState.StencilCompareMask)) {
 				var mask = (state.FrontStencilState.CompareMask, state.BackStencilState.CompareMask);
-				if (mask.Item1 == mask.Item2) {
-					DoImpl(() => Graphics.State.SetStencilCompareMask(GLFace.FrontAndBack, mask.Item1));
-				} else {
-					DoImpl(() => {
+				if (indirect != null) {
+					indirect(() => {
 						Graphics.State.SetStencilCompareMask(GLFace.Front, mask.Item1);
 						Graphics.State.SetStencilCompareMask(GLFace.Back, mask.Item2);
 					});
+				} else {
+					Graphics.State.SetStencilCompareMask(GLFace.Front, mask.Item1);
+					Graphics.State.SetStencilCompareMask(GLFace.Back, mask.Item2);
 				}
 			}
 			if (glset.IsVariable(PipelineDynamicState.StencilOp)) {
@@ -147,51 +152,125 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 			if (glset.IsVariable(PipelineDynamicState.StencilWriteMask)) {
 				var mask = (state.FrontStencilState.WriteMask, state.BackStencilState.WriteMask);
-				if (mask.Item1 == mask.Item2) {
-					DoImpl(() => Graphics.State.SetStencilWriteMask(GLFace.FrontAndBack, mask.Item1));
-				} else {
-					DoImpl(() => {
+				if (indirect != null) {
+					indirect(() => {
 						Graphics.State.SetStencilWriteMask(GLFace.Front, mask.Item1);
 						Graphics.State.SetStencilWriteMask(GLFace.Back, mask.Item2);
 					});
+				} else {
+					Graphics.State.SetStencilWriteMask(GLFace.Front, mask.Item1);
+					Graphics.State.SetStencilWriteMask(GLFace.Back, mask.Item2);
 				}
 			}
 
-			if (glset.IsVariable(PipelineDynamicState.DepthBounds)) SetDepthBounds(state.DepthBounds.Item1, state.DepthBounds.Item2);
+			if (glset.IsVariable(PipelineDynamicState.DepthBounds)) SetDepthBounds(state.DepthBounds.Min, state.DepthBounds.Max);
 			if (glset.IsVariable(PipelineDynamicState.LogicOp)) SetLogicOp(state.LogicOp);
 			if (glset.IsVariable(PipelineDynamicState.BlendConstants)) SetBlendConstants(state.BlendConstant);
 		}
 
 		// TODO
-		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, params IBindSet[] sets) => throw new NotImplementedException();
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IBindSet set) {
+			throw new NotImplementedException();
+		}
+
+		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IReadOnlyList<IBindSet> sets) {
+			foreach (IBindSet set in sets) BindResources(bindPoint, layout, set);
+		}
 
 		public void BindVertexArray(IVertexArray array) {
 			GLVertexArray glarray = (GLVertexArray)array;
-			DoImpl(() => GL.GL33!.BindVertexArray(glarray.ID));
+			if (indirect != null) indirect(() => GL.GL33!.BindVertexArray(glarray.ID));
+			else GL.GL33!.BindVertexArray(glarray.ID);
 		}
 
-		// TODO
-		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) => throw new NotImplementedException();
+		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) {
+			GLFramebuffer gldst = (GLFramebuffer)dst;
+			GLFramebuffer glsrc = (GLFramebuffer)src;
+			var glmask = GLEnums.Convert(aspect);
+			var glfilter = GLEnums.Convert(filter);
+
+			// Requires glBlit* if either is the default, scaling is required, or we cannot copy textures directly
+			bool requiresBlit = gldst.IsDefault || glsrc.IsDefault || dstArea.Size != srcArea.Size || GL.ARBCopyImage == null;
+			GLTextureView? viewSrc = null, viewDst = null;
+			// Also requires glBlit* if either attachment is a renderbuffer and not a true texture
+			if (!requiresBlit) {
+				viewSrc = glsrc.AttachmentViews![srcAttachment];
+				viewDst = gldst.AttachmentViews![dstAttachment];
+			}
+
+			// TODO
+			throw new NotImplementedException();
+			/*
+			if (requiresBlit) {
+				if (indirect != null) {
+					indirect(() => {
+						uint dstfbo = gldst.GetFBOForAttachment(dstAttachment, aspect);
+						uint srcfbo = glsrc.GetFBOForAttachment(srcAttachment, aspect);
+						Interface.BlitFramebuffer(srcfbo, dstfbo, srcArea, dstArea, glmask, glfilter);
+					});
+				} else {
+					uint dstfbo = gldst.GetFBOForAttachment(dstAttachment, aspect);
+					uint srcfbo = glsrc.GetFBOForAttachment(srcAttachment, aspect);
+					Interface.BlitFramebuffer(srcfbo, dstfbo, srcArea, dstArea, glmask, glfilter);
+				}
+			} else {
+				if (indirect != null) {
+					indirect(() => Interface.CopyImageSubData(viewDst!, 0, new Vector3i(srcArea.Position, 0), viewSrc!, 0, new Vector3i(dstArea.Position, 0), new Vector3i(srcArea.Size, 1)));
+				} else {
+					Interface.CopyImageSubData(viewDst!, 0, new Vector3i(srcArea.Position, 0), viewSrc!, 0, new Vector3i(dstArea.Position, 0), new Vector3i(srcArea.Size, 1));
+				}
+				
+			}
+			*/
+		}
 
 		// TODO
 		public void BlitTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, TextureFilter filter, in ReadOnlySpan<ICommandSink.BlitTextureRegion> regions) => throw new NotImplementedException();
 
-		// TODO
-		public void ClearAttachments(in ReadOnlySpan<ICommandSink.ClearAttachment> values, in ReadOnlySpan<ICommandSink.ClearRect> regions) {
-			GLFramebuffer? fb = Graphics.State.CurrentFramebuffer;
+		private void ClearAttachmentsImpl(in ReadOnlySpan<ICommandSink.ClearAttachment> values, in ReadOnlySpan<ICommandSink.ClearRect> regions) {
+			var state = Graphics.State;
+			var fb = state.CurrentFramebuffer;
+			if (fb == null) throw new InvalidOperationException("Cannot clear attachments with no framebuffer bound");
+			var iface = Graphics.Interface;
+			foreach (var region in regions) {
+				state.SetTempScissor(region.Rect);
+				for (int i = 0; i < region.LayerCount; i++) {
+					foreach (var attach in values) {
+						(uint fbo, GLFramebufferAttachment glattach) = fb.GetFBOForAttachment(attach.Attachment, attach.Value.Aspect, (int)region.BaseArrayLayer + i);
+						iface.ClearFramebuffer(fbo, glattach, attach.Value, fb.AttachmentViews![attach.Attachment].Format);
+					}
+				}
+			}
+			state.UnsetTempScissor();
+		}
 
+		public void ClearAttachments(in ReadOnlySpan<ICommandSink.ClearAttachment> values, in ReadOnlySpan<ICommandSink.ClearRect> regions) {
+			if (indirect != null) {
+				var values2 = values.ToArray();
+				var regions2 = regions.ToArray();
+				indirect(() => ClearAttachmentsImpl(values2, regions2));
+			} else ClearAttachmentsImpl(values, regions);
 		}
 
 		// TODO
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) => throw new NotImplementedException();
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			throw new NotImplementedException();
+		}
 
 		// TODO
 		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions) => throw new NotImplementedException();
 
+		private void CopyBufferImpl(GLBuffer gldst, GLBuffer glsrc, in ReadOnlySpan<ICommandSink.CopyBufferRegion> regions) {
+			foreach (ICommandSink.CopyBufferRegion region in regions)
+				Interface.CopyBufferSubData(glsrc.ID, gldst.ID, (nint)region.SrcOffset, (nint)region.DstOffset, (nint)region.Length);
+		}
+
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferRegion> regions) {
 			GLBuffer gldst = (GLBuffer)dst, glsrc = (GLBuffer)src;
-			foreach (ICommandSink.CopyBufferRegion region in regions)
-				DoImpl(() => Interface.CopyBufferSubData(glsrc.ID, gldst.ID, (nint)region.SrcOffset, (nint)region.DstOffset, (nint)region.Length));
+			if (indirect != null) {
+				var regions2 = regions.ToArray();
+				indirect(() => CopyBufferImpl(gldst, glsrc, regions2));
+			} else CopyBufferImpl(gldst, glsrc, regions);
 		}
 
 		private static void SubresourceToOffset(GLTexture tex, TextureSubresourceLayers layers, ref Vector3i offset) {
@@ -213,26 +292,31 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 		}
 
+		private void CopyBufferToTextureImpl(GLTexture gldst, GLBuffer glsrc, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
+			var state = Graphics.State;
+			state.BindBuffer(GLBufferTarget.PixelUnpack, glsrc.ID);
+			foreach (var copy in copies) {
+				var dstsubresource = copy.TextureSubresource;
+				state.PixelStore(GLPixelStoreParam.UnpackRowLength, (int)copy.BufferRowLength);
+				state.PixelStore(GLPixelStoreParam.UnpackImageHeight, (int)copy.BufferImageHeight);
+				Interface.TextureSubImage(
+					gldst,
+					(int)dstsubresource.MipLevel,
+					(Vector3i)copy.TextureOffset,
+					(Vector3i)copy.TextureSize,
+					(IntPtr)(nint)copy.BufferOffset,
+					(int)(copy.BufferImageHeight * copy.BufferRowLength * gldst.Format.SizeOf)
+				);
+			}
+		}
+
 		public void CopyBufferToTexture(ITexture dst, TextureLayout dstLayout, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
 			GLTexture gldst = (GLTexture)dst;
 			GLBuffer glsrc = (GLBuffer)src;
-			var state = Graphics.State;
-			DoImpl(() => state.BindBuffer(GLBufferTarget.PixelUnpack, glsrc.ID));
-			foreach (var copy in copies) {
-				var dstsubresource = copy.TextureSubresource;
-				DoImpl(() => {
-					state.PixelStore(GLPixelStoreParam.UnpackRowLength, (int)copy.BufferRowLength);
-					state.PixelStore(GLPixelStoreParam.UnpackImageHeight, (int)copy.BufferImageHeight);
-					Interface.TextureSubImage(
-						gldst,
-						(int)dstsubresource.MipLevel,
-						(Vector3i)copy.TextureOffset,
-						(Vector3i)copy.TextureSize,
-						(IntPtr)(nint)copy.BufferOffset,
-						(int)(copy.BufferImageHeight * copy.BufferRowLength * gldst.Format.SizeOf)
-					);
-				});
-			}
+			if (indirect != null) {
+				var copies2 = copies.ToArray();
+				indirect(() => CopyBufferToTextureImpl(gldst, glsrc, copies2));
+			} else CopyBufferToTextureImpl(gldst, glsrc, copies);
 		}
 
 		public void CopyTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyTextureRegion> regions) {
@@ -244,88 +328,111 @@ namespace Tesseract.OpenGL.Graphics {
 				int dstMipLevel = (int)region.DstSubresource.MipLevel;
 				int srcMipLevel = (int)region.SrcSubresource.MipLevel;
 				Vector3i size = (Vector3i)region.Size;
-				DoImpl(() => Interface.CopyImageSubData(gldst, dstMipLevel, dstoffset, glsrc, srcMipLevel, srcoffset, size));
+				if (indirect != null) indirect(() => Interface.CopyImageSubData(gldst, dstMipLevel, dstoffset, glsrc, srcMipLevel, srcoffset, size));
+				else Interface.CopyImageSubData(gldst, dstMipLevel, dstoffset, gldst, dstMipLevel, dstoffset, size);
+			}
+		}
+
+		private void CopyTextureToBufferImpl(GLTexture glsrc, GLBuffer gldst, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
+			var state = Graphics.State;
+			state.BindBuffer(GLBufferTarget.PixelPack, gldst.ID);
+			foreach (var copy in copies) {
+				Vector3i offset = (Vector3i)copy.TextureOffset;
+				SubresourceToOffset(glsrc, copy.TextureSubresource, ref offset);
+				Vector3i size = (Vector3i)copy.TextureSize;
+				// Setup pixel parameters
+				state.PixelStore(GLPixelStoreParam.PackRowLength, (int)copy.BufferRowLength);
+				state.PixelStore(GLPixelStoreParam.PackImageHeight, (int)copy.BufferImageHeight);
+				// Copy texture to buffer
+				Interface.GetTextureSubImage(glsrc, (int)copy.TextureSubresource.MipLevel, offset, size, (int)(gldst.Size - copy.BufferOffset), (IntPtr)(ulong)copy.BufferOffset);
 			}
 		}
 
 		public void CopyTextureToBuffer(IBuffer dst, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyBufferTexture> copies) {
 			GLTexture glsrc = (GLTexture)src;
 			GLBuffer gldst = (GLBuffer)dst;
-			var state = Graphics.State;
-			DoImpl(() => {
-				state.BindBuffer(GLBufferTarget.PixelPack, gldst.ID);
-			});
-			foreach(var copy in copies) {
-				Vector3i offset = (Vector3i)copy.TextureOffset;
-				SubresourceToOffset(glsrc, copy.TextureSubresource, ref offset);
-				Vector3i size = (Vector3i)copy.TextureSize;
+			foreach (var copy in copies) {
 				// If limited texture-to-buffer (ie. no GL_ARB_get_texture_sub_image), validate parameters
 				if (Graphics.Features.LimitedTextureCopyToBuffer) {
-					if (offset != Vector3i.Zero) throw new GLException("Cannot copy texture-to-buffer with offset != 0 without GL_ARB_get_texture_sub_image");
-					if (size != (Vector3i)glsrc.Size) throw new GLException("Cannot copy texture-to-buffer with size != src.size without GL_ARB_get_texture_sub_image");
+					if (copy.TextureOffset != Vector3ui.Zero) throw new GLException("Cannot copy texture-to-buffer with offset != 0 without GL_ARB_get_texture_sub_image");
+					if (copy.TextureSize != glsrc.Size) throw new GLException("Cannot copy texture-to-buffer with size != src.size without GL_ARB_get_texture_sub_image");
 				}
-				DoImpl(() => {
-					// Setup pixel parameters
-					state.PixelStore(GLPixelStoreParam.PackRowLength, (int)copy.BufferRowLength);
-					state.PixelStore(GLPixelStoreParam.PackImageHeight, (int)copy.BufferImageHeight);
-					// Copy texture to buffer
-					Interface.GetTextureSubImage(glsrc, (int)copy.TextureSubresource.MipLevel, offset, size, (int)(dst.Size - copy.BufferOffset), (IntPtr)(ulong)copy.BufferOffset);
-				});
 			}
+
+			if (indirect != null) {
+				var copies2 = copies.ToArray();
+				indirect(() => CopyTextureToBufferImpl(glsrc, gldst, copies2));
+			} else CopyTextureToBufferImpl(glsrc, gldst, copies);
 		}
 
-		public void Dispatch(Vector3ui groupCounts) =>
-			DoImpl(() => Interface.Dispatch(groupCounts));
+		public void Dispatch(Vector3ui groupCounts) {
+			if (indirect != null) indirect(() => Interface.Dispatch(groupCounts));
+			else Interface.Dispatch(groupCounts);
+		}
 
 		public void DispatchIndirect(IBuffer buffer, nuint offset) {
 			GLBuffer glbuffer = (GLBuffer)buffer;
-			DoImpl(() => Interface.DispatchIndirect(glbuffer.ID, (nint)offset));
+			if (indirect != null) indirect(() => Interface.DispatchIndirect(glbuffer.ID, (nint)offset));
+			else Interface.DispatchIndirect(glbuffer.ID, (nint)offset);
 		}
 
-		public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) =>
-			DoImpl(() => Interface.Draw(vertexCount, instanceCount, firstVertex, firstInstance));
+		public void Draw(uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance) {
+			if (indirect != null) indirect(() => Interface.Draw(vertexCount, instanceCount, firstVertex, firstInstance));
+			else Interface.Draw(vertexCount, instanceCount, firstVertex, firstInstance);
+		}
 
-		public void DrawIndexed(uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance) =>
-			DoImpl(() => Interface.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance));
+		public void DrawIndexed(uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance) {
+			if (indirect != null) indirect(() => Interface.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance));
+			else Interface.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+		}
 
 		public void DrawIndexedIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride = DrawIndexedParams.SizeOf) {
 			GLBuffer glbuffer = (GLBuffer)buffer;
-			DoImpl(() => Interface.DrawIndexedIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride));
+			if (indirect != null) indirect(() => Interface.DrawIndexedIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride));
+			else Interface.DrawIndexedIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride);
 		}
 
 		public void DrawIndirect(IBuffer buffer, nuint offset, uint drawCount, uint stride = DrawParams.SizeOf) {
 			GLBuffer glbuffer = (GLBuffer)buffer;
-			DoImpl(() => Interface.DrawIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride));
+			if (indirect != null) indirect(() => Interface.DrawIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride));
+			else Interface.DrawIndirect(glbuffer.ID, (nint)offset, (int)drawCount, (int)stride);
 		}
 
 		// TODO
-		public void EndRendering() {
-			throw new NotImplementedException();
+		public void EndRendering() { }
+
+		public void EndRenderPass() {
+			if (indirect != null) indirect(Graphics.State.EndRenderPass);
+			else Graphics.State.EndRenderPass();
 		}
 
-		public void EndRenderPass() =>
-			DoImpl(Graphics.State.EndRenderPass);
-
-		public void ExecuteCommands(in ReadOnlySpan<ICommandBuffer> buffers) {
+		public void ExecuteCommands(IReadOnlyList<ICommandBuffer> buffers) {
 			foreach (ICommandBuffer cmd in buffers) ExecuteCommands(cmd);
 		}
 
-		public void ExecuteCommands(ICommandBuffer buffer) =>
-			DoImpl(((GLCommandBuffer)buffer).RunCommands);
+		public void ExecuteCommands(ICommandBuffer buffer) {
+			GLCommandBuffer glbuffer = (GLCommandBuffer)buffer;
+			if (indirect != null) indirect(glbuffer.RunCommands);
+			else glbuffer.RunCommands();
+		}
 
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data) {
 			GLBuffer gldst = (GLBuffer)dst;
-			DoImpl(() => Interface.FillBufferUInt32(gldst.ID, (nint)dstOffset, (nint)dstSize, data));
+			if (indirect != null) indirect(() => Interface.FillBufferUInt32(gldst.ID, (nint)dstOffset, (nint)dstSize, data));
+			else Interface.FillBufferUInt32(gldst.ID, (nint)dstOffset, (nint)dstSize, data);
 		}
 
 		public void GenerateMipmaps(ITexture dst, TextureLayout initialLayout, TextureLayout finalLayout, TextureFilter? filter = null) {
 			if (dst.MipLevels < 2) return;
 			GLTexture gldst = (GLTexture)dst;
-			DoImpl(() => Interface.GenerateMipmaps(gldst, filter != null ? GLEnums.Convert(filter.Value) : null));
+			if (indirect != null) indirect(() => Interface.GenerateMipmaps(gldst, filter != null ? GLEnums.Convert(filter.Value) : null));
+			else Interface.GenerateMipmaps(gldst, filter != null ? GLEnums.Convert(filter.Value) : null);
 		}
 
-		public void NextSubpass(SubpassContents contents) =>
-			DoImpl(Graphics.State.NextSubpass);
+		public void NextSubpass(SubpassContents contents) {
+			if (indirect != null) indirect(Graphics.State.NextSubpass);
+			else Graphics.State.NextSubpass();
+		}
 
 		public void PushConstants(IPipelineLayout layout, ShaderType stages, uint offset, uint size, IntPtr pValues) =>
 			throw new GLException("Push constants are not supported on OpenGL");
@@ -333,29 +440,56 @@ namespace Tesseract.OpenGL.Graphics {
 		public void PushConstants<T>(IPipelineLayout layout, ShaderType stages, uint offset, in ReadOnlySpan<T> values) where T : unmanaged =>
 			throw new GLException("Push constants are not supported on OpenGL");
 
-		public void ResetSync(ISync dst, PipelineStage stage) => throw new GLException("SetSync is unsupported on OpenGL");
+		public void ResetSync(ISync dst, PipelineStage stage) => throw new GLException("ResetSync is unsupported on OpenGL");
 
-		// TODO
-		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyTextureRegion> regions) => throw new NotImplementedException();
+		private void ResolveTextureImpl(GLTexture gldst, GLTexture glsrc, in ReadOnlySpan<ICommandSink.CopyTextureRegion> regions) {
+			foreach (var region in regions) {
+				int layers = (int)Math.Min(region.SrcSubresource.LayerCount, region.DstSubresource.LayerCount);
+				Recti srcRegion = new((Vector2i)region.SrcOffset.Swizzle(0, 1), (Vector2i)region.Size.Swizzle(0, 1));
+				Recti dstRegion = new((Vector2i)region.DstOffset.Swizzle(0, 1), srcRegion.Size);
+				for (int i = 0; i < layers; i++) {
+					var srcFbo = Graphics.TransientFramebufferSrc;
+					var dstFbo = Graphics.TransientFramebufferDst;
+					var mask = GLEnums.Convert(region.Aspect);
+					Graphics.SetAttachmentsForAspect(srcFbo, glsrc, region.Aspect, (int)region.SrcSubresource.MipLevel, (int)region.SrcSubresource.BaseArrayLayer + i);
+					Graphics.SetAttachmentsForAspect(dstFbo, gldst, region.Aspect, (int)region.DstSubresource.MipLevel, (int)region.DstSubresource.BaseArrayLayer + i);
+					Graphics.Interface.BlitFramebuffer(srcFbo, dstFbo, srcRegion, dstRegion, mask, GLFilter.Nearest);
+				}
+			}
+		}
 
-		public void SetBlendConstants(Vector4 blendConst) =>
-			DoImpl(() => Graphics.State.SetBlendConstants(blendConst));
+		public void ResolveTexture(ITexture dst, TextureLayout dstLayout, ITexture src, TextureLayout srcLayout, in ReadOnlySpan<ICommandSink.CopyTextureRegion> regions) {
+			GLTexture gldst = (GLTexture)dst, glsrc = (GLTexture)src;
+			if (indirect != null) {
+				var regions2 = regions.ToArray();
+				indirect(() => ResolveTextureImpl(gldst, glsrc, regions2));
+			} else ResolveTextureImpl(gldst, glsrc, regions);
+		}
 
-		public void SetDepthBias(float constFactor, float clamp, float slopeFactor) =>
-			DoImpl(() => Graphics.State.SetDepthBias(new GLPipeline.DepthBiasFactors() {
+		public void SetBlendConstants(Vector4 blendConst) {
+			if (indirect != null) indirect(() => Graphics.State.SetBlendConstants(blendConst));
+			else Graphics.State.SetBlendConstants(blendConst);
+		}
+
+		public void SetDepthBias(float constFactor, float clamp, float slopeFactor) {
+			GLPipeline.DepthBiasFactors biasFactors = new() {
 				ConstantFactor = constFactor,
 				SlopeFactor = slopeFactor,
 				Clamp = clamp
-			}));
+			};
+			if (indirect != null) indirect(() => Graphics.State.SetDepthBias(biasFactors));
+			else Graphics.State.SetDepthBias(biasFactors);
+		}
 
-		public void SetDepthBounds(float min, float max) =>
-			DoImpl(() => Graphics.State.SetDepthBounds(min, max));
+		public void SetDepthBounds(float min, float max) {
+			if (indirect != null) indirect(() => Graphics.State.SetDepthBounds(min, max));
+			else Graphics.State.SetDepthBounds(min, max);
+		}
 
-		public void SetLineWidth(float lineWidth) =>
-			DoImpl(() => Graphics.State.SetLineWidth(lineWidth));
-
-		public void SetScissor(Recti scissor, uint firstScissor = 0) =>
-			DoImpl(() => Graphics.State.SetScissors(stackalloc Recti[] { scissor }, firstScissor));
+		public void SetLineWidth(float lineWidth) {
+			if (indirect != null) indirect(() => Graphics.State.SetLineWidth(lineWidth));
+			else Graphics.State.SetLineWidth(lineWidth);
+		}
 
 		public void SetScissors(in ReadOnlySpan<Recti> scissors, uint firstScissor = 0) {
 			if (indirect != null) {
@@ -366,23 +500,26 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void SetStencilCompareMask(CullFace face, uint compareMask) {
 			if (face == CullFace.None) return;
-			DoImpl(() => Graphics.State.SetStencilCompareMask(GLEnums.Convert(face), compareMask));
+			var glface = GLEnums.Convert(face);
+			if (indirect != null) indirect(() => Graphics.State.SetStencilCompareMask(glface, compareMask));
+			else Graphics.State.SetStencilCompareMask(glface, compareMask);
 		}
 
 		public void SetStencilReference(CullFace face, uint reference) {
 			if (face == CullFace.None) return;
-			DoImpl(() => Graphics.State.SetStencilReference(GLEnums.Convert(face), (int)reference));
+			var glface = GLEnums.Convert(face);
+			if (indirect != null) indirect(() => Graphics.State.SetStencilReference(glface, (int)reference));
+			else Graphics.State.SetStencilReference(glface, (int)reference);
 		}
 
 		public void SetStencilWriteMask(CullFace face, uint writeMask) {
 			if (face == CullFace.None) return;
-			DoImpl(() => Graphics.State.SetStencilWriteMask(GLEnums.Convert(face), writeMask));
+			var glface = GLEnums.Convert(face);
+			if (indirect != null) indirect(() => Graphics.State.SetStencilWriteMask(glface, writeMask));
+			else Graphics.State.SetStencilWriteMask(glface, writeMask);
 		}
 
 		public void SetSync(ISync dst, PipelineStage stage) => throw new GLException("SetSync is unsupported on OpenGL");
-
-		public void SetViewport(Viewport viewport, uint firstViewport = 0) =>
-			DoImpl(() => Graphics.State.SetViewports(stackalloc Viewport[] { viewport }, firstViewport));
 
 		public void SetViewports(in ReadOnlySpan<Viewport> viewports, uint firstViewport = 0) {
 			if (viewports.Length == 0) return;
@@ -394,33 +531,44 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void SetCullMode(CullFace culling) {
 			GLFace face = GLEnums.Convert(culling);
-			DoImpl(() => Graphics.State.SetCullMode(culling != CullFace.None, face));
+			if (indirect != null) indirect(() => Graphics.State.SetCullMode(culling != CullFace.None, face));
+			else Graphics.State.SetCullMode(culling != CullFace.None, face);
 		}
 
-		public void SetDepthBoundsTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthBoundsTestEnable(enabled));
+		public void SetDepthBoundsTestEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetDepthBoundsTestEnable(enabled));
+			else Graphics.State.SetDepthBoundsTestEnable(enabled);
+		}
 
 		public void SetDepthCompareOp(CompareOp op) {
 			GLCompareFunc glop = GLEnums.Convert(op);
-			DoImpl(() => Graphics.State.SetDepthCompareOp(glop));
+			if (indirect != null) indirect(() => Graphics.State.SetDepthCompareOp(glop));
+			else Graphics.State.SetDepthCompareOp(glop);
 		}
 
-		public void SetDepthTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthTestEnable(enabled));
+		public void SetDepthTestEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetDepthTestEnable(enabled));
+			else Graphics.State.SetDepthTestEnable(enabled);
+		}
 
-		public void SetDepthWriteEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthWriteEnable(enabled));
+		public void SetDepthWriteEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetDepthWriteEnable(enabled));
+			else Graphics.State.SetDepthWriteEnable(enabled);
+		}
 
 		public void SetFrontFace(FrontFace face) {
 			GLCullFace glface = GLEnums.Convert(face);
-			DoImpl(() => Graphics.State.SetFrontFace(glface));
+			if (indirect != null) indirect(() => Graphics.State.SetFrontFace(glface));
+			else Graphics.State.SetFrontFace(glface);
 		}
 
 		public void SetDrawMode(DrawMode mode) {
 			GLDrawMode glmode = GLEnums.Convert(mode);
-			DoImpl(() => Graphics.State.SetDrawMode(glmode));
+			if (indirect != null) indirect(() => Graphics.State.SetDrawMode(glmode));
+			else Graphics.State.SetDrawMode(glmode);
 		}
 
 		public void SetScissorsWithCount(in ReadOnlySpan<Recti> scissors) => SetScissors(scissors);
-
-		public void SetScissorsWithCount(params Recti[] scissors) => SetScissorsWithCount(scissors.AsSpan());
 
 		public void SetStencilOp(CullFace faces, StencilOp failOp, StencilOp passOp, StencilOp depthFailOp, CompareOp compareOp) {
 			if (faces == CullFace.None) return;
@@ -431,33 +579,50 @@ namespace Tesseract.OpenGL.Graphics {
 				CompareOp = GLEnums.ConvertStencilFunc(compareOp)
 			};
 			GLFace glfaces = GLEnums.Convert(faces);
-			DoImpl(() => Graphics.State.SetStencilOp(glfaces, state));
+			if (indirect != null) indirect(() => Graphics.State.SetStencilOp(glfaces, state));
+			else Graphics.State.SetStencilOp(glfaces, state);
 		}
 
-		public void SetStencilTestEnable(bool enabled) => DoImpl(() => Graphics.State.SetStencilTestEnable(enabled));
+		public void SetStencilTestEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetStencilTestEnable(enabled));
+			else Graphics.State.SetStencilTestEnable(enabled);
+		}
 
 		public void SetViewportsWithCount(in ReadOnlySpan<Viewport> viewports) => SetViewports(viewports);
 
-		public void SetViewportsWithCount(params Viewport[] viewports) => SetViewportsWithCount(viewports.AsSpan());
-
-		public void SetDepthBiasEnable(bool enabled) => DoImpl(() => Graphics.State.SetDepthBiasEnable(enabled));
+		public void SetDepthBiasEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetDepthBiasEnable(enabled));
+			else Graphics.State.SetDepthBiasEnable(enabled);
+		}
 
 		public void SetLogicOp(LogicOp op) {
 			GLLogicOp glop = GLEnums.Convert(op);
-			DoImpl(() => Graphics.State.SetLogicOp(glop));
+			if (indirect != null) indirect(() => Graphics.State.SetLogicOp(glop));
+			else Graphics.State.SetLogicOp(glop);
 		}
 
-		public void SetPatchControlPoints(uint controlPoints) => DoImpl(() => Graphics.State.SetPatchControlPoints(controlPoints));
+		public void SetPatchControlPoints(uint controlPoints) {
+			if (indirect != null) indirect(() => Graphics.State.SetPatchControlPoints(controlPoints));
+			else Graphics.State.SetPatchControlPoints(controlPoints);
+		}
 
-		public void SetPrimitiveRestartEnable(bool enabled) => DoImpl(() => Graphics.State.SetPrimitiveRestartEnable(enabled));
+		public void SetPrimitiveRestartEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetPrimitiveRestartEnable(enabled));
+			else Graphics.State.SetPrimitiveRestartEnable(enabled);
+		}
 
-		public void SetRasterizerDiscardEnable(bool enabled) => DoImpl(() => Graphics.State.SetRasterizerDiscardEnable(enabled));
+		public void SetRasterizerDiscardEnable(bool enabled) {
+			if (indirect != null) indirect(() => Graphics.State.SetRasterizerDiscardEnable(enabled));
+			else Graphics.State.SetRasterizerDiscardEnable(enabled);
+		}
 
 		public void SetVertexFormat(VertexFormat format) { } // No-op, vertex specification is done via vertex arrays
 
 		public void SetColorWriteEnable(in ReadOnlySpan<bool> enables) {
-			bool[] enables2 = enables.ToArray();
-			DoImpl(() => Graphics.State.SetColorWriteEnable(enables2));
+			if (indirect != null) {
+				bool[] enables2 = enables.ToArray();
+				indirect(() => Graphics.State.SetColorWriteEnable(enables2));
+			} else Graphics.State.SetColorWriteEnable(enables);
 		}
 
 		public void UpdateBuffer(IBuffer dst, nuint dstOffset, nuint dstSize, IntPtr pData) {
@@ -495,9 +660,9 @@ namespace Tesseract.OpenGL.Graphics {
 			}
 		}
 
-		public void WaitSync(in ICommandSink.PipelineBarriers barriers, in ReadOnlySpan<ISync> syncs) { }
-
 		public void WaitSync(in ICommandSink.PipelineBarriers barriers, ISync sync) { }
+
+		public void WaitSync(in ICommandSink.PipelineBarriers barriers, IReadOnlyList<ISync> syncs) { }
 
 	}
 

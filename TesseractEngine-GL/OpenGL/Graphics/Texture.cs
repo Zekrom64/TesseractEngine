@@ -15,6 +15,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public uint ID { get; }
 
+		public PixelFormat Format { get; }
+
 		public GLPixelFormat GLFormat { get; }
 
 		public GLTextureTarget GLTarget { get; }

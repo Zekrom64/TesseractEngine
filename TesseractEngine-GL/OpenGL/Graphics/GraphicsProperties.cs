@@ -89,6 +89,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public CoordinateSystem CoordinateSystem => CoordinateSystem.LeftHanded;
 
+		public CommandMode PreferredCommandMode => CommandMode.Immediate;
+
 		public GLGraphicsProperties(GL gl) {
 			RendererName = gl.GL11.GetString(Native.GLEnums.GL_RENDERER)!;
 			VendorName = gl.GL11.GetString(Native.GLEnums.GL_VENDOR)!;

@@ -55,7 +55,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 		}
 
 		public IGraphics CreateGraphics(GraphicsCreateInfo createInfo) =>
-			new VulkanGraphics(this, new VulkanDevice(PhysicalDeviceInfo, createInfo));
+			new VulkanGraphics(this, new VulkanDevice(PhysicalDeviceInfo, this, createInfo));
 
 		public ISwapchain CreateSwapchain(IGraphics graphics, SwapchainCreateInfo createInfo) =>
 			new VulkanSwapchain((VulkanGraphics)graphics, createInfo);
@@ -152,7 +152,6 @@ namespace Tesseract.Vulkan.Services.Objects {
 	/// <summary>
 	/// A graphics enumerator for the Vulkan API.
 	/// </summary>
-	[GraphicsEnumerator]
 	public class VulkanGraphicsEnumerator : IGraphicsEnumerator {
 
 		public static IGraphicsEnumerator GetEnumerator(GraphicsEnumeratorCreateInfo createInfo) {
@@ -174,6 +173,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public VulkanExtendedGraphicsEnumeratorInfo? ExtendedInfo { get; }
 
+		public bool NeedsSwapchain { get; }
+
 		public VulkanGraphicsEnumerator(GraphicsEnumeratorCreateInfo enumCreateInfo, VulkanExtendedGraphicsEnumeratorInfo? exInfo) {
 			ExtendedInfo = exInfo;
 			// The layer name for the standard validation layers
@@ -186,6 +187,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 				windowSurface = enumCreateInfo.Window.GetService(VKServices.SurfaceProvider);
 				if (windowSurface == null) throw new ArgumentException("Provided window cannot create a Vulkan surface", nameof(enumCreateInfo));
 			}
+			NeedsSwapchain = windowSurface != null;
 
 			// Get/create the loader and Vulkan API object
 			IVKLoader loader = exInfo?.Loader ?? new VulkanPlatformLoader();

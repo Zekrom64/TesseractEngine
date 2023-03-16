@@ -113,8 +113,7 @@ namespace Tesseract.OpenGL.Graphics {
 				var gl33 = gl.GL33!;
 				ProgramID = gl33.CreateProgram();
 				var gpb = gl.ARBGetProgramBinary;
-				if (gpb != null)
-					gpb.ProgramParameter(ProgramID, GLProgramParameter.BinaryRetrievableHint, 1);
+				gpb?.ProgramParameter(ProgramID, GLProgramParameter.BinaryRetrievableHint, 1);
 				
 				ulong srchash = 0;
 				foreach(GLShader shader in shaders) {
@@ -256,7 +255,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public bool LogicOpEnable { get; }
 
-		public struct ColorAttachmentState {
+		public readonly struct ColorAttachmentState {
 
 			public bool BlendEnable { get; init; }
 
@@ -318,7 +317,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public bool? DepthBiasEnable { get; }
 
-		public record struct DepthBiasFactors {
+		public readonly struct DepthBiasFactors {
 
 			public float ConstantFactor { get; init; }
 
@@ -342,7 +341,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public bool? StencilTestEnable { get; }
 
-		public record struct StencilOpState {
+		public readonly record struct StencilOpState {
 
 			public GLStencilOp FailOp { get; init; }
 
