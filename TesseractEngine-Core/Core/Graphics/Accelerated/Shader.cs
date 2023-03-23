@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using Tesseract.Core.Native;
 
 namespace Tesseract.Core.Graphics.Accelerated {
@@ -36,11 +39,30 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	}
 
 	/// <summary>
-	/// Enumeration of types of shader source types.
+	/// <para>Enumeration of types of shader source types.</para>
+	/// <para>
+	/// All source types recognize source objects with types (of <see cref="byte"/>):
+	/// <list type="bullet">
+	/// <item><see cref="Array"/></item>
+	/// <item><see cref="IConstPointer{T}"/> with an explicit size (or null-termination when treated as a string)</item>
+	/// <item><see cref="ReadOnlyMemory{T}"/></item>
+	/// </list>
+	/// If any of these object types are used as a source they are reinterpreted as follows:
+	/// <list type="table">
+	/// <item>
+	/// <term><see cref="SPIRV"/></term>
+	/// <description>The underlying memory is treated as an array of <see cref="int"/>s in native byte order</description>
+	/// </item>
+	/// <item>
+	/// <term><see cref="GLSL"/></term>
+	/// <description>The underlying memory is treated as a (potentially null-terminated) ASCII string</description>
+	/// </item>
+	/// </list>
+	/// </para>
 	/// </summary>
 	public enum ShaderSourceType {
 		/// <summary>
-		/// SPIR-V binary. Recognized types (of <see cref="int"/>):
+		/// SPIR-V binary. Additionally recognizes types (of <see cref="int"/>):
 		/// <list type="bullet">
 		/// <item><see cref="Array"/></item>
 		/// <item><see cref="IReadOnlyList{T}"/></item>
@@ -50,14 +72,72 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		SPIRV,
 		/// <summary>
-		/// GLSL source code. Recognized types:
+		/// GLSL source code. Additionaly recognizes types:
 		/// <list type="bullet">
 		/// <item><see cref="string"/></item>
+		/// <item><see cref="IReadOnlyList{T}"/> of <see cref="char"/></item>
 		/// <item>The object's <see cref="object.ToString()"/> method</item>
-		/// <item><see cref="IConstPointer{T}"/> of <see cref="byte"/> (must have explicit size or be null-terminated)</item>
 		/// </list>
 		/// </summary>
 		GLSL
+	}
+
+	/// <summary>
+	/// Utilities for reading shader sources.
+	/// </summary>
+	public static class ShaderSourceUtil {
+
+		/// <summary>
+		/// Gets a span containing the SPIR-V binary data for the given source object.
+		/// </summary>
+		/// <param name="obj">SPIR-V source object</param>
+		/// <returns>SPIR-V binary</returns>
+		/// <exception cref="ArgumentException">If the source object is invalid for SPIR-V</exception>
+		public static ReadOnlySpan<int> GetSPIRV(object obj) {
+			// Standard object types
+			if (obj is byte[] barr) return MemoryMarshal.Cast<byte, int>(barr);
+			else if (obj is IConstPointer<byte> cpb) {
+				if (cpb.ArraySize < 0) throw new ArgumentException("Cannot get SPIR-V source from IConstPointer<byte> with no explicit size");
+				return MemoryUtil.RecastAs<byte, int>(cpb).ReadOnlySpan;
+			} else if (obj is ReadOnlyMemory<byte> romb) return MemoryMarshal.Cast<byte, int>(romb.Span);
+
+			// SPIR-V object types
+			if (obj is int[] iarr) return iarr;
+			else if (obj is IReadOnlyList<int> lst) return lst.ToArray();
+			else if (obj is ReadOnlyMemory<int> romi) return romi.Span;
+			else if (obj is IConstPointer<int> cpi) {
+				if (cpi.ArraySize < 0) throw new ArgumentException("Cannot get SPIR-V source from IConstPointer<int> with no explicit size");
+				return cpi.ReadOnlySpan;
+			}
+
+			throw new ArgumentException($"Cannot convert shader source of type \"{obj.GetType()}\" to SPIR-V", nameof(obj));
+		}
+
+		/// <summary>
+		/// Gets a span containing the GLSL text bytes for the given source object.
+		/// </summary>
+		/// <param name="obj">GLSL source object</param>
+		/// <returns>GLSL source code bytes</returns>
+		public static ReadOnlySpan<byte> GetGLSL(object obj) {
+			// Standard object types
+			if (obj is byte[] barr) return barr;
+			else if (obj is IConstPointer<byte> cpbPtr) {
+				int len = cpbPtr.ArraySize;
+				if (len < 0) len = MemoryUtil.FindFirst(cpbPtr.Ptr, 0);
+				unsafe {
+					return new ReadOnlySpan<byte>((void*)cpbPtr.Ptr, len);
+				}
+			} else if (obj is ReadOnlyMemory<byte> romb) return romb.Span;
+
+			// GLSL object types
+			var ascii = Encoding.ASCII;
+			if (obj is string s) return ascii.GetBytes(s);
+			else if (obj is IReadOnlyList<char> rolc) return ascii.GetBytes(rolc.ToArray());
+			else return ascii.GetBytes(obj.ToString() ?? throw new NullReferenceException("Cannot convert object with null ToString() to GLSL"));
+			
+			//throw new ArgumentException($"Cannot convert shader source of type \"{obj.GetType()}\" to GLSL", nameof(obj));
+		}
+
 	}
 
 	/// <summary>

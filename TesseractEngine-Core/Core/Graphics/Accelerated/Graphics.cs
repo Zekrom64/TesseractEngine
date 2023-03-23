@@ -779,6 +779,21 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public uint MaxGeometryTotalOutputComponents { get; }
 
 		/// <summary>
+		/// The maximum number of components that can be input to a fragment shader.
+		/// </summary>
+		public uint MaxFragmentInputComponents { get; }
+
+		/// <summary>
+		/// The maximum number of attachments a fragment shader can output to.
+		/// </summary>
+		public uint MaxFragmentOutputAttachments { get; }
+
+		/// <summary>
+		/// The maximum number of attachments a fragment shader can output to if dual-source blending is enabled.
+		/// </summary>
+		public uint MaxFragmentDualSrcAttachments { get; }
+
+		/// <summary>
 		/// The range of accepted values for the size of point geometry. The first value is the lower bound and the second is the upper.
 		/// </summary>
 		public (float, float) PointSizeRange { get; }

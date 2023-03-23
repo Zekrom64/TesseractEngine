@@ -51,6 +51,9 @@ namespace Tesseract.Vulkan.Services {
 		public uint MaxGeometryOutputComponents => DeviceInfo.Limits.MaxGeometryOutputComponents;
 		public uint MaxGeometryOutputVertices => DeviceInfo.Limits.MaxGeometryOutputVertices;
 		public uint MaxGeometryTotalOutputComponents => DeviceInfo.Limits.MaxGeometryTotalOutputComponents;
+		public uint MaxFragmentInputComponents => DeviceInfo.Limits.MaxFragmentInputComponents;
+		public uint MaxFragmentOutputAttachments => DeviceInfo.Limits.MaxFragmentOutputAttachments;
+		public uint MaxFragmentDualSrcAttachments => DeviceInfo.Limits.MaxFragmentDualSrcAttachments;
 
 		public (float, float) PointSizeRange {
 			get {

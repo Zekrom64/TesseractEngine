@@ -239,6 +239,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public IMemoryBinding? MemoryBinding { get; }
 
+		/// <summary>
+		/// The unaltered 'identity' view of the texture.
+		/// </summary>
+		public ITextureView IdentityView { get; }
+
 	}
 
 	/// <summary>

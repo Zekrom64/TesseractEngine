@@ -189,25 +189,12 @@ namespace Tesseract.Vulkan.Services {
 
 		public IShader CreateShader(ShaderCreateInfo createInfo) {
 			if (createInfo.SourceType != ShaderSourceType.SPIRV) throw new VulkanException("Vulkan graphics only supports SPIR-V shader sources");
-
-			ReadOnlyMemory<int> spirv = default;
-			IConstPointer<int>? pspirv = default;
-			if (createInfo.Source is int[] arr) spirv = arr;
-			else if (createInfo.Source is IReadOnlyList<int> lst) spirv = lst.ToArray();
-			else if (createInfo.Source is ReadOnlyMemory<int> mem) spirv = mem;
-			else if (createInfo.Source is IConstPointer<int> ptr) {
-				pspirv = ptr;
-				if (pspirv.ArraySize < 0) throw new ArgumentException("Pointer SPIR-V source type must have explicit length", nameof(createInfo));
-			} else throw new ArgumentException("Supplied shader source is not a valid SPIR-V source type", nameof(createInfo));
+			ReadOnlySpan<int> spirv = ShaderSourceUtil.GetSPIRV(createInfo.Source);
 
 			unsafe {
-				fixed(int* pSpirv = spirv.Span) {
+				fixed(int* pSpirv = spirv) {
 					IntPtr pCode = (IntPtr)pSpirv;
 					int length = spirv.Length;
-					if (pspirv != null) {
-						pCode = pspirv.Ptr;
-						length = pspirv.ArraySize;
-					}
 
 					return new VulkanShader(Device.Device.CreateShaderModule(new VKShaderModuleCreateInfo() {
 						Type = VKStructureType.ShaderModuleCreateInfo,
@@ -276,7 +263,7 @@ namespace Tesseract.Vulkan.Services {
 
 			binding.Bind(image);
 
-			return new VulkanTexture(image, true) {
+			return new VulkanTexture(this, image, true) {
 				Type = createInfo.Type,
 				Format = createInfo.Format,
 				Size = createInfo.Size,

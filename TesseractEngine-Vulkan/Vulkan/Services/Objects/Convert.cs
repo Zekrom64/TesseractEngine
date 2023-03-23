@@ -430,19 +430,6 @@ namespace Tesseract.Vulkan.Services.Objects {
 			_ => default
 		};
 
-		public static VKFormat Convert(VertexAttribFormat format) => format switch {
-			VertexAttribFormat.Undefined => VKFormat.Undefined,
-			VertexAttribFormat.X32SFloat => VKFormat.R32SFloat,
-			VertexAttribFormat.X32Y32SFloat => VKFormat.R32G32SFloat,
-			VertexAttribFormat.X32Y32Z32SFloat => VKFormat.R32G32B32SFloat,
-			VertexAttribFormat.X32Y32Z32W32SFloat => VKFormat.R32G32B32A32SFloat,
-			VertexAttribFormat.X32SInt => VKFormat.R32SInt,
-			VertexAttribFormat.X32Y32SInt => VKFormat.R32G32SInt,
-			VertexAttribFormat.X32Y32Z32SInt => VKFormat.R32G32B32SInt,
-			VertexAttribFormat.X32Y32Z32W32SInt => VKFormat.R32G32B32A32SInt,
-			_ => default
-		};
-
 		public static VKVertexInputRate Convert(VertexInputRate rate) => rate switch {
 			VertexInputRate.PerVertex => VKVertexInputRate.Vertex,
 			VertexInputRate.PerInstance => VKVertexInputRate.Instance,
@@ -955,8 +942,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 			DstArrayElement = 0,
 			DescriptorCount = 1,
 			DescriptorType = Convert(write.Type),
-			BufferInfo = write.BufferInfo != null ? sp.Values(write.BufferInfo.ConvertAll(Convert)) : IntPtr.Zero,
-			ImageInfo = write.TextureInfo != null ? sp.Values(write.TextureInfo.ConvertAll(Convert)) : IntPtr.Zero
+			BufferInfo = sp.Values(Convert(write.BufferInfo)),
+			ImageInfo = sp.Values(Convert(write.TextureInfo))
 		};
 
 		public static VKDescriptorSetLayoutBinding Convert(BindSetLayoutBinding binding) => new() {

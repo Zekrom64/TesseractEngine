@@ -1115,13 +1115,13 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribFormat(uint vaobj, uint attribIndex, int size, GLType type, bool normalized, uint relativeOffset) => Functions.glVertexArrayAttribFormat(vaobj, attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
+		public void VertexArrayAttribFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, bool normalized, uint relativeOffset) => Functions.glVertexArrayAttribFormat(vaobj, attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribIFormat(uint vaobj, uint attribIndex, int size, GLType type, uint relativeOffset) => Functions.glVertexArrayAttribIFormat(vaobj, attribIndex, size, (uint)type, relativeOffset);
+		public void VertexArrayAttribIFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexArrayAttribIFormat(vaobj, attribIndex, size, (uint)type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribLFormat(uint vaobj, uint attribIndex, int size, GLType type, uint relativeOffset) => Functions.glVertexArrayAttribLFormat(vaobj, attribIndex, size, (uint)type, relativeOffset);
+		public void VertexArrayAttribLFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexArrayAttribLFormat(vaobj, attribIndex, size, (uint)type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void VertexArrayAttribBinding(uint vaobj, uint attribIndex, uint bindingIndex) => Functions.glVertexArrayAttribBinding(vaobj, attribIndex, bindingIndex);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tesseract.Core.Collections;
+using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Core.Graphics {
 
@@ -232,6 +233,22 @@ namespace Tesseract.Core.Graphics {
 				}
 			}
 			return channelTypeMap;
+		}
+
+		/// <summary>
+		/// The bitmask of texture aspects included in this pixel format.
+		/// </summary>
+		public TextureAspect Aspects {
+			get {
+				bool depth = HasChannel(ChannelType.Depth);
+				bool stencil = HasChannel(ChannelType.Stencil);
+				if (depth || stencil) {
+					TextureAspect aspects = default;
+					if (depth) aspects |= TextureAspect.Depth;
+					if (stencil) aspects |= TextureAspect.Stencil;
+					return aspects;
+				} else return TextureAspect.Color;
+			}
 		}
 
 		private PixelFormat() { }

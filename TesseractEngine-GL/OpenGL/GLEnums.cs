@@ -67,6 +67,7 @@ namespace Tesseract.OpenGL {
 		UnsignedInt = GLEnums.GL_UNSIGNED_INT,
 		HalfFloat = GLEnums.GL_HALF_FLOAT,
 		Float = GLEnums.GL_FLOAT,
+		Double = GLEnums.GL_DOUBLE,
 		UnsignedByte_3_3_2 = GLEnums.GL_UNSIGNED_BYTE_3_3_2,
 		UnsignedByte_2_3_3_Rev = GLEnums.GL_UNSIGNED_BYTE_2_3_3_REV,
 		UnsignedShort_5_6_5 = GLEnums.GL_UNSIGNED_SHORT_5_6_5,

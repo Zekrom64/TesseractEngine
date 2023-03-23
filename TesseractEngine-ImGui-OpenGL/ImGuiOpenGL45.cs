@@ -143,15 +143,15 @@ namespace Tesseract.ImGui.OpenGL {
 				// Setup vertex attributes
 				// 0: ImDrawVert.Pos -> vec2
 				gl.EnableVertexArrayAttrib(vertexArray, 0);
-				gl.VertexArrayAttribFormat(vertexArray, 0, 2, GLType.Float, false, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Pos)));
+				gl.VertexArrayAttribFormat(vertexArray, 0, 2, GLTextureType.Float, false, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Pos)));
 				gl.VertexArrayAttribBinding(vertexArray, 0, 0);
 				// 1: ImDrawPos.Col -> vec4
 				gl.EnableVertexArrayAttrib(vertexArray, 1);
-				gl.VertexArrayAttribFormat(vertexArray, 1, 4, GLType.UnsignedByte, true, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Col)));
+				gl.VertexArrayAttribFormat(vertexArray, 1, 4, GLTextureType.UnsignedByte, true, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Col)));
 				gl.VertexArrayAttribBinding(vertexArray, 1, 0);
 				// 2: ImDrawPos.UV -> vec2
 				gl.EnableVertexArrayAttrib(vertexArray, 2);
-				gl.VertexArrayAttribFormat(vertexArray, 2, 2, GLType.Float, false, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.UV)));
+				gl.VertexArrayAttribFormat(vertexArray, 2, 2, GLTextureType.Float, false, (uint)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.UV)));
 				gl.VertexArrayAttribBinding(vertexArray, 2, 0);
 
 				// Initialize vertex and index buffers

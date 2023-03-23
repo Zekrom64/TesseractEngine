@@ -352,19 +352,15 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		};
 
 		/// <summary>
-		/// Implements an alpha blend equation, i.e.:
-		/// <para>
-		/// <c>D[RGB] = (S[RGB] * (1-D[A])) + (D[RGB] * D[A])</c><br/>
-		/// <c>D[A] = max(S[A], D[A])</c>
-		/// </para>
+		/// Implements an alpha blend equation, i.e. <c>D = (S * S[A]) + (D * (1-S[A]))</c>
 		/// </summary>
 		public static readonly BlendEquation AlphaBlend = new() {
-			SrcRGB = BlendFactor.OneMinusDstAlpha,
-			DstRGB = BlendFactor.DstAlpha,
+			SrcRGB = BlendFactor.SrcAlpha,
+			DstRGB = BlendFactor.OneMinusSrcAlpha,
 			RGBOp = BlendOp.Add,
-			SrcAlpha = BlendFactor.One,
-			DstAlpha = BlendFactor.One,
-			AlphaOp = BlendOp.Max
+			SrcAlpha = BlendFactor.SrcAlpha,
+			DstAlpha = BlendFactor.OneMinusSrcAlpha,
+			AlphaOp = BlendOp.Add
 		};
 
 		/// <summary>

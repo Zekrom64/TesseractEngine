@@ -154,7 +154,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			Swapchain?.Dispose();
 			Swapchain = newSwapchain;
 
-			Images = Swapchain.Images.ConvertAll(img => new VulkanTexture(img, false) { Format = Format });
+			Images = Swapchain.Images.ConvertAll(img => new VulkanTexture(Graphics, img, false) { Format = Format });
 
 			OnRebuild?.Invoke();
 		}

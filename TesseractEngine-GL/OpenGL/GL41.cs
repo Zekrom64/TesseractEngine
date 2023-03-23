@@ -102,7 +102,7 @@ namespace Tesseract.OpenGL {
 		// ARB_vertex_attrib_64bit
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribLPointer(uint index, int size, GLType type, int stride, nint offset) => GL.ARBVertexAttrib64Bit.VertexAttribLPointer(index, size, type, stride, offset);
+		public void VertexAttribLPointer(uint index, int size, GLTextureType type, int stride, nint offset) => GL.ARBVertexAttrib64Bit.VertexAttribLPointer(index, size, type, stride, offset);
 
 		// ARB_viewport_array
 

@@ -401,9 +401,9 @@ namespace Tesseract.Vulkan.Services.Objects {
 			Pool.Free(this);
 		}
 
-		public void Update(in ReadOnlySpan<BindSetWrite> writes) {
+		public void Update(IReadOnlyList<BindSetWrite> writes) {
 			using MemoryStack sp = MemoryStack.Push();
-			Span<VKWriteDescriptorSet> vkwrites = stackalloc VKWriteDescriptorSet[writes.Length];
+			Span<VKWriteDescriptorSet> vkwrites = stackalloc VKWriteDescriptorSet[writes.Count];
 			for (int i = 0; i < vkwrites.Length; i++) vkwrites[i] = VulkanConverter.Convert(sp, writes[i], Set);
 			Set.Device.UpdateDescriptorSets(vkwrites, stackalloc VKCopyDescriptorSet[0]);
 		}

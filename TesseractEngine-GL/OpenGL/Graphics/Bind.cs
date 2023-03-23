@@ -9,7 +9,11 @@ namespace Tesseract.OpenGL.Graphics {
 
 	public class GLBindSetLayout : IBindSetLayout {
 
-		public IReadOnlyList<BindSetLayoutBinding> Bindings => throw new NotImplementedException();
+		public IReadOnlyList<BindSetLayoutBinding> Bindings { get; }
+
+		public GLBindSetLayout(BindSetLayoutCreateInfo createInfo) {
+			Bindings = createInfo.Bindings;
+		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
@@ -21,7 +25,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public GLGraphics Graphics { get; }
 
-		public GLBindPool(GLGraphics graphics, BindPoolCreateInfo createInfo) {
+		public GLBindPool(GLGraphics graphics) {
 			Graphics = graphics;
 		}
 
@@ -35,15 +39,91 @@ namespace Tesseract.OpenGL.Graphics {
 
 	public class GLBindSet : IBindSet {
 
-		public GLBindSet(GLBindPool pool, BindSetAllocateInfo allocateInfo) {
+		private readonly GLGraphics graphics;
 
+		private readonly TextureBinding?[] textures;
+		private readonly BufferBinding?[] uniformBuffers;
+		private readonly BufferBinding?[] storageBuffers;
+
+		public GLBindSet(GLBindPool pool, BindSetAllocateInfo allocateInfo) {
+			graphics = pool.Graphics;
+			var limits = graphics.Limits;
+			textures = new TextureBinding?[limits.MaxPerStageSamplers];
+			uniformBuffers = new BufferBinding?[limits.MaxPerStageUniformBuffers];
+			storageBuffers = new BufferBinding?[limits.MaxPerStageStorageBuffers];
+
+			foreach(var layout in allocateInfo.Layouts) {
+				foreach(var binding in layout.Bindings) {
+					switch(binding.Type) {
+						case BindType.UniformBuffer:
+							uniformBuffers[binding.Binding] = default(BufferBinding);
+							break;
+						case BindType.StorageBuffer:
+							storageBuffers[binding.Binding] = default(BufferBinding);
+							break;
+						case BindType.CombinedTextureSampler:
+						case BindType.StorageTexture:
+							textures[binding.Binding] = default(TextureBinding);
+							break;
+					}
+				}
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 		}
 
-		public void Update(in ReadOnlySpan<BindSetWrite> writes) { }
+		internal void Bind() {
+			var state = graphics.State;
+
+			// Bind textures
+			for(uint i = 0; i < textures.Length; i++) {
+				var tex = textures[i];
+				if (tex != null) {
+					var tex2 = tex.Value;
+					var texobj = (IGLTexture)tex2.TextureView;
+					state.BindTextureUnit(i, texobj.GLTarget, texobj.ID);
+					var samplerobj = (GLSampler?)tex2.Sampler;
+					if (samplerobj != null) state.BindSampler(i, samplerobj.ID);
+				}
+			}
+
+			void BindBuffers(GLBufferRangeTarget target, BufferBinding?[] bindings) {
+				for(uint i = 0; i < bindings.Length; i++) {
+					var buf = bindings[i];
+					if (buf != null) {
+						var buf2 = buf.Value;
+						state.BindBufferRange(target, i, new GLBufferRangeBinding() {
+							Buffer = ((GLBuffer)buf2.Buffer).ID,
+							Offset = (nint)buf2.Range.Offset,
+							Length = (nint)buf2.Range.Length
+						});
+					}
+				}
+			}
+
+			// Bind buffers
+			BindBuffers(GLBufferRangeTarget.Uniform, uniformBuffers);
+			BindBuffers(GLBufferRangeTarget.ShaderStorage, storageBuffers);
+		}
+
+		public void Update(IReadOnlyList<BindSetWrite> writes) {
+			foreach(BindSetWrite write in writes) {
+				switch(write.Type) {
+					case BindType.UniformBuffer:
+						uniformBuffers[write.Binding] = write.BufferInfo;
+						break;
+					case BindType.StorageBuffer:
+						storageBuffers[write.Binding] = write.BufferInfo;
+						break;
+					case BindType.CombinedTextureSampler:
+					case BindType.StorageTexture:
+						textures[write.Binding] = write.TextureInfo;
+						break;
+				}
+			}
+		}
 
 	}
 

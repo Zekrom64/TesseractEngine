@@ -152,6 +152,16 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void LinkProgram(uint program) => FunctionsGL20.glLinkProgram(program);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ShaderSource(uint shader, ReadOnlySpan<byte> source) {
+			unsafe {
+				int length = source.Length;
+				fixed(byte* pSrcBytes = source) {
+					FunctionsGL20.glShaderSource(shader, 1, (IntPtr)(&pSrcBytes), (IntPtr)(&length));
+				}
+			}
+		}
+
 		public void ShaderSource(uint shader, string source) {
 			byte[] srcBytes = Encoding.ASCII.GetBytes(source);
 			unsafe {
@@ -187,7 +197,7 @@ namespace Tesseract.OpenGL {
 		public void UseProgram(uint program) => FunctionsGL20.glUseProgram(program);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribPointer(uint index, int size, GLType type, bool normalized, int stride, nint offset) => FunctionsGL20.glVertexAttribPointer(index, size, (uint)type, (byte)(normalized ? 1 : 0), stride, offset);
+		public void VertexAttribPointer(uint index, int size, GLTextureType type, bool normalized, int stride, nint offset) => FunctionsGL20.glVertexAttribPointer(index, size, (uint)type, (byte)(normalized ? 1 : 0), stride, offset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ValidateProgram(uint program) => FunctionsGL20.glValidateProgram(program);

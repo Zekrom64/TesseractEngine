@@ -7,6 +7,8 @@ using Tesseract.Core.Graphics.Accelerated;
 using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 using System.Net.Mail;
+using System.Security.Cryptography;
+using System.Collections;
 
 namespace Tesseract.OpenGL.Graphics {
 
@@ -168,9 +170,10 @@ namespace Tesseract.OpenGL.Graphics {
 			if (glset.IsVariable(PipelineDynamicState.BlendConstants)) SetBlendConstants(state.BlendConstant);
 		}
 
-		// TODO
 		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IBindSet set) {
-			throw new NotImplementedException();
+			GLBindSet glset = (GLBindSet)set;
+			if (indirect != null) indirect(glset.Bind);
+			else glset.Bind();
 		}
 
 		public void BindResources(PipelineType bindPoint, IPipelineLayout layout, IReadOnlyList<IBindSet> sets) {
@@ -252,13 +255,69 @@ namespace Tesseract.OpenGL.Graphics {
 			} else ClearAttachmentsImpl(values, regions);
 		}
 
-		// TODO
-		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) {
-			throw new NotImplementedException();
+		private void ClearColorTextureImpl(GLTexture gldst, ICommandSink.ClearValue value, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			var iface = Graphics.Interface;
+			foreach (var region in regions) {
+				Vector3i offset = Vector3i.Zero;
+				Vector3i size = (Vector3i)gldst.Size;
+				if (gldst.Type == TextureType.Texture1DArray) {
+					offset.Y = (int)region.BaseArrayLayer;
+					size.Y = (int)region.ArrayLayerCount;
+				} else if (gldst.ArrayLayers > 1) {
+					offset.Z = (int)region.BaseArrayLayer;
+					size.Z = (int)region.ArrayLayerCount;
+				}
+				for (int i = 0; i < region.MipLevelCount; i++) {
+					iface.ClearTexSubImage(gldst, (int)(region.BaseMipLevel + i), offset, size, value, GLBufferMask.Color);
+				}
+			}
 		}
 
-		// TODO
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions) => throw new NotImplementedException();
+		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			GLTexture gldst = (GLTexture)dst;
+			var iface = Graphics.Interface;
+			ICommandSink.ClearValue value = new() {
+				Aspect = TextureAspect.Color,
+				Color = color
+			};
+			if (indirect != null) {
+				var regions2 = regions.ToArray();
+				indirect(() => ClearColorTextureImpl(gldst, value, regions2));
+			} else ClearColorTextureImpl(gldst, value, regions);
+		}
+
+		private void ClearDepthStencilTextureImpl(GLTexture gldst, ICommandSink.ClearValue value, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			var iface = Graphics.Interface;
+			foreach (var region in regions) {
+				Vector3i offset = Vector3i.Zero;
+				Vector3i size = (Vector3i)gldst.Size;
+				if (gldst.Type == TextureType.Texture1DArray) {
+					offset.Y = (int)region.BaseArrayLayer;
+					size.Y = (int)region.ArrayLayerCount;
+				} else if (gldst.ArrayLayers > 1) {
+					offset.Z = (int)region.BaseArrayLayer;
+					size.Z = (int)region.ArrayLayerCount;
+				}
+				for (int i = 0; i < region.MipLevelCount; i++) {
+					iface.ClearTexSubImage(gldst, (int)(region.BaseMipLevel + i), offset, size, value, GLEnums.Convert(value.Aspect));
+				}
+			}
+		}
+
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, int stencil, in ReadOnlySpan<TextureSubresourceRange> regions) {
+			GLTexture gldst = (GLTexture)dst;
+			var iface = Graphics.Interface;
+			ICommandSink.ClearValue value = new() {
+				Aspect = dst.Format.Aspects,
+				Depth = depth,
+				Stencil = stencil
+			};
+			if ((value.Aspect & TextureAspect.Color) != 0) return;
+			if (indirect != null) {
+				var regions2 = regions.ToArray();
+				indirect(() => ClearDepthStencilTextureImpl(gldst, value, regions2));
+			} else ClearDepthStencilTextureImpl(gldst, value, regions);
+		}
 
 		private void CopyBufferImpl(GLBuffer gldst, GLBuffer glsrc, in ReadOnlySpan<ICommandSink.CopyBufferRegion> regions) {
 			foreach (ICommandSink.CopyBufferRegion region in regions)

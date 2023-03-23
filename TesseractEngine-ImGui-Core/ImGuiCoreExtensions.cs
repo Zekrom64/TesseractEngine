@@ -8,7 +8,7 @@ using Tesseract.Core.Numerics;
 namespace Tesseract.ImGui.Core {
 
 	/// <summary>
-	/// Extensions to the <see cref="IImGui"/> interface 
+	/// Extensions to the <see cref="IImGui"/> interface using types from the core library.
 	/// </summary>
 	public static class ImGuiCoreExtensions {
 

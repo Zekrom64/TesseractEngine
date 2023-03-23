@@ -14,6 +14,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 	/// </summary>
 	public class VulkanTexture : ITexture {
 
+		private readonly VulkanGraphics graphics;
+
 		/// <summary>
 		/// The underlying Vulkan image.
 		/// </summary>
@@ -35,15 +37,36 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public IMemoryBinding? MemoryBinding { get; init; }
 
+		private ITextureView? identityView = null;
+
+		public ITextureView IdentityView {
+			get {
+				identityView ??= graphics.CreateTextureView(new TextureViewCreateInfo() {
+					Texture = this,
+					Type = Type,
+					Format = Format,
+					Mapping = new ComponentMapping(),
+					SubresourceRange = new TextureSubresourceRange() {
+						Aspects = Format.Aspects,
+						ArrayLayerCount = ArrayLayers,
+						MipLevelCount = MipLevels
+					}
+				});
+				return identityView;
+			}
+		}
+
 		private readonly bool disposable;
 
-		public VulkanTexture(VKImage image, bool disposable) {
+		public VulkanTexture(VulkanGraphics graphics, VKImage image, bool disposable) {
+			this.graphics = graphics;
 			Image = image;
 			this.disposable = disposable;
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
+			identityView?.Dispose();
 			if (disposable) Image.Dispose();
 		}
 

@@ -9,48 +9,6 @@ using Tesseract.Core.Numerics;
 namespace Tesseract.Core.Graphics.Accelerated {
 
 	/// <summary>
-	/// Enumeration of supported vertex attribute formats.
-	/// </summary>
-	public enum VertexAttribFormat {
-		/// <summary>
-		/// Undefined vertex attribute format.
-		/// </summary>
-		Undefined,
-		/// <summary>
-		/// Scalar 32-bit float.
-		/// </summary>
-		X32SFloat,
-		/// <summary>
-		/// 2-component 32-bit float vector.
-		/// </summary>
-		X32Y32SFloat,
-		/// <summary>
-		/// 3-component 32-bit float vector.
-		/// </summary>
-		X32Y32Z32SFloat,
-		/// <summary>
-		/// 4-component 32-bit float vector.
-		/// </summary>
-		X32Y32Z32W32SFloat,
-		/// <summary>
-		/// Scalar 32-bit signed integer.
-		/// </summary>
-		X32SInt,
-		/// <summary>
-		/// 2-component 32-bit signed integer vector.
-		/// </summary>
-		X32Y32SInt,
-		/// <summary>
-		/// 3-component 32-bit signed integer vector.
-		/// </summary>
-		X32Y32Z32SInt,
-		/// <summary>
-		/// 4-component 32-bit signed integer vector.
-		/// </summary>
-		X32Y32Z32W32SInt
-	}
-
-	/// <summary>
 	/// This attribute can be applied to struct fields to indicate they are vertex attributes.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
@@ -64,7 +22,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format of the vertex attribute.
 		/// </summary>
-		public VertexAttribFormat Format { get; init; } = VertexAttribFormat.Undefined;
+		public required PixelFormat Format { get; init; }
 
 		/// <summary>
 		/// The byte offset of the attribute
@@ -93,23 +51,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The format of the attribute.
 		/// </summary>
-		public VertexAttribFormat Format { get; set; }
+		public PixelFormat Format { get; set; }
 
 		/// <summary>
 		/// The byte offset of the attribute from the start of a vertex.
 		/// </summary>
 		public uint Offset { get; set; }
-
-		private static readonly Dictionary<Type, VertexAttribFormat> attribFormatTypes = new() {
-			{ typeof(float), VertexAttribFormat.X32SFloat },
-			{ typeof(Vector2), VertexAttribFormat.X32Y32SFloat },
-			{ typeof(Vector3), VertexAttribFormat.X32Y32Z32SFloat },
-			{ typeof(Vector4), VertexAttribFormat.X32Y32Z32W32SFloat },
-			{ typeof(int), VertexAttribFormat.X32SInt },
-			{ typeof(Vector2i), VertexAttribFormat.X32Y32SInt },
-			{ typeof(Vector3i), VertexAttribFormat.X32Y32Z32SInt },
-			{ typeof(Vector4i), VertexAttribFormat.X32Y32Z32W32SInt }
-		};
 
 		/// <summary>
 		/// Loads a list of attributes from the given type based on the type's fields.
@@ -122,11 +69,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			List<VertexAttrib> attribs = new();
 			foreach (FieldInfo field in type.GetFields().OrderBy(field => field.MetadataToken)) {
 				if (field.GetCustomAttribute(typeof(VertexAttribAttribute)) is VertexAttribAttribute attrib) {
-					VertexAttribFormat format = attrib.Format;
-					if (format == VertexAttribFormat.Undefined) {
-						if (!attribFormatTypes.TryGetValue(field.FieldType, out format))
-							throw new ArgumentException($"Attribute format cannot be derived from type of field \"{field}\"");
-					}
+					PixelFormat format = attrib.Format;
 					int location = attrib.Location;
 					if (location == -1) {
 						location = nextLocation++;

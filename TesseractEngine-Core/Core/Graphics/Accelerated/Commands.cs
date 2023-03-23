@@ -346,7 +346,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		/// <param name="drawParams">Parameters to use for drawing</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawIndexed(DrawIndexedParams drawParams) => DrawIndexed(drawParams.IndexCount, drawParams.InstanceCount, drawParams.FirstIndex, drawParams.VertexOffset, drawParams.FirstInstance);
+		public void DrawIndexed(uint elemCount, DrawIndexedParams drawParams) => DrawIndexed(drawParams.IndexCount, drawParams.InstanceCount, drawParams.FirstIndex, drawParams.VertexOffset, drawParams.FirstInstance);
 
 		/// <summary>
 		/// Indirectly draws vertices based on the current binding state.
@@ -760,7 +760,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="depth">The depth value to clear to</param>
 		/// <param name="stencil">The stencil value to clear to</param>
 		/// <param name="regions">The regions of the texture to clear</param>
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, int stencil, in ReadOnlySpan<TextureSubresourceRange> regions);
 
 		/// <summary>
 		/// Clears parts of the specified depth/stencil texture to a constant value.
@@ -771,7 +771,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="stencil">The stencil value to clear to</param>
 		/// <param name="region">The region of the texture to clear</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) => ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, int stencil, in TextureSubresourceRange region) => ClearDepthStencilTexture(dst, dstLayout, depth, stencil, stackalloc TextureSubresourceRange[] { region });
 
 		/// <summary>
 		/// A generic clear value for clearing attachments.

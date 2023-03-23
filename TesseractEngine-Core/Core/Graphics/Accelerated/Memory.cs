@@ -311,7 +311,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A buffer binding stores a buffer and memory range within it to bind to.
 	/// </summary>
-	public record BufferBinding {
+	public readonly struct BufferBinding {
 
 		/// <summary>
 		/// The buffer to bind.
@@ -322,6 +322,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The memory range within the buffer to bind.
 		/// </summary>
 		public MemoryRange Range { get; init; } = default;
+
+		public BufferBinding() { }
 
 	}
 

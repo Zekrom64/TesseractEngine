@@ -168,18 +168,6 @@ namespace Tesseract.OpenGL.Graphics {
 			return mask;
 		}
 
-		public static (GLType, int, bool) Convert(VertexAttribFormat format) => format switch {
-			VertexAttribFormat.X32SFloat => (GLType.Float, 1, true),
-			VertexAttribFormat.X32Y32SFloat => (GLType.Float, 2, true),
-			VertexAttribFormat.X32Y32Z32SFloat => (GLType.Float, 3, true),
-			VertexAttribFormat.X32Y32Z32W32SFloat => (GLType.Float, 4, true),
-			VertexAttribFormat.X32SInt => (GLType.Int, 1, false),
-			VertexAttribFormat.X32Y32SInt => (GLType.Int, 2, false),
-			VertexAttribFormat.X32Y32Z32SInt => (GLType.Int, 3, false),
-			VertexAttribFormat.X32Y32Z32W32SInt => (GLType.Int, 4, false),
-			_ => default
-		};
-
 		public static GLIndexType Convert(IndexType type) => type switch {
 			IndexType.UInt8 => GLIndexType.UnsignedByte,
 			IndexType.UInt16 => GLIndexType.UnsignedShort,

@@ -33,9 +33,9 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribLPointer(uint index, int size, GLType type, int stride, nint offset) => Functions.glVertexAttribLPointer(index, size, (uint)type, stride, offset);
+		public void VertexAttribLPointer(uint index, int size, GLTextureType type, int stride, nint offset) => Functions.glVertexAttribLPointer(index, size, (uint)type, stride, offset);
 
-		public void VertexArrayVertexAttribLOffset(uint vaobj, uint buffer, uint index, int size, GLType type, int stride, nint offset) =>
+		public void VertexArrayVertexAttribLOffset(uint vaobj, uint buffer, uint index, int size, GLTextureType type, int stride, nint offset) =>
 			Functions.glVertexArrayVertexAttribLOffsetEXT(vaobj, buffer, index, size, (uint)type, stride, offset);
 
 	}

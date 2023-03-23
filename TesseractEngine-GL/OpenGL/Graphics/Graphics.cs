@@ -101,7 +101,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IVertexArray CreateVertexArray(VertexArrayCreateInfo createInfo) => new GLVertexArray(this, createInfo);
 
-		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => new GLBindSetLayout();
+		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => new GLBindSetLayout(createInfo);
 
 		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) {
 			// TODO

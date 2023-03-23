@@ -376,13 +376,13 @@ namespace Tesseract.OpenGL {
 		public void VertexArrayVertexBuffers(uint vaobj, uint first, in ReadOnlySpan<uint> buffers, in ReadOnlySpan<nint> offsets, in ReadOnlySpan<int> strides) => GL.ARBDirectStateAccess.VertexArrayVertexBuffers(vaobj, first, buffers, offsets, strides);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribFormat(uint vaobj, uint attribIndex, int size, GLType type, bool normalized, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribFormat(vaobj, attribIndex, size, type, normalized, relativeOffset);
+		public void VertexArrayAttribFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, bool normalized, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribFormat(vaobj, attribIndex, size, type, normalized, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribIFormat(uint vaobj, uint attribIndex, int size, GLType type, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribIFormat(vaobj, attribIndex, size, type, relativeOffset);
+		public void VertexArrayAttribIFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribIFormat(vaobj, attribIndex, size, type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexArrayAttribLFormat(uint vaobj, uint attribIndex, int size, GLType type, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribLFormat(vaobj, attribIndex, size, type, relativeOffset);
+		public void VertexArrayAttribLFormat(uint vaobj, uint attribIndex, int size, GLTextureType type, uint relativeOffset) => GL.ARBDirectStateAccess.VertexArrayAttribLFormat(vaobj, attribIndex, size, type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void VertexArrayAttribBinding(uint vaobj, uint attribIndex, uint bindingIndex) => GL.ARBDirectStateAccess.VertexArrayAttribBinding(vaobj, attribIndex, bindingIndex);

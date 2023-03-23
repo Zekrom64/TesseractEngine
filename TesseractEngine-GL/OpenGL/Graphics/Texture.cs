@@ -31,7 +31,7 @@ namespace Tesseract.OpenGL.Graphics {
 		Renderbuffer
 	}
 
-	public class GLTexture : ITexture, IGLTexture, IGLObject {
+	public class GLTexture : ITexture, ITextureView, IGLTexture, IGLObject {
 
 		public GLGraphics Graphics { get; }
 
@@ -54,6 +54,12 @@ namespace Tesseract.OpenGL.Graphics {
 		public IMemoryBinding? MemoryBinding => null;
 
 		public TextureUsage Usage { get; }
+
+		public ITextureView IdentityView => this;
+
+		public ComponentMapping Mapping { get; } = new();
+
+		public TextureSubresourceRange SubresourceRange { get; }
 
 
 		public GLTextureObjectType GLObjectType { get; }
@@ -92,8 +98,7 @@ namespace Tesseract.OpenGL.Graphics {
 			Samples = info.Samples;
 			Usage = info.Usage;
 
-			GLFormat = GLEnums.StdToGLFormat(info.Format);
-			if (GLFormat == null) throw new GLException("Unsupported pixel format");
+			GLFormat = GLEnums.StdToGLFormat(info.Format) ?? throw new GLException("Unsupported pixel format");
 
 			// Check if we can get away with using a renderbuffer based on the texture usage
 			bool canUseRenderbuffer = true;
@@ -129,6 +134,12 @@ namespace Tesseract.OpenGL.Graphics {
 				}
 				Interface.TextureStorage(GLTarget, ID, size, (int)MipLevels, (int)Samples, GLFormat);
 			}
+
+			SubresourceRange = new TextureSubresourceRange() {
+				Aspects = Format.Aspects,
+				ArrayLayerCount = ArrayLayers,
+				MipLevelCount = MipLevels
+			};
 		}
 
 		public void Dispose() {
@@ -277,8 +288,7 @@ namespace Tesseract.OpenGL.Graphics {
 			Mapping = createInfo.Mapping;
 			SubresourceRange = createInfo.SubresourceRange;
 
-			GLFormat = GLEnums.StdToGLFormat(createInfo.Format);
-			if (GLFormat == null) throw new GLException("Unsupported pixel format");
+			GLFormat = GLEnums.StdToGLFormat(createInfo.Format) ?? throw new GLException("Unsupported pixel format");
 
 			bool isIdentityMapping =
 					Type == Texture.Type &&

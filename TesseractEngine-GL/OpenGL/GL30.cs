@@ -40,7 +40,7 @@ namespace Tesseract.OpenGL {
 		// EXT_gpu_shader4
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribIPointer(uint index, int size, GLType type, int stride, nint offset) => GL.EXTGPUShader4.VertexAttribIPointer(index, size, type, stride, offset);
+		public void VertexAttribIPointer(uint index, int size, GLTextureType type, int stride, nint offset) => GL.EXTGPUShader4.VertexAttribIPointer(index, size, type, stride, offset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetVertexAttrib(uint index, GLGetVertexAttrib pname, Span<int> param) => GL.EXTGPUShader4.GetVertexAttrib(index, pname, param);

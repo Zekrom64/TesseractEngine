@@ -47,13 +47,13 @@ namespace Tesseract.OpenGL {
 		public void BindVertexBuffer(uint bindingIndex, uint buffer, nint offset, int stride) => Functions.glBindVertexBuffer(bindingIndex, buffer, offset, stride);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribFormat(uint attribIndex, int size, GLType type, bool normalized, uint relativeOffset) => Functions.glVertexAttribFormat(attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
+		public void VertexAttribFormat(uint attribIndex, int size, GLTextureType type, bool normalized, uint relativeOffset) => Functions.glVertexAttribFormat(attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribIFormat(uint attribIndex, int size, GLType type, uint relativeOffset) => Functions.glVertexAttribIFormat(attribIndex, size, (uint)type, relativeOffset);
+		public void VertexAttribIFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexAttribIFormat(attribIndex, size, (uint)type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribLFormat(uint attribIndex, int size, GLType type, uint relativeOffset) => Functions.glVertexAttribLFormat(attribIndex, size, (uint)type, relativeOffset);
+		public void VertexAttribLFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexAttribLFormat(attribIndex, size, (uint)type, relativeOffset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void VertexAttribBinding(uint attribIndex, uint bindingIndex) => Functions.glVertexAttribBinding(attribIndex, bindingIndex);

@@ -658,14 +658,14 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public void ClearColorTexture(ITexture dst, TextureLayout dstLayout, ICommandSink.ClearColorValue color, in TextureSubresourceRange region) =>
 			CommandBuffer.ClearColorImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), VulkanConverter.Convert(color), VulkanConverter.Convert(region));
 
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in ReadOnlySpan<TextureSubresourceRange> regions) {
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, int stencil, in ReadOnlySpan<TextureSubresourceRange> regions) {
 			Span<VKImageSubresourceRange> ranges = stackalloc VKImageSubresourceRange[regions.Length];
 			for (int i = 0; i < ranges.Length; i++) ranges[i] = VulkanConverter.Convert(regions[i]);
-			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = stencil }, ranges);
+			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = (uint)stencil }, ranges);
 		}
 
-		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, uint stencil, in TextureSubresourceRange region) =>
-			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = stencil }, VulkanConverter.Convert(region));
+		public void ClearDepthStencilTexture(ITexture dst, TextureLayout dstLayout, float depth, int stencil, in TextureSubresourceRange region) =>
+			CommandBuffer.ClearDepthStencilImage(((VulkanTexture)dst).Image, VulkanConverter.Convert(dstLayout), new() { Depth = depth, Stencil = (uint)stencil }, VulkanConverter.Convert(region));
 
 		public void CopyBuffer(IBuffer dst, IBuffer src, in ReadOnlySpan<ICommandSink.CopyBufferRegion> regions) {
 			Span<VKBufferCopy> copies = stackalloc VKBufferCopy[regions.Length];

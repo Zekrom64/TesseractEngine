@@ -34,12 +34,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Texture binding information.
 	/// </summary>
-	public record TextureBinding {
+	public readonly struct TextureBinding {
 
 		/// <summary>
 		/// The sampler used with this texture binding.
 		/// </summary>
-		public required ISampler Sampler { get; init; }
+		public ISampler? Sampler { get; init; } = null;
 
 		/// <summary>
 		/// The texture view used with this texture binding.
@@ -50,6 +50,8 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The expected layout of the texture that will be bound.
 		/// </summary>
 		public required TextureLayout TexureLayout { get; init; }
+
+		public TextureBinding() { }
 
 	}
 
@@ -91,7 +93,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of bindings in this bind set layout.
 		/// </summary>
-		[DisallowNull]
 		public BindSetLayoutBinding[] Bindings { get; init; } = Array.Empty<BindSetLayoutBinding>();
 
 	}
@@ -183,12 +184,12 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The list of texture bindings to write.
 		/// </summary>
-		public TextureBinding[] TextureInfo;
+		public TextureBinding TextureInfo;
 
 		/// <summary>
 		/// The list of buffer bindings to write.
 		/// </summary>
-		public BufferBinding[] BufferInfo;
+		public BufferBinding BufferInfo;
 
 	}
 
@@ -201,7 +202,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// Updates the bindings in this bind set.
 		/// </summary>
 		/// <param name="writes">Writes to apply to the bindings in this bind set</param>
-		public void Update(in ReadOnlySpan<BindSetWrite> writes);
+		public void Update(IReadOnlyList<BindSetWrite> writes);
+
+		/// <summary>
+		/// Updates the bindings in this bind set.
+		/// </summary>
+		/// <param name="writes">Writes to apply to the bindings in this bind set</param>
+		public void Update(params BindSetWrite[] writes) => Update((IReadOnlyList<BindSetWrite>)writes);
 
 	}
 

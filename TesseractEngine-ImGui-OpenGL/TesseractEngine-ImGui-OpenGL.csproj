@@ -8,6 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\main-glsl.frag" />
+    <None Remove="Resources\main-glsl.vert" />
+    <None Remove="Resources\main-spirv.frag" />
+    <None Remove="Resources\main-spirv.vert" />
+    <None Remove="Resources\main.frag.spv" />
+    <None Remove="Resources\main.vert.spv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\main-glsl.frag" />
+    <EmbeddedResource Include="Resources\main-glsl.vert" />
+    <EmbeddedResource Include="Resources\main-spirv.frag" />
+    <EmbeddedResource Include="Resources\main-spirv.vert" />
+    <EmbeddedResource Include="Resources\main.frag.spv" />
+    <EmbeddedResource Include="Resources\main.vert.spv" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TesseractEngine-GL\TesseractEngine-GL.csproj" />
     <ProjectReference Include="..\TesseractEngine-ImGui\TesseractEngine-ImGui.csproj" />
   </ItemGroup>

@@ -42,7 +42,7 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribIPointer(uint index, int size, GLType type, int stride, nint offset) => Functions.glVertexAttribIPointer(index, size, (uint)type, stride, offset);
+		public void VertexAttribIPointer(uint index, int size, GLTextureType type, int stride, nint offset) => Functions.glVertexAttribIPointer(index, size, (uint)type, stride, offset);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetVertexAttrib(uint index, GLGetVertexAttrib pname, Span<int> v) {

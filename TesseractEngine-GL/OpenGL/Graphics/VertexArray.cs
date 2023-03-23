@@ -32,8 +32,8 @@ namespace Tesseract.OpenGL.Graphics {
 			BufferBinding GetBuffer(uint binding) {
 				BufferBinding? bufbinding = null;
 				foreach(var vbo in createInfo.VertexBuffers) {
-					if (vbo.Item2 == binding) {
-						bufbinding = vbo.Item1;
+					if (vbo.Index == binding) {
+						bufbinding = vbo.Binding;
 						break;
 					}
 				}
@@ -41,7 +41,7 @@ namespace Tesseract.OpenGL.Graphics {
 					gl33.DeleteVertexArrays(ID);
 					throw new GLException($"Missing buffer binding for vertex binding {binding}");
 				}
-				return bufbinding;
+				return bufbinding.Value;
 			}
 
 			if (dsa != null) {
@@ -50,8 +50,9 @@ namespace Tesseract.OpenGL.Graphics {
 				foreach(VertexAttrib attrib in Format.Attributes) {
 					dsa.EnableVertexArrayAttrib(ID, attrib.Location);
 					dsa.VertexArrayAttribBinding(ID, attrib.Location, attrib.Binding);
-					var format = GLEnums.Convert(attrib.Format);
-					dsa.VertexArrayAttribFormat(ID, attrib.Location, format.Item2, format.Item1, format.Item3, attrib.Offset);
+					var format = GLEnums.StdToGLFormat(attrib.Format);
+					if (format == null) throw new ArgumentException($"Cannot convert format {attrib.Format}");
+					dsa.VertexArrayAttribFormat(ID, attrib.Location, format.Count, format.Type, attrib.Format.IsNumberFormatNormalized, attrib.Offset);
 				}
 				foreach(VertexBinding binding in Format.Bindings) {
 					BufferBinding bufbinding = GetBuffer(binding.Binding);
@@ -67,9 +68,9 @@ namespace Tesseract.OpenGL.Graphics {
 				}
 				if (createInfo.IndexBuffer != null) {
 					var ibo = createInfo.IndexBuffer.Value;
-					IndexType = GLEnums.Convert(ibo.Item2);
-					IndexOffset = (nint)ibo.Item1.Range.Offset;
-					dsa.VertexArrayElementBuffer(ID, ((GLBuffer)ibo.Item1.Buffer).ID);
+					IndexType = GLEnums.Convert(ibo.Type);
+					IndexOffset = (nint)ibo.Binding.Range.Offset;
+					dsa.VertexArrayElementBuffer(ID, ((GLBuffer)ibo.Binding.Buffer).ID);
 				}
 			} else {
 				// Else fall back to bound vertex arrays
@@ -80,8 +81,9 @@ namespace Tesseract.OpenGL.Graphics {
 					foreach (VertexAttrib attrib in Format.Attributes) {
 						gl33.EnableVertexAttribArray(attrib.Location);
 						vab.VertexAttribBinding(attrib.Location, attrib.Binding);
-						var format = GLEnums.Convert(attrib.Format);
-						vab.VertexAttribFormat(attrib.Location, format.Item2, format.Item1, format.Item3, attrib.Offset);
+						var format = GLEnums.StdToGLFormat(attrib.Format);
+						if (format == null) throw new ArgumentException($"Cannot convert format {attrib.Format}");
+						vab.VertexAttribFormat(attrib.Location, format.Count, format.Type, attrib.Format.IsNumberFormatNormalized, attrib.Offset);
 					}
 					foreach (VertexBinding binding in Format.Bindings) {
 						BufferBinding bufbinding = GetBuffer(binding.Binding);
@@ -97,9 +99,9 @@ namespace Tesseract.OpenGL.Graphics {
 					}
 					if (createInfo.IndexBuffer != null) {
 						var ibo = createInfo.IndexBuffer.Value;
-						IndexType = GLEnums.Convert(ibo.Item2);
-						IndexOffset = (nint)ibo.Item1.Range.Offset;
-						var id = ((GLBuffer)ibo.Item1.Buffer).ID;
+						IndexType = GLEnums.Convert(ibo.Type);
+						IndexOffset = (nint)ibo.Binding.Range.Offset;
+						var id = ((GLBuffer)ibo.Binding.Buffer).ID;
 						gl33.BindBuffer(GLBufferTarget.ElementArray, id);
 						Graphics.State.SetBoundBuffer(GLBufferTarget.ElementArray, id);
 					}
@@ -110,8 +112,9 @@ namespace Tesseract.OpenGL.Graphics {
 						Graphics.State.BindBuffer(GLBufferTarget.Array, ((GLBuffer)bufbinding.Buffer).ID);
 						foreach (var attrib in Format.Attributes) {
 							if (attrib.Binding == binding.Binding) {
-								var format = GLEnums.Convert(attrib.Format);
-								gl33.VertexAttribPointer(attrib.Location, format.Item2, format.Item1, format.Item3, (int)binding.Stride, (nint)(bufbinding.Range.Offset + attrib.Offset));
+								var format = GLEnums.StdToGLFormat(attrib.Format);
+								if (format == null) throw new ArgumentException($"Cannot convert format {attrib.Format}");
+								gl33.VertexAttribPointer(attrib.Location, format.Count, format.Type, attrib.Format.IsNumberFormatNormalized, (int)binding.Stride, (nint)(bufbinding.Range.Offset + attrib.Offset));
 								switch(binding.InputRate) {
 									case VertexInputRate.PerInstance:
 										gl33.VertexAttribDivisor(attrib.Location, 1);
