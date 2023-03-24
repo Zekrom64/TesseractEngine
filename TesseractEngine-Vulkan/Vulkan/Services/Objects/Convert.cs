@@ -612,15 +612,16 @@ namespace Tesseract.Vulkan.Services.Objects {
 			_ => default
 		};
 
-		public static VKGraphicsPipelineCreateInfo ConvertGraphicsPipeline(MemoryStack sp, PipelineCreateInfo createInfo, List<IDisposable> disposables) {
+		public static VKGraphicsPipelineCreateInfo ConvertGraphicsPipeline(MemoryStack sp, PipelineCreateInfo createInfo) {
 			var gfxInfo = createInfo.GraphicsInfo;
 			var dynInfo = gfxInfo!.DynamicInfo;
+
+			var shaders = ((VulkanShaderProgram)createInfo.ShaderProgram).Shaders;
 			
-			ManagedPointer<VKPipelineShaderStageCreateInfo> pStages = new(Collection.ConvertAll(gfxInfo.Shaders, Convert));
-			disposables.Add(pStages);
+			var pStages = Convert(createInfo.ShaderProgram, sp);
 			
 			bool hasTessState = false;
-			foreach (var shader in gfxInfo.Shaders)
+			foreach (var shader in shaders)
 				if (shader.Type == ShaderType.TessellationControl || shader.Type == ShaderType.TessellationEvaluation)
 					hasTessState = true;
 
@@ -634,7 +635,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			return new() {
 				Type = VKStructureType.GraphicsPipelineCreateInfo,
 				Flags = flags,
-				StageCount = (uint)gfxInfo.Shaders.Count,
+				StageCount = (uint)shaders.Count,
 				Stages = pStages,
 				VertexInputState = sp.Values(Convert(sp, dynInfo.VertexFormat)),
 				InputAssemblyState = sp.Values(new VKPipelineInputAssemblyStateCreateInfo() {
@@ -888,23 +889,29 @@ namespace Tesseract.Vulkan.Services.Objects {
 			Dependencies = sp.Values(createInfo.Dependencies.ConvertAll(Convert))
 		};
 
-		public static VKPipelineShaderStageCreateInfo Convert(PipelineShaderStageInfo stage) => new() {
-			Type = VKStructureType.PipelineShaderStageCreateInfo,
-			Stage = Convert(stage.Type),
-			Module = ((VulkanShader)stage.Shader).ShaderModule,
-			Name = stage.EntryPoint
-		};
+		public static UnmanagedPointer<VKPipelineShaderStageCreateInfo> Convert(IShaderProgram program, MemoryStack sp) {
+			var shaders = ((VulkanShaderProgram)program).Shaders;
+			var stages = sp.Alloc<VKPipelineShaderStageCreateInfo>(shaders.Count);
+			for(int i = 0; i < shaders.Count; i++) {
+				var shader = shaders[i];
+				stages[i] = new VKPipelineShaderStageCreateInfo() {
+					Type = VKStructureType.PipelineShaderStageCreateInfo,
+					Module = shader.ShaderModule,
+					Name = sp.UTF8(shader.EntryName),
+					Stage = Convert(shader.Type)
+				};
+			}
+			return stages;
+		}
 
-		public static VKComputePipelineCreateInfo ConvertComputePipeline(PipelineCreateInfo createInfo) {
-			PipelineComputeCreateInfo computeInfo = createInfo.ComputeInfo!;
-
+		public static VKComputePipelineCreateInfo ConvertComputePipeline(MemoryStack sp, PipelineCreateInfo createInfo) {
 			VKPipelineCreateFlagBits flags = VKPipelineCreateFlagBits.AllowDerivatives;
 			if (createInfo.BasePipeline != null || createInfo.BasePipelineIndex.HasValue) flags |= VKPipelineCreateFlagBits.Derivative;
 
 			return new VKComputePipelineCreateInfo() {
 				Type = VKStructureType.ComputePipelineCreateInfo,
 				Flags = flags,
-				Stage = Convert(computeInfo.Shader),
+				Stage = Convert(createInfo.ShaderProgram, sp).Value,
 				BasePipelineHandle = ((VulkanPipeline?)createInfo.BasePipeline)?.Pipeline,
 				BasePipelineIndex = createInfo.BasePipelineIndex.GetValueOrDefault(-1),
 				Layout = ((VulkanPipelineLayout)createInfo.Layout).Layout
@@ -921,7 +928,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 		};
 
 		public static VKDescriptorImageInfo Convert(TextureBinding binding) => new() {
-			Sampler = ((VulkanSampler)binding.Sampler)?.Sampler,
+			Sampler = ((VulkanSampler?)binding.Sampler)?.Sampler?.Sampler ?? 0,
 			ImageView = ((VulkanTextureView)binding.TextureView)?.ImageView,
 			ImageLayout = Convert(binding.TexureLayout)
 		};
@@ -942,8 +949,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 			DstArrayElement = 0,
 			DescriptorCount = 1,
 			DescriptorType = Convert(write.Type),
-			BufferInfo = sp.Values(Convert(write.BufferInfo)),
-			ImageInfo = sp.Values(Convert(write.TextureInfo))
+			BufferInfo = write.BufferInfo != null ? sp.Values(Convert(write.BufferInfo.Value)) : IntPtr.Zero,
+			ImageInfo = write.TextureInfo != null ? sp.Values(Convert(write.TextureInfo.Value)) : IntPtr.Zero
 		};
 
 		public static VKDescriptorSetLayoutBinding Convert(BindSetLayoutBinding binding) => new() {
@@ -1016,6 +1023,20 @@ namespace Tesseract.Vulkan.Services.Objects {
 				Format = Convert(attrib.Format),
 				Offset = attrib.Offset
 			};
+		}
+
+		public static VKBufferUsageFlagBits Convert(BufferUsage usage) {
+			VKBufferUsageFlagBits vkusage = 0;
+			if ((usage & BufferUsage.IndexBuffer) != 0) vkusage |= VKBufferUsageFlagBits.IndexBuffer;
+			if ((usage & BufferUsage.IndirectBuffer) != 0) vkusage |= VKBufferUsageFlagBits.IndirectBuffer;
+			if ((usage & BufferUsage.StorageBuffer) != 0) vkusage |= VKBufferUsageFlagBits.StorageBuffer;
+			if ((usage & BufferUsage.StorageTexelBuffer) != 0) vkusage |= VKBufferUsageFlagBits.StorageTexelBuffer;
+			if ((usage & (BufferUsage.TransferDst | BufferUsage.UpdateByCommand)) != 0) vkusage |= VKBufferUsageFlagBits.TransferDst;
+			if ((usage & BufferUsage.TransferSrc) != 0) vkusage |= VKBufferUsageFlagBits.TransferSrc;
+			if ((usage & BufferUsage.UniformBuffer) != 0) vkusage |= VKBufferUsageFlagBits.UniformBuffer;
+			if ((usage & BufferUsage.UniformTexelBuffer) != 0) vkusage |= VKBufferUsageFlagBits.UniformTexelBuffer;
+			if ((usage & BufferUsage.VertexBuffer) != 0) vkusage |= VKBufferUsageFlagBits.VertexBuffer;
+			return vkusage;
 		}
 
 	}

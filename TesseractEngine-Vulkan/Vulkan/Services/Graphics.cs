@@ -44,14 +44,10 @@ namespace Tesseract.Vulkan.Services {
 		public IGraphicsLimits Limits { get; }
 
 		public IBuffer CreateBuffer(BufferCreateInfo createInfo) {
-			VKBufferUsageFlagBits usage = 0;
-			if ((createInfo.Usage & BufferUsage.VertexBuffer) != 0) usage |= VKBufferUsageFlagBits.VertexBuffer;
-			if ((createInfo.Usage & BufferUsage.IndexBuffer) != 0) usage |= VKBufferUsageFlagBits.IndexBuffer;
-
 			VKBuffer buffer = Device.Device.CreateBuffer(new VKBufferCreateInfo() {
 				Type = VKStructureType.BufferCreateInfo,
 				Size = createInfo.Size,
-				Usage = usage,
+				Usage = VulkanConverter.Convert(createInfo.Usage),
 				SharingMode = Device.ResourceSharingMode,
 				QueueFamilyIndexCount = (uint)Device.ResourceSharingIndices.ArraySize,
 				QueueFamilyIndices = Device.ResourceSharingIndices
@@ -64,13 +60,13 @@ namespace Tesseract.Vulkan.Services {
 			return new VulkanVertexArray() {
 				Format = createInfo.Format,
 				IndexBuffer = createInfo.IndexBuffer != null ? (
-					(VulkanBuffer)createInfo.IndexBuffer.Value.Item1.Buffer,
-					createInfo.IndexBuffer.Value.Item1.Range,
-					VulkanConverter.Convert(createInfo.IndexBuffer.Value.Item2)
+					(VulkanBuffer)createInfo.IndexBuffer.Value.Binding.Buffer,
+					createInfo.IndexBuffer.Value.Binding.Range,
+					VulkanConverter.Convert(createInfo.IndexBuffer.Value.Type)
 				) : null,
 				VertexBuffers = createInfo.VertexBuffers != null ? Array.ConvertAll(createInfo.VertexBuffers, binding => (
-					(VulkanBuffer)binding.Item1.Buffer,
-					binding.Item1.Range, binding.Item2
+					(VulkanBuffer)binding.Binding.Buffer,
+					binding.Binding.Range, binding.Index
 				)) : null
 			};
 		}
@@ -93,20 +89,15 @@ namespace Tesseract.Vulkan.Services {
 		public IPipeline CreatePipeline(PipelineCreateInfo createInfo) {
 			using MemoryStack sp = MemoryStack.Push();
 			VKPipelineCache? vkcache = (createInfo.Cache is VulkanPipelineCache cache) ? cache.PipelineCache : null;
-			List<IDisposable> disposables = new();
-			try {
-				if (createInfo.GraphicsInfo != null) return new VulkanPipeline(
-					Device.Device.CreateGraphicsPipelines(vkcache, VulkanConverter.ConvertGraphicsPipeline(sp, createInfo, disposables)),
-					VKPipelineBindPoint.Graphics
-				);
-				else if (createInfo.ComputeInfo != null) return new VulkanPipeline(
-					Device.Device.CreateComputePipeline(vkcache, VulkanConverter.ConvertComputePipeline(createInfo)),
-					VKPipelineBindPoint.Compute
-				);
-				else throw new VulkanException("Cannot determine type of pipeline to create");
-			} finally {
-				foreach (IDisposable d in disposables) d.Dispose();
-			}
+			if (createInfo.GraphicsInfo != null) return new VulkanPipeline(
+				Device.Device.CreateGraphicsPipelines(vkcache, VulkanConverter.ConvertGraphicsPipeline(sp, createInfo)),
+				VKPipelineBindPoint.Graphics
+			);
+			else if (createInfo.ComputeInfo != null) return new VulkanPipeline(
+				Device.Device.CreateComputePipeline(vkcache, VulkanConverter.ConvertComputePipeline(sp, createInfo)),
+				VKPipelineBindPoint.Compute
+			);
+			else throw new VulkanException("Cannot determine type of pipeline to create");
 		}
 
 		public IPipelineCache CreatePipelineCache(PipelineCacheCreateInfo createInfo) {
@@ -180,8 +171,8 @@ namespace Tesseract.Vulkan.Services {
 				MaxAnisotropy = createInfo.MaxAnisotropy,
 				CompareEnable = createInfo.CompareEnable,
 				CompareOp = VulkanConverter.Convert(createInfo.CompareOp),
-				MinLod = createInfo.LODRange.Item1,
-				MaxLod = createInfo.LODRange.Item2,
+				MinLod = createInfo.LODRange.Min,
+				MaxLod = createInfo.LODRange.Max,
 				BorderColor = VulkanConverter.Convert(createInfo.BorderColor),
 				UnnormalizedCoordinates = false
 			}));
@@ -199,12 +190,16 @@ namespace Tesseract.Vulkan.Services {
 					return new VulkanShader(Device.Device.CreateShaderModule(new VKShaderModuleCreateInfo() {
 						Type = VKStructureType.ShaderModuleCreateInfo,
 						Code = pCode,
-						CodeSize = (nuint)length
-					}));
+						CodeSize = (nuint)length * 4
+					})) {
+						Type = createInfo.Type,
+						EntryName = createInfo.EntryPoint
+					};
 				}
 			}
-
 		}
+
+		public IShaderProgram CreateShaderProgram(ShaderProgramCreateInfo createInfo) => new VulkanShaderProgram(createInfo);
 
 		public ISync CreateSync(SyncCreateInfo createInfo) {
 			bool OnlyHasFeatures(SyncFeatures features) => (createInfo.Features & ~features) == 0;

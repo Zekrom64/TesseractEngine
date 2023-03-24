@@ -89,13 +89,13 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 			// If zero extent, avoid recreating
 			Vector2ui size = (Vector2ui)SurfaceProvider.SurfaceExtent;
-			if (size == new Vector2ui(0, 0)) return;
 
 			var caps = pd.GetSurfaceCapabilitiesKHR(Surface);
 			var fmts = pd.GetSurfaceFormatsKHR(Surface);
 
 			// Select image size
 			size = size.Max(caps.MinImageExtent).Min(caps.MinImageExtent);
+			if (size.LengthSquared == 0) return;
 			Size = (Vector2i)size;
 
 			// Select present mode

@@ -124,6 +124,10 @@ namespace Tesseract.Vulkan.Services.Objects {
 		/// </summary>
 		public VKShaderModule ShaderModule { get; }
 
+		public required ShaderType Type { get; init; }
+
+		public required string EntryName { get; init; }
+
 		public VulkanShader(VKShaderModule module) {
 			ShaderModule = module;
 		}
@@ -133,8 +137,24 @@ namespace Tesseract.Vulkan.Services.Objects {
 			ShaderModule.Dispose();
 		}
 
-		public bool TryFindBinding(string name, out BindSetLayoutBinding binding) {
-			// Not supported by Vulkan
+	}
+
+	/// <summary>
+	/// Vulkan shader program implementation.
+	/// </summary>
+	public class VulkanShaderProgram : IShaderProgram {
+
+		public IReadOnlyList<VulkanShader> Shaders { get; }
+
+		public VulkanShaderProgram(ShaderProgramCreateInfo createInfo) {
+			Shaders = createInfo.Modules.Cast<VulkanShader>().ToList();
+		}
+
+		public void Dispose() {
+			GC.SuppressFinalize(this);
+		}
+
+		public bool TryGetBinding(string name, out BindSetLayoutBinding binding) {
 			binding = default;
 			return false;
 		}
@@ -231,7 +251,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 					using MemoryStack sp = MemoryStack.Push();
 					// Allocate descriptor set
 					set = Pool.Allocate(new VKDescriptorSetAllocateInfo() {
-						Type = VKStructureType.DescriptorSetLayoutCreateInfo,
+						Type = VKStructureType.DescriptorSetAllocateInfo,
 						DescriptorPool = Pool,
 						DescriptorSetCount = 1,
 						SetLayouts = sp.Values(allocInfo.Layouts.ConvertAll(layout => ((VulkanBindSetLayout)layout).Layout))

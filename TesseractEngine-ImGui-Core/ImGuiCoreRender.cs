@@ -70,7 +70,7 @@ namespace Tesseract.ImGui.Core {
 					_ => throw new NotImplementedException(),
 				};
 
-				using Stream resourceStream = typeof(ImGuiCoreRender).Assembly.GetManifestResourceStream($"Tesseract.ImGui.OpenGL.Resources.{name}{fileSuffix}")
+				using Stream resourceStream = typeof(ImGuiCoreRender).Assembly.GetManifestResourceStream($"Tesseract.ImGui.Core.Resources.{name}{fileSuffix}")
 					?? throw new IOException($"Could not load shader \"{name}\";{type}");
 
 				return graphics.CreateShader(new ShaderCreateInfo() {
@@ -127,6 +127,7 @@ namespace Tesseract.ImGui.Core {
 
 			public IShader VertexShader { get; }
 			public IShader FragmentShader { get; }
+			public IShaderProgram ShaderProgram { get; }
 
 			public BindSetLayoutBinding BindingGlobals { get; }
 			public BindSetLayoutBinding BindingTexture { get; }
@@ -156,6 +157,10 @@ namespace Tesseract.ImGui.Core {
 
 			public IBuffer UniformBuffer { get; }
 			public IPointer<Matrix4x4> UniformPtr { get; }
+
+
+			public ICommandBuffer? CommandBuffer { get; }
+			public ICommandBuffer[] CommandBuffers { get; } = Array.Empty<ICommandBuffer>();
 
 
 			public Resources(IGraphics graphics, ImGuiCoreRenderInfo info) {
@@ -194,10 +199,12 @@ namespace Tesseract.ImGui.Core {
 				VertexShader = LoadShader(graphics, "main", ShaderType.Vertex);
 				FragmentShader = LoadShader(graphics, "main", ShaderType.Fragment);
 
+				ShaderProgram = graphics.CreateShaderProgram(new ShaderProgramCreateInfo() { Modules = new IShader[] { VertexShader, FragmentShader } });
+
 				if (graphics.Properties.Type == GraphicsType.OpenGL) {
-					Debug.Assert(VertexShader.TryFindBinding("uGlobals", out var bindingGlobals));
+					Debug.Assert(ShaderProgram.TryGetBinding("UGlobals", out BindSetLayoutBinding bindingGlobals));
 					BindingGlobals = bindingGlobals;
-					Debug.Assert(FragmentShader.TryFindBinding("uTexture", out var bindingTexture));
+					Debug.Assert(ShaderProgram.TryGetBinding("uTexture", out BindSetLayoutBinding bindingTexture));
 					BindingTexture = bindingTexture;
 				} else {
 					BindingGlobals = new BindSetLayoutBinding() {
@@ -225,11 +232,17 @@ namespace Tesseract.ImGui.Core {
 
 				Pipeline = graphics.CreatePipeline(new PipelineCreateInfo() {
 					Layout = PipelineLayout,
+					ShaderProgram = ShaderProgram,
 					GraphicsInfo = new PipelineGraphicsCreateInfo() {
 						DynamicInfo = new PipelineDynamicCreateInfo() {
 							VertexFormat = vertexFormat,
-							DrawMode = DrawMode.TriangleList
+							DrawMode = DrawMode.TriangleList,
+							ColorWriteEnable = new bool[] { true }
 						},
+
+						ViewportCount = 1,
+						ScissorCount = 1,
+
 						Attachments = new PipelineColorAttachmentState[] {
 							new PipelineColorAttachmentState() {
 								BlendEnable = true,
@@ -259,14 +272,14 @@ namespace Tesseract.ImGui.Core {
 				VertexBuffer = graphics.CreateBuffer(new BufferCreateInfo() {
 					Size = (ulong)(vertexCapacity * ImDrawVert.SizeOf),
 					Usage = BufferUsage.VertexBuffer,
-					MapFlags = MemoryMapFlags.Write
+					MapFlags = MemoryMapFlags.Write | MemoryMapFlags.Persistent
 				});
 				Vertices = VertexBuffer.Map<ImDrawVert>(MemoryMapFlags.Write | MemoryMapFlags.Persistent);
 
 				IndexBuffer = graphics.CreateBuffer(new BufferCreateInfo() {
 					Size = (ulong)(indexCapacity * sizeof(ushort)),
 					Usage = BufferUsage.IndexBuffer,
-					MapFlags = MemoryMapFlags.Write
+					MapFlags = MemoryMapFlags.Write | MemoryMapFlags.Persistent
 				});
 				Indices = IndexBuffer.Map<ushort>(MemoryMapFlags.Write | MemoryMapFlags.Persistent);
 
@@ -281,9 +294,17 @@ namespace Tesseract.ImGui.Core {
 				UniformBuffer = graphics.CreateBuffer(new BufferCreateInfo() {
 					Size = (ulong)Marshal.SizeOf<Matrix4x4>(),
 					Usage = BufferUsage.UniformBuffer,
-					MapFlags = MemoryMapFlags.Write
+					MapFlags = MemoryMapFlags.Write | MemoryMapFlags.Persistent
 				});
 				UniformPtr = UniformBuffer.Map<Matrix4x4>(MemoryMapFlags.Write | MemoryMapFlags.Persistent);
+
+				if (graphics.Properties.PreferredCommandMode == CommandMode.Buffered) {
+					CommandBuffer = graphics.CreateCommandBuffer(new CommandBufferCreateInfo() {
+						Type = CommandBufferType.Primary,
+						Usage = CommandBufferUsage.Graphics | CommandBufferUsage.Rerecordable
+					});
+					CommandBuffers = new ICommandBuffer[] { CommandBuffer };
+				}
 			}
 
 			// Prepares the resources required for the given draw data
@@ -349,7 +370,7 @@ namespace Tesseract.ImGui.Core {
 					Size = new Vector3ui((uint)w, (uint)h, 1),
 					Type = TextureType.Texture2D,
 					Format = PixelFormat.R8G8B8A8UNorm,
-					Usage = TextureUsage.Sampled
+					Usage = TextureUsage.Sampled | TextureUsage.TransferDst
 				});
 
 				// Create a temporary buffer to copy pixel data to texture
@@ -376,8 +397,8 @@ namespace Tesseract.ImGui.Core {
 						TextureMemoryBarriers = new ICommandSink.TextureMemoryBarrier[] {
 						new ICommandSink.TextureMemoryBarrier() {
 							Texture = FontTexture,
-							AwaitingAccess = 0,
-							ProvokingAccess = MemoryAccess.TransferWrite,
+							ProvokingAccess = 0,
+							AwaitingAccess = MemoryAccess.TransferWrite,
 							OldLayout = TextureLayout.Undefined,
 							NewLayout = TextureLayout.TransferDst,
 							SubresourceRange = new TextureSubresourceRange() {
@@ -431,13 +452,18 @@ namespace Tesseract.ImGui.Core {
 
 				Sampler.Dispose();
 
+				VertexBuffer.Unmap();
 				VertexBuffer.Dispose();
+				IndexBuffer.Unmap();
 				IndexBuffer.Dispose();
 				VertexArray.Dispose();
 
+				UniformBuffer.Unmap();
 				UniformBuffer.Dispose();
 
 				FontTexture?.Dispose();
+
+				CommandBuffer?.Dispose();
 			}
 		}
 
@@ -570,7 +596,7 @@ namespace Tesseract.ImGui.Core {
 		private static readonly ICommandSink.ClearValue[] clearValues = new ICommandSink.ClearValue[] {
 			new ICommandSink.ClearValue() {
 				Aspect = TextureAspect.Color,
-				Color = default
+				Color = new Vector4(0, 0, 0, 1)
 			}
 		};
 
@@ -628,8 +654,14 @@ namespace Tesseract.ImGui.Core {
 					if (clipMax.X <= clipMin.X || clipMax.Y <= clipMin.Y)
 						continue;
 
+					Vector2i clipPos = (Vector2i)clipMin;
+					Vector2i clipSize = (Vector2i)(clipMax - clipMin);
+
+					if (resources.Graphics.Properties.CoordinateSystem == CoordinateSystem.LeftHanded)
+						clipPos.Y = (renderArea.Size.Y - clipPos.Y) - clipSize.Y;
+
 					// Set scissor to clip area
-					sink.SetScissor(new Recti((Vector2i)clipMin, (Vector2i)(clipMax - clipMin)));
+					sink.SetScissor(new Recti(clipPos, clipSize));
 
 					// Bind resource set for texture ID
 					var bindSet = bindSets[(int)cmd.TextureID];
@@ -643,6 +675,27 @@ namespace Tesseract.ImGui.Core {
 			// Adjust offsets based on the vertex/index count of the list
 			vertexOffset += list.VtxBuffer.Count;
 			indexOffset += list.IdxBuffer.Count;
+		}
+
+		private static void RenderDrawData(ICommandSink cmd, IImDrawData drawData, IFramebuffer framebuffer) {
+			// Begin rendering
+			cmd.BeginRenderPass(new ICommandSink.RenderPassBegin() {
+				RenderArea = renderArea,
+				Framebuffer = framebuffer,
+				RenderPass = resources!.RenderPass,
+				ClearValues = clearValues
+			}, SubpassContents.Inline);
+
+			// Setup initial state
+			SetupRenderState(cmd);
+
+			// Render each draw list
+			int vertexOffset = 0;
+			int indexOffset = 0;
+			foreach (var list in drawData.CmdLists) RenderDrawList(cmd, list, ref vertexOffset, ref indexOffset);
+
+			// End rendering
+			cmd.EndRenderPass();
 		}
 
 		/// <summary>
@@ -671,12 +724,15 @@ namespace Tesseract.ImGui.Core {
 			float R = drawData.DisplayPos.X + drawData.DisplaySize.X;
 			float T = drawData.DisplayPos.Y;
 			float B = drawData.DisplayPos.Y + drawData.DisplaySize.Y;
+			if (resources.Graphics.Properties.CoordinateSystem == CoordinateSystem.RightHanded) (T, B) = (B, T);
 			Matrix4x4 orthoProjection = new(
 				2.0f / (R - L), 0, 0, 0,
 				0, 2.0f / (T - B), 0, 0,
 				0, 0, -1, 0,
 				(R + L) / (L - R), (T + B) / (B - T), 0, 1
 			);
+			resources.UniformPtr.Value = Matrix4x4.Transpose(orthoProjection);
+			resources.UniformBuffer.FlushHostToGPU();
 
 			// Setup clipping information
 			clipOffset = drawData.DisplayPos;
@@ -688,26 +744,15 @@ namespace Tesseract.ImGui.Core {
 			signalSyncs.Add(fence);
 
 			// Run the set of commands
-			resources.Graphics.RunCommands(cmd => {
-				// Begin rendering
-				cmd.BeginRenderPass(new ICommandSink.RenderPassBegin() {
-					RenderArea = renderArea,
-					Framebuffer = framebuffer,
-					RenderPass = resources.RenderPass,
-					ClearValues = clearValues
-				}, SubpassContents.Inline);
+			if (resources.CommandBuffer != null) {
+				var cmd = resources.CommandBuffer.BeginRecording();
+				RenderDrawData(cmd, drawData, framebuffer);
+				resources.CommandBuffer.EndRecording();
+				resources.Graphics.SubmitCommands(submitInfo with { CommandBuffer = resources.CommandBuffers, SignalSync = signalSyncs });
+			} else {
+				resources.Graphics.RunCommands(cmd => RenderDrawData(cmd, drawData, framebuffer), CommandBufferUsage.Graphics, submitInfo with { SignalSync = signalSyncs });
+			}
 
-				// Setup initial state
-				SetupRenderState(cmd);
-
-				// Render each draw list
-				int vertexOffset = 0;
-				int indexOffset = 0;
-				foreach(var list in drawData.CmdLists) RenderDrawList(cmd, list, ref vertexOffset, ref indexOffset);
-
-				// End rendering
-				cmd.EndRenderPass();
-			}, CommandBufferUsage.Graphics, submitInfo with { SignalSync = signalSyncs });
 
 			hasRenderedFrame = true;
 		}

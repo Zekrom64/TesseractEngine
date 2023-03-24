@@ -506,7 +506,7 @@ namespace Tesseract.OpenGL.Graphics {
 						state.IndexType,
 						(nint)(state.IndexOffset + (state.IndexStride * firstIndex)),
 						(int)instanceCount,
-						(int)firstIndex,
+						vertexOffset,
 						firstInstance
 					);
 			} else {

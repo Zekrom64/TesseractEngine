@@ -182,32 +182,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	public interface IPipeline : IDisposable { }
 
 	/// <summary>
-	/// The information for a single shader stage for a pipeline.
-	/// </summary>
-	public readonly record struct PipelineShaderStageInfo {
-
-		/// <summary>
-		/// The type of shader stage this information is for.
-		/// </summary>
-		public required ShaderType Type { get; init; }
-
-		/// <summary>
-		/// The shader to use for this shader stage.
-		/// </summary>
-		public required IShader Shader { get; init; }
-
-		/// <summary>
-		/// The name of the entry point for this shader stage in the shader object.
-		/// If the entry point is the default value of <c>null</c> it is assumed that
-		/// the entry point is called "<c>main</c>".
-		/// </summary>
-		public string EntryPoint { get; init; } = "main";
-
-		public PipelineShaderStageInfo() { }
-
-	}
-
-	/// <summary>
 	/// The stencil test state for a pipeline.
 	/// </summary>
 	public readonly record struct PipelineStencilState {
@@ -544,13 +518,6 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// </summary>
 	public record PipelineGraphicsCreateInfo {
 
-		// Shader state
-
-		/// <summary>
-		/// The set of shader stages to use.
-		/// </summary>
-		public IReadOnlyCollection<PipelineShaderStageInfo> Shaders { get; init; } = Array.Empty<PipelineShaderStageInfo>();
-
 		// Viewport state
 
 		/// <summary>
@@ -615,14 +582,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// Compute pipeline creation information.
 	/// </summary>
-	public record PipelineComputeCreateInfo {
-
-		/// <summary>
-		/// The compute shader binding.
-		/// </summary>
-		public required PipelineShaderStageInfo Shader { get; init; }
-
-	}
+	public record PipelineComputeCreateInfo { }
 
 	/// <summary>
 	/// Pipeline creation information.
@@ -638,6 +598,11 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The layout of the pipeline.
 		/// </summary>
 		public required IPipelineLayout Layout { get; init; }
+
+		/// <summary>
+		/// The shader program for the pipeline.
+		/// </summary>
+		public required IShaderProgram ShaderProgram { get; init; }
 
 		/// <summary>
 		/// Graphics pipeline creation information.

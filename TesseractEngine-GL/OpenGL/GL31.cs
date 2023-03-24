@@ -61,7 +61,7 @@ namespace Tesseract.OpenGL {
 		public int GetActiveUniformBlock(uint program, uint uniformBlockIndex, GLGetActiveUniformBlock pname) => GL.ARBUniformBufferObject.GetActiveUniformBlock(program, uniformBlockIndex, pname);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Span<int> GetActiveUniformBLock(uint program, uint uniformBlockIndex, GLGetActiveUniformBlock pname, Span<int> vals) => GL.ARBUniformBufferObject.GetActiveUniformBlock(program, uniformBlockIndex, pname, vals);
+		public Span<int> GetActiveUniformBlock(uint program, uint uniformBlockIndex, GLGetActiveUniformBlock pname, Span<int> vals) => GL.ARBUniformBufferObject.GetActiveUniformBlock(program, uniformBlockIndex, pname, vals);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public string GetActiveUniformBlockName(uint program, uint uniformBlockIndex) => GL.ARBUniformBufferObject.GetActiveUniformBlockName(program, uniformBlockIndex);

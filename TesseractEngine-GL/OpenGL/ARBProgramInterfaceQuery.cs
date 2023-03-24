@@ -55,6 +55,15 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int GetProgramInterface(uint program, GLProgramInterface programInterface, GLGetProgramInterface pname) {
+			int retn = 0;
+			unsafe {
+				Functions.glGetProgramInterfaceiv(program, (uint)programInterface, (uint)pname, (IntPtr)(&retn));
+			}
+			return retn;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public uint GetProgramResourceIndex(uint program, GLProgramInterface programInterface, string name) => Functions.glGetProgramResourceIndex(program, (uint)programInterface, name);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,6 +88,15 @@ namespace Tesseract.OpenGL {
 				}
 			}
 			return values;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public T GetProgramResource<T>(uint program, GLProgramInterface programInterface, uint index,  GLGetProgramResource prop) where T : unmanaged {
+			T retn;
+			unsafe {
+				Functions.glGetProgramResourceiv(program, (uint)programInterface, index, 1, (IntPtr)(&prop), 1, out int _, (IntPtr)(&retn));
+			}
+			return retn;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

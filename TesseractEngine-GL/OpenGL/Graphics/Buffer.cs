@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Graphics.Accelerated;
@@ -74,7 +75,8 @@ namespace Tesseract.OpenGL.Graphics {
 			if (write) access |= GLMapAccessFlags.Write;
 			if (write && !read) access |= GLMapAccessFlags.InvalidateRange;
 
-			return new UnmanagedPointer<T>(Graphics.Interface.MapBuffer(ID, access, range.Constrain(Size)));
+			var range2 = range.Constrain(Size);
+			return new UnmanagedPointer<T>(Graphics.Interface.MapBuffer(ID, access, range2), (int)(range2.Length / (ulong)Marshal.SizeOf<T>()));
 		}
 
 		public void Unmap() => Graphics.Interface.UnmapBuffer(ID);

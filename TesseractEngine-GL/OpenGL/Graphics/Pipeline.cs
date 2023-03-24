@@ -243,7 +243,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		// Shader state
 
-		public uint ShaderProgramID { get; }
+		public GLShaderProgram ShaderProgram { get; }
 
 		// Rasterization state
 
@@ -373,23 +373,9 @@ namespace Tesseract.OpenGL.Graphics {
 			Graphics = graphics;
 			GL33 gl33 = GL.GL33!;
 
-			ShaderProgramID = gl33.CreateProgram();
-			bool hasTess = false;
-			foreach(var shaderInfo in createInfo.GraphicsInfo!.Shaders) {
-				GLShader shader = (GLShader)shaderInfo.Shader;
-				switch(shader.Type) {
-					case GLShaderType.TessellationControl:
-					case GLShaderType.TessellationEvaluation:
-						hasTess = true;
-						break;
-				}
-				gl33.AttachShader(ShaderProgramID, shader.ID);
-			}
-			gl33.LinkProgram(ShaderProgramID);
-			if (gl33.GetProgram(ShaderProgramID, GLGetProgram.LinkStatus) != Native.GLEnums.GL_TRUE) {
-				string log = gl33.GetProgramInfoLog(ShaderProgramID);
-				throw new GLException("Failed to link shader program:\n" + log);
-			}
+			ShaderProgram = (GLShaderProgram)createInfo.ShaderProgram;
+			bool hasTess = (ShaderProgram.Types & (ShaderType.TessellationControl | ShaderType.TessellationEvaluation)) != 0;
+			
 
 			var gfxInfo = createInfo.GraphicsInfo!;
 			DepthClampEnable = gfxInfo.DepthClampEnable;
@@ -467,7 +453,6 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			GL.GL33!.DeleteProgram(ShaderProgramID);
 		}
 
 	}

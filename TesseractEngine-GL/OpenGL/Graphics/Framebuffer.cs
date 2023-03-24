@@ -145,13 +145,14 @@ namespace Tesseract.OpenGL.Graphics {
 		/// Begins a render pass using this framebuffer.
 		/// </summary>
 		internal void BeginRenderPass(ICommandSink.RenderPassBegin beginInfo) {
-			var renderPass = Graphics.State.CurrentRenderPass;
+			var state = Graphics.State;
+			var renderPass = state.CurrentRenderPass;
 			if (renderPass == null) return;
 
 			var iface = Graphics.Interface;
 			// If default framebuffer, just bind immediately
 			if (IsDefault) {
-				Graphics.State.BindFramebuffer(GLFramebufferTarget.Framebuffer, 0);
+				state.BindFramebuffer(GLFramebufferTarget.Framebuffer, 0);
 			} else {
 				// Else check if a transient framebuffer is needed and begin the subpass
 				if (renderPass != RenderPass) {
@@ -160,16 +161,20 @@ namespace Tesseract.OpenGL.Graphics {
 				}
 			}
 
-			// For each attachment to clear in the render pass
-			foreach(int clearAttachment in renderPass.ClearAttachments) {
-				// Get the clear mapping
-				var (clearID, clearFBAttachment) = AttachmentClearFramebuffers[clearAttachment];
-				// Determine the pixel format of the clear value
-				PixelFormat format = PixelFormat.R32G32B32A32SFloat;
-				if (AttachmentViews != null) format = AttachmentViews[clearAttachment].Format;
-				else if (clearAttachment == 1) format = PixelFormat.D32SFloatS8UInt;
-				// Clear the mapped framebuffer for the attachment
-				iface.ClearFramebuffer(clearID, clearFBAttachment, beginInfo.ClearValues[clearAttachment], format);
+			if (renderPass.ClearAttachments.Count > 0) {
+				state.SetTempScissor(beginInfo.RenderArea);
+				// For each attachment to clear in the render pass
+				foreach (int clearAttachment in renderPass.ClearAttachments) {
+					// Get the clear mapping
+					var (clearID, clearFBAttachment) = AttachmentClearFramebuffers[clearAttachment];
+					// Determine the pixel format of the clear value
+					PixelFormat format = PixelFormat.R32G32B32A32SFloat;
+					if (AttachmentViews != null) format = AttachmentViews[clearAttachment].Format;
+					else if (clearAttachment == 1) format = PixelFormat.D32SFloatS8UInt;
+					// Clear the mapped framebuffer for the attachment
+					iface.ClearFramebuffer(clearID, clearFBAttachment, beginInfo.ClearValues[clearAttachment], format);
+				}
+				state.UnsetTempScissor();
 			}
 		}
 

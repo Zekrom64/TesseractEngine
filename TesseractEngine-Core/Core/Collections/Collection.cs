@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Tesseract.Core.Collections {
 
@@ -72,6 +74,46 @@ namespace Tesseract.Core.Collections {
 		/// A read-only list that is always empty.
 		/// </summary>
 		public static readonly IReadOnlyList<T> EmptyList = Array.Empty<T>();
+
+		private static string DefaultFormatter(IReadOnlyList<T> list) {
+			StringBuilder sb = new();
+			sb.Append("{ ");
+			foreach (T val in list) sb.Append(val?.ToString()).Append(' ');
+			sb.Append('}');
+			return sb.ToString();
+		}
+
+		private class StringFormattedReadOnlyList : IReadOnlyList<T> {
+
+			public required IReadOnlyList<T> List { get; init; }
+
+			public required Func<IReadOnlyList<T>, string> Formatter { get; init; }
+
+			public T this[int index] => List[index];
+
+			public int Count => List.Count;
+
+			public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
+
+			IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
+
+			public override bool Equals(object? obj) => List.Equals(obj);
+
+			public override int GetHashCode() => List.GetHashCode();
+
+			public override string ToString() => Formatter(List);
+		}
+
+		/// <summary>
+		/// Adds formatting to the <see cref="object.ToString"/> method of a list.
+		/// </summary>
+		/// <param name="list">List to add formatting to</param>
+		/// <param name="formatter">Formatting function</param>
+		/// <returns>List with formatting</returns>
+		public static IReadOnlyList<T> AddStringFormatting(IReadOnlyList<T> list, Func<IReadOnlyList<T>, string>? formatter = null) {
+			formatter ??= DefaultFormatter;
+			return new StringFormattedReadOnlyList() { List = list, Formatter = formatter };
+		}
 
 	}
 

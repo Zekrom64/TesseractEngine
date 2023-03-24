@@ -182,8 +182,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public void BindVertexArray(IVertexArray array) {
 			GLVertexArray glarray = (GLVertexArray)array;
-			if (indirect != null) indirect(() => GL.GL33!.BindVertexArray(glarray.ID));
-			else GL.GL33!.BindVertexArray(glarray.ID);
+			if (indirect != null) indirect(() => Graphics.State.BindVertexArray(glarray));
+			else Graphics.State.BindVertexArray(glarray);
 		}
 
 		public void BlitFramebuffer(IFramebuffer dst, int dstAttachment, TextureLayout dstLayout, Recti dstArea, IFramebuffer src, int srcAttachment, TextureLayout srcLayout, Recti srcArea, TextureAspect aspect, TextureFilter filter) {

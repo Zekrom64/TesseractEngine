@@ -103,7 +103,7 @@ namespace Tesseract.OpenGL.Graphics {
 			// Check if we can get away with using a renderbuffer based on the texture usage
 			bool canUseRenderbuffer = true;
 			// Cannot use a renderbuffer for non-attachment images
-			if ((info.Usage & (TextureUsage.ColorAttachment | TextureUsage.DepthStencilAttachment)) != 0) canUseRenderbuffer = false;
+			if ((info.Usage & ~(TextureUsage.ColorAttachment | TextureUsage.DepthStencilAttachment)) != 0) canUseRenderbuffer = false;
 			// Cannot use renderbuffer for texture sub-views
 			if (canUseRenderbuffer && (info.Usage & TextureUsage.SubView) != 0) canUseRenderbuffer = false;
 			// Cannot use renderbuffer for non-2D textures

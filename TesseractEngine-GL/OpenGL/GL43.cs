@@ -92,6 +92,9 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetProgramInterface(uint program, GLProgramInterface programInterface, GLGetProgramInterface pname, Span<int> values) => GL.ARBProgramInterfaceQuery.GetProgramInterface(program, programInterface, pname, values);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int GetProgramInterface(uint program, GLProgramInterface programInterface, GLGetProgramInterface pname) => GL.ARBProgramInterfaceQuery.GetProgramInterface(program, programInterface, pname);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public uint GetProgramResourceIndex(uint program, GLProgramInterface programInterface, string name) => GL.ARBProgramInterfaceQuery.GetProgramResourceIndex(program, programInterface, name);
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,6 +102,9 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetProgramResource(uint program, GLProgramInterface programInterface, uint index, in ReadOnlySpan<GLGetProgramResource> props, Span<int> values) => GL.ARBProgramInterfaceQuery.GetProgramResource(program, programInterface, index, props, values);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public T GetProgramResource<T>(uint program, GLProgramInterface programInterface, uint index, GLGetProgramResource prop) where T : unmanaged => GL.ARBProgramInterfaceQuery.GetProgramResource<T>(program, programInterface, index, prop);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetProgramResourceLocation(uint program, GLProgramInterface programInterface, string name) => GL.ARBProgramInterfaceQuery.GetProgramResourceLocation(program, programInterface, name);

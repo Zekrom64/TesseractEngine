@@ -14,8 +14,11 @@ namespace Tesseract.SDL {
 
 		public string[] RequiredInstanceExtensions {
 			get {
-				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window.Ptr, out int count, out IntPtr names)) throw new SDLException(SDL2.GetError());
-				UnmanagedPointer<IntPtr> pNames = new(names);
+				using MemoryStack sp = MemoryStack.Push();
+				int count = 0;
+				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window.Ptr, ref count, IntPtr.Zero)) throw new SDLException(SDL2.GetError());
+				UnmanagedPointer<IntPtr> pNames = sp.Alloc<IntPtr>(count);
+				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window.Ptr, ref count, pNames)) throw new SDLException(SDL2.GetError());
 				string[] exts = new string[count];
 				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
 				return exts;

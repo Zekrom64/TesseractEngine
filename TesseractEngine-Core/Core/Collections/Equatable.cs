@@ -48,6 +48,8 @@ namespace Tesseract.Core.Collections {
 
 		public static bool operator !=(EquatableList<T> left, EquatableList<T> right) => !left.Equals(right);
 
+		public static implicit operator EquatableList<T>(T[] list) => new(list);
+
 	}
 
 	/// <summary>

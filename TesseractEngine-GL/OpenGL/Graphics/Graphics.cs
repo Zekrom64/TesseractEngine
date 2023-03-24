@@ -91,6 +91,8 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IShader CreateShader(ShaderCreateInfo createInfo) => new GLShader(this, createInfo);
 
+		public IShaderProgram CreateShaderProgram(ShaderProgramCreateInfo createInfo) => new GLShaderProgram(this, createInfo);
+
 		public IPipelineSet CreatePipelineSet(PipelineSetCreateInfo createInfo) => new GLPipelineSet(this, createInfo);
 
 		public IRenderPass CreateRenderPass(RenderPassCreateInfo createInfo) => new GLRenderPass(this, createInfo);
@@ -103,10 +105,7 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public IBindSetLayout CreateBindSetLayout(BindSetLayoutCreateInfo createInfo) => new GLBindSetLayout(createInfo);
 
-		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) {
-			// TODO
-			throw new NotImplementedException();
-		}
+		public IBindPool CreateBindPool(BindPoolCreateInfo createInfo) => new GLBindPool(this);
 
 		public void SubmitCommands(in IGraphics.CommandBufferSubmitInfo submitInfo) {
 			foreach (var sync in submitInfo.WaitSync)

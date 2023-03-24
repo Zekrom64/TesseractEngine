@@ -1179,8 +1179,7 @@ namespace Tesseract.Vulkan {
 		public VKPipelineShaderStageCreateFlagBits Flags;
 		public VKShaderStageFlagBits Stage;
 		public VkShaderModule Module;
-		[MarshalAs(UnmanagedType.LPUTF8Str)]
-		public string Name;
+		public IntPtr Name;
 		[NativeType("const VkSpecializationInfo*")]
 		public IntPtr SpecializationInfo;
 

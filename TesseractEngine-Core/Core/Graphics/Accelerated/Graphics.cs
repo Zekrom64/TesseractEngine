@@ -883,6 +883,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public IShader CreateShader(ShaderCreateInfo createInfo);
 
 		/// <summary>
+		/// Creates a new shader program.
+		/// </summary>
+		/// <param name="createInfo">Shader program creation information</param>
+		/// <returns>The created shader program</returns>
+		public IShaderProgram CreateShaderProgram(ShaderProgramCreateInfo createInfo);
+
+		/// <summary>
 		/// Creates a new pipeline layout.
 		/// </summary>
 		/// <param name="createInfo">Pipeline layout creation information</param>

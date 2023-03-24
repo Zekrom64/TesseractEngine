@@ -249,7 +249,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 		private void GCOrphanedBuffers() {
 			for(int i = 0; i < orphanedCommmandBuffers.Count; i++) {
 				var cmdbuf = orphanedCommmandBuffers[i];
-				if (cmdbuf.Fence.Fence.Status) {
+				if (cmdbuf.Fence.IsDisposed || cmdbuf.Fence.Fence.Status) {
 					cmdbuf.Dispose();
 					orphanedCommmandBuffers.RemoveAt(i);
 					i--;
@@ -727,11 +727,39 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public void FillBufferUInt32(IBuffer dst, nuint dstOffset, nuint dstSize, uint data) => CommandBuffer.FillBuffer(((VulkanBuffer)dst).Buffer, dstOffset, dstSize, data);
 
 		public void GenerateMipmaps(ITexture dst, TextureLayout initialLayout, TextureLayout finalLayout, TextureFilter? filter = null) {
+			VulkanTexture vkdst = (VulkanTexture)dst;
 			// If no more than 1 mip level its not possible to generate mipmaps
-			if (dst.MipLevels < 2) return;
+			if (dst.MipLevels < 2) {
+				// Perform layout transition if required
+				if (finalLayout != initialLayout) {
+					CommandBuffer.PipelineBarrier(VKPipelineStageFlagBits.TopOfPipe, VKPipelineStageFlagBits.BottomOfPipe, 0,
+						Span<VKMemoryBarrier>.Empty,
+						Span<VKBufferMemoryBarrier>.Empty,
+						stackalloc VKImageMemoryBarrier[] {
+							new	VKImageMemoryBarrier() {
+								Type = VKStructureType.ImageMemoryBarrier,
+								SrcAccessMask = VKAccessFlagBits.MemoryWrite,
+								DstAccessMask = VKAccessFlagBits.MemoryRead,
+								SrcQueueFamilyIndex = VK10.QueueFamilyIgnored,
+								DstQueueFamilyIndex = VK10.QueueFamilyIgnored,
+								Image = vkdst.Image,
+								OldLayout = VulkanConverter.Convert(initialLayout),
+								NewLayout = VulkanConverter.Convert(finalLayout),
+								SubresourceRange = new VKImageSubresourceRange() {
+									AspectMask = VKImageAspectFlagBits.Color,
+									BaseArrayLayer = 0,
+									BaseMipLevel = 0,
+									LayerCount = dst.ArrayLayers,
+									LevelCount = dst.MipLevels
+								}
+							}
+						}
+					);
+				}
+				return;
+			}
 
 			VKFilter vkfilter = filter.HasValue ? VulkanConverter.Convert(filter.Value) : VKFilter.Linear;
-			VulkanTexture vkdst = (VulkanTexture)dst;
 			// Transition from initial layout to standard setup: layer0 = src, layer1-max = dst
 			switch (initialLayout) {
 				case TextureLayout.TransferDst:

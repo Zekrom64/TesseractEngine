@@ -10,15 +10,32 @@ namespace Tesseract.OpenGL.Graphics {
 
 	public record GLPixelFormat {
 
-		public GLInternalFormat InternalFormat { get; init; }
+		public required GLInternalFormat InternalFormat { get; init; }
 
-		public GLFormat Format { get; init; }
+		public required GLFormat Format { get; init; }
 
-		public GLTextureType Type { get; init; }
+		public required GLTextureType Type { get; init; }
 
-		public GLBufferMask Buffers { get; init; }
+		public GLBufferMask Buffers { get; init; } = GLBufferMask.Color;
 
-		public int Count { get; init; }
+		private int count = 0;
+		public int Count {
+			get {
+				if (count == 0) {
+					count = Format switch {
+						GLFormat.R => 1,
+						GLFormat.RG => 2,
+						GLFormat.RGB or GLFormat.BGR => 3,
+						GLFormat.RGBA or GLFormat.BGRA => 4,
+						_ => 0
+					};
+				}
+				return count;
+			}
+			init => count = value;
+		}
+
+		public bool Normalized { get; init; } = true;
 
 		public int SizeOf => GLEnums.SizeOf(Type) * Count;
 
@@ -47,6 +64,7 @@ namespace Tesseract.OpenGL.Graphics {
 			GLTextureType.UnsignedInt_8_8_8_8_Rev => 4,
 			GLTextureType.UnsignedInt_10_10_10_2 => 4,
 			GLTextureType.UnsignedInt_2_10_10_10_Rev => 4,
+			GLTextureType.Double => 8,
 			_ => 0
 		};
 
@@ -54,62 +72,526 @@ namespace Tesseract.OpenGL.Graphics {
 
 		public static int SizeOf(GLIndexType type) => SizeOf((GLTextureType)type);
 
-		private static readonly Dictionary<GLInternalFormat, GLPixelFormat> internalFormats = new();
-
-		private static readonly Dictionary<PixelFormat, GLInternalFormat> stdToInternalFormat = new() {
-			{ PixelFormat.R8G8B8UNorm, GLInternalFormat.RGB8 },
-			{ PixelFormat.R8G8B8A8UNorm, GLInternalFormat.RGBA8 },
-			{ PixelFormat.R32G32B32A32SFloat, GLInternalFormat.RGBA32F },
-			{ PixelFormat.D16UNorm, GLInternalFormat.DepthComponent16 },
-			{ PixelFormat.X8D24UNorm, GLInternalFormat.DepthComponent24 },
-			{ PixelFormat.D32SFloat, GLInternalFormat.DepthComponent32F },
-			{ PixelFormat.D24UNormS8UInt, GLInternalFormat.Depth24Stencil8 },
-			{ PixelFormat.D32SFloatS8UInt, GLInternalFormat.Depth32FStencil8 },
-			{ PixelFormat.S8UInt, GLInternalFormat.StencilIndex8 }
-		};
-
-		private static void AddFormat(GLInternalFormat internalFormat, GLFormat format, GLTextureType type, int count) =>
-			internalFormats[internalFormat] = new GLPixelFormat() { InternalFormat = internalFormat, Format = format, Type = type, Count = count };
-
 		private static readonly Dictionary<PixelFormat, GLPixelFormat> stdToGLFormat = new() {
+			// R8x
+			{ PixelFormat.R8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R8,
+				Format = GLFormat.R,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.R8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R8SNorm,
+				Format = GLFormat.R,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.R8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R8UI,
+				Format = GLFormat.R,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R8I,
+				Format = GLFormat.R,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			// RG8x
+			{ PixelFormat.R8G8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG8,
+				Format = GLFormat.RG,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.R8G8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG8SNorm,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.R8G8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG8UI,
+				Format = GLFormat.RG,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8G8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG8I,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			// RGB8x
+			{ PixelFormat.R8G8B8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.R8G8B8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8SNorm,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.R8G8B8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8UI,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8G8B8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8I,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8G8B8SRGB, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.SRGB8,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedByte
+			} },
+			// BGR8x
+			{ PixelFormat.B8G8R8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.B8G8R8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8SNorm,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.B8G8R8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8UI,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.B8G8R8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB8I,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			{ PixelFormat.B8G8R8SRGB, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.SRGB8,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.UnsignedByte
+			} },
+			// RGBA8x
+			{ PixelFormat.R8G8B8A8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.R8G8B8A8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8SNorm,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.R8G8B8A8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8UI,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8G8B8A8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8I,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			{ PixelFormat.R8G8B8A8SRGB, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.SRGB8A8,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedByte
+			} },
+			// BGRA8x
+			{ PixelFormat.B8G8R8A8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedByte
+			} },
+			{ PixelFormat.B8G8R8A8SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8SNorm,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.Byte
+			} },
+			{ PixelFormat.B8G8R8A8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8UI,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedByte,
+				Normalized = false
+			} },
+			{ PixelFormat.B8G8R8A8SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8I,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.Byte,
+				Normalized = false
+			} },
+			{ PixelFormat.B8G8R8A8SRGB, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.SRGB8A8,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedByte
+			} },
+			// ABGR8x
 			{ PixelFormat.A8B8G8R8UNorm, new GLPixelFormat() {
-				InternalFormat = GLInternalFormat.RGBA,
+				InternalFormat = GLInternalFormat.RGBA8,
+				Format = GLFormat.RGBA,
+				Type = BitConverter.IsLittleEndian ? GLTextureType.UnsignedInt_8_8_8_8 : GLTextureType.UnsignedInt_8_8_8_8_Rev
+			} },
+			// ARGB8x
+			{ PixelFormat.A8R8G8B8UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8,
+				Format = GLFormat.BGRA,
+				Type = BitConverter.IsLittleEndian ? GLTextureType.UnsignedInt_8_8_8_8 : GLTextureType.UnsignedInt_8_8_8_8_Rev
+			} },
+			// R16x
+			{ PixelFormat.R16UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R16,
+				Format = GLFormat.R,
+				Type = GLTextureType.UnsignedShort
+			} },
+			{ PixelFormat.R16SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R16SNorm,
+				Format = GLFormat.R,
+				Type = GLTextureType.Short
+			} },
+			{ PixelFormat.R16UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R16UI,
+				Format = GLFormat.R,
+				Type = GLTextureType.UnsignedShort,
+				Normalized = false
+			} },
+			{ PixelFormat.R16SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R16I,
+				Format = GLFormat.R,
+				Type = GLTextureType.Short,
+				Normalized = false
+			} },
+			{ PixelFormat.R16SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R16F,
+				Format = GLFormat.R,
+				Type = GLTextureType.HalfFloat,
+				Normalized = false
+			} },
+			// RG16x
+			{ PixelFormat.R16G16UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG16,
+				Format = GLFormat.RG,
+				Type = GLTextureType.UnsignedShort
+			} },
+			{ PixelFormat.R16G16SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG16SNorm,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Short
+			} },
+			{ PixelFormat.R16G16UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG16UI,
+				Format = GLFormat.RG,
+				Type = GLTextureType.UnsignedShort,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG16I,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Short,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG16F,
+				Format = GLFormat.RG,
+				Type = GLTextureType.HalfFloat,
+				Normalized = false
+			} },
+			// RGB16x
+			{ PixelFormat.R16G16B16UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB16,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedShort
+			} },
+			{ PixelFormat.R16G16B16SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB16SNorm,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Short
+			} },
+			{ PixelFormat.R16G16B16UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB16UI,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedShort,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16B16SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB16I,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Short,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16B16SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB16F,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.HalfFloat,
+				Normalized = false
+			} },
+			// RGBA16x
+			{ PixelFormat.R16G16B16A16UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA16,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedShort
+			} },
+			{ PixelFormat.R16G16B16A16SNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA16SNorm,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Short
+			} },
+			{ PixelFormat.R16G16B16A16UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA16UI,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedShort,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16B16A16SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA16I,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Short,
+				Normalized = false
+			} },
+			{ PixelFormat.R16G16B16A16SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA16F,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.HalfFloat,
+				Normalized = false
+			} },
+			// R32x
+			{ PixelFormat.R32UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R32UI,
+				Format = GLFormat.R,
+				Type = GLTextureType.UnsignedInt,
+				Normalized = false
+			} },
+			{ PixelFormat.R32SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R32I,
+				Format = GLFormat.R,
+				Type = GLTextureType.Int,
+				Normalized = false
+			} },
+			{ PixelFormat.R32SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R32F,
+				Format = GLFormat.R,
+				Type = GLTextureType.Float,
+				Normalized = false
+			} },
+			// RG32x
+			{ PixelFormat.R32G32UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG32UI,
+				Format = GLFormat.RG,
+				Type = GLTextureType.UnsignedInt,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG32I,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Int,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RG32F,
+				Format = GLFormat.RG,
+				Type = GLTextureType.Float,
+				Normalized = false
+			} },
+			// RGB32x
+			{ PixelFormat.R32G32B32UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB32UI,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedInt,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32B32SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB32I,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Int,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32B32SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB32F,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.Float,
+				Normalized = false
+			} },
+			// RGBA32x
+			{ PixelFormat.R32G32B32A32UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA32UI,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32B32A32SInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA32I,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Int,
+				Normalized = false
+			} },
+			{ PixelFormat.R32G32B32A32SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA32F,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.Float,
+				Normalized = false
+			} },
+			// RGBA4
+			{ PixelFormat.R4G4B4A4UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA4,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedShort_4_4_4_4
+			} },
+			// BGRA4
+			{ PixelFormat.B4G4R4A4UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA4,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedShort_4_4_4_4
+			} },
+			// ARGB4
+			{ PixelFormat.A4R4G4B4UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA4,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedShort_4_4_4_4_Rev
+			} },
+			// R5G6A5
+			{ PixelFormat.R5G6B5UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB5,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedShort_5_6_5
+			} },
+			// B5G6R5
+			{ PixelFormat.B5G6R5UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB5,
+				Format = GLFormat.BGR,
+				Type = GLTextureType.UnsignedShort_5_6_5
+			} },
+			// RGB5A1
+			{ PixelFormat.R5G5B5A1UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB5A1,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedShort_5_5_5_1
+			} },
+			// BGR5A1
+			{ PixelFormat.B5G5R5A1UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB5A1,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedShort_5_5_5_1
+			} },
+			// A1RGB5
+			{ PixelFormat.A1R5G5B5UNormPack16, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB5A1,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedShort_1_5_5_5_Rev
+			} },
+			// ABGR8-Pack32
+			{ PixelFormat.A8B8G8R8UNormPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev
+			} },
+			{ PixelFormat.A8B8G8R8SNormPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8SNorm,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev
+			} },
+			{ PixelFormat.A8B8G8R8UIntPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8UI,
 				Format = GLFormat.RGBA,
 				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev,
-				Count = 4
+				Normalized = false
+			} },
+			{ PixelFormat.A8B8G8R8SIntPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGBA8I,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev,
+				Normalized = false
+			} },
+			{ PixelFormat.A8B8G8R8UNormPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.SRGB8A8,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev
+			} },
+			// A2RGB10
+			{ PixelFormat.A2R10G10B10UNormPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB10A2,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedInt_2_10_10_10_Rev
+			} },
+			{ PixelFormat.A2R10G10B10UIntPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB10A2UI,
+				Format = GLFormat.BGRA,
+				Type = GLTextureType.UnsignedInt_2_10_10_10_Rev
+			} },
+			// A2BGR10
+			{ PixelFormat.A2B10G10R10UNormPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB10A2,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_2_10_10_10_Rev
+			} },
+			{ PixelFormat.A2B10G10R10UIntPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB10A2UI,
+				Format = GLFormat.RGBA,
+				Type = GLTextureType.UnsignedInt_2_10_10_10_Rev
+			} },
+			// B10GR11
+			{ PixelFormat.B10G11R11UFloatPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.R11FG11FB10F,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedInt_10F_11F_11F_Rev
+			} },
+			// D16
+			{ PixelFormat.D16UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.DepthComponent16,
+				Format = GLFormat.DepthComponent,
+				Type = GLTextureType.HalfFloat,
+				Buffers = GLBufferMask.Depth
+			} },
+			// D24
+			{ PixelFormat.X8D24UNorm, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.DepthComponent24,
+				Format = GLFormat.DepthComponent,
+				Type = GLTextureType.UnsignedInt_24_8,
+				Buffers = GLBufferMask.Depth
+			} },
+			// D32
+			{ PixelFormat.D32SFloat, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.DepthComponent32F,
+				Format = GLFormat.DepthComponent,
+				Type = GLTextureType.Float,
+				Buffers = GLBufferMask.Depth
+			} },
+			// S8
+			{ PixelFormat.S8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.StencilIndex8,
+				Format = GLFormat.StencilIndex,
+				Type = GLTextureType.UnsignedByte,
+				Buffers = GLBufferMask.Stencil
+			} },
+			// D24S8
+			{ PixelFormat.D24UNormS8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.Depth24Stencil8,
+				Format = GLFormat.DepthStencil,
+				Type = GLTextureType.UnsignedInt_24_8,
+				Buffers = GLBufferMask.Depth | GLBufferMask.Stencil
+			} },
+			// D32S8
+			{ PixelFormat.D32SFloatS8UInt, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.Depth32FStencil8,
+				Format = GLFormat.DepthStencil,
+				Type = GLTextureType.Float32UnsignedInt_24_8_Rev,
+				Buffers = GLBufferMask.Depth | GLBufferMask.Stencil
+			} },
+			// E5B9G9R9
+			{ PixelFormat.E5B9G9R9UFloatPack32, new GLPixelFormat() {
+				InternalFormat = GLInternalFormat.RGB10,
+				Format = GLFormat.RGB,
+				Type = GLTextureType.UnsignedInt_5_9_9_9_Rev
 			} }
 		};
 
-		static GLEnums() {
-			AddFormat(GLInternalFormat.R8, GLFormat.R, GLTextureType.UnsignedByte, 1);
-			AddFormat(GLInternalFormat.R8SNorm, GLFormat.R, GLTextureType.Byte, 1);
-			AddFormat(GLInternalFormat.R8UI, GLFormat.R, GLTextureType.UnsignedByte, 1);
-			AddFormat(GLInternalFormat.R8I, GLFormat.R, GLTextureType.Byte, 1);
-			AddFormat(GLInternalFormat.RGBA8, GLFormat.RGBA, GLTextureType.UnsignedByte, 4);
-		}
-
-		private static bool TryGetFormat(PixelFormat format, out GLFormat glformat) {
-			glformat = default;
-			return false;
-		}
-
-		private static bool TryGetType(PixelFormat format, out GLTextureType type) {
-			if (format.NumberFormat != ChannelNumberFormat.Undefined) {
-				
-			}
-			type = default;
-			return false;
-		}
-
 		public static GLPixelFormat? StdToGLFormat(PixelFormat format) {
-			if (stdToInternalFormat.TryGetValue(format, out GLInternalFormat glformat)) return internalFormats[glformat];
 			if (stdToGLFormat.TryGetValue(format, out GLPixelFormat? glpxformat)) return glpxformat;
-			/* TODO: OpenGL supports more formats, but how to convert from PixelFormat correctly?
-			foreach(GLPixelFormat glfmt in internalFormats.Values) {
-				if (format.SizeOf != glfmt.SizeOf) continue;
-			}
-			*/
-			return null;
+			else return null;
 		}
 
 
@@ -331,6 +813,13 @@ namespace Tesseract.OpenGL.Graphics {
 			if ((barrier.ProvokingAccess & (MemoryAccess.TransferRead | MemoryAccess.TransferWrite)) != 0) glbarrier |= GLMemoryBarrier.TextureUpdate;
 			return glbarrier;
 		}
+
+		public static GLProgramInterface Convert(BindType type) => type switch {
+			BindType.CombinedTextureSampler or BindType.StorageTexture => GLProgramInterface.Uniform,
+			BindType.UniformBuffer => GLProgramInterface.UniformBlock,
+			BindType.StorageBuffer => GLProgramInterface.ShaderStorageBlock,
+			_ => throw new ArgumentException("Bind type not supported in OpenGL", nameof(type))
+		};
 
 	}
 

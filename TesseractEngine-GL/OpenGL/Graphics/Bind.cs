@@ -112,10 +112,18 @@ namespace Tesseract.OpenGL.Graphics {
 			foreach(BindSetWrite write in writes) {
 				switch(write.Type) {
 					case BindType.UniformBuffer:
-						uniformBuffers[write.Binding] = write.BufferInfo;
+						if (write.BufferInfo != null) {
+							var info = write.BufferInfo.Value;
+							uniformBuffers[write.Binding] = info with { Range = info.Range.Constrain(info.Buffer.Size) };
+
+						} else uniformBuffers[write.Binding] = null;
 						break;
 					case BindType.StorageBuffer:
-						storageBuffers[write.Binding] = write.BufferInfo;
+						if (write.BufferInfo != null) {
+							var info = write.BufferInfo.Value;
+							storageBuffers[write.Binding] = info with { Range = info.Range.Constrain(info.Buffer.Size) };
+
+						} else storageBuffers[write.Binding] = null;
 						break;
 					case BindType.CombinedTextureSampler:
 					case BindType.StorageTexture:

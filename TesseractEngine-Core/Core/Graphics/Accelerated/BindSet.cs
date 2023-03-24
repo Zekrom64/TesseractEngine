@@ -182,14 +182,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public BindType Type;
 
 		/// <summary>
-		/// The list of texture bindings to write.
+		/// The texture binding to write.
 		/// </summary>
-		public TextureBinding TextureInfo;
+		public TextureBinding? TextureInfo;
 
 		/// <summary>
-		/// The list of buffer bindings to write.
+		/// The buffer binding to write.
 		/// </summary>
-		public BufferBinding BufferInfo;
+		public BufferBinding? BufferInfo;
 
 	}
 

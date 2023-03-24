@@ -92,7 +92,7 @@ namespace Tesseract.Core.Graphics {
 	/// <summary>
 	/// A pixel format channel 
 	/// </summary>
-	public readonly struct PixelChannel : IEquatable<PixelChannel> {
+	public readonly record struct PixelChannel : IEquatable<PixelChannel> {
 
 		/// <summary>
 		/// The type of this channel.
@@ -120,16 +120,6 @@ namespace Tesseract.Core.Graphics {
 		/// The number format of values in this channel.
 		/// </summary>
 		public ChannelNumberFormat NumberFormat { get; init; }
-
-		public bool Equals(PixelChannel other) => Type == other.Type && Offset == other.Offset && Size == other.Size && NumberFormat == other.NumberFormat;
-
-		public override bool Equals(object? obj) => obj is PixelChannel channel && Equals(channel);
-
-		public static bool operator ==(PixelChannel left, PixelChannel right) => left.Equals(right);
-
-		public static bool operator !=(PixelChannel left, PixelChannel right) => !(left == right);
-
-		public override int GetHashCode() => Offset ^ Size ^ ((int)Type << 8) ^ ((int)NumberFormat << 12);
 
 	}
 
@@ -541,7 +531,7 @@ namespace Tesseract.Core.Graphics {
 			return new PixelFormat() {
 				Packed = false,
 				IsOpaque = opaque,
-				Channels = new List<PixelChannel>(channels),
+				Channels = Collection<PixelChannel>.AddStringFormatting(new List<PixelChannel>(channels)),
 				SizeOf = byteSize,
 				Type = formatType,
 				NumberFormat = numberFormat,
@@ -560,7 +550,7 @@ namespace Tesseract.Core.Graphics {
 			return new PixelFormat() {
 				Packed = true,
 				IsOpaque = opaque,
-				Channels = new List<PixelChannel>(channels),
+				Channels = Collection<PixelChannel>.AddStringFormatting(new List<PixelChannel>(channels)),
 				SizeOf = byteSize,
 				Type = formatType,
 				NumberFormat = numberFormat,
@@ -580,7 +570,7 @@ namespace Tesseract.Core.Graphics {
 			return new PixelFormat() {
 				Packed = true,
 				IsOpaque = opaque,
-				Channels = new List<PixelChannel>(channels),
+				Channels = Collection<PixelChannel>.AddStringFormatting(new List<PixelChannel>(channels)),
 				SizeOf = byteSize,
 				Type = formatType,
 				NumberFormat = numberFormat,

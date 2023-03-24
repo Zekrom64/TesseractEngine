@@ -35,7 +35,9 @@ namespace Tesseract.Vulkan.Services.Objects {
 
 		public TextureUsage Usage { get; init; }
 
-		public IMemoryBinding? MemoryBinding { get; init; }
+		public IVKMemoryBinding? MemoryBinding { get; init; }
+
+		IMemoryBinding? ITexture.MemoryBinding => MemoryBinding;
 
 		private ITextureView? identityView = null;
 
@@ -67,7 +69,10 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			identityView?.Dispose();
-			if (disposable) Image.Dispose();
+			if (disposable) {
+				Image.Dispose();
+				MemoryBinding?.Dispose();
+			}
 		}
 
 	}

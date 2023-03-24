@@ -143,16 +143,13 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	/// <summary>
 	/// A shader stores the code for a programmable stage in a graphics pipeline.
 	/// </summary>
-	public interface IShader : IDisposable {
-
+	public interface IShader : IDisposable { 
+	
 		/// <summary>
-		/// Attempts to find a binding by name that is used by this shader.
+		/// The type of shader this module is.
 		/// </summary>
-		/// <param name="name">The name of the binding</param>
-		/// <param name="binding">The binding information</param>
-		/// <returns>If the binding was found</returns>
-		public bool TryFindBinding(string name, out BindSetLayoutBinding binding);
-
+		public ShaderType Type { get; }
+	
 	}
 
 	/// <summary>
@@ -174,6 +171,40 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// The object to use as the source code for the shader.
 		/// </summary>
 		public required object Source { get; init; }
+
+		/// <summary>
+		/// The name of the entry point for this shader stage in the shader object.
+		/// </summary>
+		public string EntryPoint { get; init; } = "main";
+
+	}
+
+	/// <summary>
+	/// A shader program links the code between different shader modules.
+	/// </summary>
+	public interface IShaderProgram : IDisposable {
+
+		/// <summary>
+		/// Attempts to get the binding layout information for a pipeline resource binding with the given name. If the
+		/// binding was successfully retrieved the binding type and location are always valid, but if the stages the binding
+		/// is used in cannot be determined <see cref="BindSetLayoutBinding.Stages"/> will be zero.
+		/// </summary>
+		/// <param name="name">Resource binding name</param>
+		/// <param name="binding">Resource binding information</param>
+		/// <returns>If the binding information was found</returns>
+		public bool TryGetBinding(string name, out BindSetLayoutBinding binding);
+	
+	}
+
+	/// <summary>
+	/// Shader program creation information.
+	/// </summary>
+	public record ShaderProgramCreateInfo {
+
+		/// <summary>
+		/// The list of shader modules to link for the program.
+		/// </summary>
+		public required IReadOnlyList<IShader> Modules { get; init; }
 
 	}
 

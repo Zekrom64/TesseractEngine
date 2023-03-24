@@ -20,6 +20,8 @@ namespace Tesseract.Vulkan.Services.Objects {
 		/// </summary>
 		public VKFence Fence { get; }
 
+		internal bool IsDisposed { get; private set; }
+
 		public VulkanFenceSync(VKFence fence) {
 			Fence = fence;
 		}
@@ -31,11 +33,16 @@ namespace Tesseract.Vulkan.Services.Objects {
 		public SyncFeatures Features => SyncFeatures.GPUWorkSignaling | SyncFeatures.HostPolling | SyncFeatures.HostWaiting;
 
 		public void Dispose() {
-			GC.SuppressFinalize(this);
-			Fence.Dispose();
+			lock (this) {
+				if (!IsDisposed) {
+					GC.SuppressFinalize(this);
+					Fence.Dispose();
+					IsDisposed = true;
+				}
+			}
 		}
 
-		public bool HostPoll() => Fence.Status;
+			public bool HostPoll() => Fence.Status;
 
 		public void HostReset() => Fence.Reset();
 

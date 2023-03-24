@@ -2010,7 +2010,7 @@ namespace Tesseract.SDL.Native {
 		public delegate void PFN_SDL_Vulkan_LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string path);
 		public delegate IntPtr PFN_SDL_Vulkan_GetVkGetInstanceProcAddr();
 		public delegate void PFN_SDL_Vulkan_UnloadLibrary();
-		public delegate SDLBool PFN_SDL_Vulkan_GetInstanceExtensions([NativeType("SDL_Window*")] IntPtr window, out int count, [NativeType("const char**")] out IntPtr pNames);
+		public delegate SDLBool PFN_SDL_Vulkan_GetInstanceExtensions([NativeType("SDL_Window*")] IntPtr window, ref int count, [NativeType("const char**")] IntPtr pNames);
 		public delegate SDLBool PFN_SDL_Vulkan_CreateSurface([NativeType("SDL_Window*")] IntPtr window, [NativeType("VkInstance")] IntPtr instance, [NativeType("VkSurfaceKHR*")] out ulong surface);
 		public delegate void PFN_SDL_Vulkan_GetDrawableSize([NativeType("SDL_Window*")] IntPtr window, out int w, out int h);
 

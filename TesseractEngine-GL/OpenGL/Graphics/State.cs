@@ -616,7 +616,7 @@ namespace Tesseract.OpenGL.Graphics {
 				var gl33 = GL.GL33!;
 
 				// Setup static state
-				UseProgram(pipeline.ShaderProgramID);
+				UseProgram(pipeline.ShaderProgram.ID);
 				if (pipeline.DepthClampEnable ^ depthClampEnable) {
 					depthClampEnable = pipeline.DepthClampEnable;
 					if (depthClampEnable) gl33.Enable(GLCapability.DepthClamp);
