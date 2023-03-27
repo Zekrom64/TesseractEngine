@@ -53,6 +53,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			GL.GL15!.DeleteBuffers(ID);
+			Graphics.State.InvalidateBufferID(ID);
 		}
 
 		public void FlushGPUToHost(in MemoryRange range = default) {

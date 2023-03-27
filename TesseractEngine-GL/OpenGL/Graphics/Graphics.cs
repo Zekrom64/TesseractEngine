@@ -114,7 +114,6 @@ namespace Tesseract.OpenGL.Graphics {
 				if (buffer is GLCommandBuffer glbuffer) glbuffer.RunCommands();
 			foreach (var sync in submitInfo.SignalSync)
 				if (sync is GLSync glsync && glsync.IsFence) glsync.GenerateFence();
-			throw new NotImplementedException();
 		}
 
 		public void TrimCommandBufferMemory() { } // No-op

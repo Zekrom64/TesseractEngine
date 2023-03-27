@@ -145,10 +145,15 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			var gl33 = GL.GL33!;
+			var state = Graphics.State;
 			gl33.DeleteTextures(ID);
-			foreach(BlitFramebufferState state in blitStates) {
-				uint fbo = state.blitFramebuffer;
-				if (fbo != 0) gl33.DeleteFramebuffers(fbo);
+			state.InvalidateTextureID(ID);
+			foreach(BlitFramebufferState fbstate in blitStates) {
+				uint fbo = fbstate.blitFramebuffer;
+				if (fbo != 0) {
+					gl33.DeleteFramebuffers(fbo);
+					state.InvalidateFramebufferID(fbo);
+				}
 			}
 		}
 
@@ -332,6 +337,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (ID != Texture.ID) GL.GL33!.DeleteTextures(ID);
+			Graphics.State.InvalidateTextureID(ID);
 		}
 
 	}

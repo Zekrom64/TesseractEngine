@@ -76,6 +76,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			GL.GL33!.DeleteSamplers(ID);
+			Graphics.State.InvalidateSamplerID(ID);
 		}
 
 	}

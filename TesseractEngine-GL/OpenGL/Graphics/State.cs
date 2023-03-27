@@ -297,6 +297,16 @@ namespace Tesseract.OpenGL.Graphics {
 			texunit.Texture = texture;
 		}
 
+		/// <summary>
+		/// Invalidates a texture ID.
+		/// </summary>
+		/// <param name="id">Texture ID to invalidate</param>
+		public void InvalidateTextureID(uint id) {
+			for(int i = 0; i < textureUnits.Length; i++) {
+				if (textureUnits[i].Texture == id) textureUnits[i] = default;
+			}
+		}
+
 		/*
 		public (uint, GLTextureTarget) BindTextureAny(uint texture, GLTextureTarget defaultTarget) {
 			for(uint i = 0; i < textureUnits.Length; i++) {
@@ -320,6 +330,16 @@ namespace Tesseract.OpenGL.Graphics {
 			if (texunit.Sampler == sampler) return;
 			GL.GL33!.BindSampler(unit, sampler);
 			texunit.Sampler = sampler;
+		}
+
+		/// <summary>
+		/// Invalidates a sampler ID.
+		/// </summary>
+		/// <param name="id">Sampler ID to invalidate</param>
+		public void InvalidateSamplerID(uint id) {
+			for (int i = 0; i < textureUnits.Length; i++) {
+				if (textureUnits[i].Sampler == id) textureUnits[i] = default;
+			}
 		}
 
 		/// <summary>
@@ -381,6 +401,26 @@ namespace Tesseract.OpenGL.Graphics {
 		}
 
 		/// <summary>
+		/// Invalidates potential buffer bindings by the given ID.
+		/// </summary>
+		/// <param name="id">The ID of the buffer to invalidate</param>
+		public void InvalidateBufferID(uint id) {
+			foreach(var target in Enum.GetValues<GLBufferTarget>()) {
+				ref uint binding = ref GetBufferBinding(target, out bool valid);
+				if (valid && binding == id) binding = 0;
+			}
+			void InvalidateRanges(GLBufferRangeBinding[] ranges) {
+				for(int i = 0; i < ranges.Length; i++) {
+					if (ranges[i].Buffer == id) ranges[i] = default;
+				}
+			}
+			InvalidateRanges(bufferRangeAtomicCounter);
+			InvalidateRanges(bufferRangeShaderStorage);
+			InvalidateRanges(bufferRangeUniform);
+			InvalidateRanges(bufferRangeTransformFeedback);
+		}
+
+		/// <summary>
 		/// Uses the given program.
 		/// </summary>
 		/// <param name="program">Program to use</param>
@@ -388,6 +428,14 @@ namespace Tesseract.OpenGL.Graphics {
 			if (this.program == program) return;
 			GL.GL33!.UseProgram(program);
 			this.program = program;
+		}
+
+		/// <summary>
+		/// Invalidates a shader program ID.
+		/// </summary>
+		/// <param name="id">Shader program ID to invalidate</param>
+		public void InvalidateProgramID(uint id) {
+			if (program == id) program = 0;
 		}
 
 		/// <summary>
@@ -414,6 +462,14 @@ namespace Tesseract.OpenGL.Graphics {
 						break;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Invalidates a vertex array ID.
+		/// </summary>
+		/// <param name="id">Vertex array ID to invalidate</param>
+		public void InvalidateVertexArrayID(uint id) {
+			if (VertexArray != null && VertexArray.ID == id) VertexArray = null;
 		}
 
 		/// <summary>
@@ -469,6 +525,15 @@ namespace Tesseract.OpenGL.Graphics {
 		/// Pops the current draw framebuffer, binding the previously pushed buffer.
 		/// </summary>
 		public void PopDrawFramebuffer() => BindFramebuffer(GLFramebufferTarget.Draw, drawFramebufferStack.Pop());
+
+		/// <summary>
+		/// Invalidates a framebuffer ID.
+		/// </summary>
+		/// <param name="id">Framebuffer ID to invalidate</param>
+		public void InvalidateFramebufferID(uint id) {
+			if (framebufferDraw == id) framebufferDraw = 0;
+			if (framebufferRead == id) framebufferRead = 0;
+		}
 
 		/// <summary>
 		/// Sets the given pixel store parameter.

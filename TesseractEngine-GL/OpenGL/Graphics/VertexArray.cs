@@ -133,6 +133,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			GL.GL33!.DeleteVertexArrays(ID);
+			Graphics.State.InvalidateVertexArrayID(ID);
 		}
 
 	}

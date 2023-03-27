@@ -137,7 +137,11 @@ namespace Tesseract.OpenGL.Graphics {
 			var gl33 = GL.GL33!;
 
 			gl33.DeleteFramebuffers(IDs);
-			if (transientID.HasValue && transientID.Value != 0) gl33.DeleteFramebuffers(transientID.Value);
+			foreach (var id in IDs) Graphics.State.InvalidateFramebufferID(id);
+			if (transientID.HasValue && transientID.Value != 0) {
+				gl33.DeleteFramebuffers(transientID.Value);
+				Graphics.State.InvalidateFramebufferID(transientID.Value);
+			}
 		}
 
 		// TODO

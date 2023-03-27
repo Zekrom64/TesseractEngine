@@ -117,6 +117,7 @@ namespace Tesseract.OpenGL.Graphics {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			GL.GL33!.DeleteProgram(ID);
+			Graphics.State.InvalidateProgramID(ID);
 		}
 
 		private readonly Dictionary<string, BindSetLayoutBinding> bindingInfo = new();

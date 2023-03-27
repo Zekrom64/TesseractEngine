@@ -41,6 +41,19 @@ namespace Tesseract.Core.Graphics {
 		public static IImageSharpImage Create(Image img) => ImageSharpService.pixelTypeToFormat[img.GetType().GetGenericArguments()[0]].OutputConverter(img);
 
 		/// <summary>
+		/// Constructs a new Tesseract image with the given size and format backed by an ImageSharp image.
+		/// </summary>
+		/// <param name="size">Image size</param>
+		/// <param name="format">Image format</param>
+		/// <returns>Created image</returns>
+		/// <exception cref="ArgumentException">If the image's pixel format is not supported</exception>
+		public static IImageSharpImage Create(IReadOnlyTuple2<int> size, PixelFormat format) {
+			if (!ImageSharpService.pixelFormatToType.TryGetValue(format, out ImageSharpService.FormatInfo? pt))
+				throw new ArgumentException($"Image pixel format {format} is not supported by ImageSharp", nameof(format));
+			else return Create(pt.AbstractConstructor(size.X, size.Y));
+		}
+
+		/// <summary>
 		/// Creates an ImageSharp image from the given generic image object.
 		/// </summary>
 		/// <param name="img">Image to convert</param>
@@ -149,7 +162,12 @@ namespace Tesseract.Core.Graphics {
 
 		public IImage Duplicate() => new ImageSharpImage<TPixel>(Image.Clone());
 
-		public IProcessableImage Convert(PixelFormat format) => IImageSharpImage.Create(this); // TODO: Pixel format selection
+		public IProcessableImage Convert(PixelFormat format) {
+			if (format == Format) return this;
+			var image2 = IImageSharpImage.Create(Size, format);
+			image2.AbstractImage.Mutate(op => op.DrawImage(Image, 1));
+			return image2;
+		}
 
 		public void Blit(Recti dstArea, IImage src, IReadOnlyTuple2<int> srcPos) {
 			IImageSharpImage isi;

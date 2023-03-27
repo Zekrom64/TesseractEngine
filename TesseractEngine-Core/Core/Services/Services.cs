@@ -136,6 +136,8 @@ namespace Tesseract.Core.Services {
 		/// <param name="service">The service to lookup</param>
 		/// <returns>The retrieved injected service, or null if none was found</returns>
 		public static T? Lookup<T>(IServiceProvider provider, IService<T> service) where T : notnull {
+			// Fast lookup for objects that directly implement the service as an interface
+			if (provider is T tval) return tval;
 			lock (registry) {
 				if (!registry.TryGetValue(provider, out InjectedRegistry? reg)) {
 					reg = new() { SelfType = provider.GetType() };
