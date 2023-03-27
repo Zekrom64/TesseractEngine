@@ -667,7 +667,11 @@ namespace Tesseract.Vulkan.Services.Objects {
 					DepthBiasSlopeFactor = dynInfo.DepthBiasSlopeFactor,
 					LineWidth = dynInfo.LineWidth
 				}),
-				MultisampleState = IntPtr.Zero,
+				// TODO: Pass multisampling info
+				MultisampleState = sp.Values(new VKPipelineMultisampleStateCreateInfo() {
+					Type = VKStructureType.PipelineMultisampleStateCreateInfo,
+					RasterizationSamples = VKSampleCountFlagBits.Count1Bit
+				}),
 				DepthStencilState = sp.Values(new VKPipelineDepthStencilStateCreateInfo() {
 					Type = VKStructureType.PipelineDepthStencilStateCreateInfo,
 					DepthTestEnable = dynInfo.DepthTestEnable,
