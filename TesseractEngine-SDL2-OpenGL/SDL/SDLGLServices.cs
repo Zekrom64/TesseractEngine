@@ -58,6 +58,7 @@ namespace Tesseract.SDL {
 						_ => default
 					}));
 					if (attributes.TryGet(GLWindowAttributes.DebugContext, out bool debug) && debug) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextFlags, (int)SDLGLContextFlag.DebugFlag);
+					if (attributes.TryGet(GLWindowAttributes.NoError, out bool noerror)) SDL2.Functions.SDL_GL_SetAttribute(SDLGLAttr.ContextNoError, noerror ? 1 : 0);
 				}
 			};
 		}

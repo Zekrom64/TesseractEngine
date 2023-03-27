@@ -70,11 +70,14 @@ namespace Tesseract.ImGui.SDL {
 			bool oldClipEnabled = renderer.IsClipEnabled;
 			Recti oldViewport = renderer.Viewport;
 			Recti oldClipRect = renderer.ClipRect;
+			SDLBlendMode oldBlendMode = renderer.BlendMode;
 
 			Vector2 clipOffset = drawData.DisplayPos;
 			Vector2 clipScale = renderScale;
 
-			foreach(IImDrawList drawList in drawData.CmdLists) {
+			renderer.BlendMode = SDLBlendMode.Blend;
+
+			foreach (IImDrawList drawList in drawData.CmdLists) {
 				ReadOnlySpan<ImDrawVert> vtxBuffer = drawList.VtxBuffer.AsSpan();
 				ReadOnlySpan<ushort> idxBuffer = drawList.IdxBuffer.AsSpan();
 				foreach(ImDrawCmd cmd in drawList.CmdBuffer) {
@@ -119,6 +122,7 @@ namespace Tesseract.ImGui.SDL {
 			renderer.Viewport = oldViewport;
 			if (oldClipEnabled) renderer.ClipRect = oldClipRect;
 			else renderer.ResetClipRect();
+			renderer.BlendMode = oldBlendMode;
 		}
 
 	}

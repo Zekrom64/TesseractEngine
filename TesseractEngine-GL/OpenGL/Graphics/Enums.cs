@@ -506,7 +506,7 @@ namespace Tesseract.OpenGL.Graphics {
 				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev,
 				Normalized = false
 			} },
-			{ PixelFormat.A8B8G8R8UNormPack32, new GLPixelFormat() {
+			{ PixelFormat.A8B8G8R8SRGBPack32, new GLPixelFormat() {
 				InternalFormat = GLInternalFormat.SRGB8A8,
 				Format = GLFormat.RGBA,
 				Type = GLTextureType.UnsignedInt_8_8_8_8_Rev

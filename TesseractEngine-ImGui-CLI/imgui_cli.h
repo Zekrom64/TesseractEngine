@@ -222,12 +222,12 @@ public:
 #define IM_SPAN_TO_STR(LOCAL, SRC) \
 	pin_ptr<uint8_t> _##LOCAL = &MemoryMarshal::GetReference(SRC); \
 	const char* LOCAL = (const char*)_##LOCAL; \
-	IM_ASSERT(LOCAL[SRC.Length + 1] == '\0');
+	IM_ASSERT(LOCAL[SRC.Length] == '\0');
 
 #define IM_SPAN_TO_STR_DEFAULT(LOCAL, SRC, DEFAULT) \
 	const char* LOCAL = DEFAULT; \
 	pin_ptr<uint8_t> _##LOCAL = &MemoryMarshal::GetReference(SRC); \
 	if (SRC.Length != 0) { \
-		IM_ASSERT(LOCAL[SRC.Length + 1] == '\0'); \
+		IM_ASSERT(LOCAL[SRC.Length] == '\0'); \
 		LOCAL = (const char*)_##LOCAL; \
 	}

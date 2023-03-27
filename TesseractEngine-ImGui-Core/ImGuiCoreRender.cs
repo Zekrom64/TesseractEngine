@@ -202,9 +202,9 @@ namespace Tesseract.ImGui.Core {
 				ShaderProgram = graphics.CreateShaderProgram(new ShaderProgramCreateInfo() { Modules = new IShader[] { VertexShader, FragmentShader } });
 
 				if (graphics.Properties.Type == GraphicsType.OpenGL) {
-					Debug.Assert(ShaderProgram.TryGetBinding("UGlobals", out BindSetLayoutBinding bindingGlobals));
+					if (!ShaderProgram.TryGetBinding("UGlobals", out BindSetLayoutBinding bindingGlobals)) throw new InvalidOperationException("Could not find shader uniform \"UGlobals\"");
 					BindingGlobals = bindingGlobals;
-					Debug.Assert(ShaderProgram.TryGetBinding("uTexture", out BindSetLayoutBinding bindingTexture));
+					if (!ShaderProgram.TryGetBinding("uTexture", out BindSetLayoutBinding bindingTexture)) throw new InvalidOperationException("Could not find shader uniform \"uTexture\"");
 					BindingTexture = bindingTexture;
 				} else {
 					BindingGlobals = new BindSetLayoutBinding() {

@@ -78,7 +78,12 @@ namespace Tesseract.Core.Collections {
 		private static string DefaultFormatter(IReadOnlyList<T> list) {
 			StringBuilder sb = new();
 			sb.Append("{ ");
-			foreach (T val in list) sb.Append(val?.ToString()).Append(' ');
+			int i = 0;
+			foreach (T val in list) {
+				sb.Append(val?.ToString());
+				if (i++ != list.Count) sb.Append(", ");
+				else sb.Append(' ');
+			}
 			sb.Append('}');
 			return sb.ToString();
 		}

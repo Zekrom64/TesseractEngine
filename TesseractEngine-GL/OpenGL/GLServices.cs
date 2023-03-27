@@ -118,6 +118,11 @@ namespace Tesseract.OpenGL {
 		/// </summary>
 		public static readonly IWindowAttribute<bool> DebugContext = new OpaqueWindowAttribute<bool>();
 
+		/// <summary>
+		/// If the context should suppress error checking.
+		/// </summary>
+		public static readonly IWindowAttribute<bool> NoError = new OpaqueWindowAttribute<bool>();
+
 	}
 
 	/// <summary>

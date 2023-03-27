@@ -50,6 +50,7 @@ namespace Tesseract.GLFW {
 					if (attributes.TryGet(GLWindowAttributes.ContextVersionMinor, out int minorVer)) GLFW3.WindowHint(GLFWWindowAttrib.ContextVersionMinor, minorVer);
 					if (attributes.TryGet(GLWindowAttributes.Doublebuffer, out bool doublebuffer)) GLFW3.WindowHint(GLFWWindowAttrib.DoubleBuffer, doublebuffer ? 1 : 0);
 					if (attributes.TryGet(GLWindowAttributes.DebugContext, out bool debugctx)) GLFW3.WindowHint(GLFWWindowAttrib.OpenGLDebugContext, debugctx ? 1 : 0);
+					if (attributes.TryGet(GLWindowAttributes.NoError, out bool noerror)) GLFW3.WindowHint(GLFWWindowAttrib.ContextNoError, noerror ? 1 : 0);
 					if (attributes.TryGet(GLWindowAttributes.ContextProfile, out GLProfile profile)) {
 						switch (profile) {
 							case GLProfile.Compatibility:
