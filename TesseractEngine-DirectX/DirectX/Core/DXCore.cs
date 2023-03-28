@@ -1093,6 +1093,40 @@ namespace Tesseract.DirectX.Core {
 			return ptr.Value;
 		}
 
+		/// <summary>
+		/// Helper for invocations of <see cref="IDXCoreAdapter.GetPropertySize(DXCoreAdapterProperty, out nuint)"/> with elements of a certain size.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged element type</typeparam>
+		/// <param name="adapter">The adapter to get the property from</param>
+		/// <param name="property">The property to get from the adapter</param>
+		/// <returns>The size of the property in elements</returns>
+		public static int GetPropertySize<T>(this IDXCoreAdapter adapter, DXCoreAdapterProperty property) where T : unmanaged {
+			adapter.GetPropertySize(property, out nuint size);
+			return (int)(size / (nuint)Marshal.SizeOf<T>());
+		}
+
+	}
+
+	public static class DXCoreAdapterListExtensions {
+
+		public static T GetAdapter<T>(this IDXCoreAdapterList list, int index) where T : class {
+			list.GetAdapter((uint)index, COMHelpers.GetCOMID<T>(), out nint adapter);
+			return COMHelpers.GetObjectForCOMPointer<T>(adapter)!;
+		}
+
+	}
+
+	public static class DXCoreAdapterFactoryExtensions {
+
+		public static T CreateAdapterList<T>(this IDXCoreAdapterFactory factory, in ReadOnlySpan<Guid> filterAttributes) where T : class {
+			unsafe {
+				fixed(Guid* pAttribs = filterAttributes) {
+					factory.CreateAdapterList((uint)filterAttributes.Length, (nint)pAttribs, COMHelpers.GetCOMID<T>(), out nint adapterList);
+					return COMHelpers.GetObjectForCOMPointer<T>(adapterList)!;
+				}
+			}
+		}
+
 	}
 
 }
