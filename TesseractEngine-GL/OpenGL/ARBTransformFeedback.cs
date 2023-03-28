@@ -15,7 +15,7 @@ namespace Tesseract.OpenGL {
 		[ExternFunction(AltNames = new string[] { "glBindBufferRangeARB", "glBindBufferRangeEXT" })]
 		public PFN_glBindBufferRange glBindBufferRange;
 		public delegate void PFN_glBindBufferOffset(uint target, uint index, uint buffer, nint offset);
-		[ExternFunction(AltNames = new string[] { "glBindBufferOffsetARB", "glBindBufferOffsetEXT" })]
+		[ExternFunction(AltNames = new string[] { "glBindBufferOffsetARB", "glBindBufferOffsetEXT", "glBindBufferOffsetNV" })]
 		public PFN_glBindBufferOffset glBindBufferOffset;
 		public delegate void PFN_glBindBufferBase(uint target, uint index, uint buffer);
 		[ExternFunction(AltNames = new string[] { "glBindBufferBaseARB", "glBindBufferBaseEXT" })]

@@ -602,7 +602,10 @@ namespace Tesseract.OpenGL {
 				if (Extensions.Contains("GL_ARB_texture_query_lod")) ARBTextureQueryLOD = true;
 				if (Extensions.Contains("GL_ARB_gpu_shader5")) ARBGPUShader5 = true;
 				if (Extensions.Contains("GL_ARB_gpu_shader_fp64")) ARBGPUShaderFP64 = true;
-				if (Extensions.Contains("GL_ARB_shader_subroutine")) ARBShaderSubroutine = new(this, context);
+				if (Extensions.Contains("GL_ARB_shader_subroutine")) {
+					// Note: The forward compatible Nvidia driver lies and says it supports ARB_shader_subroutine but does not return any function pointers
+					if (context.GetGLProcAddress("glGetSubroutineUniformLocation") != 0) ARBShaderSubroutine = new(this, context);
+				}
 				if (Extensions.Contains("GL_ARB_texture_gather")) ARBTextureGather = true;
 				if (Extensions.Contains("GL_ARB_draw_indirect")) ARBDrawIndirect = new(this, context);
 				if (Extensions.Contains("GL_ARB_sample_shading")) ARBSampleShading = new(this, context);
