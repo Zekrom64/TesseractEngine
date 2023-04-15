@@ -447,10 +447,22 @@ namespace Tesseract.ImGui {
 
 		// Type constructors
 
+		/// <summary>
+		/// Creates a new ImGui style object.
+		/// </summary>
+		/// <returns>New ImGui style</returns>
 		public IImGuiStyle NewStyle();
 
+		/// <summary>
+		/// Creates a new ImGui font atlas object.
+		/// </summary>
+		/// <returns>New ImGui font atlas</returns>
 		public IImFontAtlas NewFontAtlas();
 
+		/// <summary>
+		/// Creates a new ImGui storage object.
+		/// </summary>
+		/// <returns>New ImGui storage</returns>
 		public IImGuiStorage NewStorage();
 
 		#region Context creation and access
@@ -459,26 +471,61 @@ namespace Tesseract.ImGui {
 		// - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
 		//   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for details.
 
+		/// <summary>
+		/// Creates a new ImGui context.
+		/// </summary>
+		/// <param name="sharedFontAtlas">A shared font atlas to use with the context</param>
+		/// <returns>New ImGui context</returns>
 		public IImGuiContext CreateContext(IImFontAtlas? sharedFontAtlas = null);
 
+		/// <summary>
+		/// Destroys an ImGui context.
+		/// </summary>
+		/// <param name="ctx">The context to destroy</param>
 		public void DestroyContext(IImGuiContext? ctx = null);
 
+		/// <summary>
+		/// The current ImGui context used by this implementation. This must be set before calling any rendering methods!
+		/// </summary>
 		public IImGuiContext CurrentContext { get; set; }
-		
 
+
+		/// <summary>
+		/// Access the IO structure (mouse/keyboard/gamepad inputs, time, various configuration options/flags)
+		/// </summary>
 		public IImGuiIO IO { get; }
 
+		/// <summary>
+		/// Access the Style structure (colors, sizes). Always use <see cref="PushStyleColor(ImGuiCol, uint)"/>, <see cref="PushStyleVar(ImGuiStyleVar, float)"/> to modify style mid-frame!
+		/// </summary>
 		public IImGuiStyle Style { get; set; }
 
+		/// <summary>
+		/// Start a new Dear ImGui frame, you can submit any command from this point until <see cref="Render"/>/<see cref="EndFrame"/>.
+		/// </summary>
 		public void NewFrame();
 
+		/// <summary>
+		/// Ends the Dear ImGui frame. Automatically called by <see cref="Render"/>. If you don't need to render data (skipping rendering) you may call EndFrame() without Render()... but you'll have wasted CPU already! If you don't need to render, better to not create any windows and not call NewFrame() at all!
+		/// </summary>
 		public void EndFrame();
 
+		/// <summary>
+		/// Ends the Dear ImGui frame, finalize the draw data. You can then get call <see cref="GetDrawData"/>.
+		/// </summary>
 		public void Render();
 
+		/// <summary>
+		/// Valid after <see cref="Render"/> and until the next call to <see cref="NewFrame"/>. This is what you have to render.
+		/// </summary>
+		/// <returns>Draw data for the current frame</returns>
 		public IImDrawData GetDrawData();
 
 
+		/// <summary>
+		/// Create Demo window. This demonstrates most ImGui features. Call this to learn about the library! Try to make it always available in your application!
+		/// </summary>
+		/// <param name="open">Flag indicating if the demo window is open</param>
 		public void ShowDemoWindow(ref bool open);
 
 		public void ShowMetricsWindow(ref bool open);

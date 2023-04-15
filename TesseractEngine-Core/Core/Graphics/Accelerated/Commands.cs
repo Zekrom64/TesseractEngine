@@ -1380,19 +1380,19 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	///		<term>Graphics or Compute</term>
 	///		<description>
 	///			<see cref="ICommandSink.BindPipeline(IPipeline)">BindPipeline</see>,
-	///			<see cref="ICommandSink.BindPipelineWithState(IPipelineSet, in PipelineDynamicState)">BindPipelineWithState</see>,
-	///			<see cref="ICommandSink.ClearColorTexture(ITexture, TextureLayout, Vector4, in TextureSubresourceRange)">ClearColorTexture</see>,
+	///			<see cref="ICommandSink.BindPipelineWithState(IPipelineSet, PipelineDynamicCreateInfo)">BindPipelineWithState</see>,
+	///			<see cref="ICommandSink.ClearColorTexture(ITexture, TextureLayout, ICommandSink.ClearColorValue, in TextureSubresourceRange)">ClearColorTexture</see>,
 	///			<see cref="ICommandSink.SetSync(ISync, PipelineStage)">SetSync</see>,
 	///			<see cref="ICommandSink.ResetSync(ISync, PipelineStage)">ResetSync</see>,
 	///			<see cref="ICommandSink.WaitSync(in ICommandSink.PipelineBarriers, ISync)">WaitSync</see>,
-	///			<see cref="ICommandSink.PushConstants{T}(IPipelineLayout, PipelineStage, uint, uint, in ReadOnlySpan{T})">PushConstants</see>
+	///			<see cref="ICommandSink.PushConstants{T}(IPipelineLayout, ShaderType, uint, in ReadOnlySpan{T})">PushConstants</see>
 	///		</description>
 	/// </item>
 	/// <item>
 	///		<term>Graphics</term>
 	///		<description>
-	///			<see cref="ICommandSink.SetViewport(in Viewport, uint)">SetViewport</see>,
-	///			<see cref="ICommandSink.SetScissor(in Recti, uint)">SetScissor</see>,
+	///			<see cref="ICommandSink.SetViewport(Viewport, uint)">SetViewport</see>,
+	///			<see cref="ICommandSink.SetScissor(Recti, uint)">SetScissor</see>,
 	///			<see cref="ICommandSink.SetLineWidth(float)">SetLineWidth</see>,
 	///			<see cref="ICommandSink.SetDepthBias(float, float, float)">SetDepthBias</see>,
 	///			<see cref="ICommandSink.SetBlendConstants(Vector4)">SetBlendConstants</see>,
@@ -1406,9 +1406,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	///			<see cref="ICommandSink.DrawIndirect(IBuffer, nuint, uint, uint)">DrawIndirect</see>,
 	///			<see cref="ICommandSink.DrawIndexedIndirect(IBuffer, nuint, uint, uint)">DrawIndexedIndirect</see>,
 	///			<see cref="ICommandSink.BlitTexture(ITexture, TextureLayout, ITexture, TextureLayout, TextureFilter, in ICommandSink.BlitTextureRegion)">BlitTexture</see>,
-	///			<see cref="ICommandSink.ClearDepthStencilTexture(ITexture, TextureLayout, float, uint, in TextureSubresourceRange)">ClearDepthStencilTexture</see>,
-	///			<see cref="ICommandSink.ClearAttachments(in ICommandSink.ClearValues, in ICommandSink.ClearRect)">ClearAttachments</see>,
-	///			<see cref="ICommandSink.ResolveTexture(ITexture, TextureLayout, ITexture, TextureLayout, in ICommandSink.BlitTextureRegion)">ResolveTexture</see>,
+	///			<see cref="ICommandSink.ClearDepthStencilTexture(ITexture, TextureLayout, float, int, in TextureSubresourceRange)">ClearDepthStencilTexture</see>,
+	///			<see cref="ICommandSink.ClearAttachments(in ICommandSink.ClearAttachment, in ICommandSink.ClearRect)">ClearAttachments</see>,
+	///			<see cref="ICommandSink.ResolveTexture(ITexture, TextureLayout, ITexture, TextureLayout, in ICommandSink.CopyTextureRegion)">ResolveTexture</see>,
 	///			<see cref="ICommandSink.BeginRenderPass(in ICommandSink.RenderPassBegin, SubpassContents)">BeginRenderPass</see>,
 	///			<see cref="ICommandSink.NextSubpass(SubpassContents)">NextSubpass</see>,
 	///			<see cref="ICommandSink.EndRenderPass">EndRenderPass</see>,
@@ -1430,7 +1430,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	///	<item>
 	///		<term>Compute</term>
 	///		<description>
-	///			<see cref="ICommandSink.Dispatch(Vector3i)">Dispatch</see>,
+	///			<see cref="ICommandSink.Dispatch(Vector3ui)">Dispatch</see>,
 	///			<see cref="ICommandSink.DispatchIndirect(IBuffer, nuint)">DispatchIndirect</see>
 	///		</description>
 	/// </item>

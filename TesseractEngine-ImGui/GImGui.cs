@@ -4,7 +4,8 @@ using System.Runtime.InteropServices;
 namespace Tesseract.ImGui {
 
 	/// <summary>
-	/// The global ImGui interface.
+	/// The global ImGui interface. This holds a static reference to an ImGui implementation via
+	/// <see cref="Instance"/> and calls methods on it.
 	/// </summary>
 	public static class GImGui {
 
@@ -22,45 +23,35 @@ namespace Tesseract.ImGui {
 		// - DLL users: heaps and globals are not shared across DLL boundaries! You will need to call SetCurrentContext() + SetAllocatorFunctions()
 		//   for each static/DLL boundary you are calling from. Read "Context and Memory Allocators" section of imgui.cpp for details.
 
+		/// <inheritdoc cref="IImGui.CreateContext(IImFontAtlas?)"/>
 		public static IImGuiContext CreateContext(IImFontAtlas? sharedFontAtlas = null) => Instance.CreateContext(sharedFontAtlas);
 
+		/// <inheritdoc cref="IImGui.DestroyContext(IImGuiContext?)"/>
 		public static void DestroyContext(IImGuiContext? ctx = null) => Instance.DestroyContext(ctx);
 
+		/// <inheritdoc cref="IImGui.CurrentContext"/>
 		public static IImGuiContext CurrentContext { get => Instance.CurrentContext; set => Instance.CurrentContext = value; }
 
 
-		/// <summary>
-		/// Access the IO structure (mouse/keyboard/gamepad inputs, time, various configuration options/flags)
-		/// </summary>
+		/// <inheritdoc cref="IImGui.IO"/>
 		public static IImGuiIO IO => Instance.IO;
 
-		/// <summary>
-		/// Access the Style structure (colors, sizes). Always use <see cref="PushStyleColor(ImGuiCol, uint)"/>, <see cref="PushStyleVar(ImGuiStyleVar, float)"/> to modify style mid-frame!
-		/// </summary>
+		/// <inheritdoc cref="IImGui.Style"/>
 		public static IImGuiStyle Style { get => Instance.Style; set => Instance.Style = value; }
 
-		/// <summary>
-		/// Start a new Dear ImGui frame, you can submit any command from this point until <see cref="Render"/>/<see cref="EndFrame"/>.
-		/// </summary>
+		/// <inheritdoc cref="IImGui.NewFrame"/>
 		public static void NewFrame() => Instance.NewFrame();
 
-		/// <summary>
-		/// Ends the Dear ImGui frame. Automatically called by <see cref="Render"/>. If you don't need to render data (skipping rendering) you may call EndFrame() without Render()... but you'll have wasted CPU already! If you don't need to render, better to not create any windows and not call NewFrame() at all!
-		/// </summary>
+		/// <inheritdoc cref="IImGui.EndFrame"/>
 		public static void EndFrame() => Instance.EndFrame();
 
-		/// <summary>
-		/// Ends the Dear ImGui frame, finalize the draw data. You can then get call <see cref="GetDrawData"/>.
-		/// </summary>
+		/// <inheritdoc cref="IImGui.Render"/>
 		public static void Render() => Instance.Render();
 
-		/// <summary>
-		/// Valid after <see cref="Render"/> and until the next call to <see cref="NewFrame"/>. This is what you have to render.
-		/// </summary>
-		/// <returns>Draw data for the current frame</returns>
+		/// <inheritdoc cref="IImGui.GetDrawData"/>
 		public static IImDrawData GetDrawData() => Instance.GetDrawData();
 
-
+		/// <inheritdoc cref="IImGui.ShowDemoWindow(ref bool)"/>
 		public static void ShowDemoWindow(ref bool open) => Instance.ShowDemoWindow(ref open);
 
 		public static void ShowDemoWindow(bool? open = null) => Instance.ShowDemoWindow(open);
