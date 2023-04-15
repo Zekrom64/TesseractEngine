@@ -47,13 +47,15 @@ namespace Tesseract.Core.Native {
 			foreach (var field in funcs.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)) {
 				string name = field.Name;
 				try {
+					// Check if we have an attribute providing properties for the function
 					ExternFunctionAttribute? efa = field.GetCustomAttribute<ExternFunctionAttribute>();
 					if (efa != null) {
 						if (efa.Manual) continue;
 						if (efa.Platform != default && efa.Platform != Platform.CurrentPlatformType) continue;
 						if (efa.Subplatform != default && efa.Subplatform != Platform.CurrentSubplatformType) continue;
 					}
-					Type delegateType = field.FieldType;
+					// Import the pointer from the library
+					Type functionType = field.FieldType;
 					IntPtr pfn = loader(name);
 					if (pfn == IntPtr.Zero && efa?.AltNames != null) {
 						foreach (string altname in efa.AltNames) {
@@ -61,10 +63,17 @@ namespace Tesseract.Core.Native {
 							if (pfn != IntPtr.Zero) break;
 						}
 					}
+					// If not found and not relaxed loading, throw an exception
 					if (pfn == IntPtr.Zero && (efa == null || !efa.Relaxed)) throw new InvalidOperationException($"Could not load function \"{name}\"");
-					Delegate? del = null;
-					if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, delegateType);
-					field.SetValue(funcs, del);
+					if (functionType.IsAssignableTo(typeof(Delegate))) {
+						// If field is a delegate type get the delegate for the function pointer
+						Delegate? del = null;
+						if (pfn != IntPtr.Zero) del = Marshal.GetDelegateForFunctionPointer(pfn, functionType);
+						field.SetValue(funcs, del);
+					} else {
+						// Else assume its an unmanaged delegate we can convert to directly
+						field.SetValue(funcs, Convert.ChangeType(pfn, functionType));
+					}
 				} catch (Exception e) {
 					throw new MissingMethodException($"No valid export for function {name}", e);
 				}
