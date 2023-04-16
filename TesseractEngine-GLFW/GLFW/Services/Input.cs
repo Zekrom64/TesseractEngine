@@ -133,19 +133,26 @@ namespace Tesseract.GLFW.Services {
 
 		public string Name => "GLFW Keyboard";
 
-		public event Action? OnDisconnected;
-		
 		public event Action<KeyEvent>? OnKey;
-		
+
 		public event Action<TextInputEvent>? OnTextInput;
 
+#pragma warning disable 0067
+		public event Action? OnDisconnected;
+
 		public event Action<TextEditEvent>? OnTextEdit;
+#pragma warning restore 0067
 
-		public void EndTextInput() => throw new NotImplementedException();
+		public void EndTextInput() { }
 
-		public bool GetKeyState(Key key) => throw new NotImplementedException();
+		public bool GetKeyState(Key key) => throw new NotSupportedException();
 
-		public void StartTextInput() => throw new NotImplementedException();
+		public void StartTextInput() { }
+
+		public GLFWServiceKeyboard() {
+			GLFWServiceInputSystem.OnKeyEvent += evt => OnKey?.Invoke(evt);
+			GLFWServiceInputSystem.OnTextInputEvent += evt => OnTextInput?.Invoke(evt);
+		}
 
 	}
 
@@ -169,19 +176,25 @@ namespace Tesseract.GLFW.Services {
 
 		public string Name => "GLFW Mouse";
 
-		public Vector2i MousePosition => throw new NotImplementedException();
+		public Vector2i MousePosition => throw new NotSupportedException();
 
 #pragma warning disable 0067
 		public event Action? OnDisconnected;
+#pragma warning restore 0067
 
 		public event Action<MouseMoveEvent>? OnMouseMove;
 
 		public event Action<MouseButtonEvent>? OnMouseButton;
 
 		public event Action<MouseWheelEvent>? OnMouseWheel;
-#pragma warning restore 0067
 
-		public bool GetMouseButtonState(int button) => throw new NotImplementedException();
+		public bool GetMouseButtonState(int button) => throw new NotSupportedException();
+
+		public GLFWServiceMouse() {
+			GLFWServiceInputSystem.OnMouseMoveEvent += evt => OnMouseMove?.Invoke(evt);
+			GLFWServiceInputSystem.OnMouseButtonEvent += evt => OnMouseButton?.Invoke(evt);
+			GLFWServiceInputSystem.OnMouseWheelEvent += evt => OnMouseWheel?.Invoke(evt);
+		}
 
 	}
 
@@ -299,6 +312,18 @@ namespace Tesseract.GLFW.Services {
 
 		// Global GLFW events are forwarded to static events in the input system, then passed to invidivual instances
 		private static event Action<int, GLFWConnectState>? OnJoystickConnect;
+		// Some events are forwarded from windows to pretend they are global
+		internal static event Action<KeyEvent>? OnKeyEvent;
+		internal static event Action<TextInputEvent>? OnTextInputEvent;
+		internal static event Action<MouseButtonEvent>? OnMouseButtonEvent;
+		internal static event Action<MouseMoveEvent>? OnMouseMoveEvent;
+		internal static event Action<MouseWheelEvent>? OnMouseWheelEvent;
+
+		internal static void FireKeyEvent(KeyEvent evt) => OnKeyEvent?.Invoke(evt);
+		internal static void FireTextInputEvent(TextInputEvent evt) => OnTextInputEvent?.Invoke(evt);
+		internal static void FireMouseButtonEvent(MouseButtonEvent evt) => OnMouseButtonEvent?.Invoke(evt);
+		internal static void FireMouseMoveEvent(MouseMoveEvent evt) => OnMouseMoveEvent?.Invoke(evt);
+		internal static void FireMouseWheelEvent(MouseWheelEvent evt) => OnMouseWheelEvent?.Invoke(evt);
 
 		private static bool callbacksInstalled = false;
 		private static void InstallCallbacks() {

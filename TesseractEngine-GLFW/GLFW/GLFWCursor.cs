@@ -12,16 +12,22 @@ namespace Tesseract.GLFW {
 		public IntPtr Cursor { get; }
 
 		public GLFWCursor(GLFWImage image, Vector2i hot) {
-			Cursor = GLFW3.Functions.glfwCreateCursor(image, hot.X, hot.Y);
+			unsafe {
+				Cursor = GLFW3.Functions.glfwCreateCursor((IntPtr)(&image), hot.X, hot.Y);
+			}
 		}
 
 		public GLFWCursor(GLFWCursorShape shape) {
-			Cursor = GLFW3.Functions.glfwCreateStandardCursor(shape);
+			unsafe {
+				Cursor = GLFW3.Functions.glfwCreateStandardCursor(shape);
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			GLFW3.Functions.glfwDestroyCursor(Cursor);
+			unsafe {
+				GLFW3.Functions.glfwDestroyCursor(Cursor);
+			}
 		}
 
 	}

@@ -182,30 +182,42 @@ namespace Tesseract.GLFW.Services {
 			}
 			Window.UserPointer = new ObjectPointer<GLFWServiceWindow>(this).Ptr;
 			Window.SizeCallback = (IntPtr pWindow, int w, int h) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (!window.Minimized) window.OnResize?.Invoke(new Vector2i(w, h));
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (!window.Minimized) window.OnResize?.Invoke(new Vector2i(w, h));
+				}
 			};
 			Window.PosCallback = (IntPtr pWindow, int x, int y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (!window.Minimized) window.OnMove?.Invoke(new Vector2i(x, y));
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (!window.Minimized) window.OnMove?.Invoke(new Vector2i(x, y));
+				}
 			};
 			Window.IconifyCallback = (IntPtr pWindow, bool iconified) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (iconified) window.OnMinimized?.Invoke();
-				else window.OnRestored?.Invoke();
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (iconified) window.OnMinimized?.Invoke();
+					else window.OnRestored?.Invoke();
+				}
 			};
 			Window.MaximizeCallback = (IntPtr pWindow, bool maximized) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (maximized) window.OnMaximized?.Invoke();
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (maximized) window.OnMaximized?.Invoke();
+				}
 			};
 			Window.FocusCallback = (IntPtr pWindow, bool focused) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (focused) window.OnFocused?.Invoke();
-				else window.OnUnfocused?.Invoke();
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (focused) window.OnFocused?.Invoke();
+					else window.OnUnfocused?.Invoke();
+				}
 			};
 			Window.CloseCallback = (IntPtr pWindow) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				window.OnClosing?.Invoke();
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					window.OnClosing?.Invoke();
+				}
 			};
 			Window.KeyCallback = (IntPtr pWindow, GLFWKey key, int scancode, GLFWButtonState state, GLFWKeyMod mods) => {
 				if (GLFWServiceKeyboard.GLFWToStdKey.TryGetValue(key, out Key stdkey)) {
@@ -215,56 +227,73 @@ namespace Tesseract.GLFW.Services {
 						Repeat = state == GLFWButtonState.Repeat,
 						Mod = GLFWServiceKeyboard.GLFWToStdKeyMod(mods)
 					};
-					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-					window.OnKey?.Invoke(evt);
+					unsafe {
+						GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+						window.OnKey?.Invoke(evt);
+					}
+					GLFWServiceInputSystem.FireKeyEvent(evt);
 				}
 			};
 			Window.CharCallback = (IntPtr pWindow, uint codepoint) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (!window.textInput) return;
-				string text = char.ConvertFromUtf32((int)codepoint);
-				TextInputEvent evt = new() {
-					Text = text
-				};
-				window.OnTextInput?.Invoke(evt);
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (!window.textInput) return;
+					string text = char.ConvertFromUtf32((int)codepoint);
+					TextInputEvent evt = new() {
+						Text = text
+					};
+					window.OnTextInput?.Invoke(evt);
+					GLFWServiceInputSystem.FireTextInputEvent(evt);
+				}
 			};
 			Window.CursorEnterCallback = (IntPtr pWindow, bool entered) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				if (entered) {
-					Vector2d pos = window.Window.CursorPos;
-					window.lastCursorPos.X = (int)pos.X;
-					window.lastCursorPos.Y = (int)pos.Y;
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					if (entered) {
+						Vector2d pos = window.Window.CursorPos;
+						window.lastCursorPos.X = (int)pos.X;
+						window.lastCursorPos.Y = (int)pos.Y;
+					}
 				}
 			};
 			Window.CursorPosCallback = (IntPtr pWindow, double x, double y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				Vector2i pos = new((int)x, (int)y);
-				MouseMoveEvent evt = new() { 
-					Position = pos,
-					Delta = pos - window.lastCursorPos
-				};
-				window.lastCursorPos = pos;
-				window.OnMouseMove?.Invoke(evt);
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					Vector2i pos = new((int)x, (int)y);
+					MouseMoveEvent evt = new() {
+						Position = pos,
+						Delta = pos - window.lastCursorPos
+					};
+					window.lastCursorPos = pos;
+					window.OnMouseMove?.Invoke(evt);
+					GLFWServiceInputSystem.FireMouseMoveEvent(evt with { Position = evt.Position + window.Position });
+				}
 			};
 			Window.MouseButtonCallback = (IntPtr pWindow, GLFWMouseButton button, GLFWButtonState state, GLFWKeyMod mods) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				Vector2d pos = window.Window.CursorPos;
-				MouseButtonEvent evt = new() {
-					Position = new Vector2i((int)pos.X, (int)pos.Y),
-					State = state != GLFWButtonState.Release,
-					Button = GLFWServiceMouse.GLFWToStdButton(button),
-					Mod = GLFWServiceKeyboard.GLFWToStdKeyMod(mods)
-				};
-				window.OnMouseButton?.Invoke(evt);
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					Vector2d pos = window.Window.CursorPos;
+					MouseButtonEvent evt = new() {
+						Position = new Vector2i((int)pos.X, (int)pos.Y),
+						State = state != GLFWButtonState.Release,
+						Button = GLFWServiceMouse.GLFWToStdButton(button),
+						Mod = GLFWServiceKeyboard.GLFWToStdKeyMod(mods)
+					};
+					window.OnMouseButton?.Invoke(evt);
+					GLFWServiceInputSystem.FireMouseButtonEvent(evt with { Position = evt.Position + window.Position });
+				}
 			};
 			Window.ScrollCallback = (IntPtr pWindow, double x, double y) => {
-				GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
-				Vector2d pos = window.Window.CursorPos;
-				MouseWheelEvent evt = new() {
-					Position = new Vector2i((int)pos.X, (int)pos.Y),
-					Delta = new Vector2i((int)x, (int)y)
-				};
-				window.OnMouseWheel?.Invoke(evt);
+				unsafe {
+					GLFWServiceWindow window = new ObjectPointer<GLFWServiceWindow>(GLFW3.Functions.glfwGetWindowUserPointer(pWindow)).Value!;
+					Vector2d pos = window.Window.CursorPos;
+					MouseWheelEvent evt = new() {
+						Position = new Vector2i((int)pos.X, (int)pos.Y),
+						Delta = new Vector2i((int)x, (int)y)
+					};
+					window.OnMouseWheel?.Invoke(evt);
+					GLFWServiceInputSystem.FireMouseWheelEvent(evt with { Position = evt.Position + window.Position });
+				}
 			};
 		}
 

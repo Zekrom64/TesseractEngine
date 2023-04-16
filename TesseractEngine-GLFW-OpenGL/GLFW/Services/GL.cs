@@ -19,7 +19,7 @@ namespace Tesseract.GLFW.Services {
 		private int? majorVersion;
 		public int MajorVersion {
 			get {
-				if (majorVersion == null) majorVersion = Window.GetAttrib(GLFWWindowAttrib.ContextVersionMajor);
+				majorVersion ??= Window.GetAttrib(GLFWWindowAttrib.ContextVersionMajor);
 				return majorVersion.Value;
 			}
 		}
@@ -27,7 +27,7 @@ namespace Tesseract.GLFW.Services {
 		private int? minorVersion;
 		public int MinorVersion {
 			get {
-				if (minorVersion == null) minorVersion = Window.GetAttrib(GLFWWindowAttrib.ContextVersionMinor);
+				minorVersion ??= Window.GetAttrib(GLFWWindowAttrib.ContextVersionMinor);
 				return minorVersion.Value;
 			}
 		}
