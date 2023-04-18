@@ -64,7 +64,7 @@ namespace Tesseract.GLFW {
 			set {
 				unsafe {
 					fixed (GLFWImage* pIcon = value) {
-						GLFW3.Functions.glfwSetWindowIcon(Window, value.Length, (IntPtr)pIcon);
+						GLFW3.Functions.glfwSetWindowIcon(Window, value.Length, pIcon);
 					}
 				}
 			}

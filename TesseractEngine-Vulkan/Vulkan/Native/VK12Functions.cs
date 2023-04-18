@@ -42,39 +42,37 @@ namespace Tesseract.Vulkan.Native {
 
 	using VkDeviceAddress = UInt64;
 
-#nullable disable
-	public class VK12DeviceFunctions {
+	public unsafe class VK12DeviceFunctions {
 
-		public delegate void PFN_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
-		public delegate void PFN_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint maxDrawCount, uint stride);
-		public delegate VKResult PFN_vkCreateRenderPass2(VkDevice device, in VKRenderPassCreateInfo2 createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
-		public delegate void PFN_vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
-		public delegate void PFN_vkCmdNextSubpass2(VkCommandBuffer commandBuffer, in VKSubpassBeginInfo subpassBeginInfo, in VKSubpassEndInfo subpassEndInfo);
-		public delegate void PFN_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, in VKSubpassEndInfo subpassEndInfo);
-		public delegate void PFN_vkResetQueryPool(VkDevice device, VkQueryPool queryPool, uint firstQuery, uint queryCount);
-		public delegate VKResult PFN_vkGetSemaphoreCounterValue(VkDevice device, VkSemaphore semaphore, out ulong value);
-		public delegate VKResult PFN_vkWaitSemaphores(VkDevice device, in VKSemaphoreWaitInfo waitInfo, ulong timeout);
-		public delegate VKResult PFN_vkSignalSemaphore(VkDevice device, in VKSemaphoreSignalInfo signalInfo);
-		public delegate VkDeviceAddress PFN_vkGetBufferDeviceAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
-		public delegate ulong PFN_vkGetBufferOpaqueCaptureAddress(VkDevice device, in VKBufferDeviceAddressInfo info);
-		public delegate ulong PFN_vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice device, in VKDeviceMemoryOpaqueCaptureAddressInfo info);
-
-		public PFN_vkCmdDrawIndirectCount vkCmdDrawIndirectCount;
-		public PFN_vkCmdDrawIndexedIndirectCount vkCmdDrawIndexedIndirectCount;
-		public PFN_vkCreateRenderPass2 vkCreateRenderPass2;
-		public PFN_vkCmdBeginRenderPass2 vkCmdBeginRenderPass2;
-		public PFN_vkCmdNextSubpass2 vkCmdNextSubpass2;
-		public PFN_vkCmdEndRenderPass2 vkCmdEndRenderPass2;
-		public PFN_vkResetQueryPool vkResetQueryPool;
-		public PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue;
-		public PFN_vkWaitSemaphores vkWaitSemaphores;
-		public PFN_vkSignalSemaphore vkSignalSemaphore;
-		public PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
-		public PFN_vkGetBufferOpaqueCaptureAddress vkGetBufferOpaqueCaptureAddress;
-		public PFN_vkGetDeviceMemoryOpaqueCaptureAddress vkGetDeviceMemoryOpaqueCaptureAddress;
+		[NativeType("void vkCmdDrawIndirectCount(VkCommandBuffer cmdbuf, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint, uint, void> vkCmdDrawIndirectCount;
+		[NativeType("void vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint, uint, void> vkCmdDrawIndexedIndirectCount;
+		[NativeType("VkResult vkCreateRenderPass2(VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass)")]
+		public delegate* unmanaged<VkDevice, VKRenderPassCreateInfo2*, VKAllocationCallbacks*, VkRenderPass*> vkCreateRenderPass2;
+		[NativeType("void vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, VKRenderPassBeginInfo*, VKSubpassBeginInfo*, void> vkCmdBeginRenderPass2;
+		[NativeType("void vkCmdNextSubpass2(VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, VKSubpassBeginInfo*, VKSubpassEndInfo*, void> vkCmdNextSubpass2;
+		[NativeType("void vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfo* pSubpassEndInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, VKSubpassEndInfo*, void> vkCmdEndRenderPass2;
+		[NativeType("void vkResetQueryPool(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)")]
+		public delegate* unmanaged<VkDevice, VkQueryPool, uint, uint, void> vkResetQueryPool;
+		[NativeType("VkResult vkGetSemaphoreCounterValue(VkDevice device, VkSemaphore semaphore, uint64_t* pValue)")]
+		public delegate* unmanaged<VkDevice, VkSemaphore, out ulong, VKResult> vkGetSemaphoreCounterValue;
+		[NativeType("VkResult vkWaitSemaphores(VkDevice device, const VkSemaphoreWaitInfo* pWaitInfo, uint64_t timeout)")]
+		public delegate* unmanaged<VkDevice, VKSemaphoreWaitInfo*, ulong, VKResult> vkWaitSemaphores;
+		[NativeType("VkResult vkSignalSemaphore(VkDevice device, const VkSemaphoreSignalInfo* pSignalInfo)")]
+		public delegate* unmanaged<VkDevice, VKSemaphoreSignalInfo*, VKResult> vkSignalSemaphore;
+		[NativeType("VkDeviceAddress vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
+		public delegate* unmanaged<VkDevice, VKBufferDeviceAddressInfo*, VkDeviceAddress> vkGetBufferDeviceAddress;
+		[NativeType("uint64_t vkGetBufferOpaqueCaptureAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
+		public delegate* unmanaged<VkDevice, VKBufferDeviceAddressInfo*, ulong> vkGetBufferOpaqueCaptureAddress;
+		[NativeType("uint64_t vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice device, const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo")]
+		public delegate* unmanaged<VkDevice, VKDeviceMemoryOpaqueCaptureAddressInfo*, ulong> vkGetDeviceMemoryOpaqueCaptureAddress;
 
 		public static implicit operator bool(VK12DeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
+
 }

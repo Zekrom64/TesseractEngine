@@ -114,16 +114,16 @@ namespace Tesseract.Vulkan {
 	public struct VKAllocationCallbacks {
 
 		public IntPtr UserData;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public VKAllocationFunction Allocation;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public VKReallocationFunction Reallocation;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public VKFreeFunction Free;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public VKInternalAllocationNotification InternalAllocationNotification;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public VKInternalFreeNotification InternalFreeNotification;
+		private readonly IntPtr allocation;
+		public VKAllocationFunction Allocation { init => allocation = Marshal.GetFunctionPointerForDelegate(value); }
+		private readonly IntPtr reallocation;
+		public VKReallocationFunction Reallocation { init => reallocation = Marshal.GetFunctionPointerForDelegate(value); }
+		private readonly IntPtr free;
+		public VKFreeFunction Free { init => free = Marshal.GetFunctionPointerForDelegate(value); }
+		private readonly IntPtr internalAllocationNotification;
+		public VKInternalAllocationNotification InternalAllocationNotification { init => internalAllocationNotification = Marshal.GetFunctionPointerForDelegate(value); }
+		private readonly IntPtr internalFreeNotification;
+		public VKInternalFreeNotification InternalFreeNotification { init => internalFreeNotification = Marshal.GetFunctionPointerForDelegate(value); }
 
 	}
 

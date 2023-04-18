@@ -40,19 +40,16 @@ namespace Tesseract.Vulkan.Native {
 
 	using VKExtent2D = Vector2ui;
 
-#nullable disable
-	public class VK10Functions {
+	public unsafe class VK10Functions {
 
-		public delegate VKResult PFN_vkEnumerateInstanceExtensionProperties([MarshalAs(UnmanagedType.LPStr)] string layerName, ref uint propertyCount, [NativeType("VkExtensionProperties*")] IntPtr pProperties);
-		public delegate VKResult PFN_vkEnumerateInstanceLayerProperties(ref uint propertyCount, [NativeType("VkLayerProperties*")] IntPtr pProperties);
-		public delegate VKResult PFN_vkCreateInstance(in VKInstanceCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkInstance instance);
-
-		public PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
-		public PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties;
-		public PFN_vkCreateInstance vkCreateInstance;
+		[NativeType("VkResult vkEnumerateInstanceExtensionProperties(const char* layerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)")]
+		public delegate* unmanaged<IntPtr, ref uint, VKExtensionProperties*, VKResult> vkEnumerateInstanceExtensionProperties;
+		[NativeType("VkResult vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)")]
+		public delegate* unmanaged<ref uint, VKLayerProperties*, VKResult> vkEnumerateInstanceLayerProperties;
+		[NativeType("VkResult vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)")]
+		public delegate* unmanaged<VKInstanceCreateInfo*, VKAllocationCallbacks*, out VkInstance, VKResult> vkCreateInstance;
 
 	}
-#nullable restore
 
 #nullable disable
 	public class VK10InstanceFunctions {

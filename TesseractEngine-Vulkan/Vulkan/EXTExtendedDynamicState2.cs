@@ -23,25 +23,22 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTExtendedDynamicStateDeviceFunctions2 {
+	public unsafe class EXTExtendedDynamicStateDeviceFunctions2 {
 
-		public delegate void PFN_vkCmdSetDepthBiasEnableEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, bool depthBiasEnable);
-		public delegate void PFN_vkCmdSetLogicOpEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, VKLogicOp logicOp);
-		public delegate void PFN_vkCmdSetPatchControlPointsEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint patchControlPoints);
-		public delegate void PFN_vkCmdSetPrimitiveRestartEnableEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, bool primitiveRestartEnable);
-		public delegate void PFN_vkCmdSetRasterizerDiscardEnableEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, bool rasterizerDiscardEnable);
-
-		public PFN_vkCmdSetDepthBiasEnableEXT vkCmdSetDepthBiasEnableEXT;
-		public PFN_vkCmdSetLogicOpEXT vkCmdSetLogicOpEXT;
-		public PFN_vkCmdSetPatchControlPointsEXT vkCmdSetPatchControlPointsEXT;
-		public PFN_vkCmdSetPrimitiveRestartEnableEXT vkCmdSetPrimitiveRestartEnableEXT;
-		public PFN_vkCmdSetRasterizerDiscardEnableEXT vkCmdSetRasterizerDiscardEnableEXT;
+		[NativeType("void vkCmdSetDepthBiasEnableEXT(VkCommandBuffer cmdbuf, VkBool32 depthBiasEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetDepthBiasEnableEXT;
+		[NativeType("void vkCmdSetLogicOpEXT(VkCommandBuffer cmdbuf, VkLogicOp logicOp)")]
+		public delegate* unmanaged<IntPtr, VKLogicOp, void> vkCmdSetLogicOpEXT;
+		[NativeType("void vkCmdSetPatchControlPointsEXT(VkCommandBuffer cmdbuf, uint32_t patchControlPoints)")]
+		public delegate* unmanaged<IntPtr, uint, void> vkCmdSetPatchControlPointsEXT;
+		[NativeType("void vkCmdSetPrimitiveRestartEnableEXT(VkCommandBuffer cmdbuf, VkBool32 primitiveRestartEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetPrimitiveRestartEnableEXT;
+		[NativeType("void vkCmdSetRasterizerDiscardEnableEXT(VkCommandBuffer cmdbuf, VkBool32 rasterizerDiscardEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetRasterizerDiscardEnableEXT;
 
 		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions2 fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class EXTExtendedDynamicState2 {
 

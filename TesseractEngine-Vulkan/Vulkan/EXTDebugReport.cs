@@ -75,27 +75,23 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next { get => next; init => next = value; }
 		private readonly VKDebugReportFlagBitsEXT flags;
 		public VKDebugReportFlagBitsEXT Flags { get => flags; init => flags = value; }
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		private readonly VKDebugReportCallback callback;
-		public VKDebugReportCallback Callback { get => callback; init => callback = value; }
+		private readonly IntPtr callback;
+		public VKDebugReportCallback Callback { init => callback = Marshal.GetFunctionPointerForDelegate(value); }
 		private readonly IntPtr userData;
 		public IntPtr UserData { get => userData; init => userData = value; }
 
 	}
 
-#nullable disable
-	public class EXTDebugReportInstanceFunctions {
+	public unsafe class EXTDebugReportInstanceFunctions {
 
-		public delegate VKResult PFN_vkCreateDebugReportCallbackEXT([NativeType("VkInstance")] IntPtr instance, in VKDebugReportCallbackCreateInfoEXT createInfo, [NativeType("VkAllocationCallbacks*")] IntPtr allocator, [NativeType("VkDebugReportCallbackEXT*")] out ulong callback);
-		public delegate void PFN_vkDebugReportMessageEXT([NativeType("VkInstance")] IntPtr instance, VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, [MarshalAs(UnmanagedType.LPUTF8Str)] string layerPrefix, [MarshalAs(UnmanagedType.LPUTF8Str)] string message);
-		public delegate void PFN_vkDestroyDebugReportCallbackEXT([NativeType("VkInstance")] IntPtr instance, [NativeType("VkDebugReportCallbackEXT")] ulong callback, [NativeType("VkAllocationCallbacks*")] IntPtr allocator);
-
-		public PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT;
-		public PFN_vkDebugReportMessageEXT vkDebugReportMessageEXT;
-		public PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT;
+		[NativeType("VkResult vkCreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugReportCallbackEXT* pCallback)")]
+		public delegate* unmanaged<IntPtr, VKDebugReportCallbackCreateInfoEXT*, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDebugReportCallbackEXT;
+		[NativeType("void vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t obj, size_t location, int32_t messageCode, const char* layerPrefix, const char* message)")]
+		public delegate* unmanaged<IntPtr, VKDebugReportFlagBitsEXT, VKDebugReportObjectTypeEXT, ulong, nuint, int, IntPtr, IntPtr, void> vkDebugReportMessageEXT;
+		[NativeType("void vkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* allocator)")]
+		public delegate* unmanaged<IntPtr, ulong, IntPtr, VKAllocationCallbacks*> vkDestroyDebugReportCallbackEXT;
 
 	}
-#nullable restore
 
 	public static class EXTDebugReport {
 
@@ -122,7 +118,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.EXTDebugReportFunctions!.vkDestroyDebugReportCallbackEXT(Instance, DebugReportCallback, Allocator);
+			unsafe {
+				Instance.EXTDebugReportFunctions!.vkDestroyDebugReportCallbackEXT(Instance, DebugReportCallback, Allocator);
+			}
 		}
 
 	}

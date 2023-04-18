@@ -11,7 +11,6 @@ namespace Tesseract.GLFW.Native {
 
 	using XID = UIntPtr;
 
-#nullable disable
 	public unsafe class GLFW3Functions {
 
 		// glfw3.h
@@ -52,15 +51,15 @@ namespace Tesseract.GLFW.Native {
 		[NativeType("GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun callback)")]
 		public delegate* unmanaged<IntPtr, IntPtr> glfwSetMonitorCallback;
 		[NativeType("const GLFWvidmode* glfwGetVideoModes(GLFWmonitor* monitor, int* count)")]
-		public delegate* unmanaged<IntPtr, out int, IntPtr> glfwGetVideoModes;
+		public delegate* unmanaged<IntPtr, out int, GLFWVidMode*> glfwGetVideoModes;
 		[NativeType("const GLFWvidmode* glfwGetVideoMode(GLFWmonitor* monitor)")]
-		public delegate* unmanaged<IntPtr, IntPtr> glfwGetVideoMode;
+		public delegate* unmanaged<IntPtr, GLFWVidMode*> glfwGetVideoMode;
 		[NativeType("void glfwSetGamma(GLFWmonitor* monitor, float gamma)")]
 		public delegate* unmanaged<IntPtr, float, void> glfwSetGamma;
 		[NativeType("const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* monitor)")]
-		public delegate* unmanaged<IntPtr, IntPtr> glfwGetGammaRamp;
+		public delegate* unmanaged<IntPtr, GLFWGammaRamp*> glfwGetGammaRamp;
 		[NativeType("void glfwSetGammaRamp(GLFWmonitor* monitor, const GLFWgammaramp* gammaRamp)")]
-		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetGammaRamp;
+		public delegate* unmanaged<IntPtr, GLFWGammaRamp*, void> glfwSetGammaRamp;
 
 		[NativeType("void glfwDefaultWindowHints()")]
 		public delegate* unmanaged<void> glfwDefaultWindowHints;
@@ -79,7 +78,7 @@ namespace Tesseract.GLFW.Native {
 		[NativeType("void glfwSetWindowTitle(GLFWwindow* window, const char* title)")]
 		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetWindowTitle;
 		[NativeType("void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images)")]
-		public delegate* unmanaged<IntPtr, int, IntPtr, void> glfwSetWindowIcon;
+		public delegate* unmanaged<IntPtr, int, GLFWImage*, void> glfwSetWindowIcon;
 		[NativeType("void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos")]
 		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetWindowPos;
 		[NativeType("void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos)")]
@@ -178,7 +177,7 @@ namespace Tesseract.GLFW.Native {
 		public delegate* unmanaged<IntPtr, double, double, void> glfwSetCursorPos;
 
 		[NativeType("GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)")]
-		public delegate* unmanaged<IntPtr, int, int, IntPtr> glfwCreateCursor;
+		public delegate* unmanaged<GLFWImage*, int, int, IntPtr> glfwCreateCursor;
 		[NativeType("GLFWcursor* glfwCreateStandardCursor(int shape)")]
 		public delegate* unmanaged<GLFWCursorShape, IntPtr> glfwCreateStandardCursor;
 		[NativeType("void glfwDestroyCursor(GLFWcursor* cursor)")]
@@ -353,6 +352,5 @@ namespace Tesseract.GLFW.Native {
 		public delegate* unmanaged<IntPtr, IntPtr> glfwGetOSMesaContext;
 
 	}
-#nullable restore
 
 }

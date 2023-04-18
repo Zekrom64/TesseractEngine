@@ -19,39 +19,36 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTExtendedDynamicStateDeviceFunctions {
+	public unsafe class EXTExtendedDynamicStateDeviceFunctions {
 
-		public delegate void PFN_vkCmdSetCullModeEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKCullModeFlagBits cullMode);
-		public delegate void PFN_vkCmdSetFrontFaceEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKFrontFace frontFace);
-		public delegate void PFN_vkCmdSetPrimitiveTopologyEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKPrimitiveTopology primitiveTopology);
-		public delegate void PFN_vkCmdSetViewportWithCountEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, uint viewportCount, [NativeType("const VkViewport*")] IntPtr pViewports);
-		public delegate void PFN_vkCmdSetScissorWithCountEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, uint scissorCount, [NativeType("const VkRect2D*")] IntPtr pScissors);
-		public delegate void PFN_vkCmdBindVertexBuffers2EXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, uint firstBinding, uint bindingCount, [NativeType("const VkBuffer*")] IntPtr pBuffers, [NativeType("const VkDeviceSize*")] IntPtr pOffsets, [NativeType("const VkDeviceSize*")] IntPtr pSizes, [NativeType("const VkDeviceSize*")] IntPtr pStrides);
-		public delegate void PFN_vkCmdSetDepthTestEnableEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, bool depthTestEnable);
-		public delegate void PFN_vkCmdSetDepthWriteEnableEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, bool depthWriteEnable);
-		public delegate void PFN_vkCmdSetDepthCompareOpEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKCompareOp depthCompareOp);
-		public delegate void PFN_vkCmdSetDepthBoundsTestEnableEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, bool depthBoundsTestEnable);
-		public delegate void PFN_vkCmdSetStencilTestEnableEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, bool stencilTestEnable);
-		public delegate void PFN_vkCmdSetStencilOpEXT([NativeType("VkCommandBuffer")] IntPtr cmdbuf, VKStencilFaceFlagBits faceMask, VKStencilOp failOp, VKStencilOp passOp, VKStencilOp depthFailOp, VKCompareOp compareOp);
-
-		public PFN_vkCmdSetCullModeEXT vkCmdSetCullModeEXT;
-		public PFN_vkCmdSetFrontFaceEXT vkCmdSetFrontFaceEXT;
-		public PFN_vkCmdSetPrimitiveTopologyEXT vkCmdSetPrimitiveTopologyEXT;
-		public PFN_vkCmdSetViewportWithCountEXT vkCmdSetViewportWithCountEXT;
-		public PFN_vkCmdSetScissorWithCountEXT vkCmdSetScissorWithCountEXT;
-		public PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2EXT;
-		public PFN_vkCmdSetDepthTestEnableEXT vkCmdSetDepthTestEnableEXT;
-		public PFN_vkCmdSetDepthWriteEnableEXT vkCmdSetDepthWriteEnableEXT;
-		public PFN_vkCmdSetDepthCompareOpEXT vkCmdSetDepthCompareOpEXT;
-		public PFN_vkCmdSetDepthBoundsTestEnableEXT vkCmdSetDepthBoundsTestEnableEXT;
-		public PFN_vkCmdSetStencilTestEnableEXT vkCmdSetStencilTestEnableEXT;
-		public PFN_vkCmdSetStencilOpEXT vkCmdSetStencilOpEXT;
+		[NativeType("void vkCmdSetCullModeEXT(VkCommandBuffer cmdbuf, VkCullModeFlags cullMode)")]
+		public delegate* unmanaged<IntPtr, VKCullModeFlagBits, void> vkCmdSetCullModeEXT;
+		[NativeType("void vkCmdSetFrontFaceEXT(VkCommandBuffer cmdbuf, VkFrontFace frontFace)")]
+		public delegate* unmanaged<IntPtr, VKFrontFace, void> vkCmdSetFrontFaceEXT;
+		[NativeType("void vkCmdSetPrimitiveTopologyEXT(VkCommandBuffer cmdbuf, VkPrimitiveTopology primitiveTopology)")]
+		public delegate* unmanaged<IntPtr, VKPrimitiveTopology, void> vkCmdSetPrimitiveTopologyEXT;
+		[NativeType("void vkCmdSetViewportWithCountEXT(VkCommandBuffer cmdbuf, uint32_t viewportCount, const VkViewport* pViewports)")]
+		public delegate* unmanaged<IntPtr, uint, VKViewport*, void> vkCmdSetViewportWithCountEXT;
+		[NativeType("void vkCmdSetScissorWithCountEXT(VkCommandBuffer cmdbuf, uint32_t scissorCount, const VkRect2D* pScissors)")]
+		public delegate* unmanaged<IntPtr, uint, VKRect2D*, void> vkCmdSetScissorWithCountEXT;
+		[NativeType("void vkCmdBindVertexBuffers2EXT(VkCommandBuffer cmdbuf, uint32_t firstBinding, uint32_t bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets, const VkDeviceSize* pSizes, const VkDeviceSize* pStrides")]
+		public delegate* unmanaged<IntPtr, uint, uint, ulong*, ulong*, ulong*, ulong*, void> vkCmdBindVertexBuffers2EXT;
+		[NativeType("void vkCmdSetDepthTestEnableEXT(VkCommandBuffer cmdbuf, VkBool32 depthTestEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetDepthTestEnableEXT;
+		[NativeType("void vkCmdSetDepthWriteEnableEXT(VkCommandBuffer cmdbuf, VkBool32 depthWriteEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetDepthWriteEnableEXT;
+		[NativeType("void vkCmdSetDepthCompareOpEXT(VkCommandBuffer cmdbuf, VkCompareOp depthCompareOp)")]
+		public delegate* unmanaged<IntPtr, VKCompareOp, void> vkCmdSetDepthCompareOpEXT;
+		[NativeType("void vkCmdSetDepthBoundsTestEnableEXT(VkCommandBuffer cmdbuf, VkBool32 depthBoundsTestEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetDepthBoundsTestEnableEXT;
+		[NativeType("void vkCmdSetStencilTestEnableEXT(VkCommandBuffer cmdbuf, VkBool32 stencilTestEnable)")]
+		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetStencilTestEnableEXT;
+		[NativeType("void vkCmdSetStencilOpEXT(VkCommandBuffer cmdbuf, VkStencilFaceFlags faceMask, VkStencilOp failOp, VkStencilOp passOp, VkStencilOp depthFailOp, VkComareOp compareOp)")]
+		public delegate* unmanaged<IntPtr, VKStencilFaceFlagBits, VKStencilOp, VKStencilOp, VKStencilOp, VKCompareOp> vkCmdSetStencilOpEXT;
 
 		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class EXTExtendedDynamicState {
 

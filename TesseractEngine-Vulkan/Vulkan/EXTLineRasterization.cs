@@ -64,17 +64,14 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTLineRasterizationDeviceFunctions {
+	public unsafe class EXTLineRasterizationDeviceFunctions {
 
-		public delegate void PFN_vkCmdSetLineStippleEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint lineStippleFactor, ushort lineStipplePattern);
-
-		public PFN_vkCmdSetLineStippleEXT vkCmdSetLineStippleEXT;
+		[NativeType("void vkCmdSetLineStippleEXT(VkCommandBuffer commandBuffer, uint32_t lineStippleFactor, uint16_t lineStipplePattern)")]
+		public delegate* unmanaged<IntPtr, uint, ushort, void> vkCmdSetLineStippleEXT;
 
 		public static implicit operator bool(EXTLineRasterizationDeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class EXTLineRasterization {
 

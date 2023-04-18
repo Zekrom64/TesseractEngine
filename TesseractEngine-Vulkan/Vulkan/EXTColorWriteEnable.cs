@@ -33,15 +33,12 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTColorWriteEnableDeviceFunctions {
+	public unsafe class EXTColorWriteEnableDeviceFunctions {
 
-		public delegate void PFN_vkCmdSetColorWriteEnableEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint attachmentCount, [NativeType("const VkBool32*")] IntPtr pColorWriteEnables);
-
-		public PFN_vkCmdSetColorWriteEnableEXT vkCmdSetColorWriteEnableEXT;
+		[NativeType("void vkCmdSetColorWriteEnableEXT(VkCommandBuffer commandBuffer, uint32_t attachmentCount, const VkBool32* pColorWriteEnables)")]
+		public delegate* unmanaged<IntPtr, uint, IntPtr, VKBool32*> vkCmdSetColorWriteEnableEXT;
 
 	}
-#nullable restore
 
 	public class EXTColorWriteEnable {
 

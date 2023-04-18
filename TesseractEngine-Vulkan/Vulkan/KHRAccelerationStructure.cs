@@ -18,46 +18,42 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRAccelerationStructureFunctions {
+	public unsafe class KHRAccelerationStructureFunctions {
 
-		public delegate VKResult PFN_vkBuildAccelerationStructuresKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong deferredOperation, uint infoCount, [NativeType("const VkAccelerationStructureBuildGeometryInfoKHR*")] IntPtr pInfos, [NativeType("const VkAccelerationStructureBuildRangeInfoKHR* const*")] IntPtr ppBuildRangeInfos);
-		public delegate void PFN_vkCmdBuildAccelerationStructuresIndirectKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint infoCount, [NativeType("const VkAccelerationStructureBuildGeometryInfoKHR*")] IntPtr pInfos, [NativeType("const VkDeviceAddress*")] IntPtr pIndirectDeviceAddresses, [NativeType("const uint32_t*")] IntPtr pIndirectStrides, [NativeType("const uint32_t* const*")] IntPtr ppMaxPrimitiveCounts);
-		public delegate void PFN_vkCmdBuildAccelerationStructuresKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint infoCount, [NativeType("const VkAccelerationStructureBuildGeometryInfoKHR*")] IntPtr pInfos, [NativeType("const VkAccelerationStructureBuildRangeInfoKHR* const*")] IntPtr ppBuildRangeInfos);
-		public delegate void PFN_vkCmdCopyAccelerationStructureKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKCopyAccelerationStructureInfoKHR info);
-		public delegate void PFN_vkCmdCopyAccelerationStructureToMemoryKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKCopyAccelerationStructureToMemoryInfoKHR info);
-		public delegate void PFN_vkCmdCopyMemoryToAccelerationStructureKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKCopyMemoryToAccelerationStructureInfoKHR info);
-		public delegate void PFN_vkCmdWriteAccelerationStructuresPropertiesKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint accelerationStructureCount, [NativeType("const VkAccelerationStructureKHR*")] IntPtr pAccelerationStructures, VKQueryType queryType, [NativeType("VkQueryPool")] ulong queryPool, uint firstQuery);
-		public delegate VKResult PFN_vkCopyAccelerationStructureKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong deferredOperation, in VKCopyAccelerationStructureInfoKHR info);
-		public delegate VKResult PFN_vkCopyAccelerationStructureToMemoryKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong deferredOperation, in VKCopyAccelerationStructureToMemoryInfoKHR info);
-		public delegate VKResult PFN_vkCopyMemoryToAccelerationStructureKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong deferredOperation, in VKCopyMemoryToAccelerationStructureInfoKHR info);
-		public delegate VKResult PFN_vkCreateAccelerationStructureKHR([NativeType("VkDevice")] IntPtr device, in VKAccelerationStructureCreateInfoKHR createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator, [NativeType("VkAccelerationStructureKHR")] out ulong accelerationStructure);
-		public delegate void PFN_vkDestroyAccelerationStructureKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkAccelerationStructureKHR")] ulong accelerationStructure, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator);
-		public delegate void PFN_vkGetAccelerationStructureBuildSizesKHR([NativeType("VkDevice")] IntPtr device, VKAccelerationStructureBuildTypeKHR buildType, in VKAccelerationStructureBuildGeometryInfoKHR buildInfo, [NativeType("const uint32_t*")] IntPtr pMaxPrimitiveCounts, ref VkAccelerationStructureBuildSizesInfoKHR sizeInfo);
-		[return: NativeType("VkDeviceAddress")]
-		public delegate ulong PFN_vkGetAccelerationStructureDeviceAddressKHR([NativeType("VkDevice")] IntPtr device, in VKAccelerationStructureDeviceAddressInfoKHR info);
-		public delegate void PFN_vkGetDeviceAccelerationStructureCompatibilityKHR([NativeType("VkDevice")] IntPtr device, in VKAccelerationStructureVersionInfoKHR versionInfo, ref VKAccelerationStructureCompatibilityKHR compatibility);
-		public delegate VKResult PFN_vkWriteAccelerationStructuresPropertiesKHR([NativeType("VkDevice")] IntPtr device, uint accelerationStructureCount, [NativeType("const VkAccelerationStructureKHR*")] IntPtr pAccelerationStructures, VKQueryType queryType, UIntPtr dataSize, IntPtr pData, nuint stride);
-
-		public PFN_vkBuildAccelerationStructuresKHR vkBuildAccelerationStructuresKHR;
-		public PFN_vkCmdBuildAccelerationStructuresIndirectKHR vkCmdBuildAccelerationStructuresIndirectKHR;
-		public PFN_vkCmdBuildAccelerationStructuresKHR vkCmdBuildAccelerationStructuresKHR;
-		public PFN_vkCmdCopyAccelerationStructureKHR vkCmdCopyAccelerationStructureKHR;
-		public PFN_vkCmdCopyAccelerationStructureToMemoryKHR vkCmdCopyAccelerationStructureToMemoryKHR;
-		public PFN_vkCmdCopyMemoryToAccelerationStructureKHR vkCmdCopyMemoryToAccelerationStructureKHR;
-		public PFN_vkCmdWriteAccelerationStructuresPropertiesKHR vkCmdWriteAccelerationStructuresPropertiesKHR;
-		public PFN_vkCopyAccelerationStructureKHR vkCopyAccelerationStructureKHR;
-		public PFN_vkCopyAccelerationStructureToMemoryKHR vkCopyAccelerationStructureToMemoryKHR;
-		public PFN_vkCopyMemoryToAccelerationStructureKHR vkCopyMemoryToAccelerationStructureKHR;
-		public PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR;
-		public PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
-		public PFN_vkGetAccelerationStructureBuildSizesKHR vkGetAccelerationStructureBuildSizesKHR;
-		public PFN_vkGetAccelerationStructureDeviceAddressKHR vkGetAccelerationStructureDeviceAddressKHR;
-		public PFN_vkGetDeviceAccelerationStructureCompatibilityKHR vkGetDeviceAccelerationStructureCompatibilityKHR;
-		public PFN_vkWriteAccelerationStructuresPropertiesKHR vkWriteAccelerationStructuresPropertiesKHR;
+		[NativeType("VkResult vkBuildAccelerationStructuresKHR(VkDevice device, VkDeferredOperation deferredOperation, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)")]
+		public delegate* unmanaged<IntPtr, ulong, uint, VKAccelerationStructureBuildGeometryInfoKHR*, VkAccelerationStructureBuildRangeInfoKHR**, VKResult> vkBuildAccelerationStructuresKHR;
+		[NativeType("void vkCmdBuildAccelerationStructuresIndirectKHR(VkCommandBuffer cmdbuf, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkDeviceAddress* pIndirectDeviceAddresses, const uint32_t* pIndirectStrides, const uint32_t* const* ppMaxPrimitiveCounts)")]
+		public delegate* unmanaged<IntPtr, uint, VKAccelerationStructureBuildGeometryInfoKHR*, ulong*, uint*, uint**, void> vkCmdBuildAccelerationStructuresIndirectKHR;
+		[NativeType("void vkCmdBuildAccelerationStructuresKHR(VkCommandBuffer cmdbuf, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)")]
+		public delegate* unmanaged<IntPtr, uint, VKAccelerationStructureBuildGeometryInfoKHR*, VkAccelerationStructureBuildRangeInfoKHR**, void> vkCmdBuildAccelerationStructuresKHR;
+		[NativeType("void vkCmdCopyAccelerationStructureKHR(VkCommandBuffer cmdbuf, const VkCopyAccelerationStructureInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, VKCopyAccelerationStructureInfoKHR*, void> vkCmdCopyAccelerationStructureKHR;
+		[NativeType("void vkCmdCopyAccelerationStructureToMemoryKHR(VkCommandBuffer cmdbuf, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, VKCopyAccelerationStructureToMemoryInfoKHR*, void> vkCmdCopyAccelerationStructureToMemoryKHR;
+		[NativeType("void vkCmdCopyMemoryToAccelerationStructureKHR(VkCommandBuffer cmdbuf, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, VKCopyMemoryToAccelerationStructureInfoKHR*, void> vkCmdCopyMemoryToAccelerationStructureKHR;
+		[NativeType("void vkCmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer cmdbuf, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryType queryType, VkQueryPool queryPool, uint32_t firstQuery)")]
+		public delegate* unmanaged<IntPtr, uint, ulong*, VKQueryType, ulong, uint, void> vkCmdWriteAccelerationStructuresPropertiesKHR;
+		[NativeType("VkResult vkCopyAccelerationStructuresKHR(VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, ulong, VKCopyAccelerationStructureInfoKHR*, VKResult> vkCopyAccelerationStructureKHR;
+		[NativeType("VkResult vkCopyAccelerationStructureToMemoryKHR(VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, ulong, VKCopyAccelerationStructureToMemoryInfoKHR*, VKResult> vkCopyAccelerationStructureToMemoryKHR;
+		[NativeType("VkResult vkCopyMemoryToAccelerationStructureKHR(VkDevice device, VkDeferredOperationKHR deferredOperation, const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, ulong, VKCopyMemoryToAccelerationStructureInfoKHR*, VKResult> vkCopyMemoryToAccelerationStructureKHR;
+		[NativeType("VkResult vkCreateAccelerationStructureKHR(VkDevice device, const VkAccelerationStructureCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructure* pAccelerationStructure)")]
+		public delegate* unmanaged<IntPtr, VKAccelerationStructureCreateInfoKHR*, VKAllocationCallbacks*, ulong*, VKResult> vkCreateAccelerationStructureKHR;
+		[NativeType("void vkDestroyAccelerationStructureKHR(VkDevice device, VkAccelerationStructureKHR accelerationStructure, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroyAccelerationStructureKHR;
+		[NativeType("void vkGetAccelerationStructureBuildSizesKHR(VkDevice device, VkAccelerationStructureBuildTypeKHR buildType, const VkAccelerationStructureBuildGeometryInfoKHR* pBuildInfo, const uint32_t* pMaxPrimitiveCounts, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo)")]
+		public delegate* unmanaged<IntPtr, VKAccelerationStructureBuildTypeKHR, VKAccelerationStructureBuildGeometryInfoKHR*, uint*, VkAccelerationStructureBuildSizesInfoKHR*, void> vkGetAccelerationStructureBuildSizesKHR;
+		[NativeType("uint64_t vkGetAccelerationStructureDeviceAddressKHR(VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)")]
+		public delegate* unmanaged<IntPtr, VKAccelerationStructureDeviceAddressInfoKHR*, ulong> vkGetAccelerationStructureDeviceAddressKHR;
+		[NativeType("void vkGetDeviceAccelerationStructureCompatibilityKHR(VkDevice device, const VkAccelerationStructureVersionInfoKHR* pVersionInfo, VkAccelerationStructureCompatibilityKHR* pCompatibility)")]
+		public delegate* unmanaged<IntPtr, VKAccelerationStructureVersionInfoKHR*, VKAccelerationStructureCompatibilityKHR*, void> vkGetDeviceAccelerationStructureCompatibilityKHR;
+		[NativeType("VkResult vkWriteAccelerationStructuresPropertiesKHR(VkDevice device, uint32_t accelerationStructureCount, const VkAccelerationStructureKHR* pAccelerationStructures, VkQueryType queryType, size_t dataSize, void* data, size_t stride)")]
+		public delegate* unmanaged<IntPtr, uint, ulong*, VKQueryType, nuint, IntPtr, nuint, VKResult> vkWriteAccelerationStructuresPropertiesKHR;
 
 	}
-#nullable restore
 
 	public enum VKAccelerationStructureBuildTypeKHR {
 		Host = 0,

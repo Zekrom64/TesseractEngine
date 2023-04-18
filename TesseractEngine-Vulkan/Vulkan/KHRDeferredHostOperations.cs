@@ -13,22 +13,19 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRDeferredHostOperationsFunctions {
+	public unsafe class KHRDeferredHostOperationsFunctions {
 
-		public delegate VKResult PFN_vkCreateDeferredOperationKHR([NativeType("VkDevice")] IntPtr device, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkDeferredOperationKHR")] out ulong deferredOperation);
-		public delegate VKResult PFN_vkDeferredOperationJoinKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong operation);
-		public delegate void PFN_vkDestroyDeferredOperationKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong operation, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate uint PFN_vkGetDeferredOperationMaxConcurrencyKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong operation);
-		public delegate VKResult PFN_vkGetDeferredOperationResultKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDeferredOperationKHR")] ulong operation);
-
-		public PFN_vkCreateDeferredOperationKHR vkCreateDeferredOperationKHR;
-		public PFN_vkDeferredOperationJoinKHR vkDeferredOperationJoinKHR;
-		public PFN_vkDestroyDeferredOperationKHR vkDestroyDeferredOperationKHR;
-		public PFN_vkGetDeferredOperationMaxConcurrencyKHR vkGetDeferredOperationMaxConcurrencyKHR;
-		public PFN_vkGetDeferredOperationResultKHR vkGetDeferredOperationResultKHR;
+		[NativeType("VkResult vkCreateDeferredOperationKHR(VkDevice device, const VkAllocationCallbacks* pAllocator, VkDeferredOperationKHR* pDeferredOperation)")]
+		public delegate* unmanaged<IntPtr, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDeferredOperationKHR;
+		[NativeType("VkResult vkDeferredOperationJoinKHR(VkDevice device, VkDeferredOperationKHR operation)")]
+		public delegate* unmanaged<IntPtr, ulong, VKResult> vkDeferredOperationJoinKHR;
+		[NativeType("void vkDestroyDeferredOperationKHR(VkDevice device, VkDeferredOperationKHR operation, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroyDeferredOperationKHR;
+		[NativeType("uint32_t vkGetDeferredOperationMaxConcurrencyKHR(VkDevice device, VkDeferredOperationKHR operation)")]
+		public delegate* unmanaged<IntPtr, ulong, uint> vkGetDeferredOperationMaxConcurrencyKHR;
+		[NativeType("VkResult vkGetDeferredOperationResultKHR(VkDevice device, VkDeferredOperationKHR operation)")]
+		public delegate* unmanaged<IntPtr, ulong, VKResult> vkGetDeferredOperationResultKHR;
 
 	}
-#nullable restore
 
 }

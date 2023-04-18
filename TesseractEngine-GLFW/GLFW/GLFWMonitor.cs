@@ -81,7 +81,7 @@ namespace Tesseract.GLFW {
 			get {
 				if (Monitor == IntPtr.Zero) return default;
 				unsafe {
-					IntPtr pModes = GLFW3.Functions.glfwGetVideoModes(Monitor, out int count);
+					GLFWVidMode* pModes = GLFW3.Functions.glfwGetVideoModes(Monitor, out int count);
 					return new((void*)pModes, count);
 				}
 			}
@@ -90,7 +90,7 @@ namespace Tesseract.GLFW {
 		public GLFWVidMode VideoMode {
 			get {
 				unsafe {
-					return Monitor == IntPtr.Zero ? default : MemoryUtil.ReadUnmanaged<GLFWVidMode>(GLFW3.Functions.glfwGetVideoMode(Monitor));
+					return Monitor == IntPtr.Zero ? default : *GLFW3.Functions.glfwGetVideoMode(Monitor);
 				}
 			}
 		}
@@ -108,13 +108,13 @@ namespace Tesseract.GLFW {
 		public GLFWGammaRamp GammaRamp {
 			get {
 				unsafe {
-					return Monitor == IntPtr.Zero ? default : MemoryUtil.ReadUnmanaged<GLFWGammaRamp>(GLFW3.Functions.glfwGetGammaRamp(Monitor));
+					return Monitor == IntPtr.Zero ? default : *GLFW3.Functions.glfwGetGammaRamp(Monitor);
 				}
 			}
 			set {
 				if (Monitor != IntPtr.Zero) {
 					unsafe {
-						GLFW3.Functions.glfwSetGammaRamp(Monitor, (IntPtr)(&value));
+						GLFW3.Functions.glfwSetGammaRamp(Monitor, &value);
 					}
 				}
 			}

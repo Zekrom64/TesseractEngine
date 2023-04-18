@@ -40,15 +40,12 @@ namespace Tesseract.Vulkan.Native {
 	using VkSamplerYcbcrConversion = UInt64;
 	using VkDescriptorUpdateTemplate = UInt64;
 
-#nullable disable
-	public class VK11Functions {
+	public unsafe class VK11Functions {
 
-		public delegate VKResult PFN_vkEnumerateInstanceVersion(out uint apiVersion);
-
-		public PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
+		[NativeType("VkResult vkEnumerateInstanceVersion(uint32_t* pApiVersion)")]
+		public delegate* unmanaged<out uint, VKResult> vkEnumerateInstanceVersion;
 
 	}
-#nullable restore
 
 #nullable disable
 	public class VK11InstanceFunctions {

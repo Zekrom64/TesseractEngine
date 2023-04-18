@@ -89,6 +89,8 @@ namespace Tesseract.Vulkan {
 
 		public static implicit operator IntPtr(VulkanAllocationCallbacks? callbacks) => callbacks != null ? callbacks.Pointer!.Ptr : IntPtr.Zero;
 
+		public static unsafe implicit operator VKAllocationCallbacks*(VulkanAllocationCallbacks? callbacks) => (VKAllocationCallbacks*)(callbacks != null ? callbacks.Pointer!.Ptr : 0);
+
 	}
 
 }

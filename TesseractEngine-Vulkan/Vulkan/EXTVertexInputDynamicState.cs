@@ -53,15 +53,12 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTVertexInputDynamicStateDeviceFunctions {
+	public unsafe class EXTVertexInputDynamicStateDeviceFunctions {
 
-		public delegate void PFN_vkCmdSetVertexInputEXT([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint vertexBindingDescriptionCount, [NativeType("const VkVertexInputBindingDescription2EXT*")] IntPtr pVertexBindingDescriptions, uint vertexAttributeDescriptionCount, [NativeType("const VkVertexInputAttributeDescription2EXT*")] IntPtr pVertexAttributeDescriptions);
-
-		public PFN_vkCmdSetVertexInputEXT vkCmdSetVertexInputEXT;
+		[NativeType("void vkCmdSetVertexInputEXT(VkCommandBuffer commandBuffer, uint32_t vertexBindingDescriptionCount, const VkVertexInputBindingDescription2EXT* pVertexBindingDescriptions, uint32_t vertexAttributeDescriptionCount, const VkVertexInputAttributeDescription2EXT* pVertexAttributeDescriptions)")]
+		public delegate* unmanaged<IntPtr, uint, VKVertexInputBindingDescription2EXT*, uint, VKVertexInputAttributeDescription2EXT*, void> vkCmdSetVertexInputEXT;
 
 	}
-#nullable restore
 
 	public class EXTVertexInputDynamicState {
 
