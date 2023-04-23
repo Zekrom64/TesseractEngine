@@ -24,8 +24,10 @@ namespace Tesseract.Vulkan {
 		}
 
 		public uint EnumerateInstanceVersion() {
-			VK.CheckError(Functions.vkEnumerateInstanceVersion(out uint apiVersion));
-			return apiVersion;
+			unsafe {
+				VK.CheckError(Functions.vkEnumerateInstanceVersion(out uint apiVersion));
+				return apiVersion;
+			}
 		}
 
 	}

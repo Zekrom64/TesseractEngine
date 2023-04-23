@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
 using Tesseract.Core.Numerics;
+using System.Numerics;
 
 namespace Tesseract.Vulkan.Native {
 
@@ -47,290 +48,294 @@ namespace Tesseract.Vulkan.Native {
 		[NativeType("VkResult vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)")]
 		public delegate* unmanaged<ref uint, VKLayerProperties*, VKResult> vkEnumerateInstanceLayerProperties;
 		[NativeType("VkResult vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)")]
-		public delegate* unmanaged<VKInstanceCreateInfo*, VKAllocationCallbacks*, out VkInstance, VKResult> vkCreateInstance;
+		public delegate* unmanaged<in VKInstanceCreateInfo, VKAllocationCallbacks*, out VkInstance, VKResult> vkCreateInstance;
 
 	}
 
-#nullable disable
-	public class VK10InstanceFunctions {
+	public unsafe class VK10InstanceFunctions {
 
-		public delegate void PFN_vkDestroyInstance(VkInstance instance, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkEnumeratePhysicalDevices(VkInstance instnce, ref uint physicalDeviceCount, [NativeType("VkPhysicalDevice*")] IntPtr pPhysicalDevices);
-		public delegate void PFN_vkGetPhysicalDeviceFeatures(VkPhysicalDevice phyiscalDevice, out VKPhysicalDeviceFeatures features);
-		public delegate void PFN_vkGetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VKFormat format, out VKFormatProperties formatProperties);
-		public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VKFormat format, VKImageType type, VKImageTiling tiling, VKImageUsageFlagBits usage, VKImageCreateFlagBits flags, out VKImageFormatProperties imageFormatProperties);
-		public delegate void PFN_vkGetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceProperties properties);
-		public delegate void PFN_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice, ref uint queueFamilyPropertyCount, [NativeType("VkQueueFamilyProperties*")] IntPtr pQueueFamilyProperties);
-		public delegate void PFN_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, out VKPhysicalDeviceMemoryProperties memoryProperties);
-		public delegate VKResult PFN_vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, [MarshalAs(UnmanagedType.LPStr)] string layerName, ref uint propertyCount, [NativeType("VkExtensionProperties*")] IntPtr pProperties);
-		public delegate VKResult PFN_vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, ref uint propertyCount, [NativeType("VkLayerProperties*")] IntPtr pProperties);
-		public delegate VKResult PFN_vkCreateDevice(VkPhysicalDevice physicalDevice, in VKDeviceCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDevice device);
-		public delegate void PFN_vkGetPhysicalDeviceSparseImageFormatProperties(VkPhysicalDevice physicalDevice, VKFormat format, VKImageType type, VKSampleCountFlagBits samples, VKImageUsageFlagBits usage, VKImageTiling tiling, ref uint propertyCount, [NativeType("VkSparseImageFormatProperties*")] IntPtr pProperties);
-
-		public PFN_vkDestroyInstance vkDestroyInstance;
-		public PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
-		public PFN_vkGetPhysicalDeviceFeatures vkGetPhysicalDeviceFeatures;
-		public PFN_vkGetPhysicalDeviceFormatProperties vkGetPhysicalDeviceFormatProperties;
-		public PFN_vkGetPhysicalDeviceImageFormatProperties vkGetPhysicalDeviceImageFormatProperties;
-		public PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
-		public PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
-		public PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
-		public PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
-		public PFN_vkEnumerateDeviceLayerProperties vkEnumerateDeviceLayerProperties;
-		public PFN_vkCreateDevice vkCreateDevice;
-		public PFN_vkGetPhysicalDeviceSparseImageFormatProperties vkGetPhysicalDeviceSparseImageFormatProperties;
+		[NativeType("void vkDestroyInstance(VkInstance instance, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkInstance, VKAllocationCallbacks*, void> vkDestroyInstance;
+		[NativeType("VkResult vkEnumeratePhysicalDevices(VkInstance instance, uint32_t* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices)")]
+		public delegate* unmanaged<VkInstance, ref uint, VkPhysicalDevice*, VKResult> vkEnumeratePhysicalDevices;
+		[NativeType("void vkGetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures* pFeatures)")]
+		public delegate* unmanaged<VkPhysicalDevice, out VKPhysicalDeviceFeatures, void> vkGetPhysicalDeviceFeatures;
+		[NativeType("void vkGetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkFormatProperties* pFormatProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, VKFormat, out VKFormatProperties, void> vkGetPhysicalDeviceFormatProperties;
+		[NativeType("VkResult vkGetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* pImageFormatProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, VKFormat, VKImageType, VKImageTiling, VKImageUsageFlagBits, VKImageCreateFlagBits, out VKImageFormatProperties, VKResult> vkGetPhysicalDeviceImageFormatProperties;
+		[NativeType("void vkGetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties* pProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, out VKPhysicalDeviceProperties, void> vkGetPhysicalDeviceProperties;
+		[NativeType("void vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, ref uint, VKQueueFamilyProperties*, void> vkGetPhysicalDeviceQueueFamilyProperties;
+		[NativeType("void vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties* pMemoryProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, out VKPhysicalDeviceMemoryProperties, void> vkGetPhysicalDeviceMemoryProperties;
+		[NativeType("VkResult vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* layerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, IntPtr, ref uint, VKExtensionProperties*, VKResult> vkEnumerateDeviceExtensionProperties;
+		[NativeType("VKResult vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, ref uint, VKLayerProperties*, VKResult> vkEnumerateDeviceLayerProperties;
+		[NativeType("VkResult vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)")]
+		public delegate* unmanaged<VkPhysicalDevice, in VKDeviceCreateInfo, VKAllocationCallbacks*, out VkDevice, VKResult> vkCreateDevice;
+		[NativeType("void vkGetPhysicalDeviceSparseImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkSampleCountFlags samples, VkImageUsageFlags usage, VkImageTiling tiling, uint32_t* pPropertyCount, VkSparseImageFormatProperties* pProperties)")]
+		public delegate* unmanaged<VkPhysicalDevice, VKFormat, VKImageType, VKSampleCountFlagBits, VKImageUsageFlagBits, VKImageTiling, ref uint, VKSparseImageFormatProperties*, void> vkGetPhysicalDeviceSparseImageFormatProperties;
 
 	}
-#nullable restore
 
-#nullable disable
-	public class VK10DeviceFunctions {
+	public unsafe class VK10DeviceFunctions {
 
-		public delegate void PFN_vkDestroyDevice(VkDevice device, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate void PFN_vkGetDeviceQueue(VkDevice device, uint queueFamilyIndex, uint queueIndex, out VkQueue queue);
-		public delegate VKResult PFN_vkQueueSubmit(VkQueue queue, uint submitCount, [NativeType("const VkSubmitInfo*")] IntPtr pSubmits, VkFence fence);
-		public delegate VKResult PFN_vkQueueWaitIdle(VkQueue queue);
-		public delegate VKResult PFN_vkDeviceWaitIdle(VkDevice device);
-		public delegate VKResult PFN_vkAllocateMemory(VkDevice device, in VKMemoryAllocateInfo allocateInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDeviceMemory memory);
-		public delegate void PFN_vkFreeMemory(VkDevice device, VkDeviceMemory memory, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkMapMemory(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VKMemoryMapFlagBits flags, out IntPtr pData);
-		public delegate void PFN_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
-		public delegate VKResult PFN_vkFlushMappedMemoryRanges(VkDevice device, uint memoryRangeCount, [NativeType("const VkMappedMemoryRange*")] IntPtr pMemoryRanges);
-		public delegate VKResult PFN_vkInvalidateMappedMemoryRanges(VkDevice device, uint memoryRangeCount, [NativeType("const VkMappedMemoryRange*")] IntPtr pMemoryRanges);
-		public delegate void PFN_vkGetDeviceMemoryCommitment(VkDevice device, VkDeviceMemory memory, out VkDeviceSize committedMemoryInBytes);
-		public delegate VKResult PFN_vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
-		public delegate VKResult PFN_vkBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
-		public delegate void PFN_vkGetBufferMemoryRequirements(VkDevice device, VkBuffer buffer, out VKMemoryRequirements memoryRequirements);
-		public delegate void PFN_vkGetImageMemoryRequirements(VkDevice device, VkImage image, out VKMemoryRequirements memoryRequirements);
-		public delegate void PFN_vkGetImageSparseMemoryRequirements(VkDevice device, VkImage image, ref uint sparseMemoryRequirementCount, [NativeType("VkSparseImageMemoryRequirements*")] IntPtr pSparseMemoryRequirements);
-		public delegate VKResult PFN_vkQueueBindSparse(VkQueue queue, uint bindInfoCount, [NativeType("const VkBindSparseInfo*")] IntPtr pBindInfo, VkFence fence);
-		public delegate VKResult PFN_vkCreateFence(VkDevice device, in VKFenceCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkFence fence);
-		public delegate void PFN_vkDestroyFence(VkDevice device, VkFence fence, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkResetFences(VkDevice device, uint fenceCount, [NativeType("const VkFence*")] IntPtr pFences);
-		public delegate VKResult PFN_vkGetFenceStatus(VkDevice deivce, VkFence fence);
-		public delegate VKResult PFN_vkWaitForFences(VkDevice device, uint fenceCount, [NativeType("const VkFence*")] IntPtr pFences, VkBool32 waitAll, ulong timeout);
-		public delegate VKResult PFN_vkCreateSemaphore(VkDevice device, in VKSemaphoreCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSemaphore semaphore);
-		public delegate void PFN_vkDestroySemaphore(VkDevice device, VkSemaphore semaphore, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateEvent(VkDevice device, in VKEventCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkEvent _event);
-		public delegate void PFN_vkDestroyEvent(VkDevice device, VkEvent _event, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkGetEventStatus(VkDevice device, VkEvent _event);
-		public delegate VKResult PFN_vkSetEvent(VkDevice device, VkEvent _event);
-		public delegate VKResult PFN_vkResetEvent(VkDevice device, VkEvent _event);
-		public delegate VKResult PFN_vkCreateQueryPool(VkDevice device, in VKQueryPoolCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkQueryPool queryPool);
-		public delegate void PFN_vkDestroyQueryPool(VkDevice device, VkQueryPool queryPool, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkGetQueryPoolResults(VkDevice device, VkQueryPool queryPool, uint firstQuery, uint queryCount, nuint dataSize, IntPtr pData, VkDeviceSize stride, VKQueryResultFlagBits flags);
-		public delegate VKResult PFN_vkCreateBuffer(VkDevice device, in VKBufferCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkBuffer buffer);
-		public delegate void PFN_vkDestroyBuffer(VkDevice device, VkBuffer buffer, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateBufferView(VkDevice device, in VKBufferViewCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkBufferView view);
-		public delegate void PFN_vkDestroyBufferView(VkDevice device, VkBufferView bufferView, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateImage(VkDevice device, in VKImageCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkImage image);
-		public delegate void PFN_vkDestroyImage(VkDevice device, VkImage image, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate void PFN_vkGetImageSubresourceLayout(VkDevice device, VkImage image, in VKImageSubresource subresource, out VKSubresourceLayout layout);
-		public delegate VKResult PFN_vkCreateImageView(VkDevice device, in VKImageViewCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkImageView view);
-		public delegate void PFN_vkDestroyImageView(VkDevice device, VkImageView imageView, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateShaderModule(VkDevice device, in VKShaderModuleCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkShaderModule shaderModule);
-		public delegate void PFN_vkDestroyShaderModule(VkDevice device, VkShaderModule shaderModule, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreatePipelineCache(VkDevice device, in VKPipelineCacheCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkPipelineCache pipelineCache);
-		public delegate void PFN_vkDestroyPipelineCache(VkDevice device, VkPipelineCache pipelineCache, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkGetPipelineCacheData(VkDevice device, VkPipelineCache cache, ref nuint dataSize, IntPtr pData);
-		public delegate VKResult PFN_vkMergePipelineCaches(VkDevice device, VkPipelineCache dstCache, uint srcCacheCount, [NativeType("const VkPipelineCache*")] IntPtr pSrcCaches);
-		public delegate VKResult PFN_vkCreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint createInfoCount, [NativeType("const VkGraphicsPipelineCreateInfo*")] IntPtr pCreateInfos, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkPipeline*")] IntPtr pPipelines);
-		public delegate VKResult PFN_vkCreateComputePipelines(VkDevice device, VkPipelineCache pipelineCache, uint createInfoCount, [NativeType("const VkComputePipelineCreateInfo*")] IntPtr pCreateInfos, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkPipeline*")] IntPtr pPipelines);
-		public delegate void PFN_vkDestroyPipeline(VkDevice device, VkPipeline pipeline, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreatePipelineLayout(VkDevice device, in VKPipelineLayoutCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkPipelineLayout pipelineLayout);
-		public delegate void PFN_vkDestroyPipelineLayout(VkDevice device, VkPipelineLayout pipelineLayout, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateSampler(VkDevice device, in VKSamplerCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkSampler sampler);
-		public delegate void PFN_vkDestroySampler(VkDevice device, VkSampler sampler, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateDescriptorSetLayout(VkDevice device, in VKDescriptorSetLayoutCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDescriptorSetLayout setLayout);
-		public delegate void PFN_vkDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateDescriptorPool(VkDevice device, in VKDescriptorPoolCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkDescriptorPool descriptorPool);
-		public delegate void PFN_vkDestroyDescriptorPool(VkDevice device, VkDescriptorPool descriptorPool, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkResetDescriptorPool(VkDevice device, VkDescriptorPool descriptorPool, VKDescriptorPoolResetFlagBits flags);
-		public delegate VKResult PFN_vkAllocateDescriptorSets(VkDevice device, in VKDescriptorSetAllocateInfo allocateInfo, [NativeType("VkDescriptorSet*")] IntPtr pDescriptorSets);
-		public delegate VKResult PFN_vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, uint descriptorSetCount, [NativeType("const VkDescriptorSet*")] IntPtr pDescriptorSets);
-		public delegate void PFN_vkUpdateDescriptorSets(VkDevice device, uint descriptorWriteCount, [NativeType("const VkWriteDescriptorSet*")] IntPtr pDescriptorWrites, uint descriptorCopyCount, [NativeType("const VkCopyDescriptorSet*")] IntPtr pDescriptorCopies);
-		public delegate VKResult PFN_vkCreateFramebuffer(VkDevice device, in VKFramebufferCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkFramebuffer framebuffer);
-		public delegate void PFN_vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkCreateRenderPass(VkDevice device, in VKRenderPassCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkRenderPass renderPass);
-		public delegate void PFN_vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate void PFN_vkGetRenderAreaGranularity(VkDevice device, VkRenderPass renderPass, out VKExtent2D granularity);
-		public delegate VKResult PFN_vkCreateCommandPool(VkDevice device, in VKCommandPoolCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkCommandPool commandPool);
-		public delegate void PFN_vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate VKResult PFN_vkResetCommandPool(VkDevice device, VkCommandPool commandPool, VKCommandPoolResetFlagBits flags);
-		public delegate VKResult PFN_vkAllocateCommandBuffers(VkDevice device, in VKCommandBufferAllocateInfo allocateInfo, [NativeType("VkCommandBuffer*")] IntPtr pCommandBuffers);
-		public delegate void PFN_vkFreeCommandBuffers(VkDevice device, VkCommandPool commandPool, uint commandBufferCount, [NativeType("const VkCommandBuffer*")] IntPtr pCommandBuffers);
-		public delegate VKResult PFN_vkBeginCommandBuffer(VkCommandBuffer commandBuffer, in VKCommandBufferBeginInfo beginInfo);
-		public delegate VKResult PFN_vkEndCommandBuffer(VkCommandBuffer commandBuffer);
-		public delegate VKResult PFN_vkResetCommandBuffer(VkCommandBuffer commandBuffer, VKCommandBufferResetFlagBits flags);
-		public delegate void PFN_vkCmdBindPipeline(VkCommandBuffer commandBuffer, VKPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
-		public delegate void PFN_vkCmdSetViewport(VkCommandBuffer commandBuffer, uint firstViewport, uint viewportCount, [NativeType("const VkViewport*")] IntPtr pViewports);
-		public delegate void PFN_vkCmdSetScissor(VkCommandBuffer commandBuffer, uint firstScissor, uint scissorCount, [NativeType("const VkRect2D*")] IntPtr pScissors);
-		public delegate void PFN_vkCmdSetLineWidth(VkCommandBuffer commandBuffer, float lineWidth);
-		public delegate void PFN_vkCmdSetDepthBias(VkCommandBuffer commandBuffer, float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor);
-		public delegate void PFN_vkCmdSetBlendConstants(VkCommandBuffer commandBuffer, [NativeType("const float[4]")] IntPtr blendConstants);
-		public delegate void PFN_vkCmdSetDepthBounds(VkCommandBuffer commandBuffer, float minDepthBounds, float maxDepthBounds);
-		public delegate void PFN_vkCmdSetStencilCompareMask(VkCommandBuffer commandBuffer, VKStencilFaceFlagBits faceMask, uint compareMask);
-		public delegate void PFN_vkCmdSetStencilWriteMask(VkCommandBuffer commandBuffer, VKStencilFaceFlagBits faceMask, uint writeMask);
-		public delegate void PFN_vkCmdSetStencilReference(VkCommandBuffer commandBuffer, VKStencilFaceFlagBits faceMask, uint reference);
-		public delegate void PFN_vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VKPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint firstSet, uint descriptorSetCount, [NativeType("const VkDescriptorSet*")] IntPtr pDescriptorSets, uint dynamicOffsetCount, [NativeType("const uint32_t*")] IntPtr pDynamicOffsets);
-		public delegate void PFN_vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VKIndexType indexType);
-		public delegate void PFN_vkCmdBindVertexBuffers(VkCommandBuffer commandBuffer, uint firstBinding, uint bindingCount, [NativeType("const VkBuffer*")] IntPtr pBuffers, [NativeType("const VkDeviceSize*")] IntPtr pOffsets);
-		public delegate void PFN_vkCmdDraw(VkCommandBuffer commandBuffer, uint vertexCount, uint instanceCount, uint firstVertex, uint firstInstance);
-		public delegate void PFN_vkCmdDrawIndexed(VkCommandBuffer commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
-		public delegate void PFN_vkCmdDrawIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint drawCount, uint stride);
-		public delegate void PFN_vkCmdDrawIndexedIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint drawCount, uint stride);
-		public delegate void PFN_vkCmdDispatch(VkCommandBuffer commandBuffer, uint groupCountX, uint groupCountY, uint groupCountZ);
-		public delegate void PFN_vkCmdDispatchIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset);
-		public delegate void PFN_vkCmdCopyBuffer(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkBuffer dstBuffer, uint regionCount, [NativeType("const VkBufferCopy*")] IntPtr pRegions);
-		public delegate void PFN_vkCmdCopyImage(VkCommandBuffer commandBuffer, VkImage srcImage, VKImageLayout srcImageLayout, VkImage dstImage, VKImageLayout dstImageLayout, uint regionCount, [NativeType("const VkImageCopy*")] IntPtr pRegions);
-		public delegate void PFN_vkCmdBlitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VKImageLayout srcImageLayout, VkImage dstImage, VKImageLayout dstImageLayout, uint regionCount, [NativeType("const VkImageBlit*")] IntPtr pRegions, VKFilter filter);
-		public delegate void PFN_vkCmdCopyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkImage dstImage, VKImageLayout dstImageLayout, uint regionCount, [NativeType("const VkBufferImageCopy*")] IntPtr pRegions);
-		public delegate void PFN_vkCmdCopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage srcImage, VKImageLayout srcImageLayout, VkBuffer dstBuffer, uint regionCount, [NativeType("const VkBufferImageCopy*")] IntPtr pRegions);
-		public delegate void PFN_vkCmdUpdateBuffer(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, IntPtr pData);
-		public delegate void PFN_vkCmdFillBuffer(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint data);
-		public delegate void PFN_vkCmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VKImageLayout imageLayout, in VKClearColorValue color, uint rangeCount, [NativeType("const VkImageSubresourceRange*")] IntPtr pRanges);
-		public delegate void PFN_vkCmdClearDepthStencilImage(VkCommandBuffer commandBuffer, VkImage image, VKImageLayout imageLayout, in VKClearDepthStencilValue depthStencil, uint rangeCount, [NativeType("const VkImageSubresourceRange*")] IntPtr pRanges);
-		public delegate void PFN_vkCmdClearAttachments(VkCommandBuffer commandBuffer, uint attachmentCount, [NativeType("const VkClearAttachment*")] IntPtr pAttachments, uint rectCount, [NativeType("const VkClearRect*")] IntPtr pRects);
-		public delegate void PFN_vkCmdResolveImage(VkCommandBuffer commandBuffer, VkImage srcImage, VKImageLayout srcImageLayout, VkImage dstImage, VKImageLayout dstIamgeLayout, uint regionCount, [NativeType("const VkImageResolve*")] IntPtr pRegions);
-		public delegate void PFN_vkCmdSetEvent(VkCommandBuffer commandBuffer, VkEvent _event, VKPipelineStageFlagBits stageMask);
-		public delegate void PFN_vkCmdResetEvent(VkCommandBuffer commandBuffer, VkEvent _event, VKPipelineStageFlagBits stageMask);
-		public delegate void PFN_vkCmdWaitEvents(VkCommandBuffer commandBuffer, uint eventCount, [NativeType("const VkEvent*")] IntPtr pEvents, VKPipelineStageFlagBits srcStageMask, VKPipelineStageFlagBits dstStageMask, uint memoryBarrierCount, [NativeType("const VkMemoryBarrier*")] IntPtr pMemoryBarriers, uint bufferMemoryBarrierCount, [NativeType("const VkBufferMemoryBarrier*")] IntPtr pBufferMemoryBarriers, uint imageMemoryBarrierCount, [NativeType("const VkImageMemoryBarrier*")] IntPtr pImageMemoryBarriers);
-		public delegate void PFN_vkCmdPipelineBarrier(VkCommandBuffer commandBuffer, VKPipelineStageFlagBits srcStageMask, VKPipelineStageFlagBits dstStageMask, VKDependencyFlagBits dependencyFlags, uint memoryBarrierCount, [NativeType("const VkMemoryBarrier*")] IntPtr pMemoryBarriers, uint bufferMemoryBarrierCount, [NativeType("const VkBufferMemoryBarrier*")] IntPtr pBufferMemoryBarriers, uint imageMemoryBarrierCount, [NativeType("const VkImageMemoryBarrier*")] IntPtr pImageMemoryBarriers);
-		public delegate void PFN_vkCmdBeginQuery(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint query, VKQueryControlFlagBits flags);
-		public delegate void PFN_vkCmdEndQuery(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint query);
-		public delegate void PFN_vkCmdResetQueryPool(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint firstQuery, uint queryCount);
-		public delegate void PFN_vkCmdWriteTimestamp(VkCommandBuffer commandBuffer, VKPipelineStageFlagBits pipelineStage, VkQueryPool queryPool, uint query);
-		public delegate void PFN_vkCmdCopyQueryPoolResults(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint firstQuery, uint queryCount, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize stride, VKQueryResultFlagBits flags);
-		public delegate void PFN_vkCmdPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout layout, VKShaderStageFlagBits stageFlags, uint offset, uint size, IntPtr pValues);
-		public delegate void PFN_vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, in VKRenderPassBeginInfo renderPassBegin, VKSubpassContents contents);
-		public delegate void PFN_vkCmdNextSubpass(VkCommandBuffer commandBuffer, VKSubpassContents contents);
-		public delegate void PFN_vkCmdEndRenderPass(VkCommandBuffer commandBuffer);
-		public delegate void PFN_vkCmdExecuteCommands(VkCommandBuffer commandBuffer, uint commandBufferCount, [NativeType("const VkCommandBuffer*")] IntPtr pCommandBuffers);
+		[NativeType("void vkDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VKAllocationCallbacks*, void> vkDestroyDevice;
+		[NativeType("void vkGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue* pQueue)")]
+		public delegate* unmanaged<VkDevice, uint, uint, out VkQueue, void> vkGetDeviceQueue;
+		[NativeType("VkResult vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)")]
+		public delegate* unmanaged<VkQueue, uint, VKSubmitInfo*, VkFence, VKResult> vkQueueSubmit;
+		[NativeType("VkResult vkQueueWaitIdle(VkQueue queue)")]
+		public delegate* unmanaged<VkQueue, VKResult> vkQueueWaitIdle;
+		[NativeType("VkResult vkDeviceWaitIdle(VkDevice device)")]
+		public delegate* unmanaged<VkDevice, VKResult> vkDeviceWaitIdle;
 
-		public PFN_vkDestroyDevice vkDestroyDevice;
-		public PFN_vkGetDeviceQueue vkGetDeviceQueue;
-		public PFN_vkQueueSubmit vkQueueSubmit;
-		public PFN_vkQueueWaitIdle vkQueueWaitIdle;
-		public PFN_vkDeviceWaitIdle vkDeviceWaitIdle;
-		public PFN_vkAllocateMemory vkAllocateMemory;
-		public PFN_vkFreeMemory vkFreeMemory;
-		public PFN_vkMapMemory vkMapMemory;
-		public PFN_vkUnmapMemory vkUnmapMemory;
-		public PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
-		public PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;
-		public PFN_vkGetDeviceMemoryCommitment vkGetDeviceMemoryCommitment;
-		public PFN_vkBindBufferMemory vkBindBufferMemory;
-		public PFN_vkBindImageMemory vkBindImageMemory;
-		public PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
-		public PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
-		public PFN_vkGetImageSparseMemoryRequirements vkGetImageSparseMemoryRequirements;
-		public PFN_vkQueueBindSparse vkQueueBindSparse;
-		public PFN_vkCreateFence vkCreateFence;
-		public PFN_vkDestroyFence vkDestroyFence;
-		public PFN_vkResetFences vkResetFences;
-		public PFN_vkGetFenceStatus vkGetFenceStatus;
-		public PFN_vkWaitForFences vkWaitForFences;
-		public PFN_vkCreateSemaphore vkCreateSemaphore;
-		public PFN_vkDestroySemaphore vkDestroySemaphore;
-		public PFN_vkCreateEvent vkCreateEvent;
-		public PFN_vkDestroyEvent vkDestroyEvent;
-		public PFN_vkGetEventStatus vkGetEventStatus;
-		public PFN_vkSetEvent vkSetEvent;
-		public PFN_vkResetEvent vkResetEvent;
-		public PFN_vkCreateQueryPool vkCreateQueryPool;
-		public PFN_vkDestroyQueryPool vkDestroyQueryPool;
-		public PFN_vkGetQueryPoolResults vkGetQueryPoolResults;
-		public PFN_vkCreateBuffer vkCreateBuffer;
-		public PFN_vkDestroyBuffer vkDestroyBuffer;
-		public PFN_vkCreateBufferView vkCreateBufferView;
-		public PFN_vkDestroyBufferView vkDestroyBufferView;
-		public PFN_vkCreateImage vkCreateImage;
-		public PFN_vkDestroyImage vkDestroyImage;
-		public PFN_vkGetImageSubresourceLayout vkGetImageSubresourceLayout;
-		public PFN_vkCreateImageView vkCreateImageView;
-		public PFN_vkDestroyImageView vkDestroyImageView;
-		public PFN_vkCreateShaderModule vkCreateShaderModule;
-		public PFN_vkDestroyShaderModule vkDestroyShaderModule;
-		public PFN_vkCreatePipelineCache vkCreatePipelineCache;
-		public PFN_vkDestroyPipelineCache vkDestroyPipelineCache;
-		public PFN_vkGetPipelineCacheData vkGetPipelineCacheData;
-		public PFN_vkMergePipelineCaches vkMergePipelineCaches;
-		public PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
-		public PFN_vkCreateComputePipelines vkCreateComputePipelines;
-		public PFN_vkDestroyPipeline vkDestroyPipeline;
-		public PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
-		public PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
-		public PFN_vkCreateSampler vkCreateSampler;
-		public PFN_vkDestroySampler vkDestroySampler;
-		public PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
-		public PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout;
-		public PFN_vkCreateDescriptorPool vkCreateDescriptorPool;
-		public PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool;
-		public PFN_vkResetDescriptorPool vkResetDescriptorPool;
-		public PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
-		public PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
-		public PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
-		public PFN_vkCreateFramebuffer vkCreateFramebuffer;
-		public PFN_vkDestroyFramebuffer vkDestroyFramebuffer;
-		public PFN_vkCreateRenderPass vkCreateRenderPass;
-		public PFN_vkDestroyRenderPass vkDestroyRenderPass;
-		public PFN_vkGetRenderAreaGranularity vkGetRenderAreaGranularity;
-		public PFN_vkCreateCommandPool vkCreateCommandPool;
-		public PFN_vkDestroyCommandPool vkDestroyCommandPool;
-		public PFN_vkResetCommandPool vkResetCommandPool;
-		public PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
-		public PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
-		public PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
-		public PFN_vkEndCommandBuffer vkEndCommandBuffer;
-		public PFN_vkResetCommandBuffer vkResetCommandBuffer;
-		public PFN_vkCmdBindPipeline vkCmdBindPipeline;
-		public PFN_vkCmdSetViewport vkCmdSetViewport;
-		public PFN_vkCmdSetScissor vkCmdSetScissor;
-		public PFN_vkCmdSetLineWidth vkCmdSetLineWidth;
-		public PFN_vkCmdSetDepthBias vkCmdSetDepthBias;
-		public PFN_vkCmdSetBlendConstants vkCmdSetBlendConstants;
-		public PFN_vkCmdSetDepthBounds vkCmdSetDepthBounds;
-		public PFN_vkCmdSetStencilCompareMask vkCmdSetStencilCompareMask;
-		public PFN_vkCmdSetStencilWriteMask vkCmdSetStencilWriteMask;
-		public PFN_vkCmdSetStencilReference vkCmdSetStencilReference;
-		public PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
-		public PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
-		public PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
-		public PFN_vkCmdDraw vkCmdDraw;
-		public PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
-		public PFN_vkCmdDrawIndirect vkCmdDrawIndirect;
-		public PFN_vkCmdDrawIndexedIndirect vkCmdDrawIndexedIndirect;
-		public PFN_vkCmdDispatch vkCmdDispatch;
-		public PFN_vkCmdDispatchIndirect vkCmdDispatchIndirect;
-		public PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
-		public PFN_vkCmdCopyImage vkCmdCopyImage;
-		public PFN_vkCmdBlitImage vkCmdBlitImage;
-		public PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
-		public PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
-		public PFN_vkCmdUpdateBuffer vkCmdUpdateBuffer;
-		public PFN_vkCmdFillBuffer vkCmdFillBuffer;
-		public PFN_vkCmdClearColorImage vkCmdClearColorImage;
-		public PFN_vkCmdClearDepthStencilImage vkCmdClearDepthStencilImage;
-		public PFN_vkCmdClearAttachments vkCmdClearAttachments;
-		public PFN_vkCmdResolveImage vkCmdResolveImage;
-		public PFN_vkCmdSetEvent vkCmdSetEvent;
-		public PFN_vkCmdResetEvent vkCmdResetEvent;
-		public PFN_vkCmdWaitEvents vkCmdWaitEvents;
-		public PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;
-		public PFN_vkCmdBeginQuery vkCmdBeginQuery;
-		public PFN_vkCmdEndQuery vkCmdEndQuery;
-		public PFN_vkCmdResetQueryPool vkCmdResetQueryPool;
-		public PFN_vkCmdWriteTimestamp vkCmdWriteTimestamp;
-		public PFN_vkCmdCopyQueryPoolResults vkCmdCopyQueryPoolResults;
-		public PFN_vkCmdPushConstants vkCmdPushConstants;
-		public PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass;
-		public PFN_vkCmdNextSubpass vkCmdNextSubpass;
-		public PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
-		public PFN_vkCmdExecuteCommands vkCmdExecuteCommands;
+		[NativeType("VkResult vkAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo, const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory)")]
+		public delegate* unmanaged<VkDevice, in VKMemoryAllocateInfo, VKAllocationCallbacks*, out VkDeviceMemory, VKResult> vkAllocateMemory;
+		[NativeType("void vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkDeviceMemory, VKAllocationCallbacks*, void> vkFreeMemory;
+		[NativeType("VkResult vkMapMemory(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** pData)")]
+		public delegate* unmanaged<VkDevice, VkDeviceMemory, VkDeviceSize, VkDeviceSize, VKMemoryMapFlagBits, out IntPtr, VKResult> vkMapMemory;
+		[NativeType("void vkUnmapMemory(VkDevice device, VkDeviceMemory memory)")]
+		public delegate* unmanaged<VkDevice, VkDeviceMemory, void> vkUnmapMemory;
+		[NativeType("VkResult vkFlushMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)")]
+		public delegate* unmanaged<VkDevice, uint, VKMappedMemoryRange*, VKResult> vkFlushMappedMemoryRanges;
+		[NativeType("VkResult vkInvalidateMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)")]
+		public delegate* unmanaged<VkDevice, uint, VKMappedMemoryRange*, VKResult> vkInvalidateMappedMemoryRanges;
+		[NativeType("void vkGetDeviceMemoryCommitment(VkDevice device, VkDeviceMemory memory, VkDeviceSize* pCommittedMemoryInBytes)")]
+		public delegate* unmanaged<VkDevice, VkDeviceMemory, out VkDeviceSize, void> vkGetDeviceMemoryCommitment;
+		[NativeType("VkResult vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)")]
+		public delegate* unmanaged<VkDevice, VkBuffer, VkDeviceMemory, VkDeviceSize, VKResult> vkBindBufferMemory;
+		[NativeType("VkResult vkBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)")]
+		public delegate* unmanaged<VkDevice, VkImage, VkDeviceMemory, VkDeviceSize, VKResult> vkBindImageMemory;
+		[NativeType("void vkGetBufferMemoryRequirements(VkDevice device, VkBuffer buffer, VkMemoryRequirements* pMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, VkBuffer, out VKMemoryRequirements, void> vkGetBufferMemoryRequirements;
+		[NativeType("void vkGetImageMemoryRequirements(VkDevice device, VkImage image, VkMemoryRequirements* pMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, VkImage, out VKMemoryRequirements, void> vkGetImageMemoryRequirements;
+		[NativeType("void vkGetImageSparseMemoryRequirements(VkDevice device, VkImage image, uint32_t* pSparseMemoryRequirementCount, VkSparseImageMemoryRequirements* pSparseMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, VkImage, ref uint, VKSparseImageMemoryRequirements*, void> vkGetImageSparseMemoryRequirements;
+		[NativeType("VkResult vkQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, VkBindSparseInfo* pBindInfo, VkFence fence)")]
+		public delegate* unmanaged<VkQueue, uint, VKBindSparseInfo*, VkFence, VKResult> vkQueueBindSparse;
 
-		public static implicit operator bool(VK10DeviceFunctions fn) => fn != null;
+		[NativeType("VkResult vkCreateFence(VkDevice device, const VkFenceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkFence* pFence)")]
+		public delegate* unmanaged<VkDevice, in VKFenceCreateInfo, VKAllocationCallbacks*, out VkFence, VKResult> vkCreateFence;
+		[NativeType("void vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkFence, VKAllocationCallbacks*, void> vkDestroyFence;
+		[NativeType("VkResult vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences)")]
+		public delegate* unmanaged<VkDevice, uint, VkFence*, VKResult> vkResetFences;
+		[NativeType("VkResult vkGetFenceStatus(VkDevice device, VkFence fence)")]
+		public delegate* unmanaged<VkDevice, VkFence, VKResult> vkGetFenceStatus;
+		[NativeType("VkResult vkWaitForFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout)")]
+		public delegate* unmanaged<VkDevice, uint, VkFence*, VkBool32, ulong, VKResult> vkWaitForFences;
+		[NativeType("VkResult vkCreateSemaphore(VkDevice device, const VkSemaphoreCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSemaphore* pSemaphore)")]
+		public delegate* unmanaged<VkDevice, in VKSemaphoreCreateInfo, VKAllocationCallbacks*, out VkSemaphore, VKResult> vkCreateSemaphore;
+		[NativeType("void vkDestroySemaphore(VkDevice device, VkSemaphore semaphore, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkSemaphore, VKAllocationCallbacks*, void> vkDestroySemaphore;
+		[NativeType("VkResult vkCreateEvent(VkDevice device, const VkEventCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkEvent* pEvent)")]
+		public delegate* unmanaged<VkDevice, in VKEventCreateInfo, VKAllocationCallbacks*, out VkEvent, VKResult> vkCreateEvent;
+		[NativeType("void vkDestroyEvent(VkDevice device, VkEvent event, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkEvent, VKAllocationCallbacks*, void> vkDestroyEvent;
+		[NativeType("VkResult vkGetEventStatus(VkDevice device, VkEvent event)")]
+		public delegate* unmanaged<VkDevice, VkEvent, VKResult> vkGetEventStatus;
+		[NativeType("VkResult vkSetEvent(VkDevice device, VkEvent event)")]
+		public delegate* unmanaged<VkDevice, VkEvent, VKResult> vkSetEvent;
+		[NativeType("VkResult vkResetEvent(VkDevice device, VkEvent event)")]
+		public delegate* unmanaged<VkDevice, VkEvent, VKResult> vkResetEvent;
+
+		[NativeType("VkResult vkCreateQueryPool(VkDevice device, const VkQueryPoolCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkQueryPool* pQueryPool)")]
+		public delegate* unmanaged<VkDevice, in VKQueryPoolCreateInfo, VKAllocationCallbacks*, out VkQueryPool, VKResult> vkCreateQueryPool;
+		[NativeType("void vkDestroyQueryPool(VkDevice device, VkQueryPool queryPool, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkQueryPool, VKAllocationCallbacks*, void> vkDestroyQueryPool;
+		[NativeType("VkResult vkGetQueryPoolResults(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount, size_t dataSize, void* data, VkDeviceSize stride, VkQueryResultFlags flags)")]
+		public delegate* unmanaged<VkDevice, VkQueryPool, uint, uint, nuint, IntPtr, VkDeviceSize, VKQueryResultFlagBits, VKResult> vkGetQueryPoolResults;
+
+		[NativeType("VkResult vkCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer)")]
+		public delegate* unmanaged<VkDevice, in VKBufferCreateInfo, VKAllocationCallbacks*, out VkBuffer, VKResult> vkCreateBuffer;
+		[NativeType("void vkDestroyBuffer(VkDevice device, VkBuffer buffer, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkBuffer, VKAllocationCallbacks*, void> vkDestroyBuffer;
+		[NativeType("VkResult vkCreateBufferView(VkDevice device, const VkBufferViewCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkBufferView* pBufferView)")]
+		public delegate* unmanaged<VkDevice, in VKBufferViewCreateInfo, VKAllocationCallbacks*, out VkBufferView, VKResult> vkCreateBufferView;
+		[NativeType("void vkDestroyBufferView(VkDevice device, VkBufferView bufferView, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkBufferView, VKAllocationCallbacks*, void> vkDestroyBufferView;
+		[NativeType("VkResult vkCreateImage(VkDevice device, const VkImageCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkImage* pImage)")]
+		public delegate* unmanaged<VkDevice, in VKImageCreateInfo, VKAllocationCallbacks*, out VkImage, VKResult> vkCreateImage;
+		[NativeType("void vkDestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkImage, VKAllocationCallbacks*, void> vkDestroyImage;
+		[NativeType("void vkGetImageSubresourceLayout(VkDevice device, VkImage image, const VkImageSubresource* pSubresource, VkSubresourceLayout* pLayout)")]
+		public delegate* unmanaged<VkDevice, VkImage, in VKImageSubresource, out VKSubresourceLayout, void> vkGetImageSubresourceLayout;
+		[NativeType("VkResult vkCreateImageView(VkDevice device, const VkImageViewCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkImageView* pView)")]
+		public delegate* unmanaged<VkDevice, in VKImageViewCreateInfo, VKAllocationCallbacks*, out VkImageView, VKResult> vkCreateImageView;
+		[NativeType("void vkDestroyImageView(VkDevice device, VkImageView imageView, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkImageView, VKAllocationCallbacks*, void> vkDestroyImageView;
+
+		[NativeType("VkResult vkCreateShaderModule(VkDevice device, const VkShaderModuleCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkShaderModule* pShaderModule)")]
+		public delegate* unmanaged<VkDevice, in VKShaderModuleCreateInfo, VKAllocationCallbacks*, out VkShaderModule, VKResult> vkCreateShaderModule;
+		[NativeType("void vkDestroyShaderModule(VkDevice device, VkShaderModule shaderModule, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkShaderModule, VKAllocationCallbacks*, void> vkDestroyShaderModule;
+		[NativeType("VkResult vkCreatePipelineCache(VkDevice device, const VkPipelineCacheCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkPipelineCache* pPipelineCache)")]
+		public delegate* unmanaged<VkDevice, in VKPipelineCacheCreateInfo, VKAllocationCallbacks*, out VkPipelineCache, VKResult> vkCreatePipelineCache;
+		[NativeType("void vkDestroyPipelineCache(VkDevice device, VkPipelineCache pipelineCache, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkPipelineCache, VKAllocationCallbacks*, void> vkDestroyPipelineCache;
+		[NativeType("VkResult vkGetPipelineCacheData(VkDevice device, VkPipelineCache cache, size_t* pDataSize, void* pData)")]
+		public delegate* unmanaged<VkDevice, VkPipelineCache, ref nuint, IntPtr, VKResult> vkGetPipelineCacheData;
+		[NativeType("VkResult vkMergePipelineCaches(VkDevice device, VkPipelineCache dstCache, uint32_t srcCacheCount, const VkPipelineCache* pSrcCaches)")]
+		public delegate* unmanaged<VkDevice, VkPipelineCache, uint, VkPipelineCache*, VKResult> vkMergePipelineCaches;
+		[NativeType("VkResult vkCreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkGraphicsPipelineCreateInfo* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines)")]
+		public delegate* unmanaged<VkDevice, VkPipelineCache, uint, VKGraphicsPipelineCreateInfo*, VKAllocationCallbacks*, VkPipeline*, VKResult> vkCreateGraphicsPipelines;
+		[NativeType("VkResult vkCreateComputePipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkComputePipelineCreateInfo* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines)")]
+		public delegate* unmanaged<VkDevice, VkPipelineCache, uint, VKComputePipelineCreateInfo*, VKAllocationCallbacks*, VkPipeline*, VKResult> vkCreateComputePipelines;
+		[NativeType("void vkDestroyPipeline(VkDevice device, VkPipeline pipeline, const VkAllocationCallback* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkPipeline, VKAllocationCallbacks*, void> vkDestroyPipeline;
+		[NativeType("VkResult vkCreatePipelineLayout(VkDevice device, const VkPipelineLayoutCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkPipelineLayout* pPipelineLayout)")]
+		public delegate* unmanaged<VkDevice, in VKPipelineLayoutCreateInfo, VKAllocationCallbacks*, out VkPipelineLayout, VKResult> vkCreatePipelineLayout;
+		[NativeType("void vkDestroyPipelineLayout(VkDevice device, VkPipelineLayout pipelineLayout, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkPipelineLayout, VKAllocationCallbacks*, void> vkDestroyPipelineLayout;
+
+		[NativeType("VkResult vkCreateSampler(VkDevice device, const VkSamplerCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSampler* pSampler)")]
+		public delegate* unmanaged<VkDevice, in VKSamplerCreateInfo, VKAllocationCallbacks*, out VkSampler, VKResult> vkCreateSampler;
+		[NativeType("void vkDestroySampler(VkDevice device, VkSampler sampler, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkSampler, VKAllocationCallbacks*, void> vkDestroySampler;
+
+		[NativeType("VkResult vkCreateDescriptorSetLayout(VkDevice device, const VkDescriptorSetLayoutCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorSetLayout* pSetLayout)")]
+		public delegate* unmanaged<VkDevice, in VKDescriptorSetLayoutCreateInfo, VKAllocationCallbacks*, out VkDescriptorSetLayout, VKResult> vkCreateDescriptorSetLayout;
+		[NativeType("void vkDestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkDescriptorSetLayout, VKAllocationCallbacks*, void> vkDestroyDescriptorSetLayout;
+		[NativeType("VkResult vkCreateDescriptorPool(VkDevice device, const VkDescriptorPoolCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorPool* pDescriptorPool)")]
+		public delegate* unmanaged<VkDevice, in VKDescriptorPoolCreateInfo, VKAllocationCallbacks*, out VkDescriptorPool, VKResult> vkCreateDescriptorPool;
+		[NativeType("void vkDestroyDescriptorPool(VkDevice device, VkDescriptorPool descriptorPool, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkDescriptorPool, VKAllocationCallbacks*, void> vkDestroyDescriptorPool;
+		[NativeType("VkResult vkResetDescriptorPool(VkDevice device, VkDescriptorPool descriptorPool, VkDescriptorPoolResetFlags flags)")]
+		public delegate* unmanaged<VkDevice, VkDescriptorPool, VKDescriptorPoolResetFlagBits, VKResult> vkResetDescriptorPool;
+		[NativeType("VkResult vkAllocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo* pAllocateInfo, VkDescriptorSet* pDescriptorSets)")]
+		public delegate* unmanaged<VkDevice, in VKDescriptorSetAllocateInfo, VkDescriptorSet*, VKResult> vkAllocateDescriptorSets;
+		[NativeType("VkResult vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets)")]
+		public delegate* unmanaged<VkDevice, VkDescriptorPool, uint, VkDescriptorSet*, VKResult> vkFreeDescriptorSets;
+		[NativeType("void vkUpdateDescriptorSets(VkDevice device, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites, uint32_t descriptorCopyCount, const VkCopyDescriptorSet* pDescriptorCopies)")]
+		public delegate* unmanaged<VkDevice, uint, VKWriteDescriptorSet*, uint, VKCopyDescriptorSet*, void> vkUpdateDescriptorSets;
+
+		[NativeType("VkResult vkCreateFramebuffer(VkDevice device, const VkFramebufferCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkFramebuffer* pFramebuffer)")]
+		public delegate* unmanaged<VkDevice, in VKFramebufferCreateInfo, VKAllocationCallbacks*, out VkFramebuffer, VKResult> vkCreateFramebuffer;
+		[NativeType("void vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkFramebuffer, VKAllocationCallbacks*, void> vkDestroyFramebuffer;
+		[NativeType("VkResult vkCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass)")]
+		public delegate* unmanaged<VkDevice, in VKRenderPassCreateInfo, VKAllocationCallbacks*, out VkRenderPass, VKResult> vkCreateRenderPass;
+		[NativeType("void vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkRenderPass, VKAllocationCallbacks*, void> vkDestroyRenderPass;
+		[NativeType("void vkGetRenderAreaGranularity(VkDevice device, VkRenderPass renderPass, VkExtent2D* pGranularity)")]
+		public delegate* unmanaged<VkDevice, VkRenderPass, out VKExtent2D, void> vkGetRenderAreaGranularity;
+
+		[NativeType("VkResult vkCreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCommandPool* pCommandPool)")]
+		public delegate* unmanaged<VkDevice, in VKCommandPoolCreateInfo, VKAllocationCallbacks*, out VkCommandPool, VKResult> vkCreateCommandPool;
+		[NativeType("void vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<VkDevice, VkCommandPool, VKAllocationCallbacks*, void> vkDestroyCommandPool;
+		[NativeType("VkResult vkResetCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolResetFlags flags)")]
+		public delegate* unmanaged<VkDevice, VkCommandPool, VKCommandPoolResetFlagBits, VKResult> vkResetCommandPool;
+		[NativeType("VkResult vkAllocateCommandBuffers(VkDevice device, const VkCommandBufferAllocateInfo* pAllocateInfo, VkCommandBuffer* pCommandBuffers)")]
+		public delegate* unmanaged<VkDevice, in VKCommandBufferAllocateInfo, VkCommandBuffer*, VKResult> vkAllocateCommandBuffers;
+		[NativeType("void vkFreeCommandBuffers(VkDevice device, VkCommandPool commandPool, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers)")]
+		public delegate* unmanaged<VkDevice, VkCommandPool, uint, VkCommandBuffer*, void> vkFreeCommandBuffers;
+		[NativeType("VkResult vkBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKCommandBufferBeginInfo, VKResult> vkBeginCommandBuffer;
+		[NativeType("VkResult vkEndCommandBuffer(VkCommandBuffer commandBuffer)")]
+		public delegate* unmanaged<VkCommandBuffer, VKResult> vkEndCommandBuffer;
+		[NativeType("VkResult vkResetCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferResetFlags flags)")]
+		public delegate* unmanaged<VkCommandBuffer, VKCommandBufferResetFlagBits, VKResult> vkResetCommandBuffer;
+
+		[NativeType("void vkCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)")]
+		public delegate* unmanaged<VkCommandBuffer, VKPipelineBindPoint, VkPipeline, void> vkCmdBindPipeline;
+		[NativeType("void vkCmdSetViewport(VkCommandBuffer commandBuffer, uint32_t firstViewport, uint32_t viewportCount, const VkViewport* pViewports)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, VKViewport*, void> vkCmdSetViewport;
+		[NativeType("void vkCmdSetScissor(VkCommandBuffer commandBuffer, uint32_t firstScissor, uint32_t scissorCount, const VkRect2D* pScissors)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, VKRect2D*, void> vkCmdSetScissor;
+		[NativeType("void vkCmdSetLineWidth(VkCommandBuffer commandBuffer, float lineWidth)")]
+		public delegate* unmanaged<VkCommandBuffer, float, void> vkCmdSetLineWidth;
+		[NativeType("void vkCmdSetDepthBias(VkCommandBuffer commandBuffer, float depthBiasFactor, float depthBiasClamp, float depthBiasSlopeFactor)")]
+		public delegate* unmanaged<VkCommandBuffer, float, float, float, void> vkCmdSetDepthBias;
+		[NativeType("void vkCmdSetBlendConstants(VkCommandBuffer commandBuffer, const float[4] blendConstants)")]
+		public delegate* unmanaged<VkCommandBuffer, in Vector4, void> vkCmdSetBlendConstants;
+		[NativeType("void vkCmdSetDepthBounds(VkCommandBuffer commandBuffer, float minDepthBounds, float maxDepthBounds)")]
+		public delegate* unmanaged<VkCommandBuffer, float, float, void> vkCmdSetDepthBounds;
+		[NativeType("void vkCmdSetStencilCompareMask(VkCommandBuffer commandBuffer, VkStencilFaceFlags faceMask, uint32_t compareMask)")]
+		public delegate* unmanaged<VkCommandBuffer, VKStencilFaceFlagBits, uint, void> vkCmdSetStencilCompareMask;
+		[NativeType("void vkCmdSetStencilWriteMask(VkCommandBuffer commandBuffer, VkStencilFaceFlags faceMask, uint32_t writeMask)")]
+		public delegate* unmanaged<VkCommandBuffer, VKStencilFaceFlagBits, uint, void> vkCmdSetStencilWriteMask;
+		[NativeType("void vkCmdSetStencilReference(VkCommandBuffer commandBuffer, VkStencilFaceFlags faceMask, uint32_t reference)")]
+		public delegate* unmanaged<VkCommandBuffer, VKStencilFaceFlagBits, uint, void> vkCmdSetStencilReference;
+		[NativeType("void vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets, uint32_t dynamicOffsetCount, const uint32_t* pDynamicOffsets)")]
+		public delegate* unmanaged<VkCommandBuffer, VKPipelineBindPoint, VkPipelineLayout, uint, uint, VkDescriptorSet*, uint, uint*, void> vkCmdBindDescriptorSets;
+		[NativeType("void vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VKIndexType, void> vkCmdBindIndexBuffer;
+		[NativeType("void vkCmdBindVertexBuffers(VkCommandBuffer commandBuffer, uint32_t firstBinding, uint32_t bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, VkBuffer*, VkDeviceSize*, void> vkCmdBindVertexBuffers;
+		[NativeType("void vkCmdDraw(VkCommandBuffer commandBuffer, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, uint, uint, void> vkCmdDraw;
+		[NativeType("void vkCmdDrawIndexed(VkCommandBuffer commandBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, uint, int, uint, void> vkCmdDrawIndexed;
+		[NativeType("void vkCmdDrawIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, uint, uint, void> vkCmdDrawIndirect;
+		[NativeType("void vkCmdDrawIndexedIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, uint, uint, void> vkCmdDrawIndexedIndirect;
+		[NativeType("void vkCmdDispatch(VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, uint, uint, void> vkCmdDispatch;
+		[NativeType("void vkCmdDispatchIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, void> vkCmdDispatchIndirect;
+		[NativeType("void vkCmdCopyBuffer(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferCopy* pRegions)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkBuffer, uint, VKBufferCopy*, void> vkCmdCopyBuffer;
+		[NativeType("void vkCmdCopyImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkImageCopy* pRegions)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, VkImage, VKImageLayout, uint, VKImageCopy*, void> vkCmdCopyImage;
+		[NativeType("void vkCmdBlitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkImageBlit* pRegions, VkFilter filter)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, VkImage, VKImageLayout, uint, VKImageBlit*, VKFilter, void> vkCmdBlitImage;
+		[NativeType("void vkCmdCopyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* pRegions)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkImage, VKImageLayout, uint, VKBufferImageCopy*, void> vkCmdCopyBufferToImage;
+		[NativeType("void vkCmdCopyBufferToImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferImageCopy* pRegions)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, VkBuffer, uint, VKBufferImageCopy*, void> vkCmdCopyImageToBuffer;
+		[NativeType("void vkCmdUpdateBuffer(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, void* pData)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, IntPtr, void> vkCmdUpdateBuffer;
+		[NativeType("void vkCmdFillBuffer(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data)")]
+		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VkDeviceSize, uint, void> vkCmdFillBuffer;
+		[NativeType("void vkCmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout, const VkClearColorValue* pColor, uint32_t rangeCount, const VkImageSubresourceRange* pRanges)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, in VKClearColorValue, uint, VKImageSubresourceRange*, void> vkCmdClearColorImage;
+		[NativeType("void vkCmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue* pDepthStencil, uint32_t rangeCount, const VkImageSubresourceRange* pRanges)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, in VKClearDepthStencilValue, uint, VKImageSubresourceRange*, void> vkCmdClearDepthStencilImage;
+		[NativeType("void vkCmdClearAttachments(VkCommandBuffer commandBuffer, uint32_t attachmentCount, const VkClearAttachment* pAttachments, uint32_t rectCount, const VkClearRect* pRects)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, VKClearAttachment*, uint, VKClearRect*, void> vkCmdClearAttachments;
+		[NativeType("void vkCmdResolve(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, VkImageResolve* pRegions)")]
+		public delegate* unmanaged<VkCommandBuffer, VkImage, VKImageLayout, VkImage, VKImageLayout, uint, VKImageResolve*, void> vkCmdResolveImage;
+		[NativeType("void vkCmdSetEvent(VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags stageMask)")]
+		public delegate* unmanaged<VkCommandBuffer, VkEvent, VKPipelineStageFlagBits, void> vkCmdSetEvent;
+		[NativeType("void vkCmdResetEvent(VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags stageMask)")]
+		public delegate* unmanaged<VkCommandBuffer, VKEvent, VKPipelineStageFlagBits, void> vkCmdResetEvent;
+		[NativeType("void vkCmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t eventCount, const VkEvent* pEvents, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, VkEvent*, VKPipelineStageFlagBits, VKPipelineStageFlagBits, uint, VKMemoryBarrier*, uint, VKBufferMemoryBarrier*, uint, VKImageMemoryBarrier*, void> vkCmdWaitEvents;
+		[NativeType("void vkCmdPipelineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers)")]
+		public delegate* unmanaged<VkCommandBuffer, VKPipelineStageFlagBits, VKPipelineStageFlagBits, VKDependencyFlagBits, uint, VKMemoryBarrier*, uint, VKBufferMemoryBarrier*, uint, VKImageMemoryBarrier*, void> vkCmdPipelineBarrier;
+		[NativeType("void vkCmdBeginQuery(VkCommandBuffer commandBuffer, VkQueryPool queryPool uint32_t query, VkQueryControlFlags flags)")]
+		public delegate* unmanaged<VkCommandBuffer, VkQueryPool, uint, VKQueryControlFlagBits, void> vkCmdBeginQuery;
+		[NativeType("void vkCmdEndQuery(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t query)")]
+		public delegate* unmanaged<VkCommandBuffer, VkQueryPool, uint, void> vkCmdEndQuery;
+		[NativeType("void vkCmdResetQueryPool(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)")]
+		public delegate* unmanaged<VkCommandBuffer, VkQueryPool, uint, uint, void> vkCmdResetQueryPool;
+		[NativeType("void vkCmdWriteTimestamp(VkCommandBuffer commandBuffer, VkPipelineStageFlags pipelineStage, VkQueryPool queryPool, uint32_t query)")]
+		public delegate* unmanaged<VkCommandBuffer, VKPipelineStageFlagBits, VkQueryPool, uint, void> vkCmdWriteTimestamp;
+		[NativeType("void vkCmdCopyQueryPoolResults(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize stride, VkQueryResultFlags flags)")]
+		public delegate* unmanaged<VkCommandBuffer, VkQueryPool, uint, uint, VkBuffer, VkDeviceSize, VkDeviceSize, VKQueryResultFlagBits, void> vkCmdCopyQueryPoolResults;
+		[NativeType("void vkCmdPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout layout, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, void* pValues)")]
+		public delegate* unmanaged<VkCommandBuffer, VkPipelineLayout, VKShaderStageFlagBits, uint, uint, IntPtr, void> vkCmdPushConstants;
+		[NativeType("void vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, VkSubpassContents contents)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKRenderPassBeginInfo, VKSubpassContents, void> vkCmdBeginRenderPass;
+		[NativeType("void vkCmdNextSubpass(VkCommandBuffer commandBuffer, VkSubpassContents contents)")]
+		public delegate* unmanaged<VkCommandBuffer, VKSubpassContents, void> vkCmdNextSubpass;
+		[NativeType("void vkCmdEndRenderPass(VkCommandBuffer commandBuffer)")]
+		public delegate* unmanaged<VkCommandBuffer, void> vkCmdEndRenderPass;
+		[NativeType("void vkCmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, IntPtr*, void> vkCmdExecuteCommands;
+
+		public static implicit operator bool(VK10DeviceFunctions? fn) => fn != null;
 
 	}
-#nullable restore
 
 }

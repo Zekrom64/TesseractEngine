@@ -24,17 +24,21 @@ namespace Tesseract.Vulkan {
 		public bool Status {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				VKResult status = Device.VK10Functions.vkGetEventStatus(Device, Event);
-				return status switch {
-					VKResult.EventSet => true,
-					VKResult.EventReset => false,
-					_ => throw new VulkanException("Failed to get event status", status),
-				};
+				unsafe {
+					VKResult status = Device.VK10Functions.vkGetEventStatus(Device, Event);
+					return status switch {
+						VKResult.EventSet => true,
+						VKResult.EventReset => false,
+						_ => throw new VulkanException("Failed to get event status", status),
+					};
+				}
 			}
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set {
-				if (value) VK.CheckError(Device.VK10Functions.vkSetEvent(Device, Event), "Failed to set event");
-				else VK.CheckError(Device.VK10Functions.vkResetEvent(Device, Event), "Failed to reset event");
+				unsafe {
+					if (value) VK.CheckError(Device.VK10Functions.vkSetEvent(Device, Event), "Failed to set event");
+					else VK.CheckError(Device.VK10Functions.vkResetEvent(Device, Event), "Failed to reset event");
+				}
 			}
 		}
 
@@ -46,7 +50,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyEvent(Device, Event, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyEvent(Device, Event, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

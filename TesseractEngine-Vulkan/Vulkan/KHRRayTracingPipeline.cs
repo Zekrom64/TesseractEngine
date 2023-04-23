@@ -19,17 +19,17 @@ namespace Tesseract.Vulkan {
 		[NativeType("void vkCmdSetRayTracingPipelineStackSizeKHR(VkCommandBuffer cmdbuf, uint32_t pipelineStackSize)")]
 		public delegate* unmanaged<IntPtr, uint, void> vkCmdSetRayTracingPipelineStackSizeKHR;
 		[NativeType("void vkCmdTraceRaysIndirectKHR(VkCommandBuffer cmdbuf, const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable, VkDeviceAddress indirectDeviceAddress)")]
-		public delegate* unmanaged<IntPtr, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, ulong, void> vkCmdTraceRaysIndirectKHR;
+		public delegate* unmanaged<IntPtr, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, ulong, void> vkCmdTraceRaysIndirectKHR;
 		[NativeType("void vkCmdTraceRaysKHR(VkCommandBuffer cmdbuf, const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable, uint32_t width, uint32_t height, uint32_t depth")]
-		public delegate* unmanaged<IntPtr, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, VKStridedDeviceAddressRegionKHR*, uint, uint, uint, void> vkCmdTraceRaysKHR;
+		public delegate* unmanaged<IntPtr, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, in VKStridedDeviceAddressRegionKHR, uint, uint, uint, void> vkCmdTraceRaysKHR;
 		[NativeType("VkResult vkCreateRayTracingPipelinesKHR(VkDevice device, VkDeferredOperationKHR deferredOperation, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkRayTracingPipelineCreateInfoKHR* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines)")]
 		public delegate* unmanaged<IntPtr, ulong, ulong, uint, VKRayTracingPipelineCreateInfoKHR*, VKAllocationCallbacks*, ulong*, VKResult> vkCreateRayTracingPipelinesKHR;
 		[NativeType("VkResult vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* data)")]
 		public delegate* unmanaged<IntPtr, ulong, uint, uint, nuint, IntPtr, VKResult> vkGetRayTracingCaptureReplayShaderGroupHandlesKHR;
 		[NativeType("VkResult vkGetRayTracingShaderGroupHandlesKHR(VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* data)")]
 		public delegate* unmanaged<IntPtr, ulong, uint, uint, nuint, IntPtr, VKResult> vkGetRayTracingShaderGroupHandlesKHR;
-		[NativeType("VkDeviceSize vkGetRayTracingShaderGroupStackSizeKHR(VkDevice device, VkPipeline pipeline, uint32_t group")]
-		public delegate* unmanaged<IntPtr, ulong, uint, ulong> vkGetRayTracingShaderGroupStackSizeKHR;
+		[NativeType("VkDeviceSize vkGetRayTracingShaderGroupStackSizeKHR(VkDevice device, VkPipeline pipeline, uint32_t group, VkShaderGroupShaderKHR groupShader)")]
+		public delegate* unmanaged<IntPtr, ulong, uint, VKShaderGroupShaderKHR, ulong> vkGetRayTracingShaderGroupStackSizeKHR;
 
 	}
 

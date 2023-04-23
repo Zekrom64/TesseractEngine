@@ -135,40 +135,28 @@ namespace Tesseract.Vulkan {
 
 	public unsafe class EXTDebugUtilsInstanceFunctions {
 
-		public delegate void PFN_vkCmdBeginDebugUtilsLabelEXT(IntPtr commandBuffer, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate void PFN_vkCmdEndDebugUtilsLabelEXT(IntPtr commandBuffer);
-		public delegate void PFN_vkCmdInsertDebugUtilsLabelEXT(IntPtr commandBuffer, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate VKResult PFN_vkCreateDebugUtilsMessengerEXT(IntPtr instance, in VKDebugUtilsMessengerCreateInfoEXT createInfo, IntPtr allocator, out ulong messenger);
-		public delegate void PFN_vkDestroyDebugUtilsMessengerEXT(IntPtr instance, ulong messenger, IntPtr allocator);
-		public delegate void PFN_vkQueueBeginDebugUtilsLabelEXT(IntPtr queue, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate void PFN_vkQueueEndDebugUtilsLabelEXT(IntPtr queue);
-		public delegate void PFN_vkQueueInsertDebugUtilsLabelEXT(IntPtr queue, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate VKResult PFN_vkSetDebugUtilsObjectNameEXT(IntPtr device, in VKDebugUtilsObjectNameInfoEXT nameInfo);
-		public delegate VKResult PFN_vkSetDebugUtilsObjectTagEXT(IntPtr device, in VKDebugUtilsObjectTagInfoEXT tagInfo);
-		public delegate void PFN_vkSubmitDebugUtilsMessageEXT(IntPtr instance, VKDebugUtilsMessageSeverityFlagBigsEXT messageSeverity, VKDebugUtilsMessageTypeFlagBitsEXT messageTypes, in VKDebugUtilsMessengerCallbackDataEXT callbackData);
-
 		[NativeType("void vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdbuf, const VkDebugUtilsLabelEXT* pLabelInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsLabelEXT*, void> vkCmdBeginDebugUtilsLabelEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkCmdBeginDebugUtilsLabelEXT;
 		[NativeType("void vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdbuf)")]
 		public delegate* unmanaged<IntPtr, void> vkCmdEndDebugUtilsLabelEXT;
 		[NativeType("void vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdbuf, const VkDebugUtilsLabelEXT* pLabelInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsLabelEXT*, void> vkCmdInsertDebugUtilsLabelEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkCmdInsertDebugUtilsLabelEXT;
 		[NativeType("VkResult vkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsMessengerCreateInfoEXT*, VKAllocationCallbacks*, ulong*, VKResult> vkCreateDebugUtilsMessengerEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsMessengerCreateInfoEXT, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDebugUtilsMessengerEXT;
 		[NativeType("void vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks* pAllocator)")]
 		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroyDebugUtilsMessengerEXT;
 		[NativeType("void vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsLabelEXT*, void> vkQueueBeginDebugUtilsLabelEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkQueueBeginDebugUtilsLabelEXT;
 		[NativeType("void vkQueueEndDebugUtilsLabelEXT(VkQueue queue)")]
 		public delegate* unmanaged<IntPtr, void> vkQueueEndDebugUtilsLabelEXT;
 		[NativeType("void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsLabelEXT*, void> vkQueueInsertDebugUtilsLabelEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkQueueInsertDebugUtilsLabelEXT;
 		[NativeType("VkResult vkSetDebugUtilsObjectNameEXT(VkDevice device, const VKDebugUtilsObjectNameInfoEXT* pNameInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsObjectNameInfoEXT*, VKResult> vkSetDebugUtilsObjectNameEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsObjectNameInfoEXT, VKResult> vkSetDebugUtilsObjectNameEXT;
 		[NativeType("VkResult vkSetDebugUtilsObjectTagEXT(VkDevice device, const VkDebugUtilsObjectTagInfoEXT* pTagInfo)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsObjectTagInfoEXT*, VKResult> vkSetDebugUtilsObjectTagEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsObjectTagInfoEXT, VKResult> vkSetDebugUtilsObjectTagEXT;
 		[NativeType("void vkSubmitDebugUtilsMessageEXT(VkInstance instance, VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, VkDebugUtilsMessageTypeFlags messageTypes, const VkDebugUtilsMessangerCallbackDataEXT* pCallbackData)")]
-		public delegate* unmanaged<IntPtr, VKDebugUtilsMessageSeverityFlagBigsEXT, VKDebugUtilsMessageTypeFlagBitsEXT, VKDebugUtilsMessengerCallbackDataEXT*, void> vkSubmitDebugUtilsMessageEXT;
+		public delegate* unmanaged<IntPtr, VKDebugUtilsMessageSeverityFlagBigsEXT, VKDebugUtilsMessageTypeFlagBitsEXT, in VKDebugUtilsMessengerCallbackDataEXT, void> vkSubmitDebugUtilsMessageEXT;
 
 	}
 

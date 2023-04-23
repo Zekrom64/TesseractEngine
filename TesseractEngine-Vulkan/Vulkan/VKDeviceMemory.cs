@@ -23,8 +23,10 @@ namespace Tesseract.Vulkan {
 
 		public ulong MemoryCommitment {
 			get {
-				Device.VK10Functions.vkGetDeviceMemoryCommitment(Device, DeviceMemory, out ulong commit);
-				return commit;
+				unsafe {
+					Device.VK10Functions.vkGetDeviceMemoryCommitment(Device, DeviceMemory, out ulong commit);
+					return commit;
+				}
 			}
 		}
 
@@ -34,8 +36,10 @@ namespace Tesseract.Vulkan {
 					Type = VKStructureType.DeviceMemoryOpaqueCaptureAddressInfo,
 					Memory = DeviceMemory
 				};
-				if (Device.VK12Functions) return Device.VK12Functions!.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress!.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
+				unsafe {
+					if (Device.VK12Functions) return Device.VK12Functions!.vkGetDeviceMemoryOpaqueCaptureAddress(Device, info);
+					else return Device.KHRBufferDeviceAddress!.vkGetDeviceMemoryOpaqueCaptureAddressKHR(Device, info);
+				}
 			}
 		}
 
@@ -47,17 +51,25 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkFreeMemory(Device, DeviceMemory, Allocator);
+			unsafe {
+				Device.VK10Functions.vkFreeMemory(Device, DeviceMemory, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public IntPtr MapMemory(ulong offset, ulong size, VKMemoryMapFlagBits flags) {
-			VK.CheckError(Device.VK10Functions.vkMapMemory(Device, DeviceMemory, offset, size, flags, out IntPtr data));
-			return data;
+			unsafe {
+				VK.CheckError(Device.VK10Functions.vkMapMemory(Device, DeviceMemory, offset, size, flags, out IntPtr data));
+				return data;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UnmapMemory() => Device.VK10Functions.vkUnmapMemory(Device, DeviceMemory);
+		public void UnmapMemory() {
+			unsafe {
+				Device.VK10Functions.vkUnmapMemory(Device, DeviceMemory);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ulong(VKDeviceMemory? memory) => memory != null ? memory.DeviceMemory : 0;

@@ -170,7 +170,7 @@ namespace Tesseract.Vulkan {
 	public unsafe class KHRSwapchainDeviceFunctions {
 
 		[NativeType("VkResult vkCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSwapchainKHR* pSwapchain)")]
-		public delegate* unmanaged<IntPtr, VKSwapchainCreateInfoKHR*, VKAllocationCallbacks*, out ulong, VKResult> vkCreateSwapchainKHR;
+		public delegate* unmanaged<IntPtr, in VKSwapchainCreateInfoKHR, VKAllocationCallbacks*, out ulong, VKResult> vkCreateSwapchainKHR;
 		[NativeType("void vkDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* pAllocator)")]
 		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroySwapchainKHR;
 		[NativeType("VkResult vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages)")]
@@ -178,7 +178,7 @@ namespace Tesseract.Vulkan {
 		[NativeType("VkResult vkAcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout, VkSemaphore semaphore, VkFence fence, uint32_t* pImageIndex)")]
 		public delegate* unmanaged<IntPtr, ulong, ulong, ulong, ulong, out uint, VKResult> vkAcquireNextImageKHR;
 		[NativeType("VkResult vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo)")]
-		public delegate* unmanaged<IntPtr, VKPresentInfoKHR*, VKResult> vkQueuePresentKHR;
+		public delegate* unmanaged<IntPtr, in VKPresentInfoKHR, VKResult> vkQueuePresentKHR;
 		// With Vulkan 1.1 or VK_KHR_device_group
 		[NativeType("VkResult vkGetDeviceGroupPresentCapabilitiesKHR(VkDevice device, VkDeviceGroupPresentCapabilitiesKHR* pDeviceGroupPresentCapabilities)")]
 		[ExternFunction(Relaxed = true)]
@@ -191,7 +191,7 @@ namespace Tesseract.Vulkan {
 		public delegate* unmanaged<IntPtr, ulong, ref uint, VKRect2D*, VKResult> vkGetPhysicalDevicePresentRectanglesKHR;
 		[NativeType("VkResult vkAcquireNextImage2KHR(VkDevice device, const VkAcquireNextImageInfoKHR* pAcquireInfo, uint32_t* pImageIndex)")]
 		[ExternFunction(Relaxed = true)]
-		public delegate* unmanaged<IntPtr, VKAcquireNextImageInfoKHR*, out uint, VKResult> vkAcquireNextImage2KHR;
+		public delegate* unmanaged<IntPtr, in VKAcquireNextImageInfoKHR, out uint, VKResult> vkAcquireNextImage2KHR;
 
 	}
 
@@ -255,9 +255,7 @@ namespace Tesseract.Vulkan {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) {
 			unsafe {
-				fixed (VKAcquireNextImageInfoKHR* pAcquireInfo = &acquireInfo) {
-					return Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, pAcquireInfo, out imageIndex);
-				}
+				return Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
 			}
 		}
 

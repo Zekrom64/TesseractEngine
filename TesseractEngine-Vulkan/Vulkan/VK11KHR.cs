@@ -18,19 +18,16 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_bind_memory2
 
-#nullable disable
-	public class KHRBindMemory2DeviceFunctions {
+	public unsafe class KHRBindMemory2DeviceFunctions {
 
-		public delegate VKResult PFN_vkBindBufferMemory2KHR([NativeType("VkDevice")] IntPtr device, uint bindInfoCount, [NativeType("const VkBindBufferMemoryInfo*")] IntPtr pBindInfos);
-		public delegate VKResult PFN_vkBindImageMemory2KHR([NativeType("VkDevice")] IntPtr device, uint bindInfoCount, [NativeType("const VkBindImageMemoryInfo*")] IntPtr pBindInfos);
-
-		public PFN_vkBindBufferMemory2KHR vkBindBufferMemory2KHR;
-		public PFN_vkBindImageMemory2KHR vkBindImageMemory2KHR;
+		[NativeType("VkResult vkBindBufferMemory2KHR(VKDevice device, uitn32_t bindInfoCount, const VkBindBufferMemoryInfo* pBindInfos)")]
+		public delegate* unmanaged<IntPtr, uint, VKBindBufferMemoryInfo*, VKResult> vkBindBufferMemory2KHR;
+		[NativeType("VkResult vkBindImageMemory2KHR(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos)")]
+		public delegate* unmanaged<IntPtr, uint, VKBindImageMemoryInfo*, VKResult> vkBindImageMemory2KHR;
 
 		public static implicit operator bool(KHRBindMemory2DeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class KHRBindMemory2 {
 
@@ -48,21 +45,18 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_descriptor_update_template
 
-#nullable disable
-	public class KHRDescriptorUpdateTemplateDeviceFunctions {
+	public unsafe class KHRDescriptorUpdateTemplateDeviceFunctions {
 
-		public delegate VKResult PFN_vkCreateDescriptorUpdateTemplateKHR([NativeType("VkDevice")] IntPtr device, in VKDescriptorUpdateTemplateCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkDescriptorUpdateTemplate*")] out ulong descriptorUpdateTemplate);
-		public delegate void PFN_vkDestroyDescriptorUpdateTemplateKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDescriptorUpdateTemplate")] ulong descriptorUpdateTemplate, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate void PFN_vkUpdateDescriptorSetWithTemplateKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkDescriptorSet")] ulong descriptorSet, [NativeType("VkDescriptorUpdateTemplate")] ulong descriptorUpdateTemplate, IntPtr data);
-
-		public PFN_vkCreateDescriptorUpdateTemplateKHR vkCreateDescriptorUpdateTemplateKHR;
-		public PFN_vkDestroyDescriptorUpdateTemplateKHR vkDestroyDescriptorUpdateTemplateKHR;
-		public PFN_vkUpdateDescriptorSetWithTemplateKHR vkUpdateDescriptorSetWithTemplateKHR;
+		[NativeType("VkResult vkCreateDescriptorUpdateTemplateKHR(VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)")]
+		public delegate* unmanaged<IntPtr, in VKDescriptorUpdateTemplateCreateInfo, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDescriptorUpdateTemplateKHR;
+		[NativeType("void vkDestroyDescriptorUpdateTemplateKHR(VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroyDescriptorUpdateTemplateKHR;
+		[NativeType("void vkUpdateDescriptorSetWithTemplateKHR(VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, void* pData)")]
+		public delegate* unmanaged<IntPtr, ulong, ulong, IntPtr, void> vkUpdateDescriptorSetWithTemplateKHR;
 
 		public static implicit operator bool(KHRDescriptorUpdateTemplateDeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class KHRDescriptorUpdateTemplate {
 
@@ -72,21 +66,18 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_device_group
 
-#nullable disable
-	public class KHRDeviceGroupDeviceFunctions {
+	public unsafe class KHRDeviceGroupDeviceFunctions {
 
-		public delegate void PFN_vkCmdDispatchBaseKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint baseGroupX, uint baseGroupY, uint baseGroupZ, uint groupCountX, uint groupCcountY, uint groupCountZ);
-		public delegate void PFN_vkCmdSetDeviceMaskKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, uint deviceMask);
-		public delegate void PFN_vkGetDeviceGroupPeerMemoryFeaturesKHR([NativeType("VkDevice")] IntPtr device, uint heapIndex, uint localDeviceIndex, uint remoteDeviceIndex, out VKPeerMemoryFeatureFlagBits peerMemoryFeatures);
-
-		public PFN_vkCmdDispatchBaseKHR vkCmdDispatchBaseKHR;
-		public PFN_vkCmdSetDeviceMaskKHR vkCmdSetDeviceMaskKHR;
-		public PFN_vkGetDeviceGroupPeerMemoryFeaturesKHR vkGetDeviceGroupPeerMemoryFeaturesKHR;
+		[NativeType("void vkCmdDispatchBaseKHR(VkCommandBuffer commandBuffer, uint32_t baseGroupX, uint32_t baseGroupY, uint32_t baseGroupZ, uint32_t groupCountX, uint32_t groupCcountY, uint32_t groupCountZ)")]
+		public delegate* unmanaged<IntPtr, uint, uint, uint, uint, uint, uint, void> vkCmdDispatchBaseKHR;
+		[NativeType("void vkCmdSetDeviceMaskKHR(VkCommandBuffer commandBuffer, uint32_t deviceMask)")]
+		public delegate* unmanaged<IntPtr, uint, void> vkCmdSetDeviceMaskKHR;
+		[NativeType("void vkGetDeviceGroupPeerMemoryFeaturesKHR(VkDevice device, uint32_t heapIndex, uint32_t localDeviceIndex, uint32_t remoteDeviceIndex, VkPeerMemoryFeatureFlags* pPeerMemoryFeatures)")]
+		public delegate* unmanaged<IntPtr, uint, uint, uint, out VKPeerMemoryFeatureFlagBits, void> vkGetDeviceGroupPeerMemoryFeaturesKHR;
 
 		public static implicit operator bool(KHRDeviceGroupDeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class KHRDeviceGroup {
 
@@ -96,15 +87,12 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_device_group_creation [I]
 
-#nullable disable
-	public class KHRDeviceGroupCreationInstanceFunctions {
+	public unsafe class KHRDeviceGroupCreationInstanceFunctions {
 
-		public delegate VKResult PFN_vkEnumeratePhysicalDeviceGroupsKHR([NativeType("VkInstance")] IntPtr instance, ref uint physicalDeviceGroupCount, [NativeType("VkPhysicalDeviceGroupProperties*")] IntPtr pPhysicalDeviceGroupProperties);
-
-		public PFN_vkEnumeratePhysicalDeviceGroupsKHR vkEnumeratePhysicalDeviceGroupsKHR;
+		[NativeType("VkResult vkEnumeratePhysicalDeviceGroupsKHR(VkInstance instance, uint32_t* pPhysicalDeviceGroupCount, VkPhysicalDeviceGroupProperties* pPhysicalDeviceGroupProperties)")]
+		public delegate* unmanaged<IntPtr, ref uint, VKPhysicalDeviceGroupProperties*, VKResult> vkEnumeratePhysicalDeviceGroupsKHR;
 
 	}
-#nullable restore
 
 	public static class KHRDeviceGroupCreation {
 
@@ -122,15 +110,12 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_external_fence_capabilities [I]
 
-#nullable disable
-	public class KHRExternalFenceCapabilitiesInstanceFunctions {
+	public unsafe class KHRExternalFenceCapabilitiesInstanceFunctions {
 
-		public delegate void PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, in VKPhysicalDeviceExternalFenceInfo externalFenceInfo, ref VKExternalFenceProperties externalFenceProperties);
-
-		public PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR vkGetPhysicalDeviceExternalFencePropertiesKHR;
+		[NativeType("void vkGetPhysicalDeviceExternalFencePropertiesKHR(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalFenceInfo* pExternalFenceInfo, VKExternalFenceProperties* pExternalFenceProperties)")]
+		public delegate* unmanaged<IntPtr, in VKPhysicalDeviceExternalFenceInfo, ref VKExternalFenceProperties, void> vkGetPhysicalDeviceExternalFencePropertiesKHR;
 
 	}
-#nullable restore
 
 	public static class KHRExternalFenceCapabilities {
 
@@ -148,15 +133,12 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_external_memory_capabilities [I]
 
-#nullable disable
-	public class KHRExternalMemoryCapabilitiesInstanceFunctions {
+	public unsafe class KHRExternalMemoryCapabilitiesInstanceFunctions {
 
-		public delegate void PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, in VKPhysicalDeviceExternalBufferInfo externalBufferInfo, ref VKExternalBufferProperties externalBufferProperties);
-
-		public PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR vkGetPhysicalDeviceExternalBufferPropertiesKHR;
+		[NativeType("void vkGetPhysicalDeviceExternalBufferPropertiesKHR(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfo* pExternalBufferInfo, VkExternalBufferProperties* pExternalBufferProperties)")]
+		public delegate* unmanaged<IntPtr, in VKPhysicalDeviceExternalBufferInfo, ref VKExternalBufferProperties, void> vkGetPhysicalDeviceExternalBufferPropertiesKHR;
 
 	}
-#nullable restore
 
 	public static class KHRExternalMemoryCapabilities {
 
@@ -174,15 +156,12 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_external_semaphore_capabilities [I]
 
-#nullable disable
-	public class KHRExternalSemaphoreCapabilitiesInstanceFunctions {
+	public unsafe class KHRExternalSemaphoreCapabilitiesInstanceFunctions {
 
-		public delegate void PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, in VKPhysicalDeviceExternalSemaphoreInfo externalSemaphoreInfo, ref VKExternalSemaphoreProperties externalSemaphoreProperties);
-
-		public PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR vkGetPhysicalDeviceExternalSemaphorePropertiesKHR;
+		[NativeType("void vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo, VkExternalSemaphoreProperties* pExternalSemaphoreProperties)")]
+		public delegate* unmanaged<IntPtr, in VKPhysicalDeviceExternalSemaphoreInfo, ref VKExternalSemaphoreProperties, void> vkGetPhysicalDeviceExternalSemaphorePropertiesKHR;
 
 	}
-#nullable restore
 
 	public class KHRExternalSemaphoreCapabilities {
 
@@ -192,19 +171,16 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_get_memory_requirements2
 
-#nullable disable
-	public class KHRGetMemoryRequirements2DeviceFunctions {
+	public unsafe class KHRGetMemoryRequirements2DeviceFunctions {
 
-		public delegate void PFN_vkGetBufferMemoryRequirements2KHR([NativeType("VkDevice")] IntPtr device, in VKBufferMemoryRequirementsInfo2 info, ref VKMemoryRequirements2 memoryRequirements);
-		public delegate void PFN_vkGetImageMemoryRequirements2KHR([NativeType("VkDevice")] IntPtr device, in VKImageMemoryRequirementsInfo2 info, ref VKMemoryRequirements2 memoryRequirements);
-		public delegate void PFN_vkGetImageSparseMemoryRequirements2KHR([NativeType("VkDevice")] IntPtr device, in VKImageSparseMemoryRequirementsInfo2 info, ref uint sparseRequirementCount, [NativeType("VKSparseImageMemoryRequirements2*")] IntPtr pSparseMemoryRequirements);
-
-		public PFN_vkGetBufferMemoryRequirements2KHR vkGetBufferMemoryRequirements2KHR;
-		public PFN_vkGetImageMemoryRequirements2KHR vkGetImageMemoryRequirements2KHR;
-		public PFN_vkGetImageSparseMemoryRequirements2KHR vkGetImageSparseMemoryRequirements2KHR;
+		[NativeType("void vkGetBufferMemoryRequirements2KHR(VkDevice device, const VkBufferMemoryRequirementsInfo2* pInfo, VkMemoryRequirements2* pMemoryRequirements)")]
+		public delegate* unmanaged<IntPtr, in VKBufferMemoryRequirementsInfo2, ref VKMemoryRequirements2, void> vkGetBufferMemoryRequirements2KHR;
+		[NativeType("void vkGetImageMemoryRequirements2KHR(VkDevice device, const VkImageMemoryRequirementsInfo2* pInfo, VkMemoryRequirements2* pMemoryRequirements)")]
+		public delegate* unmanaged<IntPtr, in VKImageMemoryRequirementsInfo2, ref VKMemoryRequirements2, void> vkGetImageMemoryRequirements2KHR;
+		[NativeType("void vkGetImageSparseMemoryRequirements2KHR(VkDevice device, const VkImageSparseMemoryRequirementsInfo2* pInfo, uint32_t* pSparseRequirementCount, VkSparseImageMemoryRequirements2* pSparseMemoryRequirements)")]
+		public delegate* unmanaged<IntPtr, in VKImageSparseMemoryRequirementsInfo2, ref uint, VKSparseImageMemoryRequirements2*, void> vkGetImageSparseMemoryRequirements2KHR;
 
 	}
-#nullable restore
 
 	public static class KHRGetMemoryRequirements2 {
 
@@ -214,27 +190,24 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_get_physical_device_properties2 [I]
 
-#nullable disable
-	public class KHRGetPhysicalDeviceProperties2InstanceFunctions {
+	public unsafe class KHRGetPhysicalDeviceProperties2InstanceFunctions {
 
-		public delegate void PFN_vkGetPhysicalDeviceFeatures2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, ref VKPhysicalDeviceFeatures2 features);
-		public delegate void PFN_vkGetPhysicalDeviceProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, ref VKPhysicalDeviceProperties2 properties);
-		public delegate void PFN_vkGetPhysicalDeviceFormatProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, VKFormat format, ref VKFormatProperties2 properties);
-		public delegate VKResult PFN_vkGetPhysicalDeviceImageFormatProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, in VKPhysicalDeviceImageFormatInfo2 formatInfo, ref VKImageFormatProperties2 properties);
-		public delegate void PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, ref uint queueFamilyCount, [NativeType("VkQueueFamilyProperties2*")] IntPtr pQueueFamilyProperties);
-		public delegate void PFN_vkGetPhysicalDeviceMemoryProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, ref VKPhysicalDeviceMemoryProperties2 memoryProperties);
-		public delegate void PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, in VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, ref uint propertyCount, [NativeType("VkSparseImageFormatProperties2*")] IntPtr pProperties);
-
-		public PFN_vkGetPhysicalDeviceFeatures2KHR vkGetPhysicalDeviceFeatures2KHR;
-		public PFN_vkGetPhysicalDeviceProperties2KHR vkGetPhysicalDeviceProperties2KHR;
-		public PFN_vkGetPhysicalDeviceFormatProperties2KHR vkGetPhysicalDeviceFormatProperties2KHR;
-		public PFN_vkGetPhysicalDeviceImageFormatProperties2KHR vkGetPhysicalDeviceImageFormatProperties2KHR;
-		public PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR vkGetPhysicalDeviceQueueFamilyProperties2KHR;
-		public PFN_vkGetPhysicalDeviceMemoryProperties2KHR vkGetPhysicalDeviceMemoryProperties2KHR;
-		public PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR vkGetPhysicalDeviceSparseImageFormatProperties2KHR;
+		[NativeType("void vkGetPhysicalDeviceFeatures2KHR(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2* pFeatures)")]
+		public delegate* unmanaged<IntPtr, ref VKPhysicalDeviceFeatures2, void> vkGetPhysicalDeviceFeatures2KHR;
+		[NativeType("void vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties2* pProperties)")]
+		public delegate* unmanaged<IntPtr, ref VKPhysicalDeviceProperties2, void> vkGetPhysicalDeviceProperties2KHR;
+		[NativeType("void vkGetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevice physicalDevice, VkFormat format, VkFormatProperties2* pProperties)")]
+		public delegate* unmanaged<IntPtr, VKFormat, ref VKFormatProperties2, void> vkGetPhysicalDeviceFormatProperties2KHR;
+		[NativeType("Vkresult vkGetPhysicalDeviceImageFormatProperties2KHR(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceImageFormatInfo2* pFormatInfo, VkImageFormatProperties2* pProperties)")]
+		public delegate* unmanaged<IntPtr, in VKPhysicalDeviceImageFormatInfo2, ref VKImageFormatProperties2, VKResult> vkGetPhysicalDeviceImageFormatProperties2KHR;
+		[NativeType("void vkGetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice, uint32_t* pQueueFamilyCount, VkQueueFamilyProperties2* pQueueFamilyProperties)")]
+		public delegate* unmanaged<IntPtr, ref uint, VKQueueFamilyProperties2*, void> vkGetPhysicalDeviceQueueFamilyProperties2KHR;
+		[NativeType("void vkGetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDevice physicalDevice, VkPhysicalDeviceMemoryProperties2* pMemoryProperties)")]
+		public delegate* unmanaged<IntPtr, ref VKPhysicalDeviceMemoryProperties2, void> vkGetPhysicalDeviceMemoryProperties2KHR;
+		[NativeType("void vkGetPhysicalDeviceSparseImageFormatProperties2KHR(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceSparseImageFormatInfo2* pFormatInfo, uint32_t* pPropertyCount, VkSparseImageFormatProperties2* pProperties)")]
+		public delegate* unmanaged<IntPtr, in VKPhysicalDeviceSparseImageFormatInfo2, ref uint, VKSparseImageFormatProperties2*, void> vkGetPhysicalDeviceSparseImageFormatProperties2KHR;
 
 	}
-#nullable restore
 
 	public static class KHRGetPhysicalDeviceProperties2 {
 
@@ -244,17 +217,14 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_maintenance1
 
-#nullable disable
-	public class KHRMaintenance1DeviceFunctions {
+	public unsafe class KHRMaintenance1DeviceFunctions {
 
-		public delegate void PFN_vkTrimCommandPoolKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkCommandPool")] ulong commandPool, VKCommandPoolTrimFlags flags);
-
-		public PFN_vkTrimCommandPoolKHR vkTrimCommandPoolKHR;
+		[NativeType("void vkTrimCommandPoolKHR(VkDevice device, VkCommandPool commandPool VkCommandPoolTrimFlags flags)")]
+		public delegate* unmanaged<IntPtr, ulong, VKCommandPoolTrimFlags, void> vkTrimCommandPoolKHR;
 
 		public static implicit operator bool(KHRMaintenance1DeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class KHRMaintenance1 {
 
@@ -272,17 +242,14 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_maintenance3
 
-#nullable disable
-	public class KHRMaintenance3DeviceFunctions {
+	public unsafe class KHRMaintenance3DeviceFunctions {
 
-		public delegate void PFN_vkGetDescriptorSetLayoutSupportKHR([NativeType("VkDevice")] IntPtr device, in VKDescriptorSetLayoutCreateInfo createInfo, ref VKDescriptorSetLayoutSupport support);
-
-		public PFN_vkGetDescriptorSetLayoutSupportKHR vkGetDescriptorSetLayoutSupportKHR;
+		[NativeType("void vkGetDescriptorSetLayoutSupportKHR(VkDevice device, const VkDescriptorSetLayoutCreateInfo* pCreateInfo, VkDescriptorSetLayoutSupport* pSupport)")]
+		public delegate* unmanaged<IntPtr, in VKDescriptorSetLayoutCreateInfo, ref VKDescriptorSetLayoutSupport, void> vkGetDescriptorSetLayoutSupportKHR;
 
 		public static implicit operator bool(KHRMaintenance3DeviceFunctions fn) => fn != null;
 
 	}
-#nullable restore
 
 	public static class KHRMaintenance3 {
 
@@ -308,17 +275,14 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_sampler_ycbcr_conversion
 
-#nullable disable
-	public class KHRSamplerYcbcrConversionDeviceFunctions {
+	public unsafe class KHRSamplerYcbcrConversionDeviceFunctions {
 
-		public delegate VKResult PFN_vkCreateSamplerYcbcrConversionKHR([NativeType("VkDevice")] IntPtr device, in VKSamplerYcbcrConversionCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkSamplerYcbcrConversion*")] out ulong ycbcrConversion);
-		public delegate void PFN_vkDestroySamplerYcbcrConversionKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSamplerYcbcrConversion")] ulong ycbcrConversion, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-
-		public PFN_vkCreateSamplerYcbcrConversionKHR vkCreateSamplerYcbcrConversionKHR;
-		public PFN_vkDestroySamplerYcbcrConversionKHR vkDestroySamplerYcbcrConversionKHR;
+		[NativeType("VkResult vkCreateSamplerYcbcrConversionKHR(VkDevice device, const VkSamplerYcbcrConversionCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSamplerYcbcrConversion* pYcbcrConversion)")]
+		public delegate* unmanaged<IntPtr, in VKSamplerYcbcrConversionCreateInfo, VKAllocationCallbacks*, out ulong, VKResult> vkCreateSamplerYcbcrConversionKHR;
+		[NativeType("void vkDestroySamplerYcbcrConversionKHR(VkDevice device, VkSamplerYcbcrConversion, VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroySamplerYcbcrConversionKHR;
 
 	}
-#nullable restore
 
 	public static class KHRSamplerYcbcrConversion {
 

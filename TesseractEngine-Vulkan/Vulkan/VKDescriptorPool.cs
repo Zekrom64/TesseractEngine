@@ -29,17 +29,23 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyDescriptorPool(Device, DescriptorPool, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyDescriptorPool(Device, DescriptorPool, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Reset(VKDescriptorPoolResetFlagBits flags = 0) => VK.CheckError(Device.VK10Functions.vkResetDescriptorPool(Device, DescriptorPool, flags));
+		public void Reset(VKDescriptorPoolResetFlagBits flags = 0) {
+			unsafe {
+				VK.CheckError(Device.VK10Functions.vkResetDescriptorPool(Device, DescriptorPool, flags));
+			}
+		}
 
 		public VKDescriptorSet[] Allocate(in VKDescriptorSetAllocateInfo allocateInfo) {
 			Span<ulong> descriptorSets = stackalloc ulong[(int)allocateInfo.DescriptorSetCount];
 			unsafe {
 				fixed(ulong* pDescriptorSets = descriptorSets) {
-					VK.CheckError(Device.VK10Functions.vkAllocateDescriptorSets(Device, allocateInfo, (IntPtr)pDescriptorSets), "Failed to allocate descriptor set(s)");
+					VK.CheckError(Device.VK10Functions.vkAllocateDescriptorSets(Device, allocateInfo, pDescriptorSets), "Failed to allocate descriptor set(s)");
 				}
 			}
 			VKDescriptorSet[] sets = new VKDescriptorSet[descriptorSets.Length];
@@ -57,7 +63,7 @@ namespace Tesseract.Vulkan {
 			}
 			unsafe {
 				fixed(ulong* pDescriptorSets = descriptorSets) {
-					VK.CheckError(Device.VK10Functions.vkFreeDescriptorSets(Device, DescriptorPool, (uint)sets.Length, (IntPtr)pDescriptorSets), "Failed to free descriptor sets");
+					VK.CheckError(Device.VK10Functions.vkFreeDescriptorSets(Device, DescriptorPool, (uint)sets.Length, pDescriptorSets), "Failed to free descriptor sets");
 				}
 			}
 		}

@@ -24,22 +24,24 @@ namespace Tesseract.Vulkan {
 		public VKMemoryRequirements MemoryRequirements {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Device.VK10Functions.vkGetImageMemoryRequirements(Device, Image, out VKMemoryRequirements requirements);
-				return requirements;
+				unsafe {
+					Device.VK10Functions.vkGetImageMemoryRequirements(Device, Image, out VKMemoryRequirements requirements);
+					return requirements;
+				}
 			}
 		}
 
 		public VKSparseImageMemoryRequirements[] SparseMemoryRequirements {
 			get {
-				uint count = 0;
-				Device.VK10Functions.vkGetImageSparseMemoryRequirements(Device, Image, ref count, IntPtr.Zero);
-				VKSparseImageMemoryRequirements[] reqs = new VKSparseImageMemoryRequirements[count];
 				unsafe {
-					fixed(VKSparseImageMemoryRequirements* pReqs = reqs) {
-						Device.VK10Functions.vkGetImageSparseMemoryRequirements(Device, Image, ref count, (IntPtr)pReqs);
+					uint count = 0;
+					Device.VK10Functions.vkGetImageSparseMemoryRequirements(Device, Image, ref count, (VKSparseImageMemoryRequirements*)0);
+					VKSparseImageMemoryRequirements[] reqs = new VKSparseImageMemoryRequirements[count];
+					fixed (VKSparseImageMemoryRequirements* pReqs = reqs) {
+						Device.VK10Functions.vkGetImageSparseMemoryRequirements(Device, Image, ref count, pReqs);
 					}
+					return reqs;
 				}
-				return reqs;
 			}
 		}
 
@@ -51,17 +53,24 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyImage(Device, Image, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyImage(Device, Image, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindMemory(VKDeviceMemory memory, ulong memoryOffset) =>
-			VK.CheckError(Device.VK10Functions.vkBindImageMemory(Device, Image, memory, memoryOffset), "Failed to bind image memory");
+		public void BindMemory(VKDeviceMemory memory, ulong memoryOffset) {
+			unsafe {
+				VK.CheckError(Device.VK10Functions.vkBindImageMemory(Device, Image, memory, memoryOffset), "Failed to bind image memory");
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKSubresourceLayout GetSubresourceLayout(VKImageSubresource subresource) {
-			Device.VK10Functions.vkGetImageSubresourceLayout(Device, Image, subresource, out VKSubresourceLayout layout);
-			return layout;
+			unsafe {
+				Device.VK10Functions.vkGetImageSubresourceLayout(Device, Image, subresource, out VKSubresourceLayout layout);
+				return layout;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

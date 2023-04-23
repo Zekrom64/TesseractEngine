@@ -49,29 +49,29 @@ namespace Tesseract.Vulkan.Native {
 		[NativeType("void vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride)")]
 		public delegate* unmanaged<VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint, uint, void> vkCmdDrawIndexedIndirectCount;
 		[NativeType("VkResult vkCreateRenderPass2(VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass)")]
-		public delegate* unmanaged<VkDevice, VKRenderPassCreateInfo2*, VKAllocationCallbacks*, VkRenderPass*> vkCreateRenderPass2;
+		public delegate* unmanaged<VkDevice, in VKRenderPassCreateInfo2, VKAllocationCallbacks*, out VkRenderPass, VKResult> vkCreateRenderPass2;
 		[NativeType("void vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo)")]
-		public delegate* unmanaged<VkCommandBuffer, VKRenderPassBeginInfo*, VKSubpassBeginInfo*, void> vkCmdBeginRenderPass2;
+		public delegate* unmanaged<VkCommandBuffer, in VKRenderPassBeginInfo, in VKSubpassBeginInfo, void> vkCmdBeginRenderPass2;
 		[NativeType("void vkCmdNextSubpass2(VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo)")]
-		public delegate* unmanaged<VkCommandBuffer, VKSubpassBeginInfo*, VKSubpassEndInfo*, void> vkCmdNextSubpass2;
+		public delegate* unmanaged<VkCommandBuffer, in VKSubpassBeginInfo, in VKSubpassEndInfo, void> vkCmdNextSubpass2;
 		[NativeType("void vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfo* pSubpassEndInfo)")]
-		public delegate* unmanaged<VkCommandBuffer, VKSubpassEndInfo*, void> vkCmdEndRenderPass2;
+		public delegate* unmanaged<VkCommandBuffer, in VKSubpassEndInfo, void> vkCmdEndRenderPass2;
 		[NativeType("void vkResetQueryPool(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)")]
 		public delegate* unmanaged<VkDevice, VkQueryPool, uint, uint, void> vkResetQueryPool;
 		[NativeType("VkResult vkGetSemaphoreCounterValue(VkDevice device, VkSemaphore semaphore, uint64_t* pValue)")]
 		public delegate* unmanaged<VkDevice, VkSemaphore, out ulong, VKResult> vkGetSemaphoreCounterValue;
 		[NativeType("VkResult vkWaitSemaphores(VkDevice device, const VkSemaphoreWaitInfo* pWaitInfo, uint64_t timeout)")]
-		public delegate* unmanaged<VkDevice, VKSemaphoreWaitInfo*, ulong, VKResult> vkWaitSemaphores;
+		public delegate* unmanaged<VkDevice, in VKSemaphoreWaitInfo, ulong, VKResult> vkWaitSemaphores;
 		[NativeType("VkResult vkSignalSemaphore(VkDevice device, const VkSemaphoreSignalInfo* pSignalInfo)")]
-		public delegate* unmanaged<VkDevice, VKSemaphoreSignalInfo*, VKResult> vkSignalSemaphore;
+		public delegate* unmanaged<VkDevice, in VKSemaphoreSignalInfo, VKResult> vkSignalSemaphore;
 		[NativeType("VkDeviceAddress vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
-		public delegate* unmanaged<VkDevice, VKBufferDeviceAddressInfo*, VkDeviceAddress> vkGetBufferDeviceAddress;
+		public delegate* unmanaged<VkDevice, in VKBufferDeviceAddressInfo, VkDeviceAddress> vkGetBufferDeviceAddress;
 		[NativeType("uint64_t vkGetBufferOpaqueCaptureAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
-		public delegate* unmanaged<VkDevice, VKBufferDeviceAddressInfo*, ulong> vkGetBufferOpaqueCaptureAddress;
+		public delegate* unmanaged<VkDevice, in VKBufferDeviceAddressInfo, ulong> vkGetBufferOpaqueCaptureAddress;
 		[NativeType("uint64_t vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice device, const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo")]
-		public delegate* unmanaged<VkDevice, VKDeviceMemoryOpaqueCaptureAddressInfo*, ulong> vkGetDeviceMemoryOpaqueCaptureAddress;
+		public delegate* unmanaged<VkDevice, in VKDeviceMemoryOpaqueCaptureAddressInfo, ulong> vkGetDeviceMemoryOpaqueCaptureAddress;
 
-		public static implicit operator bool(VK12DeviceFunctions fn) => fn != null;
+		public static implicit operator bool(VK12DeviceFunctions? fn) => fn != null;
 
 	}
 

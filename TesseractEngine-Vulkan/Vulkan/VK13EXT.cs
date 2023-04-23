@@ -68,21 +68,18 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTPrivateDataFunctions {
+	public unsafe class EXTPrivateDataFunctions {
 
-		public delegate VKResult PFN_vkCreatePrivateDataSlotEXT([NativeType("VkDevice")] IntPtr device, in VKPrivateDataSlotCreateInfo createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, out VkPrivateDataSlotEXT privateDataSlot);
-		public delegate void PFN_vkDestroyPrivateDataSlotEXT([NativeType("VkDevice")] IntPtr device, VkPrivateDataSlotEXT privateDataSlot, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator);
-		public delegate void PFN_vkGetPrivateDataEXT([NativeType("VkDevice")] IntPtr device, VKObjectType objectType, ulong objectHandle, VkPrivateDataSlotEXT privateDataSlot, out ulong data);
-		public delegate void PFN_vkSetPrivateDataEXT([NativeType("VkDevice")] IntPtr device, VKObjectType objectType, ulong objectHandle, VkPrivateDataSlotEXT privateDataSlot, ulong data);
-
-		public PFN_vkCreatePrivateDataSlotEXT vkCreatePrivateDataSlotEXT;
-		public PFN_vkDestroyPrivateDataSlotEXT vkDestroyPrivateDataSlotEXT;
-		public PFN_vkGetPrivateDataEXT vkGetPrivateDataEXT;
-		public PFN_vkSetPrivateDataEXT vkSetPrivateDataEXT;
+		[NativeType("VkResult vkCreatePrivateDataSlotEXT(VkDevice device, const VkPrivateDataSlotCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkPrivateDataSlotEXT* pPrivateDataSlot)")]
+		public delegate* unmanaged<IntPtr, in VKPrivateDataSlotCreateInfo, VKAllocationCallbacks*, out VkPrivateDataSlotEXT, VKResult> vkCreatePrivateDataSlotEXT;
+		[NativeType("void vkDestroyPrivateDataSlotEXT(VkDevice device, VkPrivateDataSlotEXT privateDataSlot, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, VkPrivateDataSlotEXT, VKAllocationCallbacks*, void> vkDestroyPrivateDataSlotEXT;
+		[NativeType("void vkGetPrivateDataEXT(VkDevice device, VkObjectType objectType, uint64_t objectHandle, VkPrivateDataSlotEXT privateDataSlot, uint64_t* pData)")]
+		public delegate* unmanaged<IntPtr, VKObjectType, ulong, VkPrivateDataSlotEXT, out ulong, void> vkGetPrivateDataEXT;
+		[NativeType("void vkSetPrivateDataEXT(VkDevice device, VkObjectType objectType, uint64_t objectHandle, VkPrivateDataSlotEXT privateDataSlot, uint64_t data)")]
+		public delegate* unmanaged<IntPtr, VKObjectType, ulong, VkPrivateDataSlotEXT, ulong, void> vkSetPrivateDataEXT;
 
 	}
-#nullable restore
 
 	// VK_EXT_shader_demote_to_helper_invocation
 
@@ -124,15 +121,15 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class EXTToolingInfoFunctions {
+	public unsafe class EXTToolingInfoFunctions {
 
-		public delegate VKResult PFN_vkGetPhysicalDeviceToolPropertiesEXT([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, ref uint toolCount, [NativeType("VkPhysicalDeviceToolProperties")] IntPtr pToolProperties);
-
-		public PFN_vkGetPhysicalDeviceToolPropertiesEXT vkGetPhysicalDeviceToolPropertiesEXT;
+		[NativeType("VkResult vkGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t* pToolCount, VkPhysicalDeviceToolProperties* pToolProperties)")]
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+		// C# thinks VKPhysicalDeviceToolProperties is a managed type because it has string properties, but these are just getters and *should* be blittable
+		public delegate* unmanaged<IntPtr, ref uint, VKPhysicalDeviceToolProperties*, VKResult> vkGetPhysicalDeviceToolPropertiesEXT;
+#pragma warning restore CS8500
 
 	}
-#nullable restore
 
 	// VK_EXT_ycbcr_2plane_444_formats
 

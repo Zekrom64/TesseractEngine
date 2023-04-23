@@ -27,7 +27,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.KHRAccelerationStructure!.vkDestroyAccelerationStructureKHR(Device, AccelerationStructure, Allocator);
+			unsafe {
+				Device.KHRAccelerationStructure!.vkDestroyAccelerationStructureKHR(Device, AccelerationStructure, Allocator);
+			}
 		}
 
 		public static implicit operator ulong(VKAccelerationStructureKHR o) => o.AccelerationStructure;

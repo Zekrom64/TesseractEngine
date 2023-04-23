@@ -56,31 +56,41 @@ namespace Tesseract.Vulkan {
 		}
 
 		public VKExtensionProperties[] EnumerateInstanceExtensionProperties(string? layerName) {
-			uint propCount = 0;
-			VK.CheckError(Functions.vkEnumerateInstanceExtensionProperties(layerName, ref propCount, IntPtr.Zero), "Failed to enumerate instance extension properties");
-			using ManagedPointer<VKExtensionProperties> pProps = new((int)propCount);
-			VK.CheckError(Functions.vkEnumerateInstanceExtensionProperties(layerName, ref propCount, pProps), "Failed to enumerate instance extension properties");
-			VKExtensionProperties[] props = new VKExtensionProperties[propCount];
-			for (int i = 0; i < propCount; i++) props[i] = pProps[i];
-			return props;
+			unsafe {
+				uint propCount = 0;
+				Span<byte> strLayerName = layerName != null ? MemoryUtil.StackallocUTF8(layerName, stackalloc byte[1024]) : Span<byte>.Empty;
+				fixed(byte* pStrLayerName = strLayerName) {
+					IntPtr pLayerName = layerName != null ? (IntPtr)pStrLayerName : IntPtr.Zero;
+					VK.CheckError(Functions.vkEnumerateInstanceExtensionProperties(pLayerName, ref propCount, (VKExtensionProperties*)0), "Failed to enumerate instance extension properties");
+					VKExtensionProperties[] properties = new VKExtensionProperties[propCount];
+					fixed (VKExtensionProperties* pProperties = properties) {
+						VK.CheckError(Functions.vkEnumerateInstanceExtensionProperties(pLayerName, ref propCount, pProperties), "Failed to enumerate instance extension properties");
+					}
+					return properties;
+				}
+			}
 		}
 
 		public VKLayerProperties[] InstanceLayerProperties {
 			get {
 				uint propCount = 0;
-				VK.CheckError(Functions.vkEnumerateInstanceLayerProperties(ref propCount, IntPtr.Zero), "Failed to enumerate instance layers");
-				using ManagedPointer<VKLayerProperties> pProps = new((int)propCount);
-				VK.CheckError(Functions.vkEnumerateInstanceLayerProperties(ref propCount, pProps));
-				VKLayerProperties[] props = new VKLayerProperties[propCount];
-				for (int i = 0; i < propCount; i++) props[i] = pProps[i];
-				return props;
+				unsafe {
+					VK.CheckError(Functions.vkEnumerateInstanceLayerProperties(ref propCount, (VKLayerProperties*)0), "Failed to enumerate instance layers");
+					VKLayerProperties[] properties = new VKLayerProperties[propCount];
+					fixed (VKLayerProperties* pProperties = properties) {
+						VK.CheckError(Functions.vkEnumerateInstanceLayerProperties(ref propCount, pProperties));
+					}
+					return properties;
+				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKInstance CreateInstance(in VKInstanceCreateInfo createInfo, VulkanAllocationCallbacks? allocator = null) {
-			VK.CheckError(Functions.vkCreateInstance(createInfo, allocator, out IntPtr pInstance));
-			return new VKInstance(VK, pInstance, createInfo, allocator);
+			unsafe {
+				VK.CheckError(Functions.vkCreateInstance(createInfo, allocator, out IntPtr pInstance));
+				return new VKInstance(VK, pInstance, createInfo, allocator);
+			}
 		}
 
 	}

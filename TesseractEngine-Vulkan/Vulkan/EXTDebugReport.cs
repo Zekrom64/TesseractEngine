@@ -85,7 +85,7 @@ namespace Tesseract.Vulkan {
 	public unsafe class EXTDebugReportInstanceFunctions {
 
 		[NativeType("VkResult vkCreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugReportCallbackEXT* pCallback)")]
-		public delegate* unmanaged<IntPtr, VKDebugReportCallbackCreateInfoEXT*, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDebugReportCallbackEXT;
+		public delegate* unmanaged<IntPtr, in VKDebugReportCallbackCreateInfoEXT, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDebugReportCallbackEXT;
 		[NativeType("void vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t obj, size_t location, int32_t messageCode, const char* layerPrefix, const char* message)")]
 		public delegate* unmanaged<IntPtr, VKDebugReportFlagBitsEXT, VKDebugReportObjectTypeEXT, ulong, nuint, int, IntPtr, IntPtr, void> vkDebugReportMessageEXT;
 		[NativeType("void vkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* allocator)")]

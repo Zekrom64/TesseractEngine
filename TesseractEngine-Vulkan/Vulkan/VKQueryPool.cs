@@ -29,7 +29,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyQueryPool(Device, QueryPool, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyQueryPool(Device, QueryPool, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,8 +47,10 @@ namespace Tesseract.Vulkan {
 		// Vulkan 1.2
 		// VK_EXT_host_query_reset
 		public void Reset(uint firstQuery, uint queryCount) {
-			if (Device.VK12Functions) Device.VK12Functions!.vkResetQueryPool(Device, QueryPool, firstQuery, queryCount);
-			else Device.EXTHostQueryReset!.vkResetQueryPoolEXT(Device, QueryPool, firstQuery, queryCount);
+			unsafe {
+				if (Device.VK12Functions) Device.VK12Functions!.vkResetQueryPool(Device, QueryPool, firstQuery, queryCount);
+				else Device.EXTHostQueryReset!.vkResetQueryPoolEXT(Device, QueryPool, firstQuery, queryCount);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

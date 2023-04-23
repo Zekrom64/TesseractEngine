@@ -59,7 +59,7 @@ namespace Tesseract.GLFW.Native {
 		[NativeType("const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* monitor)")]
 		public delegate* unmanaged<IntPtr, GLFWGammaRamp*> glfwGetGammaRamp;
 		[NativeType("void glfwSetGammaRamp(GLFWmonitor* monitor, const GLFWgammaramp* gammaRamp)")]
-		public delegate* unmanaged<IntPtr, GLFWGammaRamp*, void> glfwSetGammaRamp;
+		public delegate* unmanaged<IntPtr, in GLFWGammaRamp, void> glfwSetGammaRamp;
 
 		[NativeType("void glfwDefaultWindowHints()")]
 		public delegate* unmanaged<void> glfwDefaultWindowHints;
@@ -177,7 +177,7 @@ namespace Tesseract.GLFW.Native {
 		public delegate* unmanaged<IntPtr, double, double, void> glfwSetCursorPos;
 
 		[NativeType("GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)")]
-		public delegate* unmanaged<GLFWImage*, int, int, IntPtr> glfwCreateCursor;
+		public delegate* unmanaged<in GLFWImage, int, int, IntPtr> glfwCreateCursor;
 		[NativeType("GLFWcursor* glfwCreateStandardCursor(int shape)")]
 		public delegate* unmanaged<GLFWCursorShape, IntPtr> glfwCreateStandardCursor;
 		[NativeType("void glfwDestroyCursor(GLFWcursor* cursor)")]

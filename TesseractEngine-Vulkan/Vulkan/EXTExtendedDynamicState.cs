@@ -44,7 +44,7 @@ namespace Tesseract.Vulkan {
 		[NativeType("void vkCmdSetStencilTestEnableEXT(VkCommandBuffer cmdbuf, VkBool32 stencilTestEnable)")]
 		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetStencilTestEnableEXT;
 		[NativeType("void vkCmdSetStencilOpEXT(VkCommandBuffer cmdbuf, VkStencilFaceFlags faceMask, VkStencilOp failOp, VkStencilOp passOp, VkStencilOp depthFailOp, VkComareOp compareOp)")]
-		public delegate* unmanaged<IntPtr, VKStencilFaceFlagBits, VKStencilOp, VKStencilOp, VKStencilOp, VKCompareOp> vkCmdSetStencilOpEXT;
+		public delegate* unmanaged<IntPtr, VKStencilFaceFlagBits, VKStencilOp, VKStencilOp, VKStencilOp, VKCompareOp, void> vkCmdSetStencilOpEXT;
 
 		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions fn) => fn != null;
 

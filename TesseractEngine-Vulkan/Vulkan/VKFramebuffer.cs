@@ -29,7 +29,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyFramebuffer(Device, Framebuffer, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyFramebuffer(Device, Framebuffer, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

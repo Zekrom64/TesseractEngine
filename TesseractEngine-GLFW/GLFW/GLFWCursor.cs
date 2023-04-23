@@ -13,7 +13,7 @@ namespace Tesseract.GLFW {
 
 		public GLFWCursor(GLFWImage image, Vector2i hot) {
 			unsafe {
-				Cursor = GLFW3.Functions.glfwCreateCursor(&image, hot.X, hot.Y);
+				Cursor = GLFW3.Functions.glfwCreateCursor(image, hot.X, hot.Y);
 			}
 		}
 

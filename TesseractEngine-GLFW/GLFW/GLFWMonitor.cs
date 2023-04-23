@@ -114,7 +114,7 @@ namespace Tesseract.GLFW {
 			set {
 				if (Monitor != IntPtr.Zero) {
 					unsafe {
-						GLFW3.Functions.glfwSetGammaRamp(Monitor, &value);
+						GLFW3.Functions.glfwSetGammaRamp(Monitor, value);
 					}
 				}
 			}

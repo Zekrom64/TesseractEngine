@@ -18,10 +18,21 @@ namespace Tesseract.Vulkan {
 
 		public VulkanAllocationCallbacks? Allocator { get; }
 
-		public uint MaxConcurrency => Device.KHRDeferredHostOperations!.vkGetDeferredOperationMaxConcurrencyKHR(Device, DeferredOperation);
+		public uint MaxConcurrency {
+			get {
+				unsafe {
+					return Device.KHRDeferredHostOperations!.vkGetDeferredOperationMaxConcurrencyKHR(Device, DeferredOperation);
+				}
+			}
+		}
 
-		public VKResult Result => Device.KHRDeferredHostOperations!.vkGetDeferredOperationResultKHR(Device, DeferredOperation);
-
+		public VKResult Result {
+			get {
+				unsafe {
+					return Device.KHRDeferredHostOperations!.vkGetDeferredOperationResultKHR(Device, DeferredOperation);
+				}
+			}
+		}
 
 		public VKDeferredOperationKHR(VKDevice device, ulong deferredOp, VulkanAllocationCallbacks? allocator) {
 			Device = device;
@@ -29,10 +40,17 @@ namespace Tesseract.Vulkan {
 			Allocator = allocator;
 		}
 
-		public void Join() => VK.CheckError(Device.KHRDeferredHostOperations!.vkDeferredOperationJoinKHR(Device, DeferredOperation));
+		public void Join() {
+			unsafe {
+				VK.CheckError(Device.KHRDeferredHostOperations!.vkDeferredOperationJoinKHR(Device, DeferredOperation));
+			}
+		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
+			unsafe {
+				Device.KHRDeferredHostOperations!.vkDestroyDeferredOperationKHR(Device, DeferredOperation, Allocator);
+			}
 		}
 
 		public static implicit operator ulong(VKDeferredOperationKHR? operation) => operation != null ? operation.DeferredOperation : 0;

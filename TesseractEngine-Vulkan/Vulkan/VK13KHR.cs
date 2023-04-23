@@ -7,6 +7,10 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.Vulkan {
 
+	using VkCommandBuffer = IntPtr;
+	using VkDevice = IntPtr;
+	using VkQueue = IntPtr;
+
 	// VK_KHR_dynamic_rendering
 
 	public static class KHRDynamicRendering {
@@ -15,17 +19,14 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRDynamicRenderingDeviceFunctions {
+	public unsafe class KHRDynamicRenderingDeviceFunctions {
 
-		public delegate void PFN_vkCmdBeginRenderingKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKRenderingInfo renderingInfo);
-		public delegate void PFN_vkCmdEndRenderingKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer);
-
-		public PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR;
-		public PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR;
+		[NativeType("void vkCmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfoKHR* pRenderingInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKRenderingInfo, void> vkCmdBeginRenderingKHR;
+		[NativeType("void vkCmdEndRenderingKHR(VkCommandBuffer commandBuffer)")]
+		public delegate* unmanaged<VkCommandBuffer, void> vkCmdEndRenderingKHR;
 
 	}
-#nullable restore
 
 	public static class KHRFormatFeatureFlags2 {
 
@@ -41,25 +42,22 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRCopyCommands2Functions {
+	public unsafe class KHRCopyCommands2Functions {
 
-		public delegate void PFN_vkCmdBlitImage2KHR(IntPtr commandBuffer, in VKBlitImageInfo2 blitImageInfo);
-		public delegate void PFN_vkCmdCopyBuffer2KHR(IntPtr commandBuffer, in VKCopyBufferInfo2 copyBufferInfo);
-		public delegate void PFN_vkCmdCopyBufferToImage2KHR(IntPtr commandBuffer, in VKCopyBufferToImageInfo2 copyBufferToImageInfo);
-		public delegate void PFN_vkCmdCopyImage2KHR(IntPtr commandBuffer, in VKCopyImageInfo2 copyImageInfo);
-		public delegate void PFN_vkCmdCopyImageToBuffer2KHR(IntPtr commandBuffer, in VKCopyImageToBufferInfo2 copyImageToBufferInfo);
-		public delegate void PFN_vkCmdResolveImage2KHR(IntPtr commandBuffer, in VKResolveImageInfo2 resolveImageInfo);
-
-		public PFN_vkCmdBlitImage2KHR vkCmdBlitImage2KHR;
-		public PFN_vkCmdCopyBuffer2KHR vkCmdCopyBuffer2KHR;
-		public PFN_vkCmdCopyBufferToImage2KHR vkCmdCopyBufferToImage2KHR;
-		public PFN_vkCmdCopyImage2KHR vkCmdCopyImage2KHR;
-		public PFN_vkCmdCopyImageToBuffer2KHR vkCmdCopyImageToBuffer2KHR;
-		public PFN_vkCmdResolveImage2KHR vkCmdResolveImage2;
+		[NativeType("void vkCmdBlitImage2KHR(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKBlitImageInfo2, void> vkCmdBlitImage2KHR;
+		[NativeType("void vkCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKCopyBufferInfo2, void> vkCmdCopyBuffer2KHR;
+		[NativeType("void vkCmdCopyBufferToImage2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferToImage2* pCopyBufferToImageInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKCopyBufferToImageInfo2, void> vkCmdCopyBufferToImage2KHR;
+		[NativeType("void vkCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo* pCopyImageInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKCopyImageInfo2, void> vkCmdCopyImage2KHR;
+		[NativeType("void vkCmdCopyImageToBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKCopyImageToBufferInfo2, void> vkCmdCopyImageToBuffer2KHR;
+		[NativeType("void vkCmdResolveImage2KHR(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKResolveImageInfo2, void> vkCmdResolveImage2;
 
 	}
-#nullable restore
 
 	// VK_KHR_maintenance4
 
@@ -69,19 +67,16 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRMaintenance4Functions {
+	public unsafe class KHRMaintenance4Functions {
 
-		public delegate void PFN_vkGetDeviceBufferMemoryRequirementsKHR(IntPtr device, in VKDeviceBufferMemoryRequirements info, ref VKMemoryRequirements2 memoryRequirements);
-		public delegate void PFN_vkGetDeviceImageMemoryRequirementsKHR(IntPtr device, in VKDeviceImageMemoryRequirements info, ref VKMemoryRequirements2 memoryRequirements);
-		public delegate void PFN_vkGetDeviceImageSparseMemoryRequirementsKHR(IntPtr device, in VKDeviceImageMemoryRequirements info, ref uint sparseMemoryRequirementCount, [NativeType("VkSparseImageMemoryRequirements2*")] IntPtr pSparseMemoryRequirements);
-
-		public PFN_vkGetDeviceBufferMemoryRequirementsKHR vkGetDeviceBufferMemoryRequirementsKHR;
-		public PFN_vkGetDeviceImageMemoryRequirementsKHR vkGetDeviceImageMemoryRequirementsKHR;
-		public PFN_vkGetDeviceImageSparseMemoryRequirementsKHR vkGetDeviceImageSparseMemoryRequirementsKHR;
+		[NativeType("void vkGetDeviceBufferMemoryRequirementsKHR(VkDevice device, const VkDeviceBufferMemoryRequirements* pInfo, VkMemoryRequirements2* pMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, in VKDeviceBufferMemoryRequirements, ref VKMemoryRequirements2, void> vkGetDeviceBufferMemoryRequirementsKHR;
+		[NativeType("void vkGetDeviceImageMemoryRequirementsKHR(VkDevice device, const VkDeviceImageMemoryRequirements* pInfo, VkMemoryRequirements2* pMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, in VKDeviceImageMemoryRequirements, ref VKMemoryRequirements2, void> vkGetDeviceImageMemoryRequirementsKHR;
+		[NativeType("void vkGetDeviceImageSparseMemoryRequirementsKHR(VkDevice device, const VkDeviceImageMemoryRequirements* pInfo, uint32_t* pSparseMemoryRequirementCount, VkSparseImageMemoryRequirements2* pSparseMemoryRequirements)")]
+		public delegate* unmanaged<VkDevice, in VKDeviceImageMemoryRequirements, ref uint, VKSparseImageMemoryRequirements2*, void>  vkGetDeviceImageSparseMemoryRequirementsKHR;
 
 	}
-#nullable restore
 
 	// VK_KHR_shader_integer_dot_product
 
@@ -115,25 +110,22 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRSynchronization2Functions {
+	public unsafe class KHRSynchronization2Functions {
 
-		public delegate void PFN_vkCmdPipelineBarrier2(IntPtr commandBuffer, in VKDependencyInfo dependencyInfo);
-		public delegate void PFN_vkCmdResetEvent2(IntPtr commandBuffer, ulong _event, VKPipelineStageFlagBits2 stageMask);
-		public delegate void PFN_vkCmdSetEvent2(IntPtr commandBuffer, ulong _event, in VKDependencyInfo dependencyInfo);
-		public delegate void PFN_vkCmdWaitEvents2(IntPtr commandBuffer, uint eventCount, [NativeType("const VkEvent*")] IntPtr pEvents, [NativeType("const VkDependencyInfo*")] IntPtr pDependencyInfos);
-		public delegate void PFN_vkCmdWriteTimestamp2(IntPtr commandBuffer, VKPipelineStageFlagBits2 stage, ulong queryPool, uint query);
-		public delegate VKResult PFN_vkQueueSubmit2(IntPtr queue, uint submitCount, [NativeType("const VkSubmitInfo2*")] IntPtr pSubmits, ulong fence);
-
-		public PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2;
-		public PFN_vkCmdResetEvent2 vkCmdResetEvent2;
-		public PFN_vkCmdSetEvent2 vkCmdSetEvent2;
-		public PFN_vkCmdWaitEvents2 vkCmdWaitEvents2;
-		public PFN_vkCmdWriteTimestamp2 vkCmdWriteTimestamp2;
-		public PFN_vkQueueSubmit2 vkQueueSubmit2;
+		[NativeType("void vkCmdPipelineBarrier2(VkCommandBuffer commandBuffer, const VkDependencyInfo* pDependencyInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, in VKDependencyInfo, void> vkCmdPipelineBarrier2;
+		[NativeType("void vkCmdResetEvent2(VkCommandBuffer commandBuffer, VkEvent event, VkPipelineStageFlags2 stageMask)")]
+		public delegate* unmanaged<VkCommandBuffer, ulong, VKPipelineStageFlagBits2, void> vkCmdResetEvent2;
+		[NativeType("void vkCmdSetEvent2(VkCommandBuffer commandBuffer, VkEvent event, const VkDepepdencyInfo* pDependencyInfo)")]
+		public delegate* unmanaged<VkCommandBuffer, ulong, in VKDependencyInfo, void> vkCmdSetEvent2;
+		[NativeType("void vkCmdWaitEvents2(VkCommandBuffer commandBufer, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos)")]
+		public delegate* unmanaged<VkCommandBuffer, uint, ulong*, VKDependencyInfo*, void> vkCmdWaitEvents2;
+		[NativeType("void vkCmdWriteTimestamp2(VkCommandBuffer commandBuffer, VkPipelineStageFlags stage, VkQueryPool queryPool, uint32_t query)")]
+		public delegate* unmanaged<VkCommandBuffer, VKPipelineStageFlagBits2, ulong, uint, void> vkCmdWriteTimestamp2;
+		[NativeType("VkResult vkQueueSubmit2(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence)")]
+		public delegate* unmanaged<VkQueue, uint, VKSubmitInfo2*, ulong, VKResult> vkQueueSubmit2;
 
 	}
-#nullable restore
 	
 	// VK_KHR_zero_initialize_workgroup_memory
 

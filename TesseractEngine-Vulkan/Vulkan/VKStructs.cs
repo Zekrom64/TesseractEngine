@@ -599,6 +599,8 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryType {
 
+		internal const int SizeOf = sizeof(VKMemoryPropertyFlagBits) + sizeof(uint);
+
 		public VKMemoryPropertyFlagBits PropertyFlags;
 		public uint HeapIndex;
 
@@ -607,24 +609,41 @@ namespace Tesseract.Vulkan {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKMemoryHeap {
 
+		internal const int SizeOf = sizeof(VkDeviceSize) + sizeof(VKMemoryHeapFlagBits) + 4;
+
 		public VkDeviceSize Size;
 		public VKMemoryHeapFlagBits Flags;
+
+		// Hack to fix alignment issues in VkPhysicalDeviceMemoryProperties
+		// Spans don't take alignment into account when indexing elements so force this struct to be 8-byte aligned in size
+		private uint _padding;
 
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct VKPhysicalDeviceMemoryProperties {
 
-		public uint MemoryTypeCount = 0;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryTypes)]
-		private readonly VKMemoryType[] memoryTypes = new VKMemoryType[VK10.MaxMemoryTypes];
-		public ReadOnlySpan<VKMemoryType> MemoryTypes => new(memoryTypes);
-		public uint MemoryHeapCount = 0;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK10.MaxMemoryHeaps)]
-		private readonly VKMemoryHeap[] memoryHeaps = new VKMemoryHeap[VK10.MaxMemoryHeaps];
-		public ReadOnlySpan<VKMemoryHeap> MemoryHeaps => new(memoryHeaps);
+		public uint MemoryTypeCount;
 
-		public VKPhysicalDeviceMemoryProperties() { }
+		private unsafe fixed byte memoryTypes[VK10.MaxMemoryTypes * VKMemoryType.SizeOf];
+		public ReadOnlySpan<VKMemoryType> MemoryTypes {
+			get {
+				unsafe {
+					return MemoryMarshal.Cast<byte, VKMemoryType>(MemoryMarshal.CreateSpan(ref memoryTypes[0], VK10.MaxMemoryTypes * VKMemoryType.SizeOf));
+				}
+			}
+		}
+
+		public uint MemoryHeapCount;
+
+		private unsafe fixed byte memoryHeaps[VK10.MaxMemoryHeaps * VKMemoryHeap.SizeOf];
+		public ReadOnlySpan<VKMemoryHeap> MemoryHeaps {
+			get {
+				unsafe {
+					return MemoryMarshal.Cast<byte, VKMemoryHeap>(MemoryMarshal.CreateSpan(ref memoryTypes[0], VK10.MaxMemoryTypes * VKMemoryHeap.SizeOf));
+				}
+			}
+		}
 
 	}
 
@@ -2327,9 +2346,12 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type = default;
 		public IntPtr Next = default;
 		public uint PhysicalDeviceCount = 0;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = VK11.MaxDeviceGroupSize)]
-		private readonly VkPhysicalDevice[] physicalDevices = new VkPhysicalDevice[VK11.MaxDeviceGroupSize];
-		public Span<VkPhysicalDevice> PhysicalDevices => physicalDevices;
+
+		// Really ugly, but C# can't be bothered to let fixed size buffers just use any unmanaged type
+		private VkPhysicalDevice physicalDevice0;
+		private readonly VkPhysicalDevice pd1, pd2, pd3, pd4, pd5, pd6, pd7, pd8, pd9, pd10, pd11, pd12, pd13, pd14, pd15, pd16, pd17, pd18, pd19, pd20, pd21, pd22, pd23, pd24, pd25, pd26, pd27, pd28, pd29, pd30, pd31;
+		public Span<VkPhysicalDevice> PhysicalDevices => MemoryMarshal.CreateSpan(ref physicalDevice0, VK11.MaxDeviceGroupSize);
+
 		public VKBool32 SubsetAllocation = default;
 
 		public VKPhysicalDeviceGroupProperties() { }
@@ -3805,6 +3827,7 @@ namespace Tesseract.Vulkan {
 
 		public VKStructureType Type;
 		public IntPtr Next;
+
 		private unsafe fixed byte name[VK10.MaxExtensionNameSize];
 		public string Name {
 			get {
@@ -3815,6 +3838,7 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
 		private unsafe fixed byte version[VK10.MaxExtensionNameSize];
 		public string Version {
 			get {
@@ -3825,7 +3849,9 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
 		public VKToolPurposeFlagBits Purposes;
+
 		private unsafe fixed byte description[VK10.MaxDescriptionSize];
 		public string Description {
 			get {
@@ -3836,6 +3862,7 @@ namespace Tesseract.Vulkan {
 				}
 			}
 		}
+
 		private unsafe fixed byte layer[VK10.MaxExtensionNameSize];
 		public string Layer {
 			get {

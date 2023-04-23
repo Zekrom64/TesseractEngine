@@ -25,8 +25,10 @@ namespace Tesseract.Vulkan {
 			PhysicalDevice = physicalDevice;
 
 			VKFormatProperties GetFormatProperties(VKFormat format) {
-				Instance.VK10Functions.vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, out VKFormatProperties properties);
-				return properties;
+				unsafe {
+					Instance.VK10Functions.vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, out VKFormatProperties properties);
+					return properties;
+				}
 			}
 			FormatProperties = new FuncReadOnlyIndexer<VKFormat, VKFormatProperties>(GetFormatProperties);
 		}
@@ -36,38 +38,44 @@ namespace Tesseract.Vulkan {
 		public VKPhysicalDeviceFeatures Features {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Instance.VK10Functions.vkGetPhysicalDeviceFeatures(PhysicalDevice, out VKPhysicalDeviceFeatures features);
-				return features;
+				unsafe {
+					Instance.VK10Functions.vkGetPhysicalDeviceFeatures(PhysicalDevice, out VKPhysicalDeviceFeatures features);
+					return features;
+				}
 			}
 		}
 		
 		public VKPhysicalDeviceProperties Properties {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Instance.VK10Functions.vkGetPhysicalDeviceProperties(PhysicalDevice, out VKPhysicalDeviceProperties properties);
-				return properties;
+				unsafe {
+					Instance.VK10Functions.vkGetPhysicalDeviceProperties(PhysicalDevice, out VKPhysicalDeviceProperties properties);
+					return properties;
+				}
 			}
 		}
 
 		public VKQueueFamilyProperties[] QueueFamilyProperties {
 			get {
-				uint propCount = 0;
-				Instance.VK10Functions.vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, ref propCount, IntPtr.Zero);
-				VKQueueFamilyProperties[] props = new VKQueueFamilyProperties[propCount];
 				unsafe {
+					uint propCount = 0;
+					Instance.VK10Functions.vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, ref propCount, (VKQueueFamilyProperties*)0);
+					VKQueueFamilyProperties[] props = new VKQueueFamilyProperties[propCount];
 					fixed(VKQueueFamilyProperties* pProps = props) {
-						Instance.VK10Functions.vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, ref propCount, (IntPtr)pProps);
+						Instance.VK10Functions.vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, ref propCount, pProps);
 					}
+					return props;
 				}
-				return props;
 			}
 		}
 
 		public VKPhysicalDeviceMemoryProperties MemoryProperties {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Instance.VK10Functions.vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, out VKPhysicalDeviceMemoryProperties properties);
-				return properties;
+				unsafe {
+					Instance.VK10Functions.vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, out VKPhysicalDeviceMemoryProperties properties);
+					return properties;
+				}
 			}
 		}
 
@@ -78,45 +86,54 @@ namespace Tesseract.Vulkan {
 
 		public VKLayerProperties[] DeviceLayers {
 			get {
-				uint propCount = 0;
-				VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceLayerProperties(PhysicalDevice, ref propCount, IntPtr.Zero), "Failed to enumerate physical device layers");
-				using ManagedPointer<VKLayerProperties> pProps = new((int)propCount);
-				VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceLayerProperties(PhysicalDevice, ref propCount, pProps), "Failed to enumerate physical device layers");
-				VKLayerProperties[] props = new VKLayerProperties[propCount];
-				for (uint i = 0; i < propCount; i++) props[i] = pProps[(int)i];
-				return props;
+				unsafe {
+					uint propCount = 0;
+					VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceLayerProperties(PhysicalDevice, ref propCount, (VKLayerProperties*)0), "Failed to enumerate physical device layers");
+					VKLayerProperties[] properties = new VKLayerProperties[propCount];
+					fixed(VKLayerProperties* pProperties = properties) {
+						VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceLayerProperties(PhysicalDevice, ref propCount, pProperties), "Failed to enumerate physical device layers");
+					}
+					return properties;
+				}
 			}
 		}
 
 		public VKExtensionProperties[] EnumerateDeviceExtensionProperties(string? layerName) {
-			uint propCount = 0;
-			VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceExtensionProperties(PhysicalDevice, layerName, ref propCount, IntPtr.Zero), "Failed to enumerate physical device extensions");
-			using ManagedPointer<VKExtensionProperties> pProps = new((int)propCount);
-			VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceExtensionProperties(PhysicalDevice, layerName, ref propCount, pProps), "Failed to enumerate physical device extensions");
-			VKExtensionProperties[] props = new VKExtensionProperties[propCount];
-			for (uint i = 0; i < propCount; i++) props[i] = pProps[(int)i];
-			return props;
+			unsafe {
+				uint propCount = 0;
+				Span<byte> strLayerName = layerName != null ? MemoryUtil.StackallocUTF8(layerName, stackalloc byte[256]) : Span<byte>.Empty;
+				fixed(byte* pLayerName = strLayerName) {
+					VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceExtensionProperties(PhysicalDevice, (IntPtr)pLayerName, ref propCount, (VKExtensionProperties*)0), "Failed to enumerate physical device extensions");
+					VKExtensionProperties[] properties = new VKExtensionProperties[propCount];
+					fixed(VKExtensionProperties* pProperties = properties) {
+						VK.CheckError(Instance.VK10Functions.vkEnumerateDeviceExtensionProperties(PhysicalDevice, (IntPtr)pLayerName, ref propCount, pProperties), "Failed to enumerate physical device extensions");
+					}
+					return properties;
+				}
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKImageFormatProperties GetImageFormatProperties(VKFormat format, VKImageType type, VKImageTiling tiling, VKImageUsageFlagBits usage, VKImageCreateFlagBits flags) {
-			VK.CheckError(Instance.VK10Functions.vkGetPhysicalDeviceImageFormatProperties(PhysicalDevice, format, type, tiling, usage, flags, out VKImageFormatProperties properties), "Failed to get physical device image format properties");
-			return properties;
+			unsafe {
+				VK.CheckError(Instance.VK10Functions.vkGetPhysicalDeviceImageFormatProperties(PhysicalDevice, format, type, tiling, usage, flags, out VKImageFormatProperties properties), "Failed to get physical device image format properties");
+				return properties;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKImageFormatProperties GetImageFormatProperties(in VKImageCreateInfo info) => GetImageFormatProperties(info.Format, info.ImageType, info.Tiling, info.Usage, info.Flags);
 
 		public VKSparseImageFormatProperties[] GetSparseImageFormatProperties(VKFormat format, VKImageType type, VKSampleCountFlagBits samples, VKImageUsageFlagBits usage, VKImageTiling tiling, VKImageCreateFlagBits flags) {
-			uint propCount = 0;
-			Instance.VK10Functions.vkGetPhysicalDeviceSparseImageFormatProperties(PhysicalDevice, format, type, samples, usage, tiling, ref propCount, IntPtr.Zero);
-			VKSparseImageFormatProperties[] props = new VKSparseImageFormatProperties[propCount];
 			unsafe {
-				fixed(VKSparseImageFormatProperties* pProps = props) {
-					Instance.VK10Functions.vkGetPhysicalDeviceSparseImageFormatProperties(PhysicalDevice, format, type, samples, usage, tiling, ref propCount, (IntPtr)pProps);
+				uint propCount = 0;
+				Instance.VK10Functions.vkGetPhysicalDeviceSparseImageFormatProperties(PhysicalDevice, format, type, samples, usage, tiling, ref propCount, (VKSparseImageFormatProperties*)0);
+				VKSparseImageFormatProperties[] props = new VKSparseImageFormatProperties[propCount];
+				fixed (VKSparseImageFormatProperties* pProperties = props) {
+					Instance.VK10Functions.vkGetPhysicalDeviceSparseImageFormatProperties(PhysicalDevice, format, type, samples, usage, tiling, ref propCount, pProperties);
 				}
+				return props;
 			}
-			return props;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,104 +141,126 @@ namespace Tesseract.Vulkan {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKDevice CreateDevice(in VKDeviceCreateInfo createInfo, VulkanAllocationCallbacks? allocator = null) {
-			VK.CheckError(Instance.VK10Functions.vkCreateDevice(PhysicalDevice, createInfo, allocator, out IntPtr device), "Failed to create logical device");
-			return new VKDevice(Instance, device, createInfo, allocator, this);
+			unsafe {
+				VK.CheckError(Instance.VK10Functions.vkCreateDevice(PhysicalDevice, createInfo, allocator, out IntPtr device), "Failed to create logical device");
+				return new VKDevice(Instance, device, createInfo, allocator, this);
+			}
 		}
 
 		// VK_KHR_surface
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool GetSurfaceSupportKHR(uint queueFamilyIndex, VKSurfaceKHR surface) {
-			VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, queueFamilyIndex, surface, out bool supported), "Failed to get physical device surface support");
-			return supported;
+			unsafe {
+				VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, queueFamilyIndex, surface, out VKBool32 supported), "Failed to get physical device surface support");
+				return supported;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public VKSurfaceCapabilitiesKHR GetSurfaceCapabilitiesKHR(VKSurfaceKHR surface) {
-			VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(PhysicalDevice, surface, out VKSurfaceCapabilitiesKHR capabilities), "Failed to get physical device surface capabilities");
-			return capabilities;
+			unsafe {
+				VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(PhysicalDevice, surface, out VKSurfaceCapabilitiesKHR capabilities), "Failed to get physical device surface capabilities");
+				return capabilities;
+			}
 		}
 
 		public VKSurfaceFormatKHR[] GetSurfaceFormatsKHR(VKSurfaceKHR surface) {
-			uint count = 0;
-			VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device surface formats");
-			VKSurfaceFormatKHR[] formats = new VKSurfaceFormatKHR[count];
 			unsafe {
+				uint count = 0;
+				VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, (VKSurfaceFormatKHR*)0), "Failed to get physical device surface formats");
+				VKSurfaceFormatKHR[] formats = new VKSurfaceFormatKHR[count];
 				fixed(VKSurfaceFormatKHR* pFormats = formats) {
-					VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, (IntPtr)pFormats), "Failed to get physical device surface formats");
+					VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, surface, ref count, pFormats), "Failed to get physical device surface formats");
 				}
+				return formats;
 			}
-			return formats;
 		}
 
 		public VKPresentModeKHR[] GetSurfacePresentModesKHR(VKSurfaceKHR surface) {
-			uint count = 0;
-			VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, IntPtr.Zero), "Failed to get physical device surface present modes");
-			VKPresentModeKHR[] modes = new VKPresentModeKHR[count];
 			unsafe {
-				fixed(VKPresentModeKHR* pModes = modes) {
-					VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, (IntPtr)pModes), "Failed to get physical device surface present modes");
+				uint count = 0;
+				VK.CheckError(Instance.KHRSurfaceFunctions!.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, (VKPresentModeKHR*)0), "Failed to get physical device surface present modes");
+				VKPresentModeKHR[] modes = new VKPresentModeKHR[count];
+				unsafe {
+					fixed (VKPresentModeKHR* pModes = modes) {
+						VK.CheckError(Instance.KHRSurfaceFunctions.vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice, surface, ref count, pModes), "Failed to get physical device surface present modes");
+					}
 				}
+				return modes;
 			}
-			return modes;
 		}
 
 		// Vulkan 1.1
 		// VK_KHR_get_physical_device_properties2
 
 		public void GetFeatures2(ref VKPhysicalDeviceFeatures2 features) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceFeatures2(PhysicalDevice, ref features);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceFeatures2KHR(PhysicalDevice, ref features);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceFeatures2(PhysicalDevice, ref features);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceFeatures2KHR(PhysicalDevice, ref features);
+			}
 		}
 
 		public void GetFormatProperties2(VKFormat format, ref VKFormatProperties2 properties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceFormatProperties2(PhysicalDevice, format, ref properties);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceFormatProperties2KHR(PhysicalDevice, format, ref properties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceFormatProperties2(PhysicalDevice, format, ref properties);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceFormatProperties2KHR(PhysicalDevice, format, ref properties);
+			}
 		}
 
 		public VKResult GetImageFormatProperties2(in VKPhysicalDeviceImageFormatInfo2 formatInfo, ref VKImageFormatProperties2 properties) {
-			if (Instance.VK11Functions != null) return Instance.VK11Functions.vkGetPhysicalDeviceImageFormatProperties2(PhysicalDevice, formatInfo, ref properties);
-			else return Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref properties);
+			unsafe {
+				if (Instance.VK11Functions != null) return Instance.VK11Functions.vkGetPhysicalDeviceImageFormatProperties2(PhysicalDevice, formatInfo, ref properties);
+				else return Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref properties);
+			}
 		}
 
 		public void GetMemoryProperties2(ref VKPhysicalDeviceMemoryProperties2 properties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceMemoryProperties2(PhysicalDevice, ref properties);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceMemoryProperties2KHR(PhysicalDevice, ref properties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceMemoryProperties2(PhysicalDevice, ref properties);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceMemoryProperties2KHR(PhysicalDevice, ref properties);
+			}
 		}
 
 		public void GetProperties2(ref VKPhysicalDeviceProperties2 properties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceProperties2(PhysicalDevice, ref properties);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceProperties2KHR(PhysicalDevice, ref properties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceProperties2(PhysicalDevice, ref properties);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceProperties2KHR(PhysicalDevice, ref properties);
+			}
 		}
 
 		public void GetQueueFamilyProperties2(out uint queueCount) {
-			queueCount = 0;
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceQueueFamilyProperties2(PhysicalDevice, ref queueCount, IntPtr.Zero);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceQueueFamilyProperties2KHR(PhysicalDevice, ref queueCount, IntPtr.Zero);
+			unsafe {
+				queueCount = 0;
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceQueueFamilyProperties2(PhysicalDevice, ref queueCount, (VKQueueFamilyProperties2*)0);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceQueueFamilyProperties2KHR(PhysicalDevice, ref queueCount, (VKQueueFamilyProperties2*)0);
+			}
 		}
 
 		public void GetQueueFamilyProperties2(Span<VKQueueFamilyProperties2> properties) {
 			uint queueCount = (uint)properties.Length;
 			unsafe {
 				fixed(VKQueueFamilyProperties2* pProperties = properties) {
-					if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceQueueFamilyProperties2(PhysicalDevice, ref queueCount, (IntPtr)pProperties);
-					else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceQueueFamilyProperties2KHR(PhysicalDevice, ref queueCount, (IntPtr)pProperties);
+					if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceQueueFamilyProperties2(PhysicalDevice, ref queueCount, pProperties);
+					else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceQueueFamilyProperties2KHR(PhysicalDevice, ref queueCount, pProperties);
 				}
 			}
 		}
 
 		public void GetSparseImageFormatProperties2(in VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, out uint propertyCount) {
-			propertyCount = 0;
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceSparseImageFormatProperties2(PhysicalDevice, formatInfo, ref propertyCount, IntPtr.Zero);
-			else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceSparseImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref propertyCount, IntPtr.Zero);
+			unsafe {
+				propertyCount = 0;
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceSparseImageFormatProperties2(PhysicalDevice, formatInfo, ref propertyCount, (VKSparseImageFormatProperties2*)0);
+				else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceSparseImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref propertyCount, (VKSparseImageFormatProperties2*)0);
+			}
 		}
 
 		public void GetSparseImageFormatProperties2(in VKPhysicalDeviceSparseImageFormatInfo2 formatInfo, Span<VKSparseImageFormatProperties2> properties) {
 			uint propertyCount = (uint)properties.Length;
 			unsafe {
 				fixed (VKSparseImageFormatProperties2* pProperties = properties) {
-					if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceSparseImageFormatProperties2(PhysicalDevice, formatInfo, ref propertyCount, (IntPtr)pProperties);
-					else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceSparseImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref propertyCount, (IntPtr)pProperties);
+					if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceSparseImageFormatProperties2(PhysicalDevice, formatInfo, ref propertyCount, pProperties);
+					else Instance.KHRGetPhysicalDeviceProperties2Functions!.vkGetPhysicalDeviceSparseImageFormatProperties2KHR(PhysicalDevice, formatInfo, ref propertyCount, pProperties);
 				}
 			}
 		}
@@ -229,22 +268,28 @@ namespace Tesseract.Vulkan {
 		// Vulkan 1.1
 		// VK_KHR_external_fence_capabilities
 		public void GetExternalFenceProperties(in VKPhysicalDeviceExternalFenceInfo externalFenceInfo, ref VKExternalFenceProperties externalFenceProperties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalFenceProperties(PhysicalDevice, externalFenceInfo, ref externalFenceProperties);
-			else Instance.KHRExternalFenceCapabilitiesFunctions!.vkGetPhysicalDeviceExternalFencePropertiesKHR(PhysicalDevice, externalFenceInfo, ref externalFenceProperties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalFenceProperties(PhysicalDevice, externalFenceInfo, ref externalFenceProperties);
+				else Instance.KHRExternalFenceCapabilitiesFunctions!.vkGetPhysicalDeviceExternalFencePropertiesKHR(PhysicalDevice, externalFenceInfo, ref externalFenceProperties);
+			}
 		}
 
 		// Vulkan 1.1
 		// VK_KHR_external_memory_capabilities
 		public void GetExternalBufferProperties(in VKPhysicalDeviceExternalBufferInfo externalBufferInfo, ref VKExternalBufferProperties externalBufferProperties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalBufferProperties(PhysicalDevice, externalBufferInfo, ref externalBufferProperties);
-			else Instance.KHRExternalMemoryCapabilitiesFunctions!.vkGetPhysicalDeviceExternalBufferPropertiesKHR(PhysicalDevice, externalBufferInfo, ref externalBufferProperties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalBufferProperties(PhysicalDevice, externalBufferInfo, ref externalBufferProperties);
+				else Instance.KHRExternalMemoryCapabilitiesFunctions!.vkGetPhysicalDeviceExternalBufferPropertiesKHR(PhysicalDevice, externalBufferInfo, ref externalBufferProperties);
+			}
 		}
 
 		// Vulkan 1.1
 		// VK_KHR_external_semaphore_capabilities
 		public void GetExternalSemaphoreProperties(in VKPhysicalDeviceExternalSemaphoreInfo externalSemaphoreInfo, ref VKExternalSemaphoreProperties externalSemaphoreProperties) {
-			if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalSemaphoreProperties(PhysicalDevice, externalSemaphoreInfo, ref externalSemaphoreProperties);
-			else Instance.KHRExternalSemaphoreCapabilitiesFunctions!.vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(PhysicalDevice, externalSemaphoreInfo, ref externalSemaphoreProperties);
+			unsafe {
+				if (Instance.VK11Functions != null) Instance.VK11Functions.vkGetPhysicalDeviceExternalSemaphoreProperties(PhysicalDevice, externalSemaphoreInfo, ref externalSemaphoreProperties);
+				else Instance.KHRExternalSemaphoreCapabilitiesFunctions!.vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(PhysicalDevice, externalSemaphoreInfo, ref externalSemaphoreProperties);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
