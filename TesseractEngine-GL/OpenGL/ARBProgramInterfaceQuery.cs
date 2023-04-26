@@ -9,30 +9,28 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBProgramInterfaceQueryFunctions {
+	public unsafe class ARBProgramInterfaceQueryFunctions {
 
-		public delegate void PFN_glGetProgramInterfaceiv(uint program, uint programInterface, uint pname, [NativeType("GLint*")] IntPtr values);
 		[ExternFunction(AltNames = new string[] { "glGetProgramInterfaceivARB" })]
-		public PFN_glGetProgramInterfaceiv glGetProgramInterfaceiv;
-		public delegate uint PFN_glGetProgramResourceIndex(uint program, uint programInterface, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("void glGetProgramInterfaceiv(GLuint program, GLenum programInterface, GLenum pname, GLint* pValues)")]
+		public delegate* unmanaged<uint, uint, uint, int*, void> glGetProgramInterfaceiv;
 		[ExternFunction(AltNames = new string[] { "glGetProgramResourceIndexARB" })]
-		public PFN_glGetProgramResourceIndex glGetProgramResourceIndex;
-		public delegate void PFN_glGetProgramResourceName(uint program, uint programInterface, uint index, int bufSize, out int length, [NativeType("char*")] IntPtr name);
+		[NativeType("GLuint glGetProgramResourceIndex(GLuint program, GLenum programInterface, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, uint> glGetProgramResourceIndex;
 		[ExternFunction(AltNames = new string[] { "glGetProgramResourceName" })]
-		public PFN_glGetProgramResourceName glGetProgramResourceName;
-		public delegate void PFN_glGetProgramResourceiv(uint program, uint programInterface, uint index, int propCount, [NativeType("const GLenum*")] IntPtr props, int bufSize, out int length, [NativeType("GLint*")] IntPtr values);
+		[NativeType("void glGetProgramResourceName(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* pLength, char* pName)")]
+		public delegate* unmanaged<uint, uint, uint, int, out int, byte*, void> glGetProgramResourceName;
 		[ExternFunction(AltNames = new string[] { "glGetProgramResourceivARB" })]
-		public PFN_glGetProgramResourceiv glGetProgramResourceiv;
-		public delegate int PFN_glGetProgramResourceLocation(uint program, uint programInterface, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("void glGetProgramResourceiv(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* pProps, GLsizei bufSize, GLint* pLength, GLint* pValues)")]
+		public delegate* unmanaged<uint, uint, uint, int, uint*, int, out int, int*, void> glGetProgramResourceiv;
 		[ExternFunction(AltNames = new string[] { "glGetProgramResourceLocationARB" })]
-		public PFN_glGetProgramResourceLocation glGetProgramResourceLocation;
-		public delegate int PFN_glGetProgramResourceLocationIndex(uint program, uint programInterface, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("GLint glGetProgramResourceLocation(GLuint program, GLenum programInterface, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, int> glGetProgramResourceLocation;
 		[ExternFunction(AltNames = new string[] { "glGetProgramResourceLocationIndexARB" })]
-		public PFN_glGetProgramResourceLocationIndex glGetProgramResourceLocationIndex;
+		[NativeType("GLint glGetProgramResourceLocationIndex(GLuint program, GLenum programInterface, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, int> glGetProgramResourceLocationIndex;
 
 	}
-#nullable restore
 
 	public class ARBProgramInterfaceQuery : IGLObject {
 
@@ -48,7 +46,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetProgramInterface(uint program, GLProgramInterface programInterface, GLGetProgramInterface pname, Span<int> values) {
 			unsafe {
 				fixed(int* pValues = values) {
-					Functions.glGetProgramInterfaceiv(program, (uint)programInterface, (uint)pname, (IntPtr)pValues);
+					Functions.glGetProgramInterfaceiv(program, (uint)programInterface, (uint)pname, pValues);
 				}
 			}
 			return values;
@@ -58,13 +56,19 @@ namespace Tesseract.OpenGL {
 		public int GetProgramInterface(uint program, GLProgramInterface programInterface, GLGetProgramInterface pname) {
 			int retn = 0;
 			unsafe {
-				Functions.glGetProgramInterfaceiv(program, (uint)programInterface, (uint)pname, (IntPtr)(&retn));
+				Functions.glGetProgramInterfaceiv(program, (uint)programInterface, (uint)pname, &retn);
 			}
 			return retn;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint GetProgramResourceIndex(uint program, GLProgramInterface programInterface, string name) => Functions.glGetProgramResourceIndex(program, (uint)programInterface, name);
+		public uint GetProgramResourceIndex(uint program, GLProgramInterface programInterface, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetProgramResourceIndex(program, (uint)programInterface, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public string GetProgramResourceName(uint program, GLProgramInterface programInterface, uint index) {
@@ -72,7 +76,7 @@ namespace Tesseract.OpenGL {
 			Span<byte> name = stackalloc byte[length];
 			unsafe {
 				fixed(byte* pName = name) {
-					Functions.glGetProgramResourceName(program, (uint)programInterface, index, length, out length, (IntPtr)pName);
+					Functions.glGetProgramResourceName(program, (uint)programInterface, index, length, out length, pName);
 				}
 			}
 			return MemoryUtil.GetASCII(name[..length]);
@@ -83,7 +87,7 @@ namespace Tesseract.OpenGL {
 			unsafe {
 				fixed(GLGetProgramResource* pProps = props) {
 					fixed(int* pValues = values) {
-						Functions.glGetProgramResourceiv(program, (uint)programInterface, index, props.Length, (IntPtr)pProps, values.Length, out int _, (IntPtr)pValues);
+						Functions.glGetProgramResourceiv(program, (uint)programInterface, index, props.Length, (uint*)pProps, values.Length, out int _, pValues);
 					}
 				}
 			}
@@ -94,16 +98,27 @@ namespace Tesseract.OpenGL {
 		public T GetProgramResource<T>(uint program, GLProgramInterface programInterface, uint index,  GLGetProgramResource prop) where T : unmanaged {
 			T retn;
 			unsafe {
-				Functions.glGetProgramResourceiv(program, (uint)programInterface, index, 1, (IntPtr)(&prop), 1, out int _, (IntPtr)(&retn));
+				Functions.glGetProgramResourceiv(program, (uint)programInterface, index, 1, (uint*)&prop, 1, out int _, (int*)&retn);
 			}
 			return retn;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetProgramResourceLocation(uint program, GLProgramInterface programInterface, string name) => Functions.glGetProgramResourceLocation(program, (uint)programInterface, name);
+		public int GetProgramResourceLocation(uint program, GLProgramInterface programInterface, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetProgramResourceLocation(program, (uint)programInterface, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetProgramResourceLocationIndex(uint program, GLProgramInterface programInterface, string name) => Functions.glGetProgramResourceLocationIndex(program, (uint)programInterface, name);
-
+		public int GetProgramResourceLocationIndex(uint program, GLProgramInterface programInterface, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetProgramResourceLocationIndex(program, (uint)programInterface, pName);
+				}
+			}
+		}
 	}
 }

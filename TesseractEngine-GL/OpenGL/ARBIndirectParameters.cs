@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBIndirectParametersFunctions {
+	public unsafe class ARBIndirectParametersFunctions {
 
-		public delegate void PFN_glMultiDrawArraysIndirectCount(uint mode, IntPtr indirect, nint drawcount, int maxdrawcount, int stride);
 		[ExternFunction(AltNames = new string[] { "glMultiDrawArraysIndirectCountARB" })]
-		public PFN_glMultiDrawArraysIndirectCount glMultiDrawArraysIndirectCount;
-		public delegate void PFN_glMultiDrawElementsIndirectCount(uint mode, uint type, IntPtr indirect, nint drawcount, int maxdrawcount, int stride);
+		[NativeType("void glMultiDrawArraysIndirectCount(GLenum mode, void* pIndirect, GLsizeiptr drawCount, GLsizei maxDrawCount, GLsizei stride)")]
+		public delegate* unmanaged<uint, IntPtr, nint, int, int, void> glMultiDrawArraysIndirectCount;
 		[ExternFunction(AltNames = new string[] { "glMultiDrawElementsIndirectCountARB" })]
-		public PFN_glMultiDrawElementsIndirectCount glMultiDrawElementsIndirectCount;
+		[NativeType("void glMultiDrawElementsIndirectCount(GLenum mode, GLenum type, void* pIndirect, GLsizeiptr drawCount, GLsizei maxDrawCount, GLsizei stride)")]
+		public delegate* unmanaged<uint, uint, IntPtr, nint, int, int, void> glMultiDrawElementsIndirectCount;
 
 	}
-#nullable restore
 
 	public class ARBIndirectParameters : IGLObject {
 
@@ -32,12 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MultiDrawArraysIndirectCount(GLDrawMode mode, nint indirectOffset, nint drawCountOffset, int maxDrawCount, int stride) =>
-			Functions.glMultiDrawArraysIndirectCount((uint)mode, indirectOffset, drawCountOffset, maxDrawCount, stride);
+		public void MultiDrawArraysIndirectCount(GLDrawMode mode, nint indirectOffset, nint drawCountOffset, int maxDrawCount, int stride) {
+			unsafe {
+				Functions.glMultiDrawArraysIndirectCount((uint)mode, indirectOffset, drawCountOffset, maxDrawCount, stride);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MultiDrawElementsIndirectCount(GLDrawMode mode, GLIndexType type, nint indirectOffset, nint drawCountOffset, int maxDrawCount, int stride) =>
-			Functions.glMultiDrawElementsIndirectCount((uint)mode, (uint)type, indirectOffset, drawCountOffset, maxDrawCount, stride);
-
+		public void MultiDrawElementsIndirectCount(GLDrawMode mode, GLIndexType type, nint indirectOffset, nint drawCountOffset, int maxDrawCount, int stride) {
+			unsafe {
+				Functions.glMultiDrawElementsIndirectCount((uint)mode, (uint)type, indirectOffset, drawCountOffset, maxDrawCount, stride);
+			}
+		}
 	}
 }

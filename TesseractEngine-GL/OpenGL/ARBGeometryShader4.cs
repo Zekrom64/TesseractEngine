@@ -8,24 +8,22 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBGeometryShader4Functions {
+	public unsafe class ARBGeometryShader4Functions {
 
-		public delegate void PFN_glProgramParameteri(uint program, uint pname, int value);
 		[ExternFunction(AltNames = new string[] { "glProgramParameteriARB" })]
-		public PFN_glProgramParameteri glProgramParameteri;
-		public delegate void PFN_glFramebufferTexture(uint target, uint attachment, uint texture, int level);
+		[NativeType("void glProgramParameter(GLuint program, GLenum pname, GLint value)")]
+		public delegate* unmanaged<uint, uint, int, void> glProgramParameteri;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTextureARB" })]
-		public PFN_glFramebufferTexture glFramebufferTexture;
-		public delegate void PFN_glFramebufferTextureLayer(uint target, uint attachment, uint texture, int level, int layer);
+		[NativeType("void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level)")]
+		public delegate* unmanaged<uint, uint, uint, int, void> glFramebufferTexture;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTextureLayerARB" })]
-		public PFN_glFramebufferTextureLayer glFramebufferTextureLayer;
-		public delegate void PFN_glFramebufferTextureFace(uint target, uint attachment, uint texture, int level, uint face);
+		[NativeType("void glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)")]
+		public delegate* unmanaged<uint, uint, uint, int, int, void> glFramebufferTextureLayer;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTextureFaceARB" })]
-		public PFN_glFramebufferTextureFace glFramebufferTextureFace;
+		[NativeType("void glFramebufferTextureFace(GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face)")]
+		public delegate* unmanaged<uint, uint, uint, int, uint, void> glFramebufferTextureFace;
 
 	}
-#nullable restore
 
 	public class ARBGeometryShader4 : IGLObject {
 
@@ -38,17 +36,32 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProgramParamter(uint program, GLProgramParameter pname, int val) => Functions.glProgramParameteri(program, (uint)pname, val);
+		public void ProgramParamter(uint program, GLProgramParameter pname, int val) {
+			unsafe {
+				Functions.glProgramParameteri(program, (uint)pname, val);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTexture(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level) => Functions.glFramebufferTexture((uint)target, (uint)attachment, texture, level);
+		public void FramebufferTexture(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level) {
+			unsafe {
+				Functions.glFramebufferTexture((uint)target, (uint)attachment, texture, level);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTextureLayer(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, int layer) => Functions.glFramebufferTextureLayer((uint)target, (uint)attachment, texture, level, layer);
+		public void FramebufferTextureLayer(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, int layer) {
+			unsafe {
+				Functions.glFramebufferTextureLayer((uint)target, (uint)attachment, texture, level, layer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTextureFace(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, GLCubeMapFace face) => Functions.glFramebufferTextureFace((uint)target, (uint)attachment, texture, level, (uint)face);
-
+		public void FramebufferTextureFace(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, GLCubeMapFace face) {
+			unsafe {
+				Functions.glFramebufferTextureFace((uint)target, (uint)attachment, texture, level, (uint)face);
+			}
+		}
 	}
 
 }

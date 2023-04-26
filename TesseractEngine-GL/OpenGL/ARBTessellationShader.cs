@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTessellationShaderFunctions {
+	public unsafe class ARBTessellationShaderFunctions {
 
-		public delegate void PFN_glPatchParameteri(uint pname, int value);
 		[ExternFunction(AltNames = new string[] { "glPatchParameteriARB" })]
-		public PFN_glPatchParameteri glPatchParameteri;
-		public delegate void PFN_glPatchParameterfv(uint pname, [NativeType("const float*")] IntPtr values);
+		[NativeType("void glPatchParameteri(GLenum pname, GLint value)")]
+		public delegate* unmanaged<uint, int, void> glPatchParameteri;
 		[ExternFunction(AltNames = new string[] { "glPatchParameterfv" })]
-		public PFN_glPatchParameterfv glPatchParameterfv;
+		[NativeType("void glPatchParameterfv(GLenum pname, const GLfloat* pValues)")]
+		public delegate* unmanaged<uint, float*, void> glPatchParameterfv;
 
 	}
-#nullable restore
 
 	public class ARBTessellationShader : IGLObject {
 
@@ -32,13 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PatchParamter(GLPatchParamteri pname, int value) => Functions.glPatchParameteri((uint)pname, value);
+		public void PatchParamter(GLPatchParamteri pname, int value) {
+			unsafe {
+				Functions.glPatchParameteri((uint)pname, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PatchParamter(GLPatchParamterfv pname, in ReadOnlySpan<float> values) {
 			unsafe {
 				fixed(float* pValues = values) {
-					Functions.glPatchParameterfv((uint)pname, (IntPtr)pValues);
+					Functions.glPatchParameterfv((uint)pname, pValues);
 				}
 			}
 		}

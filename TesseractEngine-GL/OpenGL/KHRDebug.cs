@@ -11,38 +11,35 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class KHRDebugFunctions {
-
-		public delegate void PFN_glDebugMessageControl(uint source, uint type, uint severity, int count, [NativeType("const GLuint*")] IntPtr ids, byte enabled);
-		public delegate void PFN_glDebugMessageInsert(uint source, uint type, uint id, uint severity, int length, [NativeType("const GLchar*")] IntPtr buf);
-		public delegate void PFN_glDebugMessageCallback([MarshalAs(UnmanagedType.FunctionPtr)] GLDebugProc callback, IntPtr userParam);
-		public delegate uint PFN_glGetDebugMessageLog(uint count, int bufSize, [NativeType("GLenum*")] IntPtr sources, [NativeType("GLenum*")] IntPtr types, [NativeType("GLuint*")] IntPtr ids, [NativeType("GLenum*")] IntPtr severities, [NativeType("GLsizei*")] IntPtr lengths, [NativeType("char*")] IntPtr messageLog);
-		public delegate void PFN_glGetPointerv(uint pname, [NativeType("void**")] IntPtr _params);
-		public delegate void PFN_glPushDebugGroup(uint source, uint id, int length, [NativeType("const GLuint*")] IntPtr message);
-		public delegate void PFN_glPopDebugGroup();
-		public delegate void PFN_glObjectLabel(uint identifier, uint name, int length, [NativeType("const GLuint*")] IntPtr label);
-		public delegate void PFN_glGetObjectLabel(uint identifier, uint name, int bufSize, out int length, [NativeType("char*")] IntPtr label);
-		public delegate void PFN_glObjectPtrLabel(IntPtr ptr, int length, [NativeType("const GLuint*")] IntPtr label);
-		public delegate void PFN_glGetObjectPtrLabel(IntPtr ptr, int bufSize, out int length, [NativeType("char*")] IntPtr label);
+	public unsafe class KHRDebugFunctions {
 
 		[ExternFunction(AltNames = new string[] { "glDebugMessageControlARB" })]
-		public PFN_glDebugMessageControl glDebugMessageControl;
+		[NativeType("void glDebugMessageControl(GLenum source, GLenum type, GLenum severity, GLint count, const GLuint* pIDs, GLboolean enabled)")]
+		public delegate* unmanaged<uint, uint, uint, int, uint*, byte, void> glDebugMessageControl;
 		[ExternFunction(AltNames = new string[] { "glDebugMessageInsertARB" })]
-		public PFN_glDebugMessageInsert glDebugMessageInsert;
+		[NativeType("void glDebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLint length, const GLchar* pBuf)")]
+		public delegate* unmanaged<uint, uint, uint, uint, int, byte*, void> glDebugMessageInsert;
 		[ExternFunction(AltNames = new string[] { "glDebugMessageCallbackARB" })]
-		public PFN_glDebugMessageCallback glDebugMessageCallback;
-		public PFN_glGetDebugMessageLog glGetDebugMessageLog;
-		public PFN_glGetPointerv glGetPointerv;
-		public PFN_glPushDebugGroup glPushDebugGroup;
-		public PFN_glPopDebugGroup glPopDebugGroup;
-		public PFN_glObjectLabel glObjectLabel;
-		public PFN_glGetObjectLabel glGetObjectLabel;
-		public PFN_glObjectPtrLabel glObjectPtrLabel;
-		public PFN_glGetObjectPtrLabel glGetObjectPtrLabel;
+		[NativeType("void glDebugMessageCallback(GLDEBUGPROC pCallback, void* pUserParam)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glDebugMessageCallback;
+		[NativeType("GLenum glGetDebugMessageLog(GLuint count, GLint bufSize, GLenum* pSources, GLenum* pTypes, GLuint* pIDs, GLenum* pSeverities, GLsizei* pLengths, char* pMessageLog)")]
+		public delegate* unmanaged<uint, int, uint*, uint*, uint*, uint*, nint*, byte*, uint> glGetDebugMessageLog;
+		[NativeType("void glGetPointerv(GLenum pname, void** pParams)")]
+		public delegate* unmanaged<uint, IntPtr*, void> glGetPointerv;
+		[NativeType("void glPushDebugGroup(GLenum source, GLuint id, GLint length, const char* pMessage)")]
+		public delegate* unmanaged<uint, uint, int, byte*, void> glPushDebugGroup;
+		[NativeType("void glPopDebugGroup()")]
+		public delegate* unmanaged<void> glPopDebugGroup;
+		[NativeType("void glObjectLabel(GLenum identifier, GLuint name, GLint length, const char* label)")]
+		public delegate* unmanaged<uint, uint, int, byte*, void> glObjectLabel;
+		[NativeType("void glGetObjectLabel(GLenum identifier, GLuint name, GLsizei bufSize, GLsizei* pLength, char* pLabel)")]
+		public delegate* unmanaged<uint, uint, int, out int, byte*, void> glGetObjectLabel;
+		[NativeType("void glObjectPtrLabel(void* ptr, GLsizei length, const char* label)")]
+		public delegate* unmanaged<IntPtr, int, byte*, void> glObjectPtrLabel;
+		[NativeType("void glGetObjectPtrLabel(void* ptr, GLsizei bufSize, GLsizei* pLength, char* pLabel)")]
+		public delegate* unmanaged<IntPtr, int, out int, byte*, void>  glGetObjectPtrLabel;
 
 	}
-#nullable restore
 
 	public class KHRDebug : IGLObject {
 
@@ -63,17 +60,25 @@ namespace Tesseract.OpenGL {
 		public void DebugMessageControl(GLDebugSource source, GLDebugType type, GLDebugSeverity severity, in ReadOnlySpan<uint> ids, bool enabled) {
 			unsafe {
 				fixed(uint* pIds = ids) {
-					Functions.glDebugMessageControl((uint)source, (uint)type, (uint)severity, ids.Length, (IntPtr)pIds, (byte)(enabled ? 1 : 0));
+					Functions.glDebugMessageControl((uint)source, (uint)type, (uint)severity, ids.Length, pIds, (byte)(enabled ? 1 : 0));
 				}
 			}
 		}
 
 		public void DebugMessageInsert(GLDebugSource source, GLDebugType type, uint id, GLDebugSeverity severity, string message) {
-			using ManagedPointer<byte> pMessage = MemoryUtil.AllocUTF8(message);
-			Functions.glDebugMessageInsert((uint)source, (uint)type, id, (uint)severity, pMessage.ArraySize - 1, pMessage);
+			unsafe {
+				Span<byte> strMessage = MemoryUtil.StackallocUTF8(message, stackalloc byte[1024]);
+				fixed(byte* pMessage = strMessage) {
+					Functions.glDebugMessageInsert((uint)source, (uint)type, id, (uint)severity, strMessage.Length - 1, pMessage);
+				}
+			}
 		}
 
-		public void DebugMessageCallback(GLDebugProc callback, IntPtr userParam) => Functions.glDebugMessageCallback(callback, userParam);
+		public void DebugMessageCallback(GLDebugProc callback, IntPtr userParam) {
+			unsafe {
+				Functions.glDebugMessageCallback(Marshal.GetFunctionPointerForDelegate(callback), userParam);
+			}
+		}
 
 		// We ignore the lengths paramter in GetDebugMessageLog because it is too much work to convert from UTF-8 byte lengths to character offsets
 
@@ -86,7 +91,7 @@ namespace Tesseract.OpenGL {
 					fixed(GLDebugType* pTypes = types) {
 						fixed(uint* pIds = ids) {
 							fixed(GLDebugSeverity* pSeverities = severities) {
-								ret = Functions.glGetDebugMessageLog((uint)count, bufSize, (IntPtr)pSources, (IntPtr)pTypes, (IntPtr)pIds, (IntPtr)pSeverities, IntPtr.Zero, msglog.Ptr);
+								ret = Functions.glGetDebugMessageLog((uint)count, bufSize, (uint*)pSources, (uint*)pTypes, pIds, (uint*)pSeverities, (nint*)0, (byte*)msglog.Ptr);
 							}
 						}
 					}
@@ -99,22 +104,34 @@ namespace Tesseract.OpenGL {
 		public Span<IntPtr> GetPointer(uint pname, Span<IntPtr> values) {
 			unsafe {
 				fixed(IntPtr* pValues = values) {
-					Functions.glGetPointerv(pname, (IntPtr)pValues);
+					Functions.glGetPointerv(pname, pValues);
 				}
 			}
 			return values;
 		}
 
 		public void PushDebugGroup(GLDebugSource source, uint id, string message) {
-			using ManagedPointer<byte> pMessage = MemoryUtil.AllocUTF8(message);
-			Functions.glPushDebugGroup((uint)source, id, pMessage.ArraySize - 1, pMessage);
+			Span<byte> strMessage = MemoryUtil.StackallocUTF8(message, stackalloc byte[4096]);
+			unsafe {
+				fixed(byte* pMessage = strMessage) {
+					Functions.glPushDebugGroup((uint)source, id, strMessage.Length - 1, pMessage);
+				}
+			}
 		}
 
-		public void PopDebugGroup() => Functions.glPopDebugGroup();
+		public void PopDebugGroup() {
+			unsafe {
+				Functions.glPopDebugGroup();
+			}
+		}
 
 		public void ObjectLabel(GLIdentifier identifier, uint name, string label) {
-			using ManagedPointer<byte> pLabel = MemoryUtil.AllocUTF8(label);
-			Functions.glObjectLabel((uint)identifier, name, pLabel.ArraySize - 1, pLabel);
+			Span<byte> strLabel = MemoryUtil.StackallocUTF8(label, stackalloc byte[256]);
+			unsafe {
+				fixed(byte* pLabel = strLabel) {
+					Functions.glObjectLabel((uint)identifier, name, strLabel.Length - 1, pLabel);
+				}
+			}
 		}
 
 		public string GetObjectLabel(GLIdentifier identifier, uint name) {
@@ -122,15 +139,19 @@ namespace Tesseract.OpenGL {
 			Span<byte> nameBytes = stackalloc byte[length];
 			unsafe {
 				fixed(byte* pName = nameBytes) {
-					Functions.glGetObjectLabel((uint)identifier, name, length, out length, (IntPtr)pName);
+					Functions.glGetObjectLabel((uint)identifier, name, length, out length, pName);
 				}
 			}
 			return Encoding.UTF8.GetString(nameBytes[..length]);
 		}
 
 		public void ObjectPtrLabel(IntPtr ptr, string label) {
-			using ManagedPointer<byte> pLabel = MemoryUtil.AllocUTF8(label);
-			Functions.glObjectPtrLabel(ptr, pLabel.ArraySize - 1, pLabel);
+			Span<byte> strLabel = MemoryUtil.StackallocUTF8(label, stackalloc byte[256]);
+			unsafe {
+				fixed (byte* pLabel = strLabel) {
+					Functions.glObjectPtrLabel(ptr, strLabel.Length - 1, pLabel);
+				}
+			}
 		}
 
 		public string GetObjectPtrLabel(IntPtr ptr) {
@@ -138,7 +159,7 @@ namespace Tesseract.OpenGL {
 			Span<byte> nameBytes = stackalloc byte[length];
 			unsafe {
 				fixed (byte* pName = nameBytes) {
-					Functions.glGetObjectPtrLabel(ptr, length, out length, (IntPtr)pName);
+					Functions.glGetObjectPtrLabel(ptr, length, out length, pName);
 				}
 			}
 			return Encoding.UTF8.GetString(nameBytes[..length]);

@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBProvokingVertexFunctions {
+	public unsafe class ARBProvokingVertexFunctions {
 
-		public delegate void PFN_glProvokingVertex(uint mode);
 		[ExternFunction(AltNames = new string[] { "glProvokingVertexARB" })]
-		public PFN_glProvokingVertex glProvokingVertex;
+		[NativeType("void glProvokingVertex(GLenum mode)")]
+		public delegate* unmanaged<uint, void> glProvokingVertex;
 
 	}
-#nullable restore
 
 	public class ARBProvokingVertex : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProvokingVertex(GLProvokingVertexConvention mode) => Functions.glProvokingVertex((uint)mode);
-
+		public void ProvokingVertex(GLProvokingVertexConvention mode) {
+			unsafe {
+				Functions.glProvokingVertex((uint)mode);
+			}
+		}
 	}
 }

@@ -8,21 +8,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTimerQueryFunctions {
+	public unsafe class ARBTimerQueryFunctions {
 
-		public delegate void PFN_glQueryCounter(uint id, uint target);
 		[ExternFunction(AltNames = new string[] { "glQueryCounterARB" })]
-		public PFN_glQueryCounter glQueryCounter;
-		public delegate void PFN_glGetQueryObjecti64v(uint id, uint pname, [NativeType("GLint64*")] IntPtr _params);
+		[NativeType("void glQueryCOunter(GLuint id, GLenum target)")]
+		public delegate* unmanaged<uint, uint, void> glQueryCounter;
 		[ExternFunction(AltNames = new string[] { "glGetQueryObjecti64vARB" })]
-		public PFN_glGetQueryObjecti64v glGetQueryObjecti64v;
-		public delegate void PFN_glGetQueryObjectui64v(uint id, uint pname, [NativeType("GLuint64*")] IntPtr _params);
+		[NativeType("void glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64* pParams)")]
+		public delegate* unmanaged<uint, uint, long*, void> glGetQueryObjecti64v;
 		[ExternFunction(AltNames = new string[] { "glGetQueryObjectui64vARB" })]
-		public PFN_glGetQueryObjectui64v glGetQueryObjectui64v;
+		[NativeType("void glGetQueryObjectui64v(GLuint id, GLenum pname, GLuint64* pParams)")]
+		public delegate* unmanaged<uint, uint, ulong*, void> glGetQueryObjectui64v;
 
 	}
-#nullable restore
 
 	public class ARBTimerQuery : IGLObject {
 
@@ -35,32 +33,43 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void QueryCounter(uint id, GLQueryCounterTarget target) => Functions.glQueryCounter(id, (uint)target);
+		public void QueryCounter(uint id, GLQueryCounterTarget target) {
+			unsafe {
+				Functions.glQueryCounter(id, (uint)target);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public long GetQueryObjecti64(uint id, GLGetQueryObject pname) {
 			long val = 0;
 			unsafe {
-				Functions.glGetQueryObjecti64v(id, (uint)pname, (IntPtr)(&val));
+				Functions.glGetQueryObjecti64v(id, (uint)pname, &val);
 			}
 			return val;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetQueryObjecti64(uint id, GLGetQueryObject pname, nint offset) => Functions.glGetQueryObjecti64v(id, (uint)pname, offset);
+		public void GetQueryObjecti64(uint id, GLGetQueryObject pname, nint offset) {
+			unsafe {
+				Functions.glGetQueryObjecti64v(id, (uint)pname, (long*)offset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ulong GetQueryObjectui64(uint id, GLGetQueryObject pname) {
 			ulong val = 0;
 			unsafe {
-				Functions.glGetQueryObjectui64v(id, (uint)pname, (IntPtr)(&val));
+				Functions.glGetQueryObjectui64v(id, (uint)pname, &val);
 			}
 			return val;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetQueryObjectui64(uint id, GLGetQueryObject pname, nint offset) => Functions.glGetQueryObjectui64v(id, (uint)pname, offset);
-
+		public void GetQueryObjectui64(uint id, GLGetQueryObject pname, nint offset) {
+			unsafe {
+				Functions.glGetQueryObjectui64v(id, (uint)pname, (ulong*)offset);
+			}
+		}
 	}
 
 }

@@ -8,24 +8,22 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBVertexArrayObjectFunctions {
+	public unsafe class ARBVertexArrayObjectFunctions {
 
-		public delegate void PFN_glBindVertexArray(uint array);
 		[ExternFunction(AltNames = new string[] { "glBindVertexArrayARB" })]
-		public PFN_glBindVertexArray glBindVertexArray;
-		public delegate void PFN_glDeleteVertexArrays(int n, [NativeType("const GLuint*")] IntPtr arrays);
+		[NativeType("void glBindVertexArray(GLuint vertexArray)")]
+		public delegate* unmanaged<uint, void> glBindVertexArray;
 		[ExternFunction(AltNames = new string[] { "glDeleteVertexArraysARB" })]
-		public PFN_glDeleteVertexArrays glDeleteVertexArrays;
-		public delegate void PFN_glGenVertexArrays(int n, [NativeType("GLuint*")] IntPtr arrays);
+		[NativeType("void glDeleteVertexArrays(GLsizei n, const GLuint* pArrays)")]
+		public delegate* unmanaged<int, uint*, void> glDeleteVertexArrays;
 		[ExternFunction(AltNames = new string[] { "glGenVertexArraysARB" })]
-		public PFN_glGenVertexArrays glGenVertexArrays;
-		public delegate byte PFN_glIsVertexArray(uint array);
+		[NativeType("void glGenVertexArrays(GLsizei n, GLuint* pArrays)")]
+		public delegate* unmanaged<int, uint*, void> glGenVertexArrays;
 		[ExternFunction(AltNames = new string[] { "glIsVertexArrayARB" })]
-		public PFN_glIsVertexArray glIsVertexArray;
+		[NativeType("GLboolean glIsVertexArray(GLuint vertexArray)")]
+		public delegate* unmanaged<uint, byte> glIsVertexArray;
 
 	}
-#nullable restore
 
 	public class ARBVertexArrayObject {
 
@@ -38,13 +36,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindVertexArray(uint array) => Functions.glBindVertexArray(array);
+		public void BindVertexArray(uint array) {
+			unsafe {
+				Functions.glBindVertexArray(array);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteVertexArrays(in ReadOnlySpan<uint> arrays) {
 			unsafe {
 				fixed(uint* pArrays = arrays) {
-					Functions.glDeleteVertexArrays(arrays.Length, (IntPtr)pArrays);
+					Functions.glDeleteVertexArrays(arrays.Length, pArrays);
 				}
 			}
 		}
@@ -53,7 +55,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteVertexArrays(params uint[] arrays) {
 			unsafe {
 				fixed (uint* pArrays = arrays) {
-					Functions.glDeleteVertexArrays(arrays.Length, (IntPtr)pArrays);
+					Functions.glDeleteVertexArrays(arrays.Length, pArrays);
 				}
 			}
 		}
@@ -61,7 +63,7 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteVertexArrays(uint array) {
 			unsafe {
-				Functions.glDeleteVertexArrays(1, (IntPtr)(&array));
+				Functions.glDeleteVertexArrays(1, &array);
 			}
 		}
 
@@ -69,7 +71,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GenVertexArrays(Span<uint> arrays) {
 			unsafe {
 				fixed(uint* pArrays = arrays) {
-					Functions.glGenVertexArrays(arrays.Length, (IntPtr)pArrays);
+					Functions.glGenVertexArrays(arrays.Length, pArrays);
 				}
 			}
 			return arrays;
@@ -80,7 +82,7 @@ namespace Tesseract.OpenGL {
 			uint[] arrays = new uint[n];
 			unsafe {
 				fixed (uint* pArrays = arrays) {
-					Functions.glGenVertexArrays(n, (IntPtr)pArrays);
+					Functions.glGenVertexArrays(n, pArrays);
 				}
 			}
 			return arrays;
@@ -90,14 +92,17 @@ namespace Tesseract.OpenGL {
 		public uint GenVertexArrays() {
 			uint array = 0;
 			unsafe {
-				Functions.glGenVertexArrays(1, (IntPtr)(&array));
+				Functions.glGenVertexArrays(1, &array);
 			}
 			return array;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsVertexArray(uint array) => Functions.glIsVertexArray(array) != 0;
-
+		public bool IsVertexArray(uint array) {
+			unsafe {
+				return Functions.glIsVertexArray(array) != 0;
+			}
+		}
 	}
 
 }

@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBES31CompatibilityFunctions {
+	public unsafe class ARBES31CompatibilityFunctions {
 
-		public delegate void PFN_glMemoryBarrierByRegion(uint barriers);
 		[ExternFunction(AltNames = new string[] { "glMemoryBarrierByRegionARB" })]
-		public PFN_glMemoryBarrierByRegion glMemoryBarrierByRegion;
+		[NativeType("void glMemoryBarrierByRegion(GLbitfield barriers)")]
+		public delegate* unmanaged<uint, void> glMemoryBarrierByRegion;
 
 	}
-#nullable restore
 
 	public class ARBES31Compatibility : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MemoryBarrierByRegion(GLMemoryBarrier barriers) => Functions.glMemoryBarrierByRegion((uint)barriers);
-
+		public void MemoryBarrierByRegion(GLMemoryBarrier barriers) {
+			unsafe {
+				Functions.glMemoryBarrierByRegion((uint)barriers);
+			}
+		}
 	}
 }

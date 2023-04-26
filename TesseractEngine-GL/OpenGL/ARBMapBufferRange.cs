@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBMapBufferRangeFunctions {
+	public unsafe class ARBMapBufferRangeFunctions {
 
-		public delegate IntPtr PFN_glMapBufferRange(uint target, nint offset, nint length, uint access);
 		[ExternFunction(AltNames = new string[] { "glMapBufferRangeARB" })]
-		public PFN_glMapBufferRange glMapBufferRange;
-		public delegate void PFN_glFlushMappedBufferRange(uint target, nint offset, nint length);
+		[NativeType("void* glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)")]
+		public delegate* unmanaged<uint, nint, nint, uint, IntPtr> glMapBufferRange;
 		[ExternFunction(AltNames = new string[] { "glFlushMappedBufferRangeARB" })]
-		public PFN_glFlushMappedBufferRange glFlushMappedBufferRange;
+		[NativeType("void glFLushMappedBufferRange(GLenum target, GLintptr offset, GLsizeiptr length)")]
+		public delegate* unmanaged<uint, nint, nint, void> glFlushMappedBufferRange;
 
 	}
-#nullable restore
 
 	public class ARBMapBufferRange : IGLObject {
 
@@ -32,10 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IntPtr MapBufferRange(GLBufferTarget target, nint offset, nint length, GLMapAccessFlags access) => Functions.glMapBufferRange((uint)target, offset, length, (uint)access);
+		public IntPtr MapBufferRange(GLBufferTarget target, nint offset, nint length, GLMapAccessFlags access) {
+			unsafe {
+				return Functions.glMapBufferRange((uint)target, offset, length, (uint)access);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FlushMappedBufferRange(GLBufferTarget target, nint offset, nint length) => Functions.glFlushMappedBufferRange((uint)target, offset, length);
-
+		public void FlushMappedBufferRange(GLBufferTarget target, nint offset, nint length) {
+			unsafe {
+				Functions.glFlushMappedBufferRange((uint)target, offset, length);
+			}
+		}
 	}
 }

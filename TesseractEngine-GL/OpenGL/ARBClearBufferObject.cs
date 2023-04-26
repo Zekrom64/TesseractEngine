@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBClearBufferObjectFunctions {
+	public unsafe class ARBClearBufferObjectFunctions {
 
-		public delegate void PFN_glClearBufferData(uint target, uint internalFormat, uint format, uint type, IntPtr data);
 		[ExternFunction(AltNames = new string[] { "glClearBufferDataARB" })]
-		public PFN_glClearBufferData glClearBufferData;
-		public delegate void PFN_glClearBufferSubData(uint target, uint internalFormat, nint offset, nint size, uint format, uint type, IntPtr data);
+		[NativeType("void glClearBufferData(GLenum target, GLenum internalFormat, GLenum format, GLenum type, void* pData)")]
+		public delegate* unmanaged<uint, uint, uint, uint, IntPtr, void> glClearBufferData;
 		[ExternFunction(AltNames = new string[] { "glClearBufferSubDataARB" })]
-		public PFN_glClearBufferSubData glClearBufferSubData;
+		[NativeType("void glClearBufferSubData(GLenum target, GLenum internalFormat, GLintptr offset, GLsizeiptr, GLenum, GLenum, void* pData)")]
+		public delegate* unmanaged<uint, uint, nint, nint, uint, uint, IntPtr, void> glClearBufferSubData;
 
 	}
-#nullable restore
 
 	public class ARBClearBufferObject : IGLObject {
 

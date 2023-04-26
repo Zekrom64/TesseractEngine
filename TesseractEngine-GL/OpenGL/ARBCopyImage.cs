@@ -9,15 +9,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBCopyImageFunctions {
+	public unsafe class ARBCopyImageFunctions {
 
-		public delegate void PFN_glCopyImageSubData(uint srcName, uint srcTarget, int srcLevel, int srcX, int srcY, int srcZ, uint dstName, uint dstTarget, int dstLevel, int dstX, int dstY, int dstZ, int srcWidth, int srcHeight, int srcDepth);
 		[ExternFunction(AltNames = new string[] { "glCopyImageSubDataARB" })]
-		public PFN_glCopyImageSubData glCopyImageSubData;
+		[NativeType("void glCopyImageSubData(GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLint width, GLint height, GLint depth)")]
+		public delegate* unmanaged<uint, uint, int, int, int, int, uint, uint, int, int, int, int, int, int, int, void> glCopyImageSubData;
 
 	}
-#nullable restore
 
 	public class ARBCopyImage : IGLObject {
 
@@ -30,8 +28,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyImageSubData(uint srcName, GLCopyImageTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLCopyImageTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) =>
-			Functions.glCopyImageSubData(srcName, (uint)srcTarget, srcLevel, src.X, src.Y, src.Z, dstName, (uint)dstTarget, dstLevel, dst.X, dst.Y, dst.Z, size.X, size.Y, size.Z);
-
+		public void CopyImageSubData(uint srcName, GLCopyImageTarget srcTarget, int srcLevel, Vector3i src, uint dstName, GLCopyImageTarget dstTarget, int dstLevel, Vector3i dst, Vector3i size) {
+			unsafe {
+				Functions.glCopyImageSubData(srcName, (uint)srcTarget, srcLevel, src.X, src.Y, src.Z, dstName, (uint)dstTarget, dstLevel, dst.X, dst.Y, dst.Z, size.X, size.Y, size.Z);
+			}
+		}
 	}
 }

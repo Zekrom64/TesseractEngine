@@ -10,72 +10,70 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBFramebufferObjectFunctions {
+	public unsafe class ARBFramebufferObjectFunctions {
 
-		public delegate byte PFN_glIsRenderbuffer(uint renderbuffer);
 		[ExternFunction(AltNames = new string[] { "glIsRenderbufferARB", "glIsRenderbufferEXT" })]
-		public PFN_glIsRenderbuffer glIsRenderbuffer;
-		public delegate void PFN_glBindRenderbuffer(uint target, uint renderbuffer);
+		[NativeType("GLboolean glIsRenderbuffer(GLuint renderbuffer)")]
+		public delegate* unmanaged<uint, byte> glIsRenderbuffer;
 		[ExternFunction(AltNames = new string[] { "glBindRenderbufferARB", "glBindRenderbufferEXT" })]
-		public PFN_glBindRenderbuffer glBindRenderbuffer;
-		public delegate void PFN_glDeleteRenderbuffers(int n, [NativeType("const GLuint*")] IntPtr renderbuffers);
+		[NativeType("void glBindRenderbuffer(GLenum target, GLuint renderbuffer)")]
+		public delegate* unmanaged<uint, uint, void> glBindRenderbuffer;
 		[ExternFunction(AltNames = new string[] { "glDeleteRenderbuffersARB", "glDeleteRenderbuffersEXT" })]
-		public PFN_glDeleteRenderbuffers glDeleteRenderbuffers;
-		public delegate void PFN_glGenRenderbuffers(int n, [NativeType("GLuint*")] IntPtr renderbuffers);
+		[NativeType("void glDeleteRenderbuffers(GLsizei n, const GLuint* pRenderbuffers)")]
+		public delegate* unmanaged<int, uint*, void> glDeleteRenderbuffers;
 		[ExternFunction(AltNames = new string[] { "glGenRenderbuffersARB", "glGenRenderbuffersEXT" })]
-		public PFN_glGenRenderbuffers glGenRenderbuffers;
-		public delegate void PFN_glRenderbufferStorage(uint target, uint internalformat, int width, int height);
+		[NativeType("void glGenRenderbuffers(GLsizei n, GLuint* pRenderbuffers)")]
+		public delegate* unmanaged<int, uint*, void> glGenRenderbuffers;
 		[ExternFunction(AltNames = new string[] { "glRenderbufferStorageARB", "glRenderbufferStorageEXT" })]
-		public PFN_glRenderbufferStorage glRenderbufferStorage;
-		public delegate void PFN_glRenderbufferStorageMultisample(uint target, int samples, uint internalformat, int width, int height);
+		[NativeType("void glRenderbufferStorage(GLenum target, GLenum internalFormat, GLsizei width, GLsizei height)")]
+		public delegate* unmanaged<uint, uint, int, int, void> glRenderbufferStorage;
 		[ExternFunction(AltNames = new string[] { "glRenderbufferStorageMultisampleARB", "glRenderbufferStorageMultisampleEXT" })]
-		public PFN_glRenderbufferStorageMultisample glRenderbufferStorageMultisample;
-		public delegate void PFN_glGetRenderbufferParameteriv(uint target, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glRenderbufferStorageMultisample(GLenum target, GLint samples, GLenum internalFormat, GLsizei width, GLsizei height)")]
+		public delegate* unmanaged<uint, int, uint, int, int, void> glRenderbufferStorageMultisample;
 		[ExternFunction(AltNames = new string[] { "glGetRenderbufferParameterivARB", "glGetRenderbufferParameterivEXT" })]
-		public PFN_glGetRenderbufferParameteriv glGetRenderbufferParameteriv;
-		public delegate byte PFN_glIsFramebuffer(uint framebuffer);
+		[NativeType("void glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetRenderbufferParameteriv;
 		[ExternFunction(AltNames = new string[] { "glIsFramebufferARB", "glIsFramebufferEXT" })]
-		public PFN_glIsFramebuffer glIsFramebuffer;
-		public delegate void PFN_glBindFramebuffer(uint target, uint framebuffer);
+		[NativeType("GLboolean glIsFramebuffer(GLuint framebuffer)")]
+		public delegate* unmanaged<uint, byte> glIsFramebuffer;
 		[ExternFunction(AltNames = new string[] { "glBindFramebufferARB", "glBindFramebufferEXT" })]
-		public PFN_glBindFramebuffer glBindFramebuffer;
-		public delegate void PFN_glDeleteFramebuffers(int n, [NativeType("const GLuint*")] IntPtr framebuffers);
+		[NativeType("void glBindFramebuffer(GLenum target, GLuint framebuffer)")]
+		public delegate* unmanaged<uint, uint, void> glBindFramebuffer;
 		[ExternFunction(AltNames = new string[] { "glDeleteFramebuffersARB", "glDeleteFramebuffersEXT" })]
-		public PFN_glDeleteFramebuffers glDeleteFramebuffers;
-		public delegate void PFN_glGenFramebuffers(int n, [NativeType("GLuint*")] IntPtr framebuffers);
+		[NativeType("void glDeleteFramebuffers(GLsizei n, const GLuint* pFramebuffers)")]
+		public delegate* unmanaged<int, uint*, void> glDeleteFramebuffers;
 		[ExternFunction(AltNames = new string[] { "glGenFramebuffersARB", "glGenFramebuffersEXT" })]
-		public PFN_glGenFramebuffers glGenFramebuffers;
-		public delegate uint PFN_glCheckFramebufferStatus(uint target);
+		[NativeType("void glGenFramebuffers(GLsizei n, GLuint* pFramebuffers)")]
+		public delegate* unmanaged<int, uint*, void> glGenFramebuffers;
 		[ExternFunction(AltNames = new string[] { "glCheckFramebufferStatusARB", "glCheckFramebufferStatusEXT" })]
-		public PFN_glCheckFramebufferStatus glCheckFramebufferStatus;
-		public delegate void PFN_glFramebufferTexture1D(uint target, uint attachment, uint textarget, uint texture, int level);
+		[NativeType("GLenum glCheckFramebufferStatus(GLenum target)")]
+		public delegate* unmanaged<uint, uint> glCheckFramebufferStatus;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTexture1DARB", "glFramebufferTexture1DEXT" })]
-		public PFN_glFramebufferTexture1D glFramebufferTexture1D;
-		public delegate void PFN_glFramebufferTexture2D(uint target, uint attachment, uint textarget, uint texture, int level);
+		[NativeType("void glFramebufferTexture1D(GLenum target, GLenum attachment, GLenum texTarget, GLuint texture, GLint level)")]
+		public delegate* unmanaged<uint, uint, uint, uint, int, void> glFramebufferTexture1D;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTexture2DARB", "glFramebufferTexture2DEXT" })]
-		public PFN_glFramebufferTexture2D glFramebufferTexture2D;
-		public delegate void PFN_glFramebufferTexture3D(uint target, uint attachment, uint textarget, uint texture, int level, int layer);
+		[NativeType("void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum texTarget, GLuint texture, GLint level)")]
+		public delegate* unmanaged<uint, uint, uint, uint, int, void> glFramebufferTexture2D;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTexture3DARB", "glFramebufferTexture3DEXT" })]
-		public PFN_glFramebufferTexture3D glFramebufferTexture3D;
-		public delegate void PFN_glFramebufferTextureLayer(uint target, uint attachment, uint texture, int level, int layer);
+		[NativeType("void glFramebufferTexture3D(GLenum target, GLenum attachment, GLenum texTarget, GLuint texture, GLint level, GLint layer)")]
+		public delegate* unmanaged<uint, uint, uint, uint, int, int, void> glFramebufferTexture3D;
 		[ExternFunction(AltNames = new string[] { "glFramebufferTextureLayerARB", "glFramebufferTextureLayerEXT" })]
-		public PFN_glFramebufferTextureLayer glFramebufferTextureLayer;
-		public delegate void PFN_glFramebufferRenderbuffer(uint target, uint attachment, uint renderbuffertarget, uint renderbuffer);
+		[NativeType("void glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)")]
+		public delegate* unmanaged<uint, uint, uint, int, int, void> glFramebufferTextureLayer;
 		[ExternFunction(AltNames = new string[] { "glFramebufferRenderbufferARB", "glFramebufferRenderbufferEXT" })]
-		public PFN_glFramebufferRenderbuffer glFramebufferRenderbuffer;
-		public delegate void PFN_glGetFramebufferAttachmentParameteriv(uint target, uint attachment, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbufferTarget, GLuint renderbuffer)")]
+		public delegate* unmanaged<uint, uint, uint, uint, void> glFramebufferRenderbuffer;
 		[ExternFunction(AltNames = new string[] { "glGetFramebufferAttachmentParameterivARB", "glGetFramebufferAttachmentParameterEXT" })]
-		public PFN_glGetFramebufferAttachmentParameteriv glGetFramebufferAttachmentParameteriv;
-		public delegate void PFN_glBlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, uint mask, uint filter);
+		[NativeType("void glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint, int*, void> glGetFramebufferAttachmentParameteriv;
 		[ExternFunction(AltNames = new string[] { "glBlitFramebufferARB", "glBlitFramebufferEXT" })]
-		public PFN_glBlitFramebuffer glBlitFramebuffer;
-		public delegate void PFN_glGenerateMipmap(uint target);
+		[NativeType("void glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)")]
+		public delegate* unmanaged<int, int, int, int, int, int, int, int, uint, uint, void> glBlitFramebuffer;
 		[ExternFunction(AltNames = new string[] { "glGenerateMipmapARB", "glGenerateMipmapEXT" })]
-		public PFN_glGenerateMipmap glGenerateMipmap;
+		[NativeType("void glGenerateMipmap(GLenum target)")]
+		public delegate* unmanaged<uint, void> glGenerateMipmap;
 
 	}
-#nullable restore
 
 	public class ARBFramebufferObject : IGLObject {
 
@@ -88,16 +86,24 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsRenderbuffer(uint renderbuffer) => Functions.glIsRenderbuffer(renderbuffer) != 0;
+		public bool IsRenderbuffer(uint renderbuffer) {
+			unsafe {
+				return Functions.glIsRenderbuffer(renderbuffer) != 0;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindRenderbuffer(GLRenderbufferTarget target, uint renderbuffer) => Functions.glBindRenderbuffer((uint)target, renderbuffer);
+		public void BindRenderbuffer(GLRenderbufferTarget target, uint renderbuffer) {
+			unsafe {
+				Functions.glBindRenderbuffer((uint)target, renderbuffer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteRenderbuffers(in ReadOnlySpan<uint> renderbuffers) {
 			unsafe {
 				fixed(uint* pRenderbuffers = renderbuffers) {
-					Functions.glDeleteRenderbuffers(renderbuffers.Length, (IntPtr)pRenderbuffers);
+					Functions.glDeleteRenderbuffers(renderbuffers.Length, pRenderbuffers);
 				}
 			}
 		}
@@ -106,7 +112,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteRenderbuffers(params uint[] renderbuffers) {
 			unsafe {
 				fixed(uint* pRenderbuffers = renderbuffers) {
-					Functions.glDeleteRenderbuffers(renderbuffers.Length, (IntPtr)pRenderbuffers);
+					Functions.glDeleteRenderbuffers(renderbuffers.Length, pRenderbuffers);
 				}
 			}
 		}
@@ -114,7 +120,7 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteRenderbuffers(uint renderbuffer) {
 			unsafe {
-				Functions.glDeleteRenderbuffers(1, (IntPtr)(&renderbuffer));
+				Functions.glDeleteRenderbuffers(1, &renderbuffer);
 			}
 		}
 
@@ -122,7 +128,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GenRenderbuffers(Span<uint> renderbuffers) {
 			unsafe {
 				fixed(uint* pRenderbuffers = renderbuffers) {
-					Functions.glGenRenderbuffers(renderbuffers.Length, (IntPtr)pRenderbuffers);
+					Functions.glGenRenderbuffers(renderbuffers.Length, pRenderbuffers);
 				}
 			}
 			return renderbuffers;
@@ -133,7 +139,7 @@ namespace Tesseract.OpenGL {
 			uint[] renderbuffers = new uint[n];
 			unsafe {
 				fixed(uint* pRenderbuffers = renderbuffers) {
-					Functions.glGenRenderbuffers(n, (IntPtr)pRenderbuffers);
+					Functions.glGenRenderbuffers(n, pRenderbuffers);
 				}
 			}
 			return renderbuffers;
@@ -143,37 +149,53 @@ namespace Tesseract.OpenGL {
 		public uint GenRenderbuffers() {
 			uint renderbuffer = 0;
 			unsafe {
-				Functions.glGenRenderbuffers(1, (IntPtr)(&renderbuffer));
+				Functions.glGenRenderbuffers(1, &renderbuffer);
 			}
 			return renderbuffer;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void RenderbufferStorage(GLRenderbufferTarget target, GLInternalFormat internalFormat, int width, int height) => Functions.glRenderbufferStorage((uint)target, (uint)internalFormat, width, height);
+		public void RenderbufferStorage(GLRenderbufferTarget target, GLInternalFormat internalFormat, int width, int height) {
+			unsafe {
+				Functions.glRenderbufferStorage((uint)target, (uint)internalFormat, width, height);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void RenderbufferStorageMultisample(GLRenderbufferTarget target, int samples, GLInternalFormat internalFormat, int width, int height) => Functions.glRenderbufferStorageMultisample((uint)target, samples, (uint)internalFormat, width, height);
+		public void RenderbufferStorageMultisample(GLRenderbufferTarget target, int samples, GLInternalFormat internalFormat, int width, int height) {
+			unsafe {
+				Functions.glRenderbufferStorageMultisample((uint)target, samples, (uint)internalFormat, width, height);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetRenderbufferParameter(GLRenderbufferTarget target, GLGetRenderbuffer pname) {
 			int i = 0;
 			unsafe {
-				Functions.glGetRenderbufferParameteriv((uint)target, (uint)pname, (IntPtr)(&i));
+				Functions.glGetRenderbufferParameteriv((uint)target, (uint)pname, &i);
 			}
 			return i;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsFramebuffer(uint framebuffer) => Functions.glIsFramebuffer(framebuffer) != 0;
+		public bool IsFramebuffer(uint framebuffer) {
+			unsafe {
+				return Functions.glIsFramebuffer(framebuffer) != 0;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindFramebuffer(GLFramebufferTarget target, uint framebuffer) => Functions.glBindFramebuffer((uint)target, framebuffer);
+		public void BindFramebuffer(GLFramebufferTarget target, uint framebuffer) {
+			unsafe {
+				Functions.glBindFramebuffer((uint)target, framebuffer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteFramebuffers(in ReadOnlySpan<uint> framebuffers) {
 			unsafe {
 				fixed(uint* pFramebuffers = framebuffers) {
-					Functions.glDeleteFramebuffers(framebuffers.Length, (IntPtr)pFramebuffers);
+					Functions.glDeleteFramebuffers(framebuffers.Length, pFramebuffers);
 				}
 			}
 		}
@@ -182,7 +204,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteFramebuffers(params uint[] framebuffers) {
 			unsafe {
 				fixed(uint* pFramebuffers = framebuffers) {
-					Functions.glDeleteFramebuffers(framebuffers.Length, (IntPtr)pFramebuffers);
+					Functions.glDeleteFramebuffers(framebuffers.Length, pFramebuffers);
 				}
 			}
 		}
@@ -190,7 +212,7 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteFramebuffers(uint framebuffer) {
 			unsafe {
-				Functions.glDeleteFramebuffers(1, (IntPtr)(&framebuffer));
+				Functions.glDeleteFramebuffers(1, &framebuffer);
 			}
 		}
 
@@ -198,7 +220,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GenFramebuffers(Span<uint> framebuffers) {
 			unsafe {
 				fixed(uint* pFramebuffers = framebuffers) {
-					Functions.glGenFramebuffers(1, (IntPtr)pFramebuffers);
+					Functions.glGenFramebuffers(1, pFramebuffers);
 				}
 			}
 			return framebuffers;
@@ -209,7 +231,7 @@ namespace Tesseract.OpenGL {
 			uint[] framebuffers = new uint[n];
 			unsafe {
 				fixed(uint* pFramebuffers = framebuffers) {
-					Functions.glGenFramebuffers(n, (IntPtr)pFramebuffers);
+					Functions.glGenFramebuffers(n, pFramebuffers);
 				}
 			}
 			return framebuffers;
@@ -219,37 +241,61 @@ namespace Tesseract.OpenGL {
 		public uint GenFramebuffers() {
 			uint framebuffer = 0;
 			unsafe {
-				Functions.glGenFramebuffers(1, (IntPtr)(&framebuffer));
+				Functions.glGenFramebuffers(1, &framebuffer);
 			}
 			return framebuffer;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public GLFramebufferStatus CheckFramebufferStatus(GLFramebufferTarget target) => (GLFramebufferStatus)Functions.glCheckFramebufferStatus((uint)target);
+		public GLFramebufferStatus CheckFramebufferStatus(GLFramebufferTarget target) {
+			unsafe {
+				return (GLFramebufferStatus)Functions.glCheckFramebufferStatus((uint)target);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static GLFramebufferAttachment GetColorAttachment(int attachment) => (GLFramebufferAttachment)(GLEnums.GL_COLOR_ATTACHMENT0 + attachment);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTexture1D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level) => Functions.glFramebufferTexture1D((uint)target, (uint)attachment, (uint)textarget, texture, level);
+		public void FramebufferTexture1D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level) {
+			unsafe {
+				Functions.glFramebufferTexture1D((uint)target, (uint)attachment, (uint)textarget, texture, level);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTexture2D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level) => Functions.glFramebufferTexture2D((uint)target, (uint)attachment, (uint)textarget, texture, level);
+		public void FramebufferTexture2D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level) {
+			unsafe {
+				Functions.glFramebufferTexture2D((uint)target, (uint)attachment, (uint)textarget, texture, level);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTexture3D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level, int layer) => Functions.glFramebufferTexture3D((uint)target, (uint)attachment, (uint)textarget, texture, level, layer);
+		public void FramebufferTexture3D(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLTextureTarget textarget, uint texture, int level, int layer) {
+			unsafe {
+				Functions.glFramebufferTexture3D((uint)target, (uint)attachment, (uint)textarget, texture, level, layer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTextureLayer(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, int layer) => Functions.glFramebufferTextureLayer((uint)target, (uint)attachment, texture, level, layer);
+		public void FramebufferTextureLayer(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level, int layer) {
+			unsafe {
+				Functions.glFramebufferTextureLayer((uint)target, (uint)attachment, texture, level, layer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferRenderbuffer(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLRenderbufferTarget renderbufferTarget, uint renderbuffer) => Functions.glFramebufferRenderbuffer((uint)target, (uint)attachment, (uint)renderbufferTarget, renderbuffer);
+		public void FramebufferRenderbuffer(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLRenderbufferTarget renderbufferTarget, uint renderbuffer) {
+			unsafe {
+				Functions.glFramebufferRenderbuffer((uint)target, (uint)attachment, (uint)renderbufferTarget, renderbuffer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetFramebufferAttachmentParameter(GLFramebufferTarget target, GLFramebufferAttachment attachment, GLGetFramebufferAttachment pname) {
 			int param = 0;
 			unsafe {
-				Functions.glGetFramebufferAttachmentParameteriv((uint)target, (uint)attachment, (uint)pname, (IntPtr)(&param));
+				Functions.glGetFramebufferAttachmentParameteriv((uint)target, (uint)attachment, (uint)pname, &param);
 			}
 			return param;
 		}
@@ -258,12 +304,17 @@ namespace Tesseract.OpenGL {
 		public void BlitFramebuffer(Recti src, Recti dst, GLBufferMask mask, GLFilter filter) {
 			Vector2i srcmin = src.Minimum, srcmax = src.Maximum;
 			Vector2i dstmin = dst.Minimum, dstmax = dst.Maximum;
-			Functions.glBlitFramebuffer(srcmin.X, srcmin.Y, srcmax.X, srcmax.Y, dstmin.X, dstmin.Y, dstmax.X, dstmax.Y, (uint)mask, (uint)filter);
+			unsafe {
+				Functions.glBlitFramebuffer(srcmin.X, srcmin.Y, srcmax.X, srcmax.Y, dstmin.X, dstmin.Y, dstmax.X, dstmax.Y, (uint)mask, (uint)filter);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GenerateMipmap(GLTextureTarget target) => Functions.glGenerateMipmap((uint)target);
-
+		public void GenerateMipmap(GLTextureTarget target) {
+			unsafe {
+				Functions.glGenerateMipmap((uint)target);
+			}
+		}
 	}
 
 }

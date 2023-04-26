@@ -9,42 +9,40 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBUniformBufferObjectFunctions {
+	public unsafe class ARBUniformBufferObjectFunctions {
 
-		public delegate void PFN_glGetUniformIndices(uint program, int uniformCount, [NativeType("const char* const*")] IntPtr uniformNames, [NativeType("GLuint*")] IntPtr uniformIndices);
 		[ExternFunction(AltNames = new string[] { "glGetUniformIndicesARB" })]
-		public PFN_glGetUniformIndices glGetUniformIndices;
-		public delegate void PFN_glGetActiveUniformsiv(uint program, int uniformCount, [NativeType("const GLuint*")] IntPtr uniformIndices, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glGetUniformIndices(GLuint program, GLsizei uniformCount, const char* const* pUniformNames, GLuint* pUniformIndices)")]
+		public delegate* unmanaged<uint, int, byte**, uint*, void> glGetUniformIndices;
 		[ExternFunction(AltNames = new string[] { "glGetActiveUniformsivARB" })]
-		public PFN_glGetActiveUniformsiv glGetActiveUniformsiv;
-		public delegate void PFN_glGetActiveUniformName(uint program, uint uniformIndex, int bufSize, out int length, [NativeType("char*")] IntPtr uniformName);
+		[NativeType("void glGetActiveUniformsiv(GLuint program, GLsizei uniformCount, const GLuint* pUniformIndices, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, int, uint*, uint, int*, void> glGetActiveUniformsiv;
 		[ExternFunction(AltNames = new string[] { "glGetActiveUniformNameARB" })]
-		public PFN_glGetActiveUniformName glGetActiveUniformName;
-		public delegate uint PFN_glGetUniformBlockIndex(uint program, [MarshalAs(UnmanagedType.LPStr)] string uniformBlockName);
+		[NativeType("void glGetActiveUniformName(GLuint program, GLuint uniformIndex, GLsizei bufSize, GLsizei* pLength, char* pUniformName)")]
+		public delegate* unmanaged<uint, uint, int, out int, byte*, void> glGetActiveUniformName;
 		[ExternFunction(AltNames = new string[] { "glGetUniformBlockIndexARB" })]
-		public PFN_glGetUniformBlockIndex glGetUniformBlockIndex;
-		public delegate void PFN_glGetActiveUniformBlockiv(uint program, uint uniformBlockIndex, uint pname, [NativeType("GLint*")] IntPtr value);
+		[NativeType("GLuint glGetUniformBlockIndex(GLuint program, const char* uniformBlockName)")]
+		public delegate* unmanaged<uint, byte*, uint> glGetUniformBlockIndex;
 		[ExternFunction(AltNames = new string[] { "glGetActuveUniformBlockivARB" })]
-		public PFN_glGetActiveUniformBlockiv glGetActiveUniformBlockiv;
-		public delegate void PFN_glGetActiveUniformBlockName(uint program, uint uniformBlockIndex, int bufSize, out int length, [NativeType("char*")] IntPtr uniformBlockName);
+		[NativeType("void glGetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* pValue)")]
+		public delegate* unmanaged<uint, uint, uint, int*, void> glGetActiveUniformBlockiv;
 		[ExternFunction(AltNames = new string[] { "glGetActiveUniformBlockNameARB" })]
-		public PFN_glGetActiveUniformBlockName glGetActiveUniformBlockName;
-		public delegate void PFN_glBindBufferRange(uint target, uint index, uint buffer, nint offset, nint size);
+		[NativeType("void glGetActiveUniformBlockName(GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* pLength, char* pUniformBlockName)")]
+		public delegate* unmanaged<uint, uint, int, out int, byte*, void> glGetActiveUniformBlockName;
 		[ExternFunction(AltNames = new string[] { "glBindBufferRangeARB" })]
-		public PFN_glBindBufferRange glBindBufferRange;
-		public delegate void PFN_glBindBufferBase(uint target, uint index, uint buffer);
+		[NativeType("void glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)")]
+		public delegate* unmanaged<uint, uint, uint, nint, nint, void> glBindBufferRange;
 		[ExternFunction(AltNames = new string[] { "glBindBufferBaseARB" })]
-		public PFN_glBindBufferBase glBindBufferBase;
-		public delegate void PFN_glGetIntegeri_v(uint target, uint index, [NativeType("GLint*")] IntPtr data);
+		[NativeType("void glBindBufferBase(GLenum target, GLuint index, GLuint buffer)")]
+		public delegate* unmanaged<uint, uint, uint, void> glBindBufferBase;
 		[ExternFunction(AltNames = new string[] { "glGetIntegeri_vARB" })]
-		public PFN_glGetIntegeri_v glGetIntegeri_v;
-		public delegate void PFN_glUniformBlockBinding(uint program, uint uniformBlockIndex, uint uniformBlockBinding);
+		[NativeType("void glGetIntegeri_v(GLenum target, GLuint index, GLint* pData)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetIntegeri_v;
 		[ExternFunction(AltNames = new string[] { "glUniformBlockBindingARB" })]
-		public PFN_glUniformBlockBinding glUniformBlockBinding;
+		[NativeType("void glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)")]
+		public delegate* unmanaged<uint, uint, uint, void> glUniformBlockBinding;
 
 	}
-#nullable restore
 
 	public class ARBUniformBufferObject : IGLObject {
 
@@ -56,12 +54,23 @@ namespace Tesseract.OpenGL {
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
 
-		public uint[] GetUniformIndices(uint program, params string[] names) {
-			using MemoryStack sp = MemoryStack.Push();
-			uint[] indices = new uint[names.Length];
+		public uint GetUniformIndices(uint program, ReadOnlySpan<char> name) {
 			unsafe {
-				fixed (uint* pIndices = indices) {
-					Functions.glGetUniformIndices(program, names.Length, sp.ASCIIArray(names), (IntPtr)pIndices);
+				uint index = 0;
+				fixed(byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					Functions.glGetUniformIndices(program, 1, &pName, &index);
+				}
+				return index;
+			}
+		}
+
+		public Span<uint> GetUniformIndices(uint program, Span<uint> indices, params string[] names) {
+			using MemoryStack sp = MemoryStack.Push();
+			unsafe {
+				fixed(uint* pIndices = indices) {
+					fixed (IntPtr* ppNames = MemoryUtil.StackallocUTF8Array(names, stackalloc IntPtr[names.Length], sp)) {
+						Functions.glGetUniformIndices(program, names.Length, (byte**)ppNames, pIndices);
+					}
 				}
 			}
 			return indices;
@@ -72,7 +81,7 @@ namespace Tesseract.OpenGL {
 			unsafe {
 				fixed(int* pVals = vals) {
 					fixed(uint* pUniformIndices = uniformIndices) {
-						Functions.glGetActiveUniformsiv(program, uniformIndices.Length, (IntPtr)pUniformIndices, (uint)pname, (IntPtr)pVals);
+						Functions.glGetActiveUniformsiv(program, uniformIndices.Length, pUniformIndices, (uint)pname, pVals);
 					}
 				}
 			}
@@ -84,7 +93,7 @@ namespace Tesseract.OpenGL {
 			unsafe {
 				fixed (int* pVals = vals) {
 					fixed (uint* pUniformIndices = uniformIndices) {
-						Functions.glGetActiveUniformsiv(program, uniformIndices.Length, (IntPtr)pUniformIndices, (uint)pname, (IntPtr)pVals);
+						Functions.glGetActiveUniformsiv(program, uniformIndices.Length, pUniformIndices, (uint)pname, pVals);
 					}
 				}
 			}
@@ -96,20 +105,26 @@ namespace Tesseract.OpenGL {
 			Span<byte> name = stackalloc byte[len];
 			unsafe {
 				fixed(byte* pName = name) {
-					Functions.glGetActiveUniformName(program, uniformIndex, len, out len, (IntPtr)pName);
+					Functions.glGetActiveUniformName(program, uniformIndex, len, out len, pName);
 				}
 			}
 			return MemoryUtil.GetASCII(name[0..len]);
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint GetUniformBlockIndex(uint program, string uniformBlockName) => Functions.glGetUniformBlockIndex(program, uniformBlockName);
+		public uint GetUniformBlockIndex(uint program, string uniformBlockName) {
+			unsafe { 
+				fixed(byte* pUniformBlockName = MemoryUtil.StackallocUTF8(uniformBlockName, stackalloc byte[256])) {
+					return Functions.glGetUniformBlockIndex(program, pUniformBlockName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetActiveUniformBlock(uint program, uint uniformBlockIndex, GLGetActiveUniformBlock pname) {
 			int val = 0;
 			unsafe {
-				Functions.glGetActiveUniformBlockiv(program, uniformBlockIndex, (uint)pname, (IntPtr)(&val));
+				Functions.glGetActiveUniformBlockiv(program, uniformBlockIndex, (uint)pname, &val);
 			}
 			return val;
 		}
@@ -118,7 +133,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetActiveUniformBlock(uint program, uint uniformBlockIndex, GLGetActiveUniformBlock pname, Span<int> vals) {
 			unsafe {
 				fixed(int* pVals = vals) {
-					Functions.glGetActiveUniformBlockiv(program, uniformBlockIndex, (uint)pname, (IntPtr)pVals);
+					Functions.glGetActiveUniformBlockiv(program, uniformBlockIndex, (uint)pname, pVals);
 				}
 			}
 			return vals;
@@ -129,23 +144,31 @@ namespace Tesseract.OpenGL {
 			Span<byte> name = stackalloc byte[len];
 			unsafe {
 				fixed(byte* pName = name) {
-					Functions.glGetActiveUniformBlockName(program, uniformBlockIndex, len, out len, (IntPtr)pName);
+					Functions.glGetActiveUniformBlockName(program, uniformBlockIndex, len, out len, pName);
 				}
 			}
 			return MemoryUtil.GetASCII(name[0..len]);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindBufferRange(GLBufferRangeTarget target, uint index, uint buffer, nint offset, nint size) => Functions.glBindBufferRange((uint)target, index, buffer, offset, size);
+		public void BindBufferRange(GLBufferRangeTarget target, uint index, uint buffer, nint offset, nint size) {
+			unsafe {
+				Functions.glBindBufferRange((uint)target, index, buffer, offset, size);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindBufferBase(GLBufferRangeTarget target, uint index, uint buffer) => Functions.glBindBufferBase((uint)target, index, buffer);
+		public void BindBufferBase(GLBufferRangeTarget target, uint index, uint buffer) {
+			unsafe {
+				Functions.glBindBufferBase((uint)target, index, buffer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetInteger(uint pname, uint index, Span<int> val) {
 			unsafe {
 				fixed(int* pVal = val) {
-					Functions.glGetIntegeri_v(pname, index, (IntPtr)pVal);
+					Functions.glGetIntegeri_v(pname, index, pVal);
 				}
 			}
 			return val;
@@ -155,13 +178,16 @@ namespace Tesseract.OpenGL {
 		public int GetInteger(uint pname, uint index) {
 			int val = 0;
 			unsafe {
-				Functions.glGetIntegeri_v(pname, index, (IntPtr)(&val));
+				Functions.glGetIntegeri_v(pname, index, &val);
 			}
 			return val;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UniformBlockBinding(uint program, uint uniformBlockIndex, uint uniformBlockBinding) => Functions.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
-
+		public void UniformBlockBinding(uint program, uint uniformBlockIndex, uint uniformBlockBinding) {
+			unsafe {
+				Functions.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+			}
+		}
 	}
 }

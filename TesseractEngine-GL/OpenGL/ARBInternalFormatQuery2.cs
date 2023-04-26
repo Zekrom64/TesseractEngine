@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBInternalFormatQuery2Functions {
+	public unsafe class ARBInternalFormatQuery2Functions {
 
-		public delegate void PFN_glGetInternalformati64v(uint target, uint internalFormat, uint pname, int bufSize, [NativeType("GLint64*")] IntPtr _params);
 		[ExternFunction(AltNames = new string[] { "glGetInternalformati64vARB" })]
-		public PFN_glGetInternalformati64v glGetInternalformati64v;
+		[NativeType("void glGetInternalFormati64v(GLenum target, GLenum internalFormat, GLenum pname, GLsizei bufSize, GLint64* pParams)")]
+		public delegate* unmanaged<uint, uint, uint, int, long*, void> glGetInternalformati64v;
 
 	}
-#nullable restore
 
 	public class ARBInternalFormatQuery2 : IGLObject {
 
@@ -32,7 +30,7 @@ namespace Tesseract.OpenGL {
 		public Span<long> GetInternalFormat(GLInternalFormatTarget target, GLInternalFormat internalFormat, GLGetInternalFormat pname, Span<long> values) {
 			unsafe {
 				fixed(long* pValues = values) {
-					Functions.glGetInternalformati64v((uint)target, (uint)internalFormat, (uint)pname, values.Length, (IntPtr)pValues);
+					Functions.glGetInternalformati64v((uint)target, (uint)internalFormat, (uint)pname, values.Length, pValues);
 				}
 			}
 			return values;

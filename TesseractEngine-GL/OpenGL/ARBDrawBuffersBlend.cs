@@ -8,24 +8,22 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBDrawBuffersBlendFunctions {
+	public unsafe class ARBDrawBuffersBlendFunctions {
 
-		public delegate void PFN_glBlendEquationi(uint buffer, uint mode);
 		[ExternFunction(AltNames = new string[] { "glBlendEquationiARB" })]
-		public PFN_glBlendEquationi glBlendEquationi;
-		public delegate void PFN_glBlendEquationSeparatei(uint buffer, uint modeRGB, uint modeAlpha);
+		[NativeType("void glBlendEquationi(GLenum buffer, GLenum mode)")]
+		public delegate* unmanaged<uint, uint, void> glBlendEquationi;
 		[ExternFunction(AltNames = new string[] { "glBlendEquationSeparateiARB" })]
-		public PFN_glBlendEquationSeparatei glBlendEquationSeparatei;
-		public delegate void PFN_glBlendFunci(uint buf, uint src, uint dst);
+		[NativeType("void glBlendEquationSeparatei(GLenum buffer, GLenum modeRGB, GLenum modeAlpha)")]
+		public delegate* unmanaged<uint, uint, uint, void> glBlendEquationSeparatei;
 		[ExternFunction(AltNames = new string[] { "glBlendFunciARB" })]
-		public PFN_glBlendFunci glBlendFunci;
-		public delegate void PFN_glBlendFuncSeparatei(uint buf, uint srcRGB, uint dstRGB, uint srcAlpha, uint dstAlpha);
+		[NativeType("void glBlendFunci(GLenum buf, GLenum src, GLenum dst)")]
+		public delegate* unmanaged<uint, uint, uint, void> glBlendFunci;
 		[ExternFunction(AltNames = new string[] { "glBlendFuncSeparateiARB" })]
-		public PFN_glBlendFuncSeparatei glBlendFuncSeparatei;
+		[NativeType("void glBlendFuncSeparatei(GLenum buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)")]
+		public delegate* unmanaged<uint, uint, uint, uint, uint, void> glBlendFuncSeparatei;
 
 	}
-#nullable restore
 
 	public class ARBDrawBuffersBlend : IGLObject {
 
@@ -38,16 +36,31 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlendEquation(uint buffer, GLBlendFunction mode) => Functions.glBlendEquationi(buffer, (uint)mode);
+		public void BlendEquation(uint buffer, GLBlendFunction mode) {
+			unsafe {
+				Functions.glBlendEquationi(buffer, (uint)mode);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlendEquationSeparate(uint buffer, GLBlendFunction modeRGB, GLBlendFunction modeAlpha) => Functions.glBlendEquationSeparatei(buffer, (uint)modeRGB, (uint)modeAlpha);
+		public void BlendEquationSeparate(uint buffer, GLBlendFunction modeRGB, GLBlendFunction modeAlpha) {
+			unsafe {
+				Functions.glBlendEquationSeparatei(buffer, (uint)modeRGB, (uint)modeAlpha);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlendFunc(uint buffer, GLBlendFactor src, GLBlendFactor dst) => Functions.glBlendFunci(buffer, (uint)src, (uint)dst);
+		public void BlendFunc(uint buffer, GLBlendFactor src, GLBlendFactor dst) {
+			unsafe {
+				Functions.glBlendFunci(buffer, (uint)src, (uint)dst);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BlendFuncSeparate(uint buffer, GLBlendFactor srcRGB, GLBlendFactor dstRGB, GLBlendFactor srcAlpha, GLBlendFactor dstAlpha) => Functions.glBlendFuncSeparatei(buffer, (uint)srcRGB, (uint)dstRGB, (uint)srcAlpha, (uint)dstAlpha);
-
+		public void BlendFuncSeparate(uint buffer, GLBlendFactor srcRGB, GLBlendFactor dstRGB, GLBlendFactor srcAlpha, GLBlendFactor dstAlpha) {
+			unsafe {
+				Functions.glBlendFuncSeparatei(buffer, (uint)srcRGB, (uint)dstRGB, (uint)srcAlpha, (uint)dstAlpha);
+			}
+		}
 	}
 }

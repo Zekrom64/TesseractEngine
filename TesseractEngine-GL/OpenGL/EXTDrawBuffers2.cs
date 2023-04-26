@@ -8,30 +8,28 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class EXTDrawBuffers2Functions {
+	public unsafe class EXTDrawBuffers2Functions {
 
-		public delegate void PFN_glColorMaski(uint buf, byte r, byte g, byte b, byte a);
 		[ExternFunction(AltNames = new string[] { "glColorMaskIndexedEXT" })]
-		public PFN_glColorMaski glColorMaski;
-		public delegate void PFN_glGetBooleani_v(uint target, uint index, [NativeType("GLboolean*")] IntPtr data);
+		[NativeType("void glColorMaskIndexedEXT(GLenum buf, GLboolean r, GLboolean g, GLboolean b, GLboolean a)")]
+		public delegate* unmanaged<uint, byte, byte, byte, byte, void> glColorMaski;
 		[ExternFunction(AltNames = new string[] { "glGetBooleanIndexedvEXT" })]
-		public PFN_glGetBooleani_v glGetBooleani_v;
-		public delegate void PFN_glGetIntegeri_v(uint target, uint index, [NativeType("GLboolean*")] IntPtr data);
+		[NativeType("void glGetBooleani_v(GLenum target, GLuint index, GLboolean* pData)")]
+		public delegate* unmanaged<uint, uint, byte*, void> glGetBooleani_v;
 		[ExternFunction(AltNames = new string[] { "glGetIntegerIndexedvEXT" })]
-		public PFN_glGetIntegeri_v glGetIntegeri_v;
-		public delegate void PFN_glEnablei(uint target, uint index);
+		[NativeType("void glGetIntegerIndexedvEXT(GLenum target, GLuint index, GLint* pData)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetIntegeri_v;
 		[ExternFunction(AltNames = new string[] { "glEnableIndexedEXT" })]
-		public PFN_glEnablei glEnablei;
-		public delegate void PFN_glDisablei(uint target, uint index);
+		[NativeType("void glEnableIndexedEXT(GLenum target, GLuint index)")]
+		public delegate* unmanaged<uint, uint, void> glEnablei;
 		[ExternFunction(AltNames = new string[] { "glDisableIndexedEXT" })]
-		public PFN_glDisablei glDisablei;
-		public delegate byte PFN_glIsEnabledi(uint target, uint index);
+		[NativeType("void glDisableIndexedEXT(GLenum target, GLuint index)")]
+		public delegate* unmanaged<uint, uint, void> glDisablei;
 		[ExternFunction(AltNames = new string[] { "glIsEnabledIndexedEXT" })]
-		public PFN_glIsEnabledi glIsEnabledi;
+		[NativeType("GLboolean glIsEnabledIndexedEXT(GLenum target, GLuint index)")]
+		public delegate* unmanaged<uint, uint, byte> glIsEnabledi;
 
 	}
-#nullable restore
 
 	public class EXTDrawBuffers2 : IGLObject {
 
@@ -44,26 +42,41 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ColorMaskIndexed(uint buffer, bool r, bool g, bool b, bool a) => Functions.glColorMaski(buffer, (byte)(r ? 1 : 0), (byte)(g ? 1 : 0), (byte)(b ? 1 : 0), (byte)(a ? 1 : 0));
+		public void ColorMaskIndexed(uint buffer, bool r, bool g, bool b, bool a) {
+			unsafe {
+				Functions.glColorMaski(buffer, (byte)(r ? 1 : 0), (byte)(g ? 1 : 0), (byte)(b ? 1 : 0), (byte)(a ? 1 : 0));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool GetBoolean(GLIndexedCapability cap, uint index) {
 			unsafe {
 				byte data = 0;
-				Functions.glGetBooleani_v((uint)cap, index, (IntPtr)(&data));
+				Functions.glGetBooleani_v((uint)cap, index, &data);
 				return data != 0;
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Enable(GLIndexedCapability cap, uint index) => Functions.glEnablei((uint)cap, index);
+		public void Enable(GLIndexedCapability cap, uint index) {
+			unsafe {
+				Functions.glEnablei((uint)cap, index);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Disable(GLIndexedCapability cap, uint index) => Functions.glDisablei((uint)cap, index);
+		public void Disable(GLIndexedCapability cap, uint index) {
+			unsafe {
+				Functions.glDisablei((uint)cap, index);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsEnabled(GLIndexedCapability cap, uint index) => Functions.glIsEnabledi((uint)cap, index) != 0;
-
+		public bool IsEnabled(GLIndexedCapability cap, uint index) {
+			unsafe {
+				return Functions.glIsEnabledi((uint)cap, index) != 0;
+			}
+		}
 	}
 
 }

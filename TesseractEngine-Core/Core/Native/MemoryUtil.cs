@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -246,6 +247,52 @@ namespace Tesseract.Core.Native {
 		/// <param name="nullTerminate">If the string should be null-terminated</param>
 		/// <returns>Span of string bytes</returns>
 		public static Span<byte> StackallocUTF8(ReadOnlySpan<char> str, Span<byte> stackbuf, bool nullTerminate = true) => StackallocStringBytes(str, stackbuf, Encoding.UTF8, nullTerminate);
+
+		/// <summary>
+		/// Creates a span of pointers to encoded string bytes, using a stack allocated buffer.
+		/// </summary>
+		/// <param name="strs">The collection of strings to encode</param>
+		/// <param name="ptrs">The span to store the string pointers into</param>
+		/// <param name="stack">The stack to allocate the string bytes from</param>
+		/// <param name="encoding">The string encoding to use</param>
+		/// <returns>The span of string pointers</returns>
+		public static Span<IntPtr> StackallocStringPtrArray(IReadOnlyCollection<string> strs, Span<IntPtr> ptrs, MemoryStack stack, Encoding encoding) {
+			Span<byte> buf = stackalloc byte[4096];
+
+			int i = 0;
+			foreach(string str in strs) {
+				int nBytes = encoding.GetBytes(str, buf);
+				if (nBytes > buf.Length - 4) {
+					nBytes = encoding.GetByteCount(str) + 1;
+					buf = new byte[nBytes];
+					buf[^1] = 0;
+					encoding.GetBytes(str, buf);
+				} else {
+					buf[nBytes++] = 0;
+				}
+				ptrs[i++] = stack.Values((ReadOnlySpan<byte>)buf[..nBytes]);
+			}
+
+			return ptrs;
+		}
+
+		/// <summary>
+		/// Creates a span of pointers to ASCII encoded string bytes, using a stack allocated buffer.
+		/// </summary>
+		/// <param name="strs">The collection of strings to encode</param>
+		/// <param name="ptrs">The span to store the string pointers into</param>
+		/// <param name="stack">The stack to allocate the string bytes from</param>
+		/// <returns>The span of string pointers</returns>
+		public static Span<IntPtr> StackallocASCIIArray(IReadOnlyCollection<string> strs, Span<IntPtr> ptrs, MemoryStack stack) => StackallocStringPtrArray(strs, ptrs, stack, Encoding.ASCII);
+
+		/// <summary>
+		/// Creates a span of pointers to UTF-8 encoded string bytes, using a stack allocated buffer.
+		/// </summary>
+		/// <param name="strs">The collection of strings to encode</param>
+		/// <param name="ptrs">The span to store the string pointers into</param>
+		/// <param name="stack">The stack to allocate the string bytes from</param>
+		/// <returns>The span of string pointers</returns>
+		public static Span<IntPtr> StackallocUTF8Array(IReadOnlyCollection<string> strs, Span<IntPtr> ptrs, MemoryStack stack) => StackallocStringPtrArray(strs, ptrs, stack, Encoding.UTF8);
 
 		// Searches
 

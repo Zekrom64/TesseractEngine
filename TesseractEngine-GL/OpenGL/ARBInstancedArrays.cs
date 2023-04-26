@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBInstancedArraysFunctions {
+	public unsafe class ARBInstancedArraysFunctions {
 
-		public delegate void PFN_glVertexAttribDivisor(uint index, uint divisor);
 		[ExternFunction(AltNames = new string[] { "glVertexAttribDivisorARB" })]
-		public PFN_glVertexAttribDivisor glVertexAttribDivisor;
+		[NativeType("void glVertexAttribDivisor(GLuint index, GLuint divisor)")]
+		public delegate* unmanaged<uint, uint, void> glVertexAttribDivisor;
 
 	}
-#nullable restore
 
 	public class ARBInstancedArrays : IGLObject {
 
@@ -29,8 +27,11 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribDivisor(uint index, uint divisor) => Functions.glVertexAttribDivisor(index, divisor);
-
+		public void VertexAttribDivisor(uint index, uint divisor) {
+			unsafe {
+				Functions.glVertexAttribDivisor(index, divisor);
+			}
+		}
 	}
 
 }

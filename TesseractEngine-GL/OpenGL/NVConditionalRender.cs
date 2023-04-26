@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class NVConditionalRenderFunctions {
+	public unsafe class NVConditionalRenderFunctions {
 
-		public delegate void PFN_glBeginConditionalRender(uint id, uint mode);
 		[ExternFunction(AltNames = new string[] { "glBeginConditionalRenderNV", "glBeginConditionalRenderNVX" })]
-		public PFN_glBeginConditionalRender glBeginConditionalRender;
-		public delegate void PFN_glEndConditionalRender();
+		[NativeType("void glBeginConditionalRender(GLuint id, GLenum mode)")]
+		public delegate* unmanaged<uint, uint, void> glBeginConditionalRender;
 		[ExternFunction(AltNames = new string[] { "glEndConditionalRenderNV", "glEndConditionalRenderNVX" })]
-		public PFN_glEndConditionalRender glEndConditionalRender;
+		[NativeType("void glEndConditionalRender()")]
+		public delegate* unmanaged<void> glEndConditionalRender;
 
 	}
-#nullable restore
 
 	public class NVConditionalRender : IGLObject {
 
@@ -33,11 +31,18 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BeginConditionalRender(uint id, GLQueryMode mode) => Functions.glBeginConditionalRender(id, (uint)mode);
+		public void BeginConditionalRender(uint id, GLQueryMode mode) {
+			unsafe {
+				Functions.glBeginConditionalRender(id, (uint)mode);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void EndConditionalRender() => Functions.glEndConditionalRender();
-
+		public void EndConditionalRender() {
+			unsafe {
+				Functions.glEndConditionalRender();
+			}
+		}
 	}
 
 }

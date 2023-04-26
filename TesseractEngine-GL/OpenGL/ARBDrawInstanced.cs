@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBDrawInstancedFunctions {
+	public unsafe class ARBDrawInstancedFunctions {
 
-		public delegate void PFN_glDrawArraysInstanced(uint mode, int first, int count, int primcount);
 		[ExternFunction(AltNames = new string[] { "glDrawArraysInstancedARB" })]
-		public PFN_glDrawArraysInstanced glDrawArraysInstanced;
-		public delegate void PFN_glDrawElementsInstanced(uint mode, int count, uint type, IntPtr indices, int primcount);
+		[NativeType("void glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei primCount)")]
+		public delegate* unmanaged<uint, int, int, int, void> glDrawArraysInstanced;
 		[ExternFunction(AltNames = new string[] { "glDrawElementsInstancedARB" })]
-		public PFN_glDrawElementsInstanced glDrawElementsInstanced;
+		[NativeType("void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, void* pIndices, GLsizei primCount)")]
+		public delegate* unmanaged<uint, int, uint, IntPtr, int, void> glDrawElementsInstanced;
 
 	}
-#nullable restore
 
 	public class ARBDrawInstanced : IGLObject {
 
@@ -32,10 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawArraysInstanced(GLDrawMode mode, int first, int count, int primcount) => Functions.glDrawArraysInstanced((uint)mode, first, count, primcount);
+		public void DrawArraysInstanced(GLDrawMode mode, int first, int count, int primcount) {
+			unsafe {
+				Functions.glDrawArraysInstanced((uint)mode, first, count, primcount);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsInstanced(GLDrawMode mode, int count, GLIndexType type, nint offset, int primcount) => Functions.glDrawElementsInstanced((uint)mode, count, (uint)type, offset, primcount);
-
+		public void DrawElementsInstanced(GLDrawMode mode, int count, GLIndexType type, nint offset, int primcount) {
+			unsafe {
+				Functions.glDrawElementsInstanced((uint)mode, count, (uint)type, offset, primcount);
+			}
+		}
 	}
 }

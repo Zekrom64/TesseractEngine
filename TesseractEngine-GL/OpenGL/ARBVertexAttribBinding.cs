@@ -8,30 +8,28 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBVertexAttribBindingFunctions {
+	public unsafe class ARBVertexAttribBindingFunctions {
 
-		public delegate void PFN_glBindVertexBuffer(uint bindingIndex, uint buffer, nint offset, int stride);
 		[ExternFunction(AltNames = new string[] { "glBindVertexBufferARB" })]
-		public PFN_glBindVertexBuffer glBindVertexBuffer;
-		public delegate void PFN_glVertexAttribFormat(uint attribIndex, int size, uint type, byte normalized, uint relativeOffset);
+		[NativeType("void glBindVertexBuffer(GLuint bindingIndex, GLuint buffer, GLintptr offset, GLsizei stride)")]
+		public delegate* unmanaged<uint, uint, nint, int, void> glBindVertexBuffer;
 		[ExternFunction(AltNames = new string[] { "glVertexAttribFormat" })]
-		public PFN_glVertexAttribFormat glVertexAttribFormat;
-		public delegate void PFN_glVertexAttribIFormat(uint attribIndex, int size, uint type, uint relativeOffset);
+		[NativeType("void glVertexAttribFormat(GLuint attribIndex, GLint size, GLenum type, GLboolean normalized, GLuint relativeOffset)")]
+		public delegate* unmanaged<uint, int, uint, byte, uint, void> glVertexAttribFormat;
 		[ExternFunction(AltNames = new string[] { "glVertexAttribIFormat" })]
-		public PFN_glVertexAttribIFormat glVertexAttribIFormat;
-		public delegate void PFN_glVertexAttribLFormat(uint attribIndex, int size, uint type, uint relativeOffset);
+		[NativeType("void glVertexAttribIFormat(GLuint attribIndex, GLint size, GLenum type, GLuint relativeOffset)")]
+		public delegate* unmanaged<uint, int, uint, uint, void> glVertexAttribIFormat;
 		[ExternFunction(AltNames = new string[] { "glVertexAttribLFormat" })]
-		public PFN_glVertexAttribLFormat glVertexAttribLFormat;
-		public delegate void PFN_glVertexAttribBinding(uint attribIndex, uint bindingIndex);
+		[NativeType("void glVertexAttribLFormat(GLuint attribIndex, GLint size, GLenum type, GLuint relativeOffset)")]
+		public delegate* unmanaged<uint, int, uint, uint, void> glVertexAttribLFormat;
 		[ExternFunction(AltNames = new string[] { "glVertexAttribBindingARB" })]
-		public PFN_glVertexAttribBinding glVertexAttribBinding;
-		public delegate void PFN_glVertexBindingDivisor(uint bindingIndex, uint divisor);
+		[NativeType("void glVertexAttribBinding(GLuint attribIndex, GLuint bindingIndex)")]
+		public delegate* unmanaged<uint, uint, void> glVertexAttribBinding;
 		[ExternFunction(AltNames = new string[] { "glVertexBindingDivisorARB" })]
-		public PFN_glVertexBindingDivisor glVertexBindingDivisor;
+		[NativeType("void glVertexBindingDivisor(GLuint bindingIndex, GLuint divisor)")]
+		public delegate* unmanaged<uint, uint, void> glVertexBindingDivisor;
 
 	}
-#nullable restore
 
 	public class ARBVertexAttribBinding : IGLObject {
 
@@ -44,22 +42,45 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindVertexBuffer(uint bindingIndex, uint buffer, nint offset, int stride) => Functions.glBindVertexBuffer(bindingIndex, buffer, offset, stride);
+		public void BindVertexBuffer(uint bindingIndex, uint buffer, nint offset, int stride) {
+			unsafe {
+				Functions.glBindVertexBuffer(bindingIndex, buffer, offset, stride);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribFormat(uint attribIndex, int size, GLTextureType type, bool normalized, uint relativeOffset) => Functions.glVertexAttribFormat(attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
+		public void VertexAttribFormat(uint attribIndex, int size, GLTextureType type, bool normalized, uint relativeOffset) {
+			unsafe {
+				Functions.glVertexAttribFormat(attribIndex, size, (uint)type, (byte)(normalized ? 1 : 0), relativeOffset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribIFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexAttribIFormat(attribIndex, size, (uint)type, relativeOffset);
+		public void VertexAttribIFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) {
+			unsafe {
+				Functions.glVertexAttribIFormat(attribIndex, size, (uint)type, relativeOffset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribLFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) => Functions.glVertexAttribLFormat(attribIndex, size, (uint)type, relativeOffset);
+		public void VertexAttribLFormat(uint attribIndex, int size, GLTextureType type, uint relativeOffset) {
+			unsafe {
+				Functions.glVertexAttribLFormat(attribIndex, size, (uint)type, relativeOffset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribBinding(uint attribIndex, uint bindingIndex) => Functions.glVertexAttribBinding(attribIndex, bindingIndex);
+		public void VertexAttribBinding(uint attribIndex, uint bindingIndex) {
+			unsafe {
+				Functions.glVertexAttribBinding(attribIndex, bindingIndex);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexBindingDivisor(uint bindingIndex, uint divisor) => Functions.glVertexBindingDivisor(bindingIndex, divisor);
-
+		public void VertexBindingDivisor(uint bindingIndex, uint divisor) {
+			unsafe {
+				Functions.glVertexBindingDivisor(bindingIndex, divisor);
+			}
+		}
 	}
 }

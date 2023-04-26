@@ -8,19 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class GL32Functions {
+	public unsafe class GL32Functions {
 
-		public delegate void PFN_glFramebufferTexture(uint target, uint attachment, uint texture, int level);
-		public delegate void PFN_glGetBufferParameteri64v(uint target, uint value, out long data);
-		public delegate void PFN_glGetInteger64i_v(uint pname, uint index, [NativeType("GLint64*")] IntPtr data);
-
-		public PFN_glFramebufferTexture glFramebufferTexture;
-		public PFN_glGetBufferParameteri64v glGetBufferParameteri64v;
-		public PFN_glGetInteger64i_v glGetInteger64i_v;
+		[NativeType("void glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level)")]
+		public delegate* unmanaged<uint, uint, uint, int, void> glFramebufferTexture;
+		[NativeType("void glGetBufferParameteri64v(GLenum target, GLuint value, GLint64* pData)")]
+		public delegate* unmanaged<uint, uint, out long, void> glGetBufferParameteri64v;
+		[NativeType("void glGetInteger64i_v(GLenum pname, GLuint index, GLint64* pData)")]
+		public delegate* unmanaged<uint, uint, long*, void> glGetInteger64i_v;
 
 	}
-#nullable restore
 
 	public class GL32 : GL31 {
 
@@ -31,20 +28,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferTexture(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level) =>
-			FunctionsGL32.glFramebufferTexture((uint)target, (uint)attachment, texture, level);
+		public void FramebufferTexture(GLFramebufferTarget target, GLFramebufferAttachment attachment, uint texture, int level) {
+			unsafe {
+				FunctionsGL32.glFramebufferTexture((uint)target, (uint)attachment, texture, level);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public long GetBufferParameteri64(GLBufferTarget target, GLGetBufferParameter pname) {
-			FunctionsGL32.glGetBufferParameteri64v((uint)target, (uint)pname, out long value);
-			return value;
+			unsafe {
+				FunctionsGL32.glGetBufferParameteri64v((uint)target, (uint)pname, out long value);
+				return value;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public long GetInteger64(uint pname, uint index = 0) {
 			unsafe {
 				long value = 0;
-				FunctionsGL32.glGetInteger64i_v(pname, index, (IntPtr)(&value));
+				FunctionsGL32.glGetInteger64i_v(pname, index, &value);
 				return value;
 			}
 		}
@@ -52,7 +54,7 @@ namespace Tesseract.OpenGL {
 		public Span<long> GetInteger(uint pname, in Span<long> values, uint index = 0) {
 			unsafe {
 				fixed (long* pValues = values) {
-					FunctionsGL32.glGetInteger64i_v(pname, index, (IntPtr)pValues);
+					FunctionsGL32.glGetInteger64i_v(pname, index, pValues);
 				}
 				return values;
 			}

@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTextureBarrierFunctions {
+	public unsafe class ARBTextureBarrierFunctions {
 
-		public delegate void PFN_glTextureBarrier();
 		[ExternFunction(AltNames = new string[] { "glTextureBarrierARB" })]
-		public PFN_glTextureBarrier glTextureBarrier;
+		[NativeType("void glTextureBarrier()")]
+		public delegate* unmanaged<void> glTextureBarrier;
 
 	}
-#nullable restore
 
 	public class ARBTextureBarrier : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TextureBarrier() => Functions.glTextureBarrier();
-
+		public void TextureBarrier() {
+			unsafe {
+				Functions.glTextureBarrier();
+			}
+		}
 	}
 }

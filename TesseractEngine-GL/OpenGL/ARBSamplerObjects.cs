@@ -8,54 +8,52 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBSamplerObjectsFunctions {
+	public unsafe class ARBSamplerObjectsFunctions {
 
-		public delegate void PFN_glGenSamplers(int count, [NativeType("GLuint*")] IntPtr samplers);
 		[ExternFunction(AltNames = new string[] { "glGenSamplersARB" })]
-		public PFN_glGenSamplers glGenSamplers;
-		public delegate void PFN_glDeleteSamplers(int count, [NativeType("const GLuint*")] IntPtr samplers);
+		[NativeType("void glGenSamplers(GLsizei count, GLuint* pSamplers)")]
+		public delegate* unmanaged<int, uint*, void> glGenSamplers;
 		[ExternFunction(AltNames = new string[] { "glDeleteSamplersARB" })]
-		public PFN_glDeleteSamplers glDeleteSamplers;
-		public delegate byte PFN_glIsSampler(uint sampler);
+		[NativeType("void glDeleteSamplers(GLsizei count, const GLuint* pSamplers)")]
+		public delegate* unmanaged<int, uint*, void> glDeleteSamplers;
 		[ExternFunction(AltNames = new string[] { "glIsSamplerARB" })]
-		public PFN_glIsSampler glIsSampler;
-		public delegate void PFN_glBindSampler(uint unit, uint sampler);
+		[NativeType("GLboolean glIsSampler(GLuint sampler)")]
+		public delegate* unmanaged<uint, byte> glIsSampler;
 		[ExternFunction(AltNames = new string[] { "glBindSamplerARB" })]
-		public PFN_glBindSampler glBindSampler;
-		public delegate void PFN_glSamplerParameteri(uint sampler, uint pname, int param);
+		[NativeType("void glBindSampler(GLuint unit, GLuint sampler)")]
+		public delegate* unmanaged<uint, uint, void> glBindSampler;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameteriARB" })]
-		public PFN_glSamplerParameteri glSamplerParameteri;
-		public delegate void PFN_glSamplerParameterf(uint sampler, uint pname, float param);
+		[NativeType("void glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)")]
+		public delegate* unmanaged<uint, uint, int, void> glSamplerParameteri;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameterfARB" })]
-		public PFN_glSamplerParameterf glSamplerParameterf;
-		public delegate void PFN_glSamplerParameteriv(uint sampler, uint pname, [NativeType("const GLint*")] IntPtr _params);
+		[NativeType("void glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)")]
+		public delegate* unmanaged<uint, uint, float, void> glSamplerParameterf;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameterivARB" })]
-		public PFN_glSamplerParameteriv glSamplerParameteriv;
-		public delegate void PFN_glSamplerParameterfv(uint sampler, uint pname, [NativeType("const GLfloat*")] IntPtr _params);
+		[NativeType("void glSamplerParameteriv(GLuint sampler, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glSamplerParameteriv;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameterfvARB" })]
-		public PFN_glSamplerParameterfv glSamplerParameterfv;
-		public delegate void PFN_glSamplerParameterIiv(uint sampler, uint pname, [NativeType("const GLint*")] IntPtr _params);
+		[NativeType("void glSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* pParams)")]
+		public delegate* unmanaged<uint, uint, float*, void> glSamplerParameterfv;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameterIivARB" })]
-		public PFN_glSamplerParameterIiv glSamplerParameterIiv;
-		public delegate void PFN_glSamplerParameterIuiv(uint sampler, uint pname, [NativeType("const GLuint*")] IntPtr _params);
+		[NativeType("void glSamplerParameterIiv(GLuint sampler, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glSamplerParameterIiv;
 		[ExternFunction(AltNames = new string[] { "glSamplerParameterIuivARB" })]
-		public PFN_glSamplerParameterIuiv glSamplerParameterIuiv;
-		public delegate void PFN_glGetSamplerParameteriv(uint sampler, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glSamplerParameterIuiv(GLuint sampler, GLenum pname, GLuint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint*, void> glSamplerParameterIuiv;
 		[ExternFunction(AltNames = new string[] { "glGetSamplerParameteriv" })]
-		public PFN_glGetSamplerParameteriv glGetSamplerParameteriv;
-		public delegate void PFN_glGetSamplerParameterfv(uint sampler, uint pname, [NativeType("GLfloat*")] IntPtr _params);
+		[NativeType("void glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetSamplerParameteriv;
 		[ExternFunction(AltNames = new string[] { "glGetSamplerParameterfv" })]
-		public PFN_glGetSamplerParameterfv glGetSamplerParameterfv;
-		public delegate void PFN_glGetSamplerParameterIiv(uint sampler, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* pParams)")]
+		public delegate* unmanaged<uint, uint, float*, void> glGetSamplerParameterfv;
 		[ExternFunction(AltNames = new string[] { "glGetSamplerParameterIiv" })]
-		public PFN_glGetSamplerParameterIiv glGetSamplerParameterIiv;
-		public delegate void PFN_glGetSamplerParameterIuiv(uint sampler, uint pname, [NativeType("GLuint*")] IntPtr _params);
+		[NativeType("void glGetSamplerParameterIiv(GLuint sampler, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetSamplerParameterIiv;
 		[ExternFunction(AltNames = new string[] { "glGetSamplerParameterIuiv" })]
-		public PFN_glGetSamplerParameterIuiv glGetSamplerParameterIuiv;
+		[NativeType("void glGetSamplerParameterIuiv(GLuint sampler, GLenum pname, GLuint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint*, void> glGetSamplerParameterIuiv;
 
 	}
-#nullable restore
 
 	public class ARBSamplerObjects {
 		
@@ -71,7 +69,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GenSamplers(Span<uint> samplers) {
 			unsafe {
 				fixed(uint* pSamplers = samplers) {
-					Functions.glGenSamplers(samplers.Length, (IntPtr)pSamplers);
+					Functions.glGenSamplers(samplers.Length, pSamplers);
 				}
 			}
 			return samplers;
@@ -82,7 +80,7 @@ namespace Tesseract.OpenGL {
 			uint[] samplers = new uint[n];
 			unsafe {
 				fixed(uint* pSamplers = samplers) {
-					Functions.glGenSamplers(n, (IntPtr)pSamplers);
+					Functions.glGenSamplers(n, pSamplers);
 				}
 			}
 			return samplers;
@@ -92,7 +90,7 @@ namespace Tesseract.OpenGL {
 		public uint GenSamplers() {
 			uint sampler = 0;
 			unsafe {
-				Functions.glGenSamplers(1, (IntPtr)(&sampler));
+				Functions.glGenSamplers(1, &sampler);
 			}
 			return sampler;
 		}
@@ -101,7 +99,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteSamplers(in ReadOnlySpan<uint> samplers) {
 			unsafe {
 				fixed(uint* pSamplers = samplers) {
-					Functions.glDeleteSamplers(samplers.Length, (IntPtr)pSamplers);
+					Functions.glDeleteSamplers(samplers.Length, pSamplers);
 				}
 			}
 		}
@@ -110,7 +108,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteSamplers(params uint[] samplers) {
 			unsafe {
 				fixed(uint* pSamplers = samplers) {
-					Functions.glDeleteSamplers(samplers.Length, (IntPtr)pSamplers);
+					Functions.glDeleteSamplers(samplers.Length, pSamplers);
 				}
 			}
 		}
@@ -118,27 +116,43 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteSamplers(uint sampler) {
 			unsafe {
-				Functions.glDeleteSamplers(1, (IntPtr)(&sampler));
+				Functions.glDeleteSamplers(1, &sampler);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsSampler(uint sampler) => Functions.glIsSampler(sampler) != 0;
+		public bool IsSampler(uint sampler) {
+			unsafe {
+				return Functions.glIsSampler(sampler) != 0;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindSampler(uint unit, uint sampler) => Functions.glBindSampler(unit, sampler);
+		public void BindSampler(uint unit, uint sampler) {
+			unsafe {
+				Functions.glBindSampler(unit, sampler);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SamplerParameter(uint sampler, GLSamplerParameter pname, int value) => Functions.glSamplerParameteri(sampler, (uint)pname, value);
+		public void SamplerParameter(uint sampler, GLSamplerParameter pname, int value) {
+			unsafe {
+				Functions.glSamplerParameteri(sampler, (uint)pname, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SamplerParameter(uint sampler, GLSamplerParameter pname, float value) => Functions.glSamplerParameterf(sampler, (uint)pname, value);
+		public void SamplerParameter(uint sampler, GLSamplerParameter pname, float value) {
+			unsafe {
+				Functions.glSamplerParameterf(sampler, (uint)pname, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SamplerParameter(uint sampler, GLSamplerParameter pname, in ReadOnlySpan<int> values) {
 			unsafe {
 				fixed(int* pValues = values) {
-					Functions.glSamplerParameteriv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameteriv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -147,7 +161,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameter(uint sampler, GLSamplerParameter pname, params int[] values) {
 			unsafe {
 				fixed (int* pValues = values) {
-					Functions.glSamplerParameteriv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameteriv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -156,7 +170,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameter(uint sampler, GLSamplerParameter pname, in ReadOnlySpan<float> values) {
 			unsafe {
 				fixed (float* pValues = values) {
-					Functions.glSamplerParameterfv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterfv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -165,7 +179,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameter(uint sampler, GLSamplerParameter pname, params float[] values) {
 			unsafe {
 				fixed (float* pValues = values) {
-					Functions.glSamplerParameterfv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterfv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -174,7 +188,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameterI(uint sampler, GLSamplerParameter pname, in ReadOnlySpan<int> values) {
 			unsafe {
 				fixed (int* pValues = values) {
-					Functions.glSamplerParameterIiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterIiv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -183,7 +197,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameterI(uint sampler, GLSamplerParameter pname, params int[] values) {
 			unsafe {
 				fixed (int* pValues = values) {
-					Functions.glSamplerParameterIiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterIiv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -192,7 +206,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameterI(uint sampler, GLSamplerParameter pname, in ReadOnlySpan<uint> values) {
 			unsafe {
 				fixed (uint* pValues = values) {
-					Functions.glSamplerParameterIuiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterIuiv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -201,7 +215,7 @@ namespace Tesseract.OpenGL {
 		public void SamplerParameterI(uint sampler, GLSamplerParameter pname, params uint[] values) {
 			unsafe {
 				fixed (uint* pValues = values) {
-					Functions.glSamplerParameterIuiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glSamplerParameterIuiv(sampler, (uint)pname, pValues);
 				}
 			}
 		}
@@ -210,7 +224,7 @@ namespace Tesseract.OpenGL {
 		public int GetSamplerParameteri(uint sampler, GLSamplerParameter pname) {
 			int value = 0;
 			unsafe {
-				Functions.glGetSamplerParameteriv(sampler, (uint)pname, (IntPtr)(&value));
+				Functions.glGetSamplerParameteriv(sampler, (uint)pname, &value);
 			}
 			return value;
 		}
@@ -219,7 +233,7 @@ namespace Tesseract.OpenGL {
 		public float GetSamplerParamterf(uint sampler, GLSamplerParameter pname) {
 			float value = 0;
 			unsafe {
-				Functions.glGetSamplerParameterfv(sampler, (uint)pname, (IntPtr)(&value));
+				Functions.glGetSamplerParameterfv(sampler, (uint)pname, &value);
 			}
 			return value;
 		}
@@ -228,7 +242,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetSamplerParameter(uint sampler, GLSamplerParameter pname, Span<int> values) {
 			unsafe {
 				fixed(int* pValues = values) {
-					Functions.glGetSamplerParameteriv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glGetSamplerParameteriv(sampler, (uint)pname, pValues);
 				}
 			}
 			return values;
@@ -238,7 +252,7 @@ namespace Tesseract.OpenGL {
 		public Span<float> GetSamplerParameter(uint sampler, GLSamplerParameter pname, Span<float> values) {
 			unsafe {
 				fixed (float* pValues = values) {
-					Functions.glGetSamplerParameterfv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glGetSamplerParameterfv(sampler, (uint)pname, pValues);
 				}
 			}
 			return values;
@@ -248,7 +262,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetSamplerParameterI(uint sampler, GLSamplerParameter pname, Span<int> values) {
 			unsafe {
 				fixed (int* pValues = values) {
-					Functions.glGetSamplerParameterIiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glGetSamplerParameterIiv(sampler, (uint)pname, pValues);
 				}
 			}
 			return values;
@@ -258,7 +272,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GetSamplerParameterI(uint sampler, GLSamplerParameter pname, Span<uint> values) {
 			unsafe {
 				fixed (uint* pValues = values) {
-					Functions.glGetSamplerParameterIuiv(sampler, (uint)pname, (IntPtr)pValues);
+					Functions.glGetSamplerParameterIuiv(sampler, (uint)pname, pValues);
 				}
 			}
 			return values;

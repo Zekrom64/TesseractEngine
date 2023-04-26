@@ -9,18 +9,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBBlendFuncExtendedFunctions {
+	public unsafe class ARBBlendFuncExtendedFunctions {
 
-		public delegate void PFN_glBindFragDataLocationIndexed(uint program, uint colorNumber, uint index, [MarshalAs(UnmanagedType.LPStr)] string name);
 		[ExternFunction(AltNames = new string[] { "glBindFragDataLocationIndexedARB" })]
-		public PFN_glBindFragDataLocationIndexed glBindFragDataLocationIndexed;
-		public delegate int PFN_glGetFragDataIndex(uint program, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("void glBindFragDataLocationIndexed(GLuint program, GLuint colorNumber, GLuint index, const char* name)")]
+		public delegate* unmanaged<uint, uint, uint, byte*, void> glBindFragDataLocationIndexed;
 		[ExternFunction(AltNames = new string[] { "glGetFragDataIndexARB" })]
-		public PFN_glGetFragDataIndex glGetFragDataIndex;
+		[NativeType("int glGetFragDataIndex(GLuint program, const char* name)")]
+		public delegate* unmanaged<uint, byte*, int> glGetFragDataIndex;
 
 	}
-#nullable restore
 
 	public class ARBBlendFuncExtended : IGLObject {
 
@@ -33,11 +31,22 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindFragDataLocationIndexed(uint program, uint colorNumber, uint index, string name) => Functions.glBindFragDataLocationIndexed(program, colorNumber, index, name);
+		public void BindFragDataLocationIndexed(uint program, uint colorNumber, uint index, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					Functions.glBindFragDataLocationIndexed(program, colorNumber, index, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetFragDataIndex(uint program, string name) => Functions.glGetFragDataIndex(program, name);
-	
+		public int GetFragDataIndex(uint program, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetFragDataIndex(program, pName);
+				}
+			}
+		}
 	}
 
 }

@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTextureBufferRangeFunctions {
+	public unsafe class ARBTextureBufferRangeFunctions {
 
-		public delegate void PFN_glTexBufferRange(uint target, uint internalFormat, uint buffer, nint offset, nint size);
 		[ExternFunction(AltNames = new string[] { "glTexBufferRangeARB" })]
-		public PFN_glTexBufferRange glTexBufferRange;
+		[NativeType("void glTexBufferRange(GLenum target, GLenum internalFormat, GLuint buffer, GLintptr offset, GLsizeiptr size)")]
+		public delegate* unmanaged<uint, uint, uint, nint, nint, void> glTexBufferRange;
 
 	}
-#nullable restore
 
 	public class ARBTextureBufferRange : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexBufferRange(GLBufferTarget target, GLInternalFormat internalFormat, uint buffer, nint offset, nint size) => Functions.glTexBufferRange((uint)target, (uint)internalFormat, buffer, offset, size);
-
+		public void TexBufferRange(GLBufferTarget target, GLInternalFormat internalFormat, uint buffer, nint offset, nint size) {
+			unsafe {
+				Functions.glTexBufferRange((uint)target, (uint)internalFormat, buffer, offset, size);
+			}
+		}
 	}
 }

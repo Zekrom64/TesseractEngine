@@ -8,24 +8,22 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTextureMultisampleFunctions {
+	public unsafe class ARBTextureMultisampleFunctions {
 
-		public delegate void PFN_glTexImage2DMultisample(uint target, int samples, uint internalFormat, int width, int height, byte fixedSampleLocations);
 		[ExternFunction(AltNames = new string[] { "glTexImage2DMultisampleARB" })]
-		public PFN_glTexImage2DMultisample glTexImage2DMultisample;
-		public delegate void PFN_glTexImage3DMultisample(uint target, int samples, uint internalFormat, int width, int height, int depth, byte fixedSampleLocations);
+		[NativeType("void glTexImage2DMultisample(GLenum target, GLint samples, GLenum internalFormat, GLint width, GLint height, GLboolean fixedSampleLocations)")]
+		public delegate* unmanaged<uint, int, uint, int, int, byte, void> glTexImage2DMultisample;
 		[ExternFunction(AltNames = new string[] { "glTexImage3DMultisampleARB" })]
-		public PFN_glTexImage3DMultisample glTexImage3DMultisample;
-		public delegate void PFN_glGetMultisamplefv(uint pname, uint index, [NativeType("GLfloat*")] IntPtr val);
+		[NativeType("void glTexImage3DMultisample(GLenum target, GLint samples, GLenum internalFormat, GLsizei wdith, GLsizei height, GLsizei depth, GLboolean fixedSampleLocations)")]
+		public delegate* unmanaged<uint, int, uint, int, int, int, byte, void> glTexImage3DMultisample;
 		[ExternFunction(AltNames = new string[] { "glGetMultisamplefvARB" })]
-		public PFN_glGetMultisamplefv glGetMultisamplefv;
-		public delegate void PFN_glSampleMaski(uint index, uint mask);
+		[NativeType("void glGetMultisamplefv(GLenum pname, GLuint index, GLfloat* pValue)")]
+		public delegate* unmanaged<uint, uint, float*, void> glGetMultisamplefv;
 		[ExternFunction(AltNames = new string[] { "glSampleMaskiARB" })]
-		public PFN_glSampleMaski glSampleMaski;
+		[NativeType("void glSampleMaski(GLuint index, GLuint mask)")]
+		public delegate* unmanaged<uint, uint, void> glSampleMaski;
 
 	}
-#nullable restore
 
 	public class ARBTextureMultisample : IGLObject {
 
@@ -38,24 +36,35 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage2DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, bool fixedSampleLocations) => Functions.glTexImage2DMultisample((uint)target, samples, (uint)internalFormat, width, height, (byte)(fixedSampleLocations ? 1 : 0));
+		public void TexImage2DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, bool fixedSampleLocations) {
+			unsafe {
+				Functions.glTexImage2DMultisample((uint)target, samples, (uint)internalFormat, width, height, (byte)(fixedSampleLocations ? 1 : 0));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexImage3DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, int depth, bool fixedSampleLocations) => Functions.glTexImage3DMultisample((uint)target, samples, (uint)internalFormat, width, height, depth, (byte)(fixedSampleLocations ? 1 : 0));
+		public void TexImage3DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, int depth, bool fixedSampleLocations) {
+			unsafe {
+				Functions.glTexImage3DMultisample((uint)target, samples, (uint)internalFormat, width, height, depth, (byte)(fixedSampleLocations ? 1 : 0));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<float> GetMultisample(GLGetMutlisample pname, uint index, Span<float> vals) {
 			unsafe {
 				fixed(float* pVals = vals) {
-					Functions.glGetMultisamplefv((uint)pname, index, (IntPtr)pVals);
+					Functions.glGetMultisamplefv((uint)pname, index, pVals);
 				}
 			}
 			return vals;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SampleMask(uint maskNumber, uint mask) => Functions.glSampleMaski(maskNumber, mask);
-
+		public void SampleMask(uint maskNumber, uint mask) {
+			unsafe {
+				Functions.glSampleMaski(maskNumber, mask);
+			}
+		}
 	}
 
 }

@@ -9,15 +9,13 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBSampleShadingFunctions {
+	public unsafe class ARBSampleShadingFunctions {
 
-		public delegate void PFN_glMinSampleShading(float value);
 		[ExternFunction(AltNames = new string[] { "glMinSampleShadingARB" })]
-		public PFN_glMinSampleShading glMinSampleShading;
+		[NativeType("void glMinSampleShading(GLfloat value)")]
+		public delegate* unmanaged<float, void> glMinSampleShading;
 
 	}
-#nullable restore
 
 	public class ARBSampleShading : IGLObject {
 
@@ -33,7 +31,11 @@ namespace Tesseract.OpenGL {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => GL.GL11.GetFloat(GLEnums.GL_MIN_SAMPLE_SHADING_VALUE);
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Functions.glMinSampleShading(value);
+			set {
+				unsafe {
+					Functions.glMinSampleShading(value);
+				}
+			}
 		}
 
 	}

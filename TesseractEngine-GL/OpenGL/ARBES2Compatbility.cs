@@ -9,27 +9,25 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBES2CompatbilityFunctions {
+	public unsafe class ARBES2CompatbilityFunctions {
 
-		public delegate void PFN_glReleaseShaderCompiler();
 		[ExternFunction(AltNames = new string[] { "glReleaseShaderCompilerARB" })]
-		public PFN_glReleaseShaderCompiler glReleaseShaderCompiler;
-		public delegate void PFN_glShaderBinary(int count, [NativeType("const GLuint*")] IntPtr shaders, uint binaryFormat, IntPtr binary, int length);
+		[NativeType("void glReleaseShaderCompiler()")]
+		public delegate* unmanaged<void> glReleaseShaderCompiler;
 		[ExternFunction(AltNames = new string[] { "glShaderBinaryARB" })]
-		public PFN_glShaderBinary glShaderBinary;
-		public delegate void PFN_glGetShaderPrecisionFormat(uint shaderType, uint precisionType, in Vector2i range, out int precision);
+		[NativeType("void glShaderBinary(GLsizei count, const GLuint* pShaders, GLenum binaryFormat, void* pBinary, GLsizei length)")]
+		public delegate* unmanaged<int, uint*, uint, IntPtr, int, void> glShaderBinary;
 		[ExternFunction(AltNames = new string[] { "glGetShaderPrecisionFormatARB" })]
-		public PFN_glGetShaderPrecisionFormat glGetShaderPrecisionFormat;
-		public delegate void PFN_glDepthRangef(float n, float f);
+		[NativeType("void glGetShaderPrecisionFormat(GLenum shaderType, GLenum precisionType, const GLint range[2], GLint* pPrecision)")]
+		public delegate* unmanaged<uint, uint, in Vector2i, out int, void> glGetShaderPrecisionFormat;
 		[ExternFunction(AltNames = new string[] { "glDepthRangefARB" })]
-		public PFN_glDepthRangef glDepthRangef;
-		public delegate void PFN_glClearDepthf(float d);
+		[NativeType("void glDepthRangef(GLfloat near, GLfloat far)")]
+		public delegate* unmanaged<float, float, void> glDepthRangef;
 		[ExternFunction(AltNames = new string[] { "glClearDepthfARB" })]
-		public PFN_glClearDepthf glClearDepthf;
+		[NativeType("void glClearDepthf(GLfloat depth)")]
+		public delegate* unmanaged<float, void> glClearDepthf;
 
 	}
-#nullable restore
 
 	public class ARBES2Compatbility : IGLObject {
 
@@ -42,14 +40,18 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ReleaseShaderCompiler() => Functions.glReleaseShaderCompiler();
+		public void ReleaseShaderCompiler() {
+			unsafe {
+				Functions.glReleaseShaderCompiler();
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ShaderBinary(in ReadOnlySpan<uint> shaders, uint binaryFormat, in ReadOnlySpan<byte> binary) {
 			unsafe {
 				fixed(uint* pShaders = shaders) {
 					fixed(byte* pBinary = binary) {
-						Functions.glShaderBinary(shaders.Length, (IntPtr)pShaders, binaryFormat, (IntPtr)pBinary, binary.Length);
+						Functions.glShaderBinary(shaders.Length, pShaders, binaryFormat, (IntPtr)pBinary, binary.Length);
 					}
 				}
 			}
@@ -57,16 +59,25 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetShaderPrecisionFormat(GLShaderType shaderType, GLPrecisionType precisionType, Vector2i range) {
-			Functions.glGetShaderPrecisionFormat((uint)shaderType, (uint)precisionType, range, out int precision);
-			return precision;
+			unsafe {
+				Functions.glGetShaderPrecisionFormat((uint)shaderType, (uint)precisionType, range, out int precision);
+				return precision;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DepthRange(float near, float far) => Functions.glDepthRangef(near, far);
+		public void DepthRange(float near, float far) {
+			unsafe {
+				Functions.glDepthRangef(near, far);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearDepth(float d) => Functions.glClearDepthf(d);
-
+		public void ClearDepth(float d) {
+			unsafe {
+				Functions.glClearDepthf(d);
+			}
+		}
 	}
 
 }

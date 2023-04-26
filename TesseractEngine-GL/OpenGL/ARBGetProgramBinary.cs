@@ -8,21 +8,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBGetProgramBinaryFunctions {
+	public unsafe class ARBGetProgramBinaryFunctions {
 
-		public delegate void PFN_glGetProgramBinary(uint program, int bufSize, out int length, out uint binaryFormat, IntPtr binary);
 		[ExternFunction(AltNames = new string[] { "glGetProgramBinaryARB" })]
-		public PFN_glGetProgramBinary glGetProgramBinary;
-		public delegate void PFN_glProgramBinary(uint program, uint binaryFormat, IntPtr binary);
+		[NativeType("void glGetProgramBinary(GLuint program, GLsizei bufSize, GLsizei* pLength, GLenum* pBinaryFormat, void* pBinary)")]
+		public delegate* unmanaged<uint, int, out int, out uint, IntPtr, void> glGetProgramBinary;
 		[ExternFunction(AltNames = new string[] { "glProgramBinaryARB" })]
-		public PFN_glProgramBinary glProgramBinary;
-		public delegate void PFN_glProgramParameteri(uint program, uint pname, int value);
+		[NativeType("void glProgramBinary(GLuint program, GLenum binaryFormat, void* pBinary)")]
+		public delegate* unmanaged<uint, uint, IntPtr, void> glProgramBinary;
 		[ExternFunction(AltNames = new string[] { "glProgramParameteriARB" })]
-		public PFN_glProgramParameteri glProgramParameteri;
+		[NativeType("void glProgramParameteri(GLuint program, GLenum pname, GLint value)")]
+		public delegate* unmanaged<uint, uint, int, void> glProgramParameteri;
 
 	}
-#nullable restore
 
 	public class ARBGetProgramBinary : IGLObject {
 
@@ -67,8 +65,11 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProgramParameter(uint program, GLProgramParameter pname, int value) => Functions.glProgramParameteri(program, (uint)pname, value);
-
+		public void ProgramParameter(uint program, GLProgramParameter pname, int value) {
+			unsafe {
+				Functions.glProgramParameteri(program, (uint)pname, value);
+			}
+		}
 	}
 
 }

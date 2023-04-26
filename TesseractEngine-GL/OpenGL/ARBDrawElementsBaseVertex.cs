@@ -8,24 +8,22 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBDrawElementsBaseVertexFunctions {
+	public unsafe class ARBDrawElementsBaseVertexFunctions {
 
-		public delegate void PFN_glDrawElementsBaseVertex(uint mode, int count, uint type, IntPtr indices, int basevertex);
 		[ExternFunction(AltNames = new string[] { "glDrawElementsBaseVertexARB" })]
-		public PFN_glDrawElementsBaseVertex glDrawElementsBaseVertex;
-		public delegate void PFN_glDrawRangeElementsBaseVertex(uint mode, uint start, uint end, int count, uint type, IntPtr indices, int basevertex);
+		[NativeType("void glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void* pIndices, GLint baseVertex)")]
+		public delegate* unmanaged<uint, int, uint, IntPtr, int, void> glDrawElementsBaseVertex;
 		[ExternFunction(AltNames = new string[] { "glDrawRangeElementsBaseVertexARB" })]
-		public PFN_glDrawRangeElementsBaseVertex glDrawRangeElementsBaseVertex;
-		public delegate void PFN_glDrawElementsInstancedBaseVertex(uint mode, int count, uint type, IntPtr indices, int instancecount, int basevertex);
+		[NativeType("void glDrawRangeElementsBaseVertex(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, void* pIndices, GLint baseVertex)")]
+		public delegate* unmanaged<uint, uint, uint, int, uint, IntPtr, int, void> glDrawRangeElementsBaseVertex;
 		[ExternFunction(AltNames = new string[] { "glDrawElementsInstancedBaseVertexARB" })]
-		public PFN_glDrawElementsInstancedBaseVertex glDrawElementsInstancedBaseVertex;
-		public delegate void PFN_glMultiDrawElementsBaseVertex(uint mode, [NativeType("const GLsizei*")] IntPtr count, uint type, [NativeType("const void* const*")] IntPtr indices, int drawcount, [NativeType("const GLint*")] IntPtr basevertex);
+		[NativeType("void glDrawElementsInstancedBaseVertex(GLenum mode, GLsizei count, GLenum type, void* pIndices, GLsizei instanceCount, GLint baseVertex)")]
+		public delegate* unmanaged<uint, int, uint, IntPtr, int, int, void> glDrawElementsInstancedBaseVertex;
 		[ExternFunction(AltNames = new string[] { "glMultiDrawElementsBaseVertexARB" })]
-		public PFN_glMultiDrawElementsBaseVertex glMultiDrawElementsBaseVertex;
+		[NativeType("void glMultiDrawElementsBaseVertex(GLenum mode, const GLsizei* pCount, GLenum type, const void* const* ppIndices, GLsizei drawCount, const GLint* pBaseVertex)")]
+		public delegate* unmanaged<uint, int*, uint, IntPtr*, int, int*, void> glMultiDrawElementsBaseVertex;
 
 	}
-#nullable restore
 
 	public class ARBDrawElementsBaseVertex : IGLObject {
 
@@ -38,13 +36,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsBaseVertex(GLDrawMode mode, int count, GLIndexType type, nint offset, int basevertex) => Functions.glDrawElementsBaseVertex((uint)mode, count, (uint)type, offset, basevertex);
+		public void DrawElementsBaseVertex(GLDrawMode mode, int count, GLIndexType type, nint offset, int basevertex) {
+			unsafe {
+				Functions.glDrawElementsBaseVertex((uint)mode, count, (uint)type, offset, basevertex);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawRangeElementsBaseVertex(GLDrawMode mode, uint start, uint end, int count, GLIndexType type, nint offset, int basevertex) => Functions.glDrawRangeElementsBaseVertex((uint)mode, start, end, count, (uint)type, offset, basevertex);
+		public void DrawRangeElementsBaseVertex(GLDrawMode mode, uint start, uint end, int count, GLIndexType type, nint offset, int basevertex) {
+			unsafe {
+				Functions.glDrawRangeElementsBaseVertex((uint)mode, start, end, count, (uint)type, offset, basevertex);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsInstancedBaseVertex(GLDrawMode mode, int count, GLIndexType type, nint offset, int instancecount, int basevertex) => Functions.glDrawElementsInstancedBaseVertex((uint)mode, count, (uint)type, offset, instancecount, basevertex);
+		public void DrawElementsInstancedBaseVertex(GLDrawMode mode, int count, GLIndexType type, nint offset, int instancecount, int basevertex) {
+			unsafe {
+				Functions.glDrawElementsInstancedBaseVertex((uint)mode, count, (uint)type, offset, instancecount, basevertex);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void MultiDrawElementsBaseVertex(GLDrawMode mode, in ReadOnlySpan<int> count, GLIndexType type, in ReadOnlySpan<nint> offsets, int drawCount, in ReadOnlySpan<int> baseVertex) {
@@ -52,7 +62,7 @@ namespace Tesseract.OpenGL {
 				fixed(int* pCount = count) {
 					fixed(nint* pOffsets = offsets) {
 						fixed(int* pBaseVertices = baseVertex) {
-							Functions.glMultiDrawElementsBaseVertex((uint)mode, (IntPtr)pCount, (uint)type, (IntPtr)pOffsets, drawCount, (IntPtr)pBaseVertices);
+							Functions.glMultiDrawElementsBaseVertex((uint)mode, pCount, (uint)type, pOffsets, drawCount, pBaseVertices);
 						}
 					}
 				}

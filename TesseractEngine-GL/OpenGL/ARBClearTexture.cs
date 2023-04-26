@@ -9,18 +9,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBClearTextureFunctions {
+	public unsafe class ARBClearTextureFunctions {
 
-		public delegate void PFN_glClearTexImage(uint texture, int level, uint format, uint type, IntPtr data);
 		[ExternFunction(AltNames = new string[] { "glClearTexImageARB" })]
-		public PFN_glClearTexImage glClearTexImage;
-		public delegate void PFN_glClearTexSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, IntPtr data);
+		[NativeType("void glClearTexImage(GLuint texture, GLint level, GLenum format, GLenum type, void* pData)")]
+		public delegate* unmanaged<uint, int, uint, uint, IntPtr, void> glClearTexImage;
 		[ExternFunction(AltNames = new string[] { "glClearTexSubImageARB" })]
-		public PFN_glClearTexSubImage glClearTexSubImage;
+		[NativeType("void glClearTexSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, void* pData)")]
+		public delegate* unmanaged<uint, int, int, int, int, int, int, int, uint, uint, IntPtr, void> glClearTexSubImage;
 
 	}
-#nullable restore
 
 	public class ARBClearTexture : IGLObject {
 
@@ -34,7 +32,9 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearTexImage(uint texture, int level, GLFormat format, GLTextureType type, IntPtr data) {
-			Functions.glClearTexImage(texture, level, (uint)format, (uint)type, data);
+			unsafe {
+				Functions.glClearTexImage(texture, level, (uint)format, (uint)type, data);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,7 +48,9 @@ namespace Tesseract.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ClearTexSubImage(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, IntPtr data) {
-			Functions.glClearTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, (uint)format, (uint)type, data);
+			unsafe {
+				Functions.glClearTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, (uint)format, (uint)type, data);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

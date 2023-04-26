@@ -7,6 +7,8 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
+	using HGLRC = IntPtr;
+
 	public enum GLGetGPUInfoWGLAMD : int {
 		Vendor = 0x1F00,
 		/// <summary>
@@ -45,8 +47,7 @@ namespace Tesseract.OpenGL {
 		NumSPI = 0x21A8
 	}
 
-#nullable disable
-	public class WGLAMDGPUAssociationFunctions {
+	public unsafe class WGLAMDGPUAssociationFunctions {
 
 		public delegate uint PFN_wglGetGPUIDsAMD(uint maxCount, [NativeType("UINT*")] IntPtr ids);
 		public delegate int PFN_wglGetGPUInfoAMD(uint id, GLGetGPUInfoWGLAMD property, GLType dataType, uint size, IntPtr data);
@@ -61,18 +62,26 @@ namespace Tesseract.OpenGL {
 		public delegate IntPtr PFN_wglGetCurrentAssociatedContextAMD();
 		public delegate void PFN_wglBlitContextFramebufferAMD([NativeType("HGLRC")] IntPtr dstCtx, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, GLBufferMask mask, GLFilter filter);
 
-		public PFN_wglGetGPUIDsAMD wglGetGPUIDsAMD;
-		public PFN_wglGetGPUInfoAMD wglGetGPUInfoAMD;
-		public PFN_wglGetContextGPUIDAMD wglGetContextGPUIDAMD;
-		public PFN_wglCreateAssociatedContextAMD wglCreateAssociatedContextAMD;
-		public PFN_wglCreateAssocatedContextAttribsAMD wglCreateAssocatedContextAttribsAMD;
-		public PFN_wglDeleteAssociatedContextAMD wglDeleteAssociatedContextAMD;
-		public PFN_wglMakeAssociatedContextCurrentAMD wglMakeAssociatedContextCurrentAMD;
-		public PFN_wglGetCurrentAssociatedContextAMD wglGetCurrentAssociatedContextAMD;
-		public PFN_wglBlitContextFramebufferAMD wglBlitContextFramebufferAMD;
+		[NativeType("UINT wglGetGPUIDsAMD(UINT maxCount, UINT* pIds)")]
+		public delegate* unmanaged<uint, uint*, uint> wglGetGPUIDsAMD;
+		[NativeType("int wglGetGPUInfoAMD(UINT id, int property, GLenum dataType, UINT size, void* pData)")]
+		public delegate* unmanaged<uint, int, uint, uint, IntPtr, int> wglGetGPUInfoAMD;
+		[NativeType("UINT wglGetContextGPUIDAMD(HGLRC hglrc)")]
+		public delegate* unmanaged<HGLRC, uint> wglGetContextGPUIDAMD;
+		[NativeType("HGLRC wglCreateAssociatedContextAMD(UINT id)")]
+		public delegate* unmanaged<uint, HGLRC> wglCreateAssociatedContextAMD;
+		[NativeType("HGLRC wglCreateAssociatedContextAttribsAMD(UINT id, HGLRC hShareContext, const int* pAttribList)")]
+		public delegate* unmanaged<uint, HGLRC, int*, HGLRC> wglCreateAssocatedContextAttribsAMD;
+		[NativeType("BOOL wglDeleteAssociatedContextAMD(HGLRC hglrc)")]
+		public delegate* unmanaged<HGLRC, bool> wglDeleteAssociatedContextAMD;
+		[NativeType("BOOL wglMakeAssociatedContextCurrentAMD(HGLRC hglrc)")]
+		public delegate* unmanaged<HGLRC, bool> wglMakeAssociatedContextCurrentAMD;
+		[NativeType("HGLRC wglGetCurrentAssociatedContextAMD()")]
+		public delegate* unmanaged<HGLRC> wglGetCurrentAssociatedContextAMD;
+		[NativeType("void wglBlitContextFramebufferAMD(HGLRC dstCtx, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)")]
+		public delegate* unmanaged<HGLRC, int, int, int, int, int, int, int, int, uint, uint, void> wglBlitContextFramebufferAMD;
 
 	}
-#nullable restore
 
 	public class WGLAMDGPUAssociation : IGLObject {
 
@@ -92,7 +101,7 @@ namespace Tesseract.OpenGL {
 					uint n;
 					uint[] ids;
 					fixed (uint* ptmp = tmp) {
-						n = Functions.wglGetGPUIDsAMD((uint)tmp.Length, (IntPtr)ptmp);
+						n = Functions.wglGetGPUIDsAMD((uint)tmp.Length, ptmp);
 						if (n <= tmp.Length) {
 							ids = new uint[n];
 							for (int i = 0; i < n; i++) ids[i] = tmp[i];
@@ -101,7 +110,7 @@ namespace Tesseract.OpenGL {
 					}
 					tmp = stackalloc uint[(int)n];
 					fixed (uint* ptmp = tmp) {
-						n = Functions.wglGetGPUIDsAMD((uint)tmp.Length, (IntPtr)ptmp);
+						n = Functions.wglGetGPUIDsAMD((uint)tmp.Length, ptmp);
 					}
 					ids = new uint[n];
 					for (int i = 0; i < n; i++) ids[i] = tmp[i];
@@ -110,8 +119,11 @@ namespace Tesseract.OpenGL {
 			}
 		}
 
-		public int GetGPUInfo(uint id, GLGetGPUInfoWGLAMD property, GLType dataType, uint size, IntPtr data) =>
-			Functions.wglGetGPUInfoAMD(id, property, dataType, size, data);
+		public int GetGPUInfo(uint id, GLGetGPUInfoWGLAMD property, GLType dataType, uint size, IntPtr data) {
+			unsafe {
+				return Functions.wglGetGPUInfoAMD(id, (int)property, (uint)dataType, size, data);
+			}
+		}
 
 		public T GetGPUInfo<T>(uint id, GLGetGPUInfoWGLAMD property) where T : unmanaged {
 			Type t = typeof(T);
@@ -146,29 +158,50 @@ namespace Tesseract.OpenGL {
 			}
 		}
 
-		public uint GetContextGPUID([NativeType("HGLRC")] IntPtr hglrc) => Functions.wglGetContextGPUIDAMD(hglrc);
+		public uint GetContextGPUID(HGLRC hglrc) {
+			unsafe {
+				return Functions.wglGetContextGPUIDAMD(hglrc);
+			}
+		}
 
-		[return: NativeType("HGLRC")]
-		public IntPtr CreateAssociatedContext(uint id) => Functions.wglCreateAssociatedContextAMD(id);
+		public HGLRC CreateAssociatedContext(uint id) {
+			unsafe {
+				return Functions.wglCreateAssociatedContextAMD(id);
+			}
+		}
 
-		[return: NativeType("HGLRC")]
-		public IntPtr CreateAssociatedContextAttribs(uint id, [NativeType("HGLRC")] IntPtr hShareContext, in ReadOnlySpan<int> attribs) {
+		public HGLRC CreateAssociatedContextAttribs(uint id, HGLRC hShareContext, in ReadOnlySpan<int> attribs) {
 			unsafe {
 				fixed (int* pAttribs = attribs) {
-					return Functions.wglCreateAssocatedContextAttribsAMD(id, hShareContext, (IntPtr)pAttribs);
+					return Functions.wglCreateAssocatedContextAttribsAMD(id, hShareContext, pAttribs);
 				}
 			}
 		}
 
-		public bool DeleteAssociatedContext([NativeType("HGLRC")] IntPtr hglrc) => Functions.wglDeleteAssociatedContextAMD(hglrc);
+		public bool DeleteAssociatedContext(HGLRC hglrc) {
+			unsafe {
+				return Functions.wglDeleteAssociatedContextAMD(hglrc);
+			}
+		}
 
-		public bool MakeAssociatedContextCurrent([NativeType("HGLRC")] IntPtr hglrc) => Functions.wglMakeAssociatedContextCurrentAMD(hglrc);
+		public bool MakeAssociatedContextCurrent(HGLRC hglrc) {
+			unsafe {
+				return Functions.wglMakeAssociatedContextCurrentAMD(hglrc);
+			}
+		}
 
-		[NativeType("HGLRC")]
-		public IntPtr CurrentAssociatedContext => Functions.wglGetCurrentAssociatedContextAMD();
+		public HGLRC CurrentAssociatedContext {
+			get {
+				unsafe {
+					return Functions.wglGetCurrentAssociatedContextAMD();
+				}
+			}
+		}
 
-		public void BlitContextFramebuffer([NativeType("HGLRC")] IntPtr dstCtx, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, GLBufferMask mask, GLFilter filter) =>
-			Functions.wglBlitContextFramebufferAMD(dstCtx, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
-
+		public void BlitContextFramebuffer(HGLRC dstCtx, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, GLBufferMask mask, GLFilter filter) {
+			unsafe {
+				Functions.wglBlitContextFramebufferAMD(dstCtx, srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, (uint)mask, (uint)filter);
+			}
+		}
 	}
 }

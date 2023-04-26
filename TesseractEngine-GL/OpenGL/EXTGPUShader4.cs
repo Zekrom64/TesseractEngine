@@ -9,27 +9,29 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class EXTGPUShader4Functions {
+	public unsafe class EXTGPUShader4Functions {
 
-		public delegate void PFN_glVertexAttribIPointer(uint index, int size, uint type, int stride, IntPtr pointer);
 		[ExternFunction(AltNames = new string[] { "glVertexAttribIPointerEXT" })]
-		public PFN_glVertexAttribIPointer glVertexAttribIPointer;
-		public delegate void PFN_glGetVertexAttribIiv(uint index, uint pname, [NativeType("GLint*")] IntPtr _params);
+		[NativeType("void glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, void* pointer)")]
+		public delegate* unmanaged<uint, int, uint, int, IntPtr, void> glVertexAttribIPointer;
+
 		[ExternFunction(AltNames = new string[] { "glGetVertexAttribIivEXT" })]
-		public PFN_glGetVertexAttribIiv glGetVertexAttribIiv;
-		public delegate void PFN_glGetVertexAttribIuiv(uint index, uint pname, [NativeType("GLuint*")] IntPtr _params);
+		[NativeType("void glGetVertexAttribIiv(GLuint index, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetVertexAttribIiv;
+
 		[ExternFunction(AltNames = new string[] { "glGetVertexAttribIuivEXT" })]
-		public PFN_glGetVertexAttribIuiv glGetVertexAttribIuiv;
-		public delegate void PFN_glBindFragDataLocation(uint program, uint colorNumber, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("void glGetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint*, void> glGetVertexAttribIuiv;
+
 		[ExternFunction(AltNames = new string[] { "glBindFragDataLocationEXT" })]
-		public PFN_glBindFragDataLocation glBindFragDataLocation;
-		public delegate int PFN_glGetFragDataLocation(uint program, [MarshalAs(UnmanagedType.LPStr)] string name);
+		[NativeType("void glBindFragDataLocation(GLuint program, GLuint colorNumber, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, void> glBindFragDataLocation;
+
 		[ExternFunction(AltNames = new string[] { "glGetFragDataLocationEXT" })]
-		public PFN_glGetFragDataLocation glGetFragDataLocation;
+		[NativeType("GLint glGetFragDataLocation(GLuint program, const char* name)")]
+		public delegate* unmanaged<uint, byte*, int> glGetFragDataLocation;
 
 	}
-#nullable restore
 
 	public class EXTGPUShader4 : IGLObject {
 
@@ -42,13 +44,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribIPointer(uint index, int size, GLTextureType type, int stride, nint offset) => Functions.glVertexAttribIPointer(index, size, (uint)type, stride, offset);
+		public void VertexAttribIPointer(uint index, int size, GLTextureType type, int stride, nint offset) {
+			unsafe {
+				Functions.glVertexAttribIPointer(index, size, (uint)type, stride, offset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetVertexAttrib(uint index, GLGetVertexAttrib pname, Span<int> v) {
 			unsafe {
 				fixed(int* pV = v) {
-					Functions.glGetVertexAttribIiv(index, (uint)pname, (IntPtr)pV);
+					Functions.glGetVertexAttribIiv(index, (uint)pname, pV);
 				}
 			}
 			return v;
@@ -58,18 +64,29 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GetVertexAttrib(uint index, GLGetVertexAttrib pname, Span<uint> v) {
 			unsafe {
 				fixed(uint* pV = v) {
-					Functions.glGetVertexAttribIuiv(index, (uint)pname, (IntPtr)pV);
+					Functions.glGetVertexAttribIuiv(index, (uint)pname, pV);
 				}
 			}
 			return v;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindFragDataLocation(uint program, uint colorNumber, string name) => Functions.glBindFragDataLocation(program, colorNumber, name);
+		public void BindFragDataLocation(uint program, uint colorNumber, string name) {
+			unsafe {
+				fixed(byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					Functions.glBindFragDataLocation(program, colorNumber, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetFragDataLocation(uint program, string name) => Functions.glGetFragDataLocation(program, name);
-
+		public int GetFragDataLocation(uint program, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetFragDataLocation(program, pName);
+				}
+			}
+		}
 	}
 
 }

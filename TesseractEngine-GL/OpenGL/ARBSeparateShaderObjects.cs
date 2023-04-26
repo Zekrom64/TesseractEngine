@@ -8,48 +8,46 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBSeparateShaderObjectsFunctions {
+	public unsafe class ARBSeparateShaderObjectsFunctions {
 
-		public delegate void PFN_glUseProgramStages(uint pipeline, uint stages, uint program);
 		[ExternFunction(AltNames = new string[] { "glUseProgramStagesARB" })]
-		public PFN_glUseProgramStages glUseProgramStages;
-		public delegate void PFN_glActiveShaderProgram(uint pipeline, uint program);
+		[NativeType("void glUseProgramStages(GLuint pipeline, GLbitfield stages, GLuint program)")]
+		public delegate* unmanaged<uint, uint, uint, void> glUseProgramStages;
 		[ExternFunction(AltNames = new string[] { "glActiveShaderProgramARB" })]
-		public PFN_glActiveShaderProgram glActiveShaderProgram;
-		public delegate uint PFN_glCreateShaderProgramv(uint type, int count, [NativeType("const char**")] IntPtr strings);
+		[NativeType("void glActiveShaderProgram(GLuint pipeline, GLuint program)")]
+		public delegate* unmanaged<uint, uint, void> glActiveShaderProgram;
 		[ExternFunction(AltNames = new string[] { "glCreateShaderProgramvARB" })]
-		public PFN_glCreateShaderProgramv glCreateShaderProgramv;
-		public delegate void PFN_glBindProgramPipeline(uint pipeline);
+		[NativeType("GLuint glCreateShaderProgramv(GLenum type, GLsizei count, const char* const* pStrings)")]
+		public delegate* unmanaged<uint, int, byte**, uint> glCreateShaderProgramv;
 		[ExternFunction(AltNames = new string[] { "glBindProgramPipelineARB" })]
-		public PFN_glBindProgramPipeline glBindProgramPipeline;
-		public delegate void PFN_glDeleteProgramPipelines(int n, [NativeType("const GLuint*")] IntPtr pipelines);
+		[NativeType("void glBindProgramPipeline(GLuint pipeline)")]
+		public delegate* unmanaged<uint, void> glBindProgramPipeline;
 		[ExternFunction(AltNames = new string[] { "glDeleteProgramPipelinesARB" })]
-		public PFN_glDeleteProgramPipelines glDeleteProgramPipelines;
-		public delegate void PFN_glGenProgramPipelines(int n, [NativeType("GLuint*")] IntPtr pipelines);
+		[NativeType("void glDeleteProgramPipelines(GLsizei n, const GLuint* pPipelines)")]
+		public delegate* unmanaged<int, uint*, void> glDeleteProgramPipelines;
 		[ExternFunction(AltNames = new string[] { "glGenProgramPipelinesARB" })]
-		public PFN_glGenProgramPipelines glGenProgramPipelines;
-		public delegate byte PFN_glIsProgramPipeline(uint pipeline);
+		[NativeType("void glGenProgramPipelines(GLsizei n, GLuint* pPipelines)")]
+		public delegate* unmanaged<int, uint*, void> glGenProgramPipelines;
 		[ExternFunction(AltNames = new string[] { "glIsProgramPipelineARB" })]
-		public PFN_glIsProgramPipeline glIsProgramPipeline;
-		public delegate void PFN_glProgramParameteri(uint program, uint pname, int value);
+		[NativeType("GLboolean glIsProgramPipeline(GLuint pipeline)")]
+		public delegate* unmanaged<uint, byte> glIsProgramPipeline;
 		[ExternFunction(AltNames = new string[] { "glProgramParameteriARB" })]
-		public PFN_glProgramParameteri glProgramParameteri;
-		public delegate void PFN_glGetProgramPipelineiv(uint pipeline, uint name, out int param);
+		[NativeType("void glProgramParameteri(GLuint program, GLenum pname, GLint value)")]
+		public delegate* unmanaged<uint, uint, int, void> glProgramParameteri;
 		[ExternFunction(AltNames = new string[] { "glGetProgramPipelineivARB" })]
-		public PFN_glGetProgramPipelineiv glGetProgramPipelineiv;
-		public delegate void PFN_glProgramUniform1i(uint program, int location, int x);
+		[NativeType("void glGetProgramPipelineiv(GLuint pipeline, GLenum pname, GLint* pParam)")]
+		public delegate* unmanaged<uint, uint, out int, void> glGetProgramPipelineiv;
 		[ExternFunction(AltNames = new string[] { "glProgramUniform1iARB" })]
-		public PFN_glProgramUniform1i glProgramUniform1i;
-		public delegate void PFN_glValidateProgramPipeline(uint pipeline);
+		[NativeType("void glProgramUniform1i(GLuint program, GLint location, GLint x)")]
+		public delegate* unmanaged<uint, int, int, void> glProgramUniform1i;
 		[ExternFunction(AltNames = new string[] { "glValidateProrgamPipelineARB" })]
-		public PFN_glValidateProgramPipeline glValidateProgramPipeline;
-		public delegate void PFN_glGetProgramPipelineInfoLog(uint pipeline, int bufSize, out int length, [NativeType("char*")] IntPtr infoLog);
+		[NativeType("void glValidateProgramPipeline(GLuint pipeline)")]
+		public delegate* unmanaged<uint, void> glValidateProgramPipeline;
 		[ExternFunction(AltNames = new string[] { "glGetProgramPipelineInfoLogARB" })]
-		public PFN_glGetProgramPipelineInfoLog glGetProgramPipelineInfoLog;
+		[NativeType("void glGetProgramPipelineInfoLog(GLuint pipeline, GLsizei bufSize, GLsizei* pLength, char* pInfoLog)")]
+		public delegate* unmanaged<uint, int, out int, byte*, void> glGetProgramPipelineInfoLog;
 
 	}
-#nullable restore
 
 	public class ARBSeparateShaderObjects : IGLObject {
 
@@ -62,29 +60,41 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UseProgramStages(uint pipeline, GLShaderStages stages, uint program) => Functions.glUseProgramStages(pipeline, (uint)stages, program);
+		public void UseProgramStages(uint pipeline, GLShaderStages stages, uint program) {
+			unsafe {
+				Functions.glUseProgramStages(pipeline, (uint)stages, program);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ActiveShaderProgram(uint pipeline, uint program) => Functions.glActiveShaderProgram(pipeline, program);
+		public void ActiveShaderProgram(uint pipeline, uint program) {
+			unsafe {
+				Functions.glActiveShaderProgram(pipeline, program);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public uint CreateShaderProgram(GLShaderType type, string source) {
 			byte[] srcbytes = Encoding.ASCII.GetBytes(source);
 			unsafe {
 				fixed(byte* pSrcbytes = srcbytes) {
-					return Functions.glCreateShaderProgramv((uint)type, 1, (IntPtr)(&pSrcbytes));
+					return Functions.glCreateShaderProgramv((uint)type, 1, &pSrcbytes);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindProgramPipeline(uint pipeline) => Functions.glBindProgramPipeline(pipeline);
+		public void BindProgramPipeline(uint pipeline) {
+			unsafe {
+				Functions.glBindProgramPipeline(pipeline);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteProgramPipelines(in ReadOnlySpan<uint> pipelines) {
 			unsafe {
 				fixed(uint* pPipelines = pipelines) {
-					Functions.glDeleteProgramPipelines(pipelines.Length, (IntPtr)pPipelines);
+					Functions.glDeleteProgramPipelines(pipelines.Length, pPipelines);
 				}
 			}
 		}
@@ -93,7 +103,7 @@ namespace Tesseract.OpenGL {
 		public void DeleteProgramPipelines(params uint[] pipelines) {
 			unsafe {
 				fixed (uint* pPipelines = pipelines) {
-					Functions.glDeleteProgramPipelines(pipelines.Length, (IntPtr)pPipelines);
+					Functions.glDeleteProgramPipelines(pipelines.Length, pPipelines);
 				}
 			}
 		}
@@ -101,7 +111,7 @@ namespace Tesseract.OpenGL {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DeleteProgramPipelines(uint pipeline) {
 			unsafe {
-				Functions.glDeleteProgramPipelines(1, (IntPtr)(&pipeline));
+				Functions.glDeleteProgramPipelines(1, &pipeline);
 			}
 		}
 
@@ -109,7 +119,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GenProgramPipelines(Span<uint> pipelines) {
 			unsafe {
 				fixed(uint* pPipelines = pipelines) {
-					Functions.glGenProgramPipelines(pipelines.Length, (IntPtr)pPipelines);
+					Functions.glGenProgramPipelines(pipelines.Length, pPipelines);
 				}
 			}
 			return pipelines;
@@ -120,7 +130,7 @@ namespace Tesseract.OpenGL {
 			uint[] pipelines = new uint[n];
 			unsafe {
 				fixed (uint* pPipelines = pipelines) {
-					Functions.glGenProgramPipelines(pipelines.Length, (IntPtr)pPipelines);
+					Functions.glGenProgramPipelines(pipelines.Length, pPipelines);
 				}
 			}
 			return pipelines;
@@ -130,35 +140,53 @@ namespace Tesseract.OpenGL {
 		public uint GenProgramPipelines() {
 			uint pipeline = 0;
 			unsafe {
-				Functions.glGenProgramPipelines(1, (IntPtr)(&pipeline));
+				Functions.glGenProgramPipelines(1, &pipeline);
 			}
 			return pipeline;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsProgramPipeline(uint pipeline) => Functions.glIsProgramPipeline(pipeline) != 0;
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProgramParameteri(uint program, GLProgramParameter pname, int value) => Functions.glProgramParameteri(program, (uint)pname, value);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetProgramPipelinei(uint program, GLGetProgramPipeline pname) {
-			Functions.glGetProgramPipelineiv(program, (uint)pname, out int value);
-			return value;
+		public bool IsProgramPipeline(uint pipeline) {
+			unsafe {
+				return Functions.glIsProgramPipeline(pipeline) != 0;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProgramUniform(uint program, int location, int x) => Functions.glProgramUniform1i(program, location, x);
+		public void ProgramParameteri(uint program, GLProgramParameter pname, int value) {
+			unsafe {
+				Functions.glProgramParameteri(program, (uint)pname, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ValidateProgramPipeline(uint pipeline) => Functions.glValidateProgramPipeline(pipeline);
+		public int GetProgramPipelinei(uint program, GLGetProgramPipeline pname) {
+			unsafe {
+				Functions.glGetProgramPipelineiv(program, (uint)pname, out int value);
+				return value;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ProgramUniform(uint program, int location, int x) {
+			unsafe {
+				Functions.glProgramUniform1i(program, location, x);
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void ValidateProgramPipeline(uint pipeline) {
+			unsafe {
+				Functions.glValidateProgramPipeline(pipeline);
+			}
+		}
 
 		public string GetProgramPipelineInfoLog(uint pipeline) {
 			int length = GetProgramPipelinei(pipeline, GLGetProgramPipeline.InfoLogLength);
 			byte[] bytes = new byte[length];
 			unsafe {
 				fixed(byte* pBytes = bytes) {
-					Functions.glGetProgramPipelineInfoLog(pipeline, length, out length, (IntPtr)pBytes);
+					Functions.glGetProgramPipelineInfoLog(pipeline, length, out length, pBytes);
 				}
 			}
 			return Encoding.ASCII.GetString(bytes[..length]);

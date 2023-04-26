@@ -9,15 +9,14 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBGLSPIRVFunctions {
+	public unsafe class ARBGLSPIRVFunctions {
 
 		public delegate void PFN_glSpecializeShader(uint shader, [MarshalAs(UnmanagedType.LPStr)] string entryPoint, uint numSpecializationConstants, [NativeType("const GLuint*")] IntPtr pConstantIndex, [NativeType("const GLuint*")] IntPtr pConstantValue);
 		[ExternFunction(AltNames = new string[] { "glSpecializeShaderARB" })]
-		public PFN_glSpecializeShader glSpecializeShader;
+		[NativeType("void glSpecializeShader(GLuint shader, const char* entryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue)")]
+		public delegate* unmanaged<uint, byte*, uint, uint*, uint*, void> glSpecializeShader;
 
 	}
-#nullable restore
 
 	public class ARBGLSPIRV : IGLObject {
 
@@ -33,8 +32,10 @@ namespace Tesseract.OpenGL {
 		public void SpecializeShader(uint shader, string entryPoint, in ReadOnlySpan<uint> constantIndex, in ReadOnlySpan<uint> constantValue) {
 			int n = Math.Min(constantIndex.Length, constantValue.Length);
 			unsafe {
-				fixed (uint* pConstantIndex = constantIndex, pConstantValue = constantValue) {
-					Functions.glSpecializeShader(shader, entryPoint, (uint)n, (IntPtr)pConstantIndex, (IntPtr)pConstantValue);
+				fixed (byte* pEntryPoint = MemoryUtil.StackallocUTF8(entryPoint, stackalloc byte[256])) {
+					fixed (uint* pConstantIndex = constantIndex, pConstantValue = constantValue) {
+						Functions.glSpecializeShader(shader, pEntryPoint, (uint)n, pConstantIndex, pConstantValue);
+					}
 				}
 			}
 		}
