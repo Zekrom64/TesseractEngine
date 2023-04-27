@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Tesseract.Core.Native;
@@ -17,9 +18,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public MDBStat Stat {
 			get {
-				MDBResult err = MDB.Functions.mdb_env_stat(Env, out MDBStat stat);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get environment statistics", err);
-				return stat;
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_stat(Env, out MDBStat stat);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get environment statistics", err);
+					return stat;
+				}
 			}
 		}
 
@@ -28,9 +31,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public MDBEnvInfo Info {
 			get {
-				MDBResult err = MDB.Functions.mdb_env_info(Env, out MDBEnvInfo info);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get environment info", err);
-				return info;
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_info(Env, out MDBEnvInfo info);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get environment info", err);
+					return info;
+				}
 			}
 		}
 
@@ -39,9 +44,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public MDBEnvFlags Flags {
 			get {
-				MDBResult err = MDB.Functions.mdb_env_get_flags(Env, out MDBEnvFlags flags);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get environment flags", err);
-				return flags;
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_get_flags(Env, out MDBEnvFlags flags);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get environment flags", err);
+					return flags;
+				}
 			}
 		}
 
@@ -50,9 +57,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public string? Path {
 			get {
-				MDBResult err = MDB.Functions.mdb_env_get_path(Env, out IntPtr path);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get environment path", err);
-				return MemoryUtil.GetASCII(path);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_get_path(Env, out IntPtr path);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get environment path", err);
+					return MemoryUtil.GetASCII(path);
+				}
 			}
 		}
 
@@ -84,8 +93,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public nuint MapSize {
 			set {
-				MDBResult err = MDB.Functions.mdb_env_set_mapsize(Env, value);
-				if (err != MDBResult.Success) throw new MDBException("Failed to set environment map size", err);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_set_mapsize(Env, value);
+					if (err != MDBResult.Success) throw new MDBException("Failed to set environment map size", err);
+				}
 			}
 		}
 
@@ -101,13 +112,17 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public uint MaxReaders {
 			get {
-				MDBResult err = MDB.Functions.mdb_env_get_maxreaders(Env, out uint readers);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get environment max reader count", err);
-				return readers;
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_get_maxreaders(Env, out uint readers);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get environment max reader count", err);
+					return readers;
+				}
 			}
 			set {
-				MDBResult err = MDB.Functions.mdb_env_set_maxreaders(Env, value);
-				if (err != MDBResult.Success) throw new MDBException("Failed to set environment max reader count", err);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_set_maxreaders(Env, value);
+					if (err != MDBResult.Success) throw new MDBException("Failed to set environment max reader count", err);
+				}
 			}
 		}
 
@@ -126,26 +141,39 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public uint MaxDBs {
 			set {
-				MDBResult err = MDB.Functions.mdb_env_set_maxdbs(Env, value);
-				if (err != MDBResult.Success) throw new MDBException("Failed to set environment max DB count", err);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_set_maxdbs(Env, value);
+					if (err != MDBResult.Success) throw new MDBException("Failed to set environment max DB count", err);
+				}
 			}
 		}
 
 		/// <summary>
 		/// <para>Get the maximum size of keys and <see cref="MDBDBFlags.DupSort"/> data we can write.</para>
-		/// <para></para>
 		/// </summary>
-		public int MaxKeySize => MDB.Functions.mdb_env_get_maxkeysize(Env);
+		public int MaxKeySize {
+			get {
+				unsafe {
+					return MDB.Functions.mdb_env_get_maxkeysize(Env);
+				}
+			}
+		}
 
 		/// <summary>
 		/// <para>Application information associated with the <see cref="MDBEnv"/>.</para>
 		/// </summary>
 		public IntPtr UserContext {
 			set {
-				MDBResult err = MDB.Functions.mdb_env_set_userctx(Env, value);
-				if (err != MDBResult.Success) throw new MDBException("Failed to set environment user context", err);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_set_userctx(Env, value);
+					if (err != MDBResult.Success) throw new MDBException("Failed to set environment user context", err);
+				}
 			}
-			get => MDB.Functions.mdb_env_get_userctx(Env);
+			get {
+				unsafe {
+					return MDB.Functions.mdb_env_get_userctx(Env);
+				}
+			}
 		}
 
 		/// <summary>
@@ -153,8 +181,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public MDBAssertFunc Assert {
 			set {
-				MDBResult err = MDB.Functions.mdb_env_set_assert(Env, value);
-				if (err != MDBResult.Success) throw new MDBException("Failed to set environment assert function", err);
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_env_set_assert(Env, Marshal.GetFunctionPointerForDelegate(value));
+					if (err != MDBResult.Success) throw new MDBException("Failed to set environment assert function", err);
+				}
 			}
 		}
 
@@ -163,9 +193,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <exception cref="MDBException">If the LMDB environment could not be created</exception>
 		public MDBEnv() {
-			MDBResult err = MDB.Functions.mdb_env_create(out IntPtr env);
-			if (err != MDBResult.Success) throw new MDBException("Failed to create environment", err);
-			Env = env;
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_env_create(out IntPtr env);
+				if (err != MDBResult.Success) throw new MDBException("Failed to create environment", err);
+				Env = env;
+			}
 		}
 
 		~MDBEnv() {
@@ -181,8 +213,12 @@ namespace Tesseract.LMDB {
 		/// <param name="mode">The UNIX permissions to set on created files and semaphores. This parameter is ignored on Windows.</param>
 		/// <exception cref="MDBException">If the database could not be opened</exception>
 		public void Open(string path, MDBEnvFlags flags, int mode = 0b110110000 /* -rw-rw---- */) {
-			MDBResult err = MDB.Functions.mdb_env_open(Env, path, flags, mode);
-			if (err != MDBResult.Success) throw new MDBException("Failed to open environment", err);
+			unsafe {
+				fixed (byte* pPath = MemoryUtil.StackallocUTF8(path, stackalloc byte[1024])) {
+					MDBResult err = MDB.Functions.mdb_env_open(Env, pPath, flags, mode);
+					if (err != MDBResult.Success) throw new MDBException("Failed to open environment", err);
+				}
+			}
 		}
 
 		/// <summary>
@@ -197,8 +233,12 @@ namespace Tesseract.LMDB {
 		/// <param name="path">The directory in which the copy will reside. This directory must already exist and be writable but must otherwise be empty.</param>
 		/// <exception cref="MDBException">If an error occurs copying this database</exception>
 		public void CopyTo(string path) {
-			MDBResult err = MDB.Functions.mdb_env_copy(Env, path);
-			if (err != MDBResult.Success) throw new MDBException("Failed to copy environment", err);
+			unsafe {
+				fixed (byte* pPath = MemoryUtil.StackallocUTF8(path, stackalloc byte[1024])) {
+					MDBResult err = MDB.Functions.mdb_env_copy(Env, pPath);
+					if (err != MDBResult.Success) throw new MDBException("Failed to copy environment", err);
+				}
+			}
 		}
 
 		/// <summary>
@@ -214,8 +254,12 @@ namespace Tesseract.LMDB {
 		/// <param name="flags">Special options for this operation</param>
 		/// <exception cref="MDBException">If an error occurs copying this database</exception>
 		public void CopyTo(string path, MDBCopyFlags flags) {
-			MDBResult err = MDB.Functions.mdb_env_copy2(Env, path, flags);
-			if (err != MDBResult.Success) throw new MDBException("Failed to copy environment", err);
+			unsafe {
+				fixed(byte* pPath = MemoryUtil.StackallocUTF8(path, stackalloc byte[1024])) {
+					MDBResult err = MDB.Functions.mdb_env_copy2(Env, pPath, flags);
+					if (err != MDBResult.Success) throw new MDBException("Failed to copy environment", err);
+				}
+			}
 		}
 
 		/// <summary>
@@ -230,14 +274,18 @@ namespace Tesseract.LMDB {
 		/// <param name="force"></param>
 		/// <exception cref="MDBException"></exception>
 		public void Sync(bool force = false) {
-			MDBResult err = MDB.Functions.mdb_env_sync(Env, force);
-			if (err != MDBResult.Success) throw new MDBException("Failed to sync environment", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_env_sync(Env, force);
+				if (err != MDBResult.Success) throw new MDBException("Failed to sync environment", err);
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Env != IntPtr.Zero) {
-				MDB.Functions.mdb_env_close(Env);
+				unsafe {
+					MDB.Functions.mdb_env_close(Env);
+				}
 				Env = IntPtr.Zero;
 			}
 		}
@@ -253,8 +301,10 @@ namespace Tesseract.LMDB {
 		/// <param name="onoff">The value to set the flag to</param>
 		/// <exception cref="MDBException">If an error occurs setting the flags</exception>
 		public void SetFlags(MDBEnvFlags flags, bool onoff) {
-			MDBResult err = MDB.Functions.mdb_env_set_flags(Env, flags, onoff);
-			if (err != MDBResult.Success) throw new MDBException("Failed to set environment flags", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_env_set_flags(Env, flags, onoff);
+				if (err != MDBResult.Success) throw new MDBException("Failed to set environment flags", err);
+			}
 		}
 
 		/// <summary>
@@ -276,9 +326,11 @@ namespace Tesseract.LMDB {
 		/// <returns>A new transaction</returns>
 		/// <exception cref="MDBException">If an error occurs starting the transaction</exception>
 		public MDBTxn Begin(MDBTxn? parent = null, MDBEnvFlags flags = 0) {
-			MDBResult err = MDB.Functions.mdb_txn_begin(Env, parent != null ? parent.Txn : IntPtr.Zero, flags, out IntPtr txn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to begin transaction", err);
-			return new MDBTxn(txn, this);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_txn_begin(Env, parent != null ? parent.Txn : IntPtr.Zero, flags, out IntPtr txn);
+				if (err != MDBResult.Success) throw new MDBException("Failed to begin transaction", err);
+				return new MDBTxn(txn, this);
+			}
 		}
 
 		/// <summary>
@@ -288,8 +340,10 @@ namespace Tesseract.LMDB {
 		/// <param name="ctx">Anything the message function needs</param>
 		/// <exception cref="MDBException">If an error occurs listing the readers</exception>
 		public void ListReaders(MDBMsgFunc func, IntPtr ctx = default) {
-			MDBResult err = MDB.Functions.mdb_reader_list(Env, func, ctx);
-			if (err != MDBResult.Success) throw new MDBException("Failed to enumerate reader list", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_reader_list(Env, Marshal.GetFunctionPointerForDelegate(func), ctx);
+				if (err != MDBResult.Success) throw new MDBException("Failed to enumerate reader list", err);
+			}
 		}
 
 		/// <summary>
@@ -298,9 +352,11 @@ namespace Tesseract.LMDB {
 		/// <returns>The number of stale slots that were cleared</returns>
 		/// <exception cref="MDBException">If an error occurs checking the readers</exception>
 		public int CheckReaders() {
-			MDBResult err = MDB.Functions.mdb_reader_check(Env, out int dead);
-			if (err != MDBResult.Success) throw new MDBException("Failed to check for stale readers", err);
-			return dead;
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_reader_check(Env, out int dead);
+				if (err != MDBResult.Success) throw new MDBException("Failed to check for stale readers", err);
+				return dead;
+			}
 		}
 
 		public static implicit operator IntPtr(MDBEnv env) => env.Env;

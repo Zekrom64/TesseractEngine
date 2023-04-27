@@ -33,7 +33,13 @@ namespace Tesseract.LMDB {
 		/// <summary>
 		/// The transaction's ID. For a read-only transaction, this corresponds to the snapshot being read; concurrent readers will frequently have the same transaction ID.
 		/// </summary>
-		public nuint ID => MDB.Functions.mdb_txn_id(Txn);
+		public nuint ID {
+			get {
+				unsafe {
+					return MDB.Functions.mdb_txn_id(Txn);
+				}
+			}
+		}
 
 		public MDBTxn(IntPtr txn, MDBEnv env) {
 			Txn = txn;
@@ -47,7 +53,9 @@ namespace Tesseract.LMDB {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Txn != IntPtr.Zero) {
-				MDB.Functions.mdb_txn_abort(Txn);
+				unsafe {
+					MDB.Functions.mdb_txn_abort(Txn);
+				}
 				Txn = IntPtr.Zero;
 			}
 		}
@@ -85,9 +93,13 @@ namespace Tesseract.LMDB {
 		/// <returns>The new database interface handle</returns>
 		/// <exception cref="MDBException">If an error occured opening the handle</exception>
 		public MDBDBI Open(string? name, MDBDBFlags flags) {
-			MDBResult err = MDB.Functions.mdb_dbi_open(Txn, name, flags, out MDBDBI dbi);
-			if (err != MDBResult.Success) throw new MDBException("Failed to open database instance", err);
-			return dbi;
+			unsafe {
+				fixed(byte* pName = (name != null ? MemoryUtil.StackallocUTF8(name, stackalloc byte[256]) : stackalloc byte[] { 0 })) {
+					MDBResult err = MDB.Functions.mdb_dbi_open(Txn, pName, flags, out MDBDBI dbi);
+					if (err != MDBResult.Success) throw new MDBException("Failed to open database instance", err);
+					return dbi;
+				}
+			}
 		}
 
 		/// <summary>
@@ -100,9 +112,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <exception cref="MDBException">If an error occured commiting the transaction</exception>
 		public void Commit() {
-			MDBResult err = MDB.Functions.mdb_txn_commit(Txn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to commit transaction", err);
-			Txn = IntPtr.Zero;
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_txn_commit(Txn);
+				if (err != MDBResult.Success) throw new MDBException("Failed to commit transaction", err);
+				Txn = IntPtr.Zero;
+			}
 		}
 
 		/// <summary>
@@ -114,8 +128,10 @@ namespace Tesseract.LMDB {
 		/// <para>Note: Earlier documentation incorrectly said all cursors would be freed. Only write-transactions free cursors.</para>
 		/// </summary>
 		public void Abort() {
-			MDB.Functions.mdb_txn_abort(Txn);
-			Txn = IntPtr.Zero;
+			unsafe {
+				MDB.Functions.mdb_txn_abort(Txn);
+				Txn = IntPtr.Zero;
+			}
 		}
 
 		/// <summary>
@@ -132,7 +148,11 @@ namespace Tesseract.LMDB {
 		/// database size may grow much more rapidly than otherwise.
 		/// </para>
 		/// </summary>
-		public void Reset() => MDB.Functions.mdb_txn_reset(Txn);
+		public void Reset() {
+			unsafe {
+				MDB.Functions.mdb_txn_reset(Txn);
+			}
+		}
 
 		/// <summary>
 		/// <para>Renew a read-only transaction.</para>
@@ -143,8 +163,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <exception cref="MDBException">If an error occurs renewing the transaction</exception>
 		public void Renew() {
-			MDBResult err = MDB.Functions.mdb_txn_renew(Txn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to renew transaction", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_txn_renew(Txn);
+				if (err != MDBResult.Success) throw new MDBException("Failed to renew transaction", err);
+			}
 		}
 
 		//===============//
@@ -156,9 +178,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public MDBStat Stat(MDBDBI dbi) {
-			MDBResult err = MDB.Functions.mdb_stat(Txn, dbi, out MDBStat stat);
-			if (err != MDBResult.Success) throw new MDBException("Failed to get database stats", err);
-			return stat;
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_stat(Txn, dbi, out MDBStat stat);
+				if (err != MDBResult.Success) throw new MDBException("Failed to get database stats", err);
+				return stat;
+			}
 		}
 
 		/// <summary>
@@ -166,9 +190,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public MDBDBFlags Flags(MDBDBI dbi) {
-			MDBResult err = MDB.Functions.mdb_dbi_flags(Txn, dbi, out MDBDBFlags flags);
-			if (err != MDBResult.Success) throw new MDBException("Failed to get database flags", err);
-			return flags;
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_dbi_flags(Txn, dbi, out MDBDBFlags flags);
+				if (err != MDBResult.Success) throw new MDBException("Failed to get database flags", err);
+				return flags;
+			}
 		}
 
 		/// <summary>
@@ -187,8 +213,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public void SetCompare(MDBDBI dbi, MDBCmpFunc fn) {
-			MDBResult err = MDB.Functions.mdb_set_compare(Txn, dbi, fn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to set database compare function", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_set_compare(Txn, dbi, Marshal.GetFunctionPointerForDelegate(fn));
+				if (err != MDBResult.Success) throw new MDBException("Failed to set database compare function", err);
+			}
 		}
 
 		/// <summary>
@@ -208,8 +236,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public void SetDupSort(MDBDBI dbi, MDBCmpFunc fn) {
-			MDBResult err = MDB.Functions.mdb_set_dupsort(Txn, dbi, fn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to set database dupsort function", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_set_dupsort(Txn, dbi, Marshal.GetFunctionPointerForDelegate(fn));
+				if (err != MDBResult.Success) throw new MDBException("Failed to set database dupsort function", err);
+			}
 		}
 
 		/// <summary>
@@ -224,8 +254,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public void SetRelocateFunction(MDBDBI dbi, MDBRelFunc fn) {
-			MDBResult err = MDB.Functions.mdb_set_relfunc(Txn, dbi, fn);
-			if (err != MDBResult.Success) throw new MDBException("Failed to set database relocate function", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_set_relfunc(Txn, dbi, Marshal.GetFunctionPointerForDelegate(fn));
+				if (err != MDBResult.Success) throw new MDBException("Failed to set database relocate function", err);
+			}
 		}
 
 		/// <summary>
@@ -236,8 +268,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
 		public void SetRelocateContext(MDBDBI dbi, IntPtr ptr) {
-			MDBResult err = MDB.Functions.mdb_set_relctx(Txn, dbi, ptr);
-			if (err != MDBResult.Success) throw new MDBException("Failed to set database relocate function context", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_set_relctx(Txn, dbi, ptr);
+				if (err != MDBResult.Success) throw new MDBException("Failed to set database relocate function context", err);
+			}
 		}
 
 		/// <summary>
@@ -256,7 +290,11 @@ namespace Tesseract.LMDB {
 		/// </para>
 		/// </summary>
 		/// <param name="dbi">The database interface handle</param>
-		public void Close(MDBDBI dbi) => MDB.Functions.mdb_dbi_close(Txn, dbi);
+		public void Close(MDBDBI dbi) {
+			unsafe {
+				MDB.Functions.mdb_dbi_close(Txn, dbi);
+			}
+		}
 
 		/// <summary>
 		/// <para>Empty or delete+close a database.</para>
@@ -266,8 +304,10 @@ namespace Tesseract.LMDB {
 		/// <param name="del">If the database should be deleted from the environment or just emptied</param>
 		/// <exception cref="MDBException">If an error occurs dropping the database</exception>
 		public void Drop(MDBDBI dbi, bool del = false) {
-			MDBResult err = MDB.Functions.mdb_drop(Txn, dbi, del);
-			if (err != MDBResult.Success) throw new MDBException("Failed to drop database", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_drop(Txn, dbi, del);
+				if (err != MDBResult.Success) throw new MDBException("Failed to drop database", err);
+			}
 		}
 
 		/// <summary>
@@ -463,7 +503,7 @@ namespace Tesseract.LMDB {
 						Size = (nuint)key.Length,
 						Data = (IntPtr)pKey
 					};
-					MDBResult err = MDB.Functions.mdb_del(Txn, dbi, vkey, IntPtr.Zero);
+					MDBResult err = MDB.Functions.mdb_del(Txn, dbi, vkey, (MDBVal*)0);
 					if (err == MDBResult.NotFound) return false;
 					if (err != MDBResult.Success) throw new MDBException("Failed to delete database entry", err);
 					return true;
@@ -515,7 +555,7 @@ namespace Tesseract.LMDB {
 						Size = (nuint)data.Length,
 						Data = (IntPtr)pData
 					};
-					MDBResult err = MDB.Functions.mdb_del(Txn, dbi, vkey, (IntPtr)(&vdata));
+					MDBResult err = MDB.Functions.mdb_del(Txn, dbi, vkey, &vdata);
 					if (err == MDBResult.NotFound) return false;
 					if (err != MDBResult.Success) throw new MDBException("Failed to delete database entry", err);
 					return true;
@@ -571,9 +611,11 @@ namespace Tesseract.LMDB {
 		/// <returns>The new <see cref="MDBCursor"/>.</returns>
 		/// <exception cref="MDBException">If an error occurs opening the cursor.</exception>
 		public MDBCursor OpenCursor(MDBDBI dbi) {
-			MDBResult err = MDB.Functions.mdb_cursor_open(Txn, dbi, out IntPtr cursor);
-			if (err != MDBResult.Success) throw new MDBException("Failed to open database cursor", err);
-			return new MDBCursor(this, cursor);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_cursor_open(Txn, dbi, out IntPtr cursor);
+				if (err != MDBResult.Success) throw new MDBException("Failed to open database cursor", err);
+				return new MDBCursor(this, cursor);
+			}
 		}
 
 		/// <summary>
@@ -584,7 +626,11 @@ namespace Tesseract.LMDB {
 		/// <param name="a">The first item to compare</param>
 		/// <param name="b">The second item to compare</param>
 		/// <returns>Less than 0 if a &lt; b, 0 if a == b, greater than 0 if a &gt; b</returns>
-		public int Cmp(MDBDBI dbi, in MDBVal a, in MDBVal b) => MDB.Functions.mdb_cmp(Txn, dbi, a, b);
+		public int Cmp(MDBDBI dbi, in MDBVal a, in MDBVal b) {
+			unsafe {
+				return MDB.Functions.mdb_cmp(Txn, dbi, a, b);
+			}
+		}
 
 		/// <summary>
 		/// <para>Compare two data items according to a particular database.</para>
@@ -594,7 +640,11 @@ namespace Tesseract.LMDB {
 		/// <param name="a">The first item to compare</param>
 		/// <param name="b">The second item to compare</param>
 		/// <returns>Less than 0 if a &lt; b, 0 if a == b, greater than 0 if a &gt; b</returns>
-		public int DCmp(MDBDBI dbi, in MDBVal a, in MDBVal b) => MDB.Functions.mdb_cmp(Txn, dbi, a, b);
+		public int DCmp(MDBDBI dbi, in MDBVal a, in MDBVal b) {
+			unsafe {
+				return MDB.Functions.mdb_cmp(Txn, dbi, a, b);
+			}
+		}
 
 		public static implicit operator IntPtr(MDBTxn txn) => txn.Txn;
 

@@ -20,9 +20,11 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		public nuint DuplicateCount {
 			get {
-				MDBResult err = MDB.Functions.mdb_cursor_count(Cursor, out nuint countp);
-				if (err != MDBResult.Success) throw new MDBException("Failed to get cursor duplicate count", err);
-				return countp;
+				unsafe {
+					MDBResult err = MDB.Functions.mdb_cursor_count(Cursor, out nuint countp);
+					if (err != MDBResult.Success) throw new MDBException("Failed to get cursor duplicate count", err);
+					return countp;
+				}
 			}
 		}
 
@@ -38,7 +40,9 @@ namespace Tesseract.LMDB {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Cursor != IntPtr.Zero) {
-				MDB.Functions.mdb_cursor_close(Cursor);
+				unsafe {
+					MDB.Functions.mdb_cursor_close(Cursor);
+				}
 				Cursor = IntPtr.Zero;
 			}
 		}
@@ -54,8 +58,10 @@ namespace Tesseract.LMDB {
 		/// </summary>
 		/// <exception cref="MDBException"></exception>
 		public void Renew() {
-			MDBResult err = MDB.Functions.mdb_cursor_renew(Txn, Cursor);
-			if (err != MDBResult.Success) throw new MDBException("Failed to renew cursor", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_cursor_renew(Txn, Cursor);
+				if (err != MDBResult.Success) throw new MDBException("Failed to renew cursor", err);
+			}
 		}
 
 		/// <summary>
@@ -115,7 +121,7 @@ namespace Tesseract.LMDB {
 						Size = (nuint)data.Length,
 						Data = (IntPtr)pData
 					};
-					MDBResult err = MDB.Functions.mdb_cursor_put(Cursor, vkey, (IntPtr)(&vdata), flags);
+					MDBResult err = MDB.Functions.mdb_cursor_put(Cursor, vkey, &vdata, flags);
 					if (err == MDBResult.KeyExist) return false;
 					if (err != MDBResult.Success) throw new MDBException("Failed to put at cursor", err);
 					if ((flags & MDBWriteFlags.Reserve) != 0)
@@ -189,7 +195,7 @@ namespace Tesseract.LMDB {
 						};
 						MDBResult err;
 						fixed(MDBVal* pData = vdata) {
-							err = MDB.Functions.mdb_cursor_put(Cursor, vkey, (IntPtr)pData, flags);
+							err = MDB.Functions.mdb_cursor_put(Cursor, vkey, pData, flags);
 						}
 						if (err == MDBResult.KeyExist) return false;
 						if (err != MDBResult.Success) throw new MDBException("Failed to put at cursor", err);
@@ -206,8 +212,10 @@ namespace Tesseract.LMDB {
 		/// <param name="flags">Options for this operation. This parameter must be set to 0 or <see cref="MDBWriteFlags.NoDupData"/>.</param>
 		/// <exception cref="MDBException"></exception>
 		public void Del(MDBWriteFlags flags) {
-			MDBResult err = MDB.Functions.mdb_cursor_del(Cursor, flags);
-			if (err != MDBResult.Success) throw new MDBException("Failed to delete at cursor", err);
+			unsafe {
+				MDBResult err = MDB.Functions.mdb_cursor_del(Cursor, flags);
+				if (err != MDBResult.Success) throw new MDBException("Failed to delete at cursor", err);
+			}
 		}
 
 	}
