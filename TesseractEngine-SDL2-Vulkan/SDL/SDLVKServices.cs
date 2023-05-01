@@ -14,14 +14,17 @@ namespace Tesseract.SDL {
 
 		public string[] RequiredInstanceExtensions {
 			get {
-				using MemoryStack sp = MemoryStack.Push();
-				int count = 0;
-				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window.Ptr, ref count, IntPtr.Zero)) throw new SDLException(SDL2.GetError());
-				UnmanagedPointer<IntPtr> pNames = sp.Alloc<IntPtr>(count);
-				if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window.Ptr, ref count, pNames)) throw new SDLException(SDL2.GetError());
-				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
-				return exts;
+				unsafe {
+					int count = 0;
+					if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window, ref count, (byte**)0)) throw new SDLException(SDL2.GetError());
+					Span<IntPtr> names = stackalloc IntPtr[count];
+					fixed (IntPtr* pNames = names) {
+						if (!SDL2.Functions.SDL_Vulkan_GetInstanceExtensions(Window.Window.Window, ref count, (byte**)pNames)) throw new SDLException(SDL2.GetError());
+					}
+					string[] exts = new string[count];
+					for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(names[i])!;
+					return exts;
+				}
 			}
 		}
 
@@ -32,8 +35,10 @@ namespace Tesseract.SDL {
 		}
 
 		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
-			if (!SDL2.Functions.SDL_Vulkan_CreateSurface(Window.Window.Window.Ptr, instance, out ulong surface)) throw new SDLException(SDL2.GetError());
-			return new VKSurfaceKHR(instance, surface, null);
+			unsafe {
+				if (!SDL2.Functions.SDL_Vulkan_CreateSurface(Window.Window.Window, instance, out ulong surface)) throw new SDLException(SDL2.GetError());
+				return new VKSurfaceKHR(instance, surface, null);
+			}
 		}
 
 	}

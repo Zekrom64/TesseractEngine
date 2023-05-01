@@ -101,10 +101,12 @@ namespace Tesseract.SDL {
 
 		public string? Mapping {
 			get {
-				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForIndex(MappingIndex);
-				string? mapping = MemoryUtil.GetASCII(pMapping);
-				SDL2.Functions.SDL_free(pMapping);
-				return mapping;
+				unsafe {
+					IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForIndex(MappingIndex);
+					string? mapping = MemoryUtil.GetASCII(pMapping);
+					SDL2.Functions.SDL_free(pMapping);
+					return mapping;
+				}
 			}
 		}
 
@@ -114,126 +116,272 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; set; }
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerNameForIndex(DeviceIndex))!;
+		public string Name {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerNameForIndex(DeviceIndex))!;
+				}
+			}
+		}
 
-		public SDLGameControllerType Type => SDL2.Functions.SDL_GameControllerTypeForIndex(DeviceIndex);
+		public SDLGameControllerType Type {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerTypeForIndex(DeviceIndex);
+				}
+			}
+		}
 
 		public string? Mapping {
 			get {
-				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForDeviceIndex(DeviceIndex);
-				string? mapping = MemoryUtil.GetASCII(pMapping);
-				SDL2.Functions.SDL_free(pMapping);
-				return mapping;
+				unsafe {
+					IntPtr pMapping = SDL2.Functions.SDL_GameControllerMappingForDeviceIndex(DeviceIndex);
+					string? mapping = MemoryUtil.GetASCII(pMapping);
+					SDL2.Functions.SDL_free(pMapping);
+					return mapping;
+				}
 			}
 		}
 
 		public SDLGameController Open() {
-			IntPtr pGameController = SDL2.Functions.SDL_GameControllerOpen(DeviceIndex);
-			if (pGameController == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			return new SDLGameController(pGameController);
+			unsafe {
+				IntPtr pGameController = SDL2.Functions.SDL_GameControllerOpen(DeviceIndex);
+				if (pGameController == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new SDLGameController(pGameController);
+			}
 		}
 
 	}
 
 	public class SDLGameController : IDisposable {
 
-		public IPointer<SDL_GameController> GameController { get; }
+		[NativeType("SDL_GameController*")]
+		public IntPtr GameController { get; }
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerName(GameController.Ptr))!;
-
-		public SDLGameControllerType Type => SDL2.Functions.SDL_GameControllerGetType(GameController.Ptr);
-
-		public int PlayerIndex {
-			get => SDL2.Functions.SDL_GameControllerGetPlayerIndex(GameController.Ptr);
-			set => SDL2.Functions.SDL_GameControllerSetPlayerIndex(GameController.Ptr, value);
-		}
-
-		public ushort Vendor => SDL2.Functions.SDL_GameControllerGetVendor(GameController.Ptr);
-
-		public ushort Product => SDL2.Functions.SDL_GameControllerGetProduct(GameController.Ptr);
-
-		public ushort ProductVersion => SDL2.Functions.SDL_GameControllerGetProductVersion(GameController.Ptr);
-
-		public string? Serial => MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerGetSerial(GameController.Ptr));
-
-		public bool Attached => SDL2.Functions.SDL_GameControllerGetAttached(GameController.Ptr);
-
-		public SDLJoystick Joystick => new(SDL2.Functions.SDL_GameControllerGetJoystick(GameController.Ptr));
-
-		public string? Mapping {
+		public string Name {
 			get {
-				IntPtr pMapping = SDL2.Functions.SDL_GameControllerMapping(GameController.Ptr);
-				string? mapping = MemoryUtil.GetASCII(pMapping);
-				SDL2.Functions.SDL_free(pMapping);
-				return mapping;
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerName(GameController))!;
+				}
 			}
 		}
 
-		public SDLGameController(IntPtr pGameController) {
-			GameController = new UnmanagedPointer<SDL_GameController>(pGameController);
+		public SDLGameControllerType Type {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetType(GameController);
+				}
+			}
+		}
+
+		public int PlayerIndex {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetPlayerIndex(GameController);
+				}
+			}
+			set {
+				unsafe {
+					SDL2.Functions.SDL_GameControllerSetPlayerIndex(GameController, value);
+				}
+			}
+		}
+
+		public ushort Vendor {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetVendor(GameController);
+				}
+			}
+		}
+
+		public ushort Product {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetProduct(GameController);
+				}
+			}
+		}
+
+		public ushort ProductVersion {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetProductVersion(GameController);
+				}
+			}
+		}
+
+		public string? Serial {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_GameControllerGetSerial(GameController));
+				}
+			}
+		}
+
+		public bool Attached {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetAttached(GameController);
+				}
+			}
+		}
+
+		public SDLJoystick Joystick {
+			get {
+				unsafe {
+					return new(SDL2.Functions.SDL_GameControllerGetJoystick(GameController));
+				}
+			}
+		}
+
+		public string? Mapping {
+			get {
+				unsafe {
+					IntPtr pMapping = SDL2.Functions.SDL_GameControllerMapping(GameController);
+					string? mapping = MemoryUtil.GetASCII(pMapping);
+					SDL2.Functions.SDL_free(pMapping);
+					return mapping;
+				}
+			}
+		}
+
+		public SDLGameController([NativeType("SDL_GameController*")] IntPtr pGameController) {
+			GameController = pGameController;
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			SDL2.Functions.SDL_GameControllerClose(GameController.Ptr);
+			unsafe {
+				SDL2.Functions.SDL_GameControllerClose(GameController);
+			}
 		}
 
 		public static SDLGameController? FromInstanceID(int instanceID) {
-			IntPtr pGC = SDL2.Functions.SDL_GameControllerFromInstanceID(instanceID);
-			if (pGC == IntPtr.Zero) return null;
-			return new SDLGameController(pGC);
+			unsafe {
+				IntPtr pGC = SDL2.Functions.SDL_GameControllerFromInstanceID(instanceID);
+				if (pGC == IntPtr.Zero) return null;
+				return new SDLGameController(pGC);
+			}
 		}
 
 		public static SDLGameController? FromPlayerIndex(int playerIndex) {
-			IntPtr pGC = SDL2.Functions.SDL_GameControllerFromPlayerIndex(playerIndex);
-			if (pGC == IntPtr.Zero) return null;
-			return new SDLGameController(pGC);
+			unsafe {
+				IntPtr pGC = SDL2.Functions.SDL_GameControllerFromPlayerIndex(playerIndex);
+				if (pGC == IntPtr.Zero) return null;
+				return new SDLGameController(pGC);
+			}
 		}
 
-		public SDLGameControllerButtonBind GetBind(SDLGameControllerAxis axis) => SDL2.Functions.SDL_GameControllerGetBindForAxis(GameController.Ptr, axis);
+		public SDLGameControllerButtonBind GetBind(SDLGameControllerAxis axis) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerGetBindForAxis(GameController, axis);
+			}
+		}
 
-		public bool HasAxis(SDLGameControllerAxis axis) => SDL2.Functions.SDL_GameControllerHasAxis(GameController.Ptr, axis);
+		public bool HasAxis(SDLGameControllerAxis axis) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerHasAxis(GameController, axis);
+			}
+		}
 
-		public short GetAxis(SDLGameControllerAxis axis) => SDL2.Functions.SDL_GameControllerGetAxis(GameController.Ptr, axis);
+		public short GetAxis(SDLGameControllerAxis axis) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerGetAxis(GameController, axis);
+			}
+		}
 
-		public SDLGameControllerButtonBind GetBind(SDLGameControllerButton button) => SDL2.Functions.SDL_GameControllerGetBindForButton(GameController.Ptr, button);
+		public SDLGameControllerButtonBind GetBind(SDLGameControllerButton button) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerGetBindForButton(GameController, button);
+			}
+		}
 
-		public bool HasButton(SDLGameControllerButton button) => SDL2.Functions.SDL_GameControllerHasButton(GameController.Ptr, button);
+		public bool HasButton(SDLGameControllerButton button) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerHasButton(GameController, button);
+			}
+		}
 
-		public bool GetButton(SDLGameControllerButton button) => SDL2.Functions.SDL_GameControllerGetButton(GameController.Ptr, button) != SDLButtonState.Released;
+		public bool GetButton(SDLGameControllerButton button) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerGetButton(GameController, button) != SDLButtonState.Released;
+			}
+		}
 
-		public int NumTouchpads => SDL2.Functions.SDL_GameControllerGetNumTouchpads(GameController.Ptr);
+		public int NumTouchpads {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerGetNumTouchpads(GameController);
+				}
+			}
+		}
 
-		public int GetNumTouchpadFingers(int touchpad) => SDL2.Functions.SDL_GameControllerGetNumTouchpadFingers(GameController.Ptr, touchpad);
+		public int GetNumTouchpadFingers(int touchpad) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerGetNumTouchpadFingers(GameController, touchpad);
+			}
+		}
 
 		public (bool, Vector2, float) GetTouchpadFinger(int touchpad, int finger) {
-			SDL2.Functions.SDL_GameControllerGetTouchpadFinger(GameController.Ptr, touchpad, finger, out SDLButtonState state, out float x, out float y, out float pressure);
-			return (state != SDLButtonState.Released, new Vector2(x, y), pressure);
+			unsafe {
+				SDL2.Functions.SDL_GameControllerGetTouchpadFinger(GameController, touchpad, finger, out SDLButtonState state, out float x, out float y, out float pressure);
+				return (state != SDLButtonState.Released, new Vector2(x, y), pressure);
+			}
 		}
 
-		public bool HasSensor(SDLSensorType type) => SDL2.Functions.SDL_GameControllerHasSensor(GameController.Ptr, type);
+		public bool HasSensor(SDLSensorType type) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerHasSensor(GameController, type);
+			}
+		}
 
-		public void SetSensorEnabled(SDLSensorType type, bool enable) => SDL2.Functions.SDL_GameControllerSetSensorEnabled(GameController.Ptr, type, enable);
+		public void SetSensorEnabled(SDLSensorType type, bool enable) {
+			unsafe {
+				SDL2.Functions.SDL_GameControllerSetSensorEnabled(GameController, type, enable);
+			}
+		}
 
-		public bool GetSensorEnabled(SDLSensorType type) => SDL2.Functions.SDL_GameControllerIsSensorEnabled(GameController.Ptr, type);
+		public bool GetSensorEnabled(SDLSensorType type) {
+			unsafe {
+				return SDL2.Functions.SDL_GameControllerIsSensorEnabled(GameController, type);
+			}
+		}
 
 		public Span<float> GetSensorData(SDLSensorType type, Span<float> values) {
 			unsafe {
 				fixed(float* pValues = values) {
-					SDL2.Functions.SDL_GameControllerGetSensorData(GameController.Ptr, type, (IntPtr)pValues, values.Length);
+					SDL2.Functions.SDL_GameControllerGetSensorData(GameController, type, pValues, values.Length);
 				}
 			}
 			return values;
 		}
 
-		public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, uint durationMillisec) => SDL2.Functions.SDL_GameControllerRumble(GameController.Ptr, lowFreqRumble, highFreqRumble, durationMillisec);
+		public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, uint durationMillisec) {
+			unsafe {
+				SDL2.Functions.SDL_GameControllerRumble(GameController, lowFreqRumble, highFreqRumble, durationMillisec);
+			}
+		}
 
-		public void RumbleTriggers(ushort leftRumble, ushort rightRumble, uint durationMillisec) => SDL2.Functions.SDL_GameControllerRumbleTriggers(GameController.Ptr, leftRumble, rightRumble, durationMillisec);
+		public void RumbleTriggers(ushort leftRumble, ushort rightRumble, uint durationMillisec) {
+			unsafe {
+				SDL2.Functions.SDL_GameControllerRumbleTriggers(GameController, leftRumble, rightRumble, durationMillisec);
+			}
+		}
 
-		public bool HasLED => SDL2.Functions.SDL_GameControllerHasLED(GameController.Ptr);
+		public bool HasLED {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GameControllerHasLED(GameController);
+				}
+			}
+		}
 
-		public void SetLED(byte r, byte g, byte b) => SDL2.Functions.SDL_GameControllerSetLED(GameController.Ptr, r, g, b);
-
+		public void SetLED(byte r, byte g, byte b) {
+			unsafe {
+				SDL2.Functions.SDL_GameControllerSetLED(GameController, r, g, b);
+			}
+		}
 	}
 
 }

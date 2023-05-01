@@ -62,12 +62,14 @@ namespace Tesseract.SDL {
 			Surface = pointer;
 		}
 
-		public SDLSurface(int width, int height, SDLPixelFormatEnum format, IntPtr? pixels = null, int pitch = 0) {
-			if (pixels.HasValue) {
-				if (pitch == 0) pitch = width * format.BytesPerPixel;
-				Surface = new UnmanagedPointer<SDL_Surface>(SDL2.Functions.SDL_CreateRGBSurfaceWithFormatFrom(pixels.Value, width, height, (int)format.BitsPerPixel, pitch, format));
-			} else {
-				Surface = new UnmanagedPointer<SDL_Surface>(SDL2.Functions.SDL_CreateRGBSurfaceWithFormat(0, width, height, (int)format.BitsPerPixel, format));
+		public SDLSurface(int width, int height, SDLPixelFormatEnum format, IntPtr pixels = default, int pitch = 0) {
+			unsafe {
+				if (pixels != IntPtr.Zero) {
+					if (pitch == 0) pitch = width * format.BytesPerPixel;
+					Surface = new UnmanagedPointer<SDL_Surface>((IntPtr)SDL2.Functions.SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, (int)format.BitsPerPixel, pitch, format));
+				} else {
+					Surface = new UnmanagedPointer<SDL_Surface>((IntPtr)SDL2.Functions.SDL_CreateRGBSurfaceWithFormat(0, width, height, (int)format.BitsPerPixel, format));
+				}
 			}
 		}
 
@@ -121,7 +123,12 @@ namespace Tesseract.SDL {
 		/// The palette of the surface.
 		/// </summary>
 		public SDLPalette Palette {
-			set => SDL2.Functions.SDL_SetSurfacePalette(Surface.Ptr, value.Palette.Ptr);
+			set {
+				unsafe {
+					SDL2.Functions.SDL_SetSurfacePalette((SDL_Surface*)Surface.Ptr, (SDL_Palette*)value.Palette.Ptr);
+				}
+			}
+
 			get => PixelFormat.Palette;
 		}
 
@@ -130,18 +137,29 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public bool RLEHint {
 			get => (Flags & SDLSurfaceFlags.RLEAccel) != 0;
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceRLE(Surface.Ptr, value ? 1 : 0));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceRLE((SDL_Surface*)Surface.Ptr, value));
+				}
+			}
 		}
 
 		/// <summary>
 		/// The color key of the surface.
 		/// </summary>
 		public uint? ColorKey {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetColorKey(Surface.Ptr, value.HasValue ? 1 : 0, value ?? 0));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetColorKey((SDL_Surface*)Surface.Ptr, value.HasValue, value ?? 0));
+				}
+			}
+
 			get {
-				if (!SDL2.Functions.SDL_HasColorKey(Surface.Ptr)) return null;
-				SDL2.CheckError(SDL2.Functions.SDL_GetColorKey(Surface.Ptr, out uint key));
-				return key;
+				unsafe {
+					if (!SDL2.Functions.SDL_HasColorKey((SDL_Surface*)Surface.Ptr)) return null;
+					SDL2.CheckError(SDL2.Functions.SDL_GetColorKey((SDL_Surface*)Surface.Ptr, out uint key));
+					return key;
+				}
 			}
 		}
 
@@ -149,10 +167,17 @@ namespace Tesseract.SDL {
 		/// The modulating color of the surface.
 		/// </summary>
 		public Vector3b ColorMod {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceColorMod(Surface.Ptr, value.X, value.Y, value.Z));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceColorMod((SDL_Surface*)Surface.Ptr, value.X, value.Y, value.Z));
+				}
+			}
+
 			get {
-				SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceColorMod(Surface.Ptr, out byte R, out byte G, out byte B));
-				return new(R, G, B);
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceColorMod((SDL_Surface*)Surface.Ptr, out byte R, out byte G, out byte B));
+					return new(R, G, B);
+				}
 			}
 		}
 
@@ -160,10 +185,17 @@ namespace Tesseract.SDL {
 		/// The modulating alpha of the surface.
 		/// </summary>
 		public byte AlphaMod {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceAlphaMod(Surface.Ptr, value));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceAlphaMod((SDL_Surface*)Surface.Ptr, value));
+				}
+			}
+
 			get {
-				SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceAlphaMod(Surface.Ptr, out byte alpha));
-				return alpha;
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceAlphaMod((SDL_Surface*)Surface.Ptr, out byte alpha));
+					return alpha;
+				}
 			}
 		}
 
@@ -171,10 +203,17 @@ namespace Tesseract.SDL {
 		/// The blend mode to use for blitting operations.
 		/// </summary>
 		public SDLBlendMode BlendMode {
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceBlendMode(Surface.Ptr, value));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetSurfaceBlendMode((SDL_Surface*)Surface.Ptr, value));
+				}
+			}
+
 			get {
-				SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceBlendMode(Surface.Ptr, out SDLBlendMode blendMode));
-				return blendMode;
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_GetSurfaceBlendMode((SDL_Surface*)Surface.Ptr, out SDLBlendMode blendMode));
+					return blendMode;
+				}
 			}
 		}
 
@@ -183,17 +222,19 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public Recti? ClipRect {
 			set {
-				if (!value.HasValue) SDL2.CheckError(SDL2.Functions.SDL_SetClipRect(Surface.Ptr, IntPtr.Zero));
-				else {
-					unsafe {
+				unsafe {
+					if (!value.HasValue) SDL2.CheckError(SDL2.Functions.SDL_SetClipRect((SDL_Surface*)Surface.Ptr, (Recti*)0));
+					else {
 						Recti rect = value.Value;
-						SDL2.CheckError(SDL2.Functions.SDL_SetClipRect(Surface.Ptr, (IntPtr)(&rect)));
+						SDL2.CheckError(SDL2.Functions.SDL_SetClipRect((SDL_Surface*)Surface.Ptr, &rect));
 					}
 				}
 			}
 			get {
-				SDL2.Functions.SDL_GetClipRect(Surface.Ptr, out Recti rect);
-				return rect;
+				unsafe {
+					SDL2.Functions.SDL_GetClipRect((SDL_Surface*)Surface.Ptr, out Recti rect);
+					return rect;
+				}
 			}
 		}
 
@@ -237,24 +278,32 @@ namespace Tesseract.SDL {
 		/// <seealso cref="Pixels"/>
 		/// <seealso cref="Unlock"/>
 		public IntPtr Lock() {
-			SDL2.CheckError(SDL2.Functions.SDL_LockSurface(Surface.Ptr));
-			return Pixels;
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_LockSurface((SDL_Surface*)Surface.Ptr));
+				return Pixels;
+			}
 		}
 
 		/// <summary>
 		/// Unlocks the pixels of this surface after calling <see cref="Lock"/>.
 		/// </summary>
 		/// <seealso cref="Lock"/>
-		public void Unlock() => SDL2.Functions.SDL_UnlockSurface(Surface.Ptr);
+		public void Unlock() {
+			unsafe {
+				SDL2.Functions.SDL_UnlockSurface((SDL_Surface*)Surface.Ptr);
+			}
+		}
 
 		/// <summary>
 		/// Creates a new duplicate of this surface.
 		/// </summary>
 		/// <returns>Duplicate of surface</returns>
 		public SDLSurface Duplicate() {
-			IntPtr ptr = SDL2.Functions.SDL_DuplicateSurface(Surface.Ptr);
-			if (ptr == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			return new(new UnmanagedPointer<SDL_Surface>(ptr));
+			unsafe {
+				IntPtr ptr = (IntPtr)SDL2.Functions.SDL_DuplicateSurface((SDL_Surface*)Surface.Ptr);
+				if (ptr == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new(new UnmanagedPointer<SDL_Surface>(ptr));
+			}
 		}
 
 		/// <summary>
@@ -264,9 +313,11 @@ namespace Tesseract.SDL {
 		/// <param name="flags">Flags to create surface with</param>
 		/// <returns>Copy of surface with new format</returns>
 		public SDLSurface Convert(SDLPixelFormatEnum pixelFormat, SDLSurfaceFlags flags = 0) {
-			IntPtr ptr = SDL2.Functions.SDL_ConvertSurfaceFormat(Surface.Ptr, pixelFormat, (uint)flags);
-			if (ptr == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			return new(new UnmanagedPointer<SDL_Surface>(ptr));
+			unsafe {
+				IntPtr ptr = (IntPtr)SDL2.Functions.SDL_ConvertSurfaceFormat((SDL_Surface*)Surface.Ptr, pixelFormat, (uint)flags);
+				if (ptr == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new(new UnmanagedPointer<SDL_Surface>(ptr));
+			}
 		}
 
 		/// <summary>
@@ -277,7 +328,9 @@ namespace Tesseract.SDL {
 		/// <seealso cref="FillRects(Span{SDLRect}, uint)"/>
 		/// <seealso cref="FillRects(uint, SDLRect[])"/>
 		public void Fill(uint color) {
-			SDL2.CheckError(SDL2.Functions.SDL_FillRect(Surface.Ptr, IntPtr.Zero, color));
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_FillRect((SDL_Surface*)Surface.Ptr, (Recti*)0, color));
+			}
 		}
 
 		/// <summary>
@@ -290,7 +343,7 @@ namespace Tesseract.SDL {
 		/// <seealso cref="FillRects(uint, SDLRect[])"/>
 		public void FillRect(Recti rect, uint color) {
 			unsafe {
-				SDL2.CheckError(SDL2.Functions.SDL_FillRect(Surface.Ptr, (IntPtr)(&rect), color));
+				SDL2.CheckError(SDL2.Functions.SDL_FillRect((SDL_Surface*)Surface.Ptr, &rect, color));
 			}
 		}
 
@@ -305,7 +358,7 @@ namespace Tesseract.SDL {
 		public void FillRects(uint color, params Recti[] rects) {
 			unsafe {
 				fixed (Recti* pRects = rects) {
-					SDL2.CheckError(SDL2.Functions.SDL_FillRects(Surface.Ptr, (IntPtr)pRects, rects.Length, color));
+					SDL2.CheckError(SDL2.Functions.SDL_FillRects((SDL_Surface*)Surface.Ptr, pRects, rects.Length, color));
 				}
 			}
 		}
@@ -321,7 +374,7 @@ namespace Tesseract.SDL {
 		public void FillRects(Span<Recti> rects, uint color) {
 			unsafe {
 				fixed (Recti* pRects = rects) {
-					SDL2.CheckError(SDL2.Functions.SDL_FillRects(Surface.Ptr, (IntPtr)pRects, rects.Length, color));
+					SDL2.CheckError(SDL2.Functions.SDL_FillRects((SDL_Surface*)Surface.Ptr, pRects, rects.Length, color));
 				}
 			}
 		}
@@ -334,10 +387,8 @@ namespace Tesseract.SDL {
 		/// <param name="srcRect">Source blit area, or null to use whole area</param>
 		public void Blit(Recti? dstRect, SDLSurface src, Recti? srcRect) {
 			unsafe {
-				Recti dstr, srcr;
-				if (dstRect.HasValue) dstr = dstRect.Value;
-				if (srcRect.HasValue) srcr = srcRect.Value;
-				SDL2.CheckError(SDL2.Functions.SDL_UpperBlit(src.Surface.Ptr, srcRect.HasValue ? (IntPtr)(&srcr) : IntPtr.Zero, Surface.Ptr, dstRect.HasValue ? (IntPtr)(&dstr) : IntPtr.Zero));
+				Recti srcr = srcRect ?? new Recti(src.W, src.H);
+				SDL2.CheckError(SDL2.Functions.SDL_UpperBlit((SDL_Surface*)src.Surface.Ptr, &srcr, (SDL_Surface*)Surface.Ptr, dstRect ?? new Recti(W, H)));
 			}
 		}
 
@@ -349,25 +400,26 @@ namespace Tesseract.SDL {
 		/// <param name="srcRect">Source blit area, or null to use whole area</param>
 		public void BlitScaled(Recti? dstRect, SDLSurface src, Recti? srcRect) {
 			unsafe {
-				Recti dstr, srcr;
-				if (dstRect.HasValue) dstr = dstRect.Value;
-				if (srcRect.HasValue) srcr = srcRect.Value;
-				SDL2.CheckError(SDL2.Functions.SDL_UpperBlitScaled(src.Surface.Ptr, srcRect.HasValue ? (IntPtr)(&srcr) : IntPtr.Zero, Surface.Ptr, dstRect.HasValue ? (IntPtr)(&dstr) : IntPtr.Zero));
+				SDL2.CheckError(SDL2.Functions.SDL_UpperBlitScaled((SDL_Surface*)src.Surface.Ptr, srcRect ?? new Recti(src.W, src.H), (SDL_Surface*)Surface.Ptr, dstRect ?? new Recti(W, H)));
 			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Surface != null && !Surface.IsNull) {
-				SDL2.Functions.SDL_FreeSurface(Surface.Ptr);
+				unsafe {
+					SDL2.Functions.SDL_FreeSurface((SDL_Surface*)Surface.Ptr);
+				}
 				Surface = new NullPointer<SDL_Surface>();
 			}
 		}
 
 		public SDLRenderer CreateSoftwareRenderer() {
-			IntPtr pRender = SDL2.Functions.SDL_CreateSoftwareRenderer(Surface.Ptr);
-			if (pRender == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			return new SDLRenderer(pRender);
+			unsafe {
+				IntPtr pRender = SDL2.Functions.SDL_CreateSoftwareRenderer((SDL_Surface*)Surface.Ptr);
+				if (pRender == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new SDLRenderer(pRender);
+			}
 		}
 	}
 

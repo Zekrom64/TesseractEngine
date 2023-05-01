@@ -203,7 +203,7 @@ namespace Tesseract.SDL {
 		_1010102
 	}
 
-	public record struct SDLPixelFormatEnum : IValuedEnum<uint> {
+	public readonly record struct SDLPixelFormatEnum : IValuedEnum<uint> {
 
 		public static uint DefinePixelFourCC(char a, char b, char c, char d) =>
 			(uint)((a & 0xFF) | ((b & 0xFF) << 8) | ((c & 0xFF) << 16) | ((d & 0xFF) << 23));
@@ -298,7 +298,11 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public static readonly SDLPixelFormatEnum ExternalOES = DefinePixelFourCC('O', 'E', 'S', ' ');
 
-		public static SDLPixelFormatEnum FromMasks(int bpp, uint rmask, uint gmask, uint bmask, uint amask) => SDL2.Functions.SDL_MasksToPixelFormatEnum(bpp, rmask, gmask, bmask, amask);
+		public static SDLPixelFormatEnum FromMasks(int bpp, uint rmask, uint gmask, uint bmask, uint amask) {
+			unsafe {
+				return SDL2.Functions.SDL_MasksToPixelFormatEnum(bpp, rmask, gmask, bmask, amask);
+			}
+		}
 
 		public uint Value { get; }
 
@@ -370,13 +374,23 @@ namespace Tesseract.SDL {
 		/// <summary>
 		/// The name of the pixel format.
 		/// </summary>
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_GetPixelFormatName(Value))!;
+		public string Name {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_GetPixelFormatName(Value))!;
+				}
+			}
+		}
 
 		public SDLPixelFormatEnum(uint value) {
 			Value = value;
 		}
 
-		public bool ToMasks(out int bpp, out uint rmask, out uint gmask, out uint bmask, out uint amask) => SDL2.Functions.SDL_PixelFormatEnumToMasks(Value, out bpp, out rmask, out gmask, out bmask, out amask);
+		public bool ToMasks(out int bpp, out uint rmask, out uint gmask, out uint bmask, out uint amask) {
+			unsafe {
+				return SDL2.Functions.SDL_PixelFormatEnumToMasks(Value, out bpp, out rmask, out gmask, out bmask, out amask);
+			}
+		}
 
 		public bool Equals(IValuedEnum<uint>? e) => e != null && Value == e.Value;
 
@@ -385,47 +399,6 @@ namespace Tesseract.SDL {
 		public static implicit operator uint(SDLPixelFormatEnum format) => format.Value;
 
 	}
-
-	/*
-	/// <summary>
-	/// Stores a single SDL color value.
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
-	public struct SDLColor {
-
-		/// <summary>
-		/// Red component.
-		/// </summary>
-		public byte R;
-		/// <summary>
-		/// Green component.
-		/// </summary>
-		public byte G;
-		/// <summary>
-		/// Blue component.
-		/// </summary>
-		public byte B;
-		/// <summary>
-		/// Alpha component.
-		/// </summary>
-		public byte A;
-
-		public SDLColor(byte r, byte g, byte b) {
-			R = r;
-			G = g;
-			B = b;
-			A = 0xFF;
-		}
-
-		public SDLColor(byte r, byte g, byte b, byte a) {
-			R = r;
-			G = g;
-			B = b;
-			A = a;
-		}
-
-	}
-	*/
 
 	public class SDLPalette : IDisposable {
 
@@ -436,7 +409,9 @@ namespace Tesseract.SDL {
 		}
 
 		public SDLPalette(int ncolors) {
-			Palette = new UnmanagedPointer<SDL_Palette>(SDL2.Functions.SDL_AllocPalette(ncolors));
+			unsafe {
+				Palette = new UnmanagedPointer<SDL_Palette>((IntPtr)SDL2.Functions.SDL_AllocPalette(ncolors));
+			}
 		}
 
 		public int NColors {
@@ -453,6 +428,13 @@ namespace Tesseract.SDL {
 					return ((SDL_Palette*)Palette.Ptr)->Colors;
 				}
 			}
+			set {
+				unsafe {
+					fixed (Vector4b* pColors = value) {
+						SDL2.Functions.SDL_SetPaletteColors((SDL_Palette*)Palette.Ptr, pColors, 0, value.Length);
+					}
+				}
+			}
 		}
 
 		public Vector4b this[int index] => Colors[index];
@@ -460,7 +442,9 @@ namespace Tesseract.SDL {
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (Palette != null && !Palette.IsNull) {
-				SDL2.Functions.SDL_FreePalette(Palette.Ptr);
+				unsafe {
+					SDL2.Functions.SDL_FreePalette((SDL_Palette*)Palette.Ptr);
+				}
 				Palette = new NullPointer<SDL_Palette>();
 			}
 		}
@@ -468,7 +452,7 @@ namespace Tesseract.SDL {
 		public void SetColors(in ReadOnlySpan<Vector4b> colors, int first = 0) {
 			unsafe {
 				fixed(Vector4b* pColors = colors) {
-					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
+					SDL2.Functions.SDL_SetPaletteColors((SDL_Palette*)Palette.Ptr, pColors, first, colors.Length);
 				}
 			}
 		}
@@ -476,7 +460,7 @@ namespace Tesseract.SDL {
 		public void SetColors(int first, params Vector4b[] colors) {
 			unsafe {
 				fixed (Vector4b* pColors = colors) {
-					SDL2.Functions.SDL_SetPaletteColors(Palette.Ptr, (IntPtr)pColors, first, colors.Length);
+					SDL2.Functions.SDL_SetPaletteColors((SDL_Palette*)Palette.Ptr, pColors, first, colors.Length);
 				}
 			}
 		}
@@ -492,7 +476,9 @@ namespace Tesseract.SDL {
 		}
 
 		public SDLPixelFormat(SDLPixelFormatEnum format) {
-			PixelFormat = new UnmanagedPointer<SDL_PixelFormat>(SDL2.Functions.SDL_AllocFormat(format));
+			unsafe {
+				PixelFormat = new UnmanagedPointer<SDL_PixelFormat>((IntPtr)SDL2.Functions.SDL_AllocFormat(format));
+			}
 		}
 
 		public byte BitsPerPixel {
@@ -525,12 +511,24 @@ namespace Tesseract.SDL {
 					return new(((SDL_PixelFormat*)PixelFormat.Ptr)->Palette);
 				}
 			}
-			set => SDL2.CheckError(SDL2.Functions.SDL_SetPixelFormatPalette(PixelFormat.Ptr, value.Palette.Ptr));
+			set {
+				unsafe {
+					SDL2.CheckError(SDL2.Functions.SDL_SetPixelFormatPalette((SDL_PixelFormat*)PixelFormat.Ptr, (SDL_Palette*)value.Palette.Ptr));
+				}
+			}
 		}
 
-		public uint MapRGB(byte r, byte g, byte b) => SDL2.Functions.SDL_MapRGB(PixelFormat.Ptr, r, g, b);
+		public uint MapRGB(byte r, byte g, byte b) {
+			unsafe {
+				return SDL2.Functions.SDL_MapRGB((SDL_PixelFormat*)PixelFormat.Ptr, r, g, b);
+			}
+		}
 
-		public uint MapRGBA(byte r, byte g, byte b, byte a) => SDL2.Functions.SDL_MapRGBA(PixelFormat.Ptr, r, g, b, a);
+		public uint MapRGBA(byte r, byte g, byte b, byte a) {
+			unsafe {
+				return SDL2.Functions.SDL_MapRGBA((SDL_PixelFormat*)PixelFormat.Ptr, r, g, b, a);
+			}
+		}
 
 		public uint MapColor(Vector3b color) {
 			return MapRGB(color.X, color.Y, color.Z);
@@ -545,21 +543,27 @@ namespace Tesseract.SDL {
 		}
 
 		public Vector3b GetRGB(uint color) {
-			Vector3b c = new();
-			SDL2.Functions.SDL_GetRGB(color, PixelFormat.Ptr, out c.X, out c.Y, out c.Z);
-			return c;
+			unsafe {
+				Vector3b c = new();
+				SDL2.Functions.SDL_GetRGB(color, (SDL_PixelFormat*)PixelFormat.Ptr, out c.X, out c.Y, out c.Z);
+				return c;
+			}
 		}
 
 		public Vector4b GetRGBA(uint color) {
-			Vector4b c = new();
-			SDL2.Functions.SDL_GetRGBA(color, PixelFormat.Ptr, out c.X, out c.Y, out c.Z, out c.W);
-			return c;
+			unsafe {
+				Vector4b c = new();
+				SDL2.Functions.SDL_GetRGBA(color, (SDL_PixelFormat*)PixelFormat.Ptr, out c.X, out c.Y, out c.Z, out c.W);
+				return c;
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (PixelFormat != null && !PixelFormat.IsNull) {
-				SDL2.Functions.SDL_FreeFormat(PixelFormat.Ptr);
+				unsafe {
+					SDL2.Functions.SDL_FreeFormat((SDL_PixelFormat*)PixelFormat.Ptr);
+				}
 				PixelFormat = new NullPointer<SDL_PixelFormat>();
 			}
 		}

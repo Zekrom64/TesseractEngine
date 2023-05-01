@@ -393,30 +393,11 @@ namespace Tesseract.SDL {
 		public SDLEventType Type;
 		public uint Timestamp;
 		public int Which;
-		public float Data0;
-		public float Data1;
-		public float Data2;
-		public float Data3;
-		public float Data4;
-		public float Data5;
-		public float this[int index] {
-			get => index switch {
-				0 => Data0,
-				1 => Data1,
-				2 => Data2,
-				3 => Data3,
-				4 => Data4,
-				5 => Data5,
-				_ => 0
-			};
-			set {
-				switch(index) {
-					case 0: Data0 = value; break;
-					case 1: Data1 = value; break;
-					case 2: Data2 = value; break;
-					case 3: Data3 = value; break;
-					case 4: Data4 = value; break;
-					case 5: Data5 = value; break;
+		private unsafe fixed float data[6];
+		public Span<float> Data {
+			get {
+				unsafe {
+					return MemoryMarshal.CreateSpan(ref data[0], 6);
 				}
 			}
 		}

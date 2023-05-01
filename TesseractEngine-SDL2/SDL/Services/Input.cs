@@ -483,11 +483,15 @@ namespace Tesseract.SDL.Services {
 		}
 
 		private static SDLServiceWindow? GetWindowFromID(uint id) {
-			IntPtr pSDLWindow = SDL2.Functions.SDL_GetWindowFromID(id);
-			if (pSDLWindow == IntPtr.Zero) return null;
-			IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(pSDLWindow, SDLServiceWindow.WindowDataID);
-			if (pWindow == IntPtr.Zero) return null;
-			return new ObjectPointer<SDLServiceWindow>(pWindow).Value;
+			unsafe {
+				IntPtr pSDLWindow = SDL2.Functions.SDL_GetWindowFromID(id);
+				if (pSDLWindow == IntPtr.Zero) return null;
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(SDLServiceWindow.WindowDataID, stackalloc byte[256])) {
+					IntPtr pWindow = SDL2.Functions.SDL_GetWindowData(pSDLWindow, pName);
+					if (pWindow == IntPtr.Zero) return null;
+					return new ObjectPointer<SDLServiceWindow>(pWindow).Value;
+				}
+			}
 		}
 
 		private void PushEvent(in SDLEvent evt) {
@@ -596,11 +600,11 @@ namespace Tesseract.SDL.Services {
 					int joystickID = evt.JDevice.Which;
 					SDLJoystick? sdljoy = SDLJoystick.FromInstanceID(joystickID);
 					if (sdljoy != null) {
-						IntPtr pJoystick = sdljoy.Joystick.Ptr;
+						IntPtr pJoystick = sdljoy.Joystick;
 						for (int i = 0; i < joysticks.Count; i++) {
 							SDLServiceJoystick svjoy = joysticks[i];
 							SDLJoystick joy = svjoy.Joystick;
-							if (joy.Joystick.Ptr == pJoystick) {
+							if (joy.Joystick == pJoystick) {
 								svjoy.DoOnDisconnected();
 								joysticks.RemoveAt(i);
 								break;

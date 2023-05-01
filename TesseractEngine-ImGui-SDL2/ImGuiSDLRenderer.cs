@@ -42,7 +42,7 @@ namespace Tesseract.ImGui.SDL {
 				fontTexture = renderer.CreateTexture(SDLPixelFormatEnum.ABGR8888, SDLTextureAccess.Static, width, height);
 				fontTexture.UpdateTexture(null, pixels, 4 * width);
 				fontTexture.BlendMode = SDLBlendMode.Blend;
-				io.Fonts.SetTexID((nuint)(nint)fontTexture.Texture.Ptr);
+				io.Fonts.SetTexID((nuint)fontTexture.Texture);
 			}
 		}
 
@@ -53,7 +53,7 @@ namespace Tesseract.ImGui.SDL {
 
 		private static readonly int PosOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Pos));
 		private static readonly int UVOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.UV));
-		private static readonly int ColOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Col));
+		private static readonly int ColOffset = (int)Marshal.OffsetOf<ImDrawVert>(nameof(ImDrawVert.Col));	
 		private static readonly int Stride = Marshal.SizeOf<ImDrawVert>();
 
 		public static void RenderDrawData(IImDrawData drawData) {
@@ -78,40 +78,47 @@ namespace Tesseract.ImGui.SDL {
 			renderer.BlendMode = SDLBlendMode.Blend;
 
 			foreach (IImDrawList drawList in drawData.CmdLists) {
-				ReadOnlySpan<ImDrawVert> vtxBuffer = drawList.VtxBuffer.AsSpan();
-				ReadOnlySpan<ushort> idxBuffer = drawList.IdxBuffer.AsSpan();
-				foreach(ImDrawCmd cmd in drawList.CmdBuffer) {
-					if (cmd.UserCallback != null) {
-						if (cmd.UserCallback == GImGui.ResetRenderState) SetupRenderState();
-						else cmd.UserCallback(drawList, cmd);
-					} else {
-						Vector2 clipMin = (new Vector2(cmd.ClipRect.X, cmd.ClipRect.Y) - clipOffset) * clipScale;
-						Vector2 clipMax = (new Vector2(cmd.ClipRect.Z, cmd.ClipRect.W) - clipOffset) * clipScale;
-						if (clipMin.X < 0) clipMin.X = 0;
-						if (clipMin.Y < 0) clipMin.Y = 0;
-						if (clipMax.X > fbSize.X) clipMax.X = fbSize.X;
-						if (clipMax.Y > fbSize.Y) clipMax.Y = fbSize.Y;
-						if (clipMax.X <= clipMin.X || clipMax.Y <= clipMin.Y) continue;
+				Span<ImDrawVert> vtxBuffer = drawList.VtxBuffer.AsSpan();
+				Span<ushort> idxBuffer = drawList.IdxBuffer.AsSpan();	
+				// We resort to unsafe code because this requires pointer shenanigans to setup the data arrays
+				unsafe {
+					fixed (ImDrawVert* pVtx = vtxBuffer) {
+						fixed (ushort* pIdx = idxBuffer) {
+							foreach (ImDrawCmd cmd in drawList.CmdBuffer) {
+								if (cmd.UserCallback != null) {
+									if (cmd.UserCallback == GImGui.ResetRenderState) SetupRenderState();
+									else cmd.UserCallback(drawList, cmd);
+								} else {
+									Vector2 clipMin = (new Vector2(cmd.ClipRect.X, cmd.ClipRect.Y) - clipOffset) * clipScale;
+									Vector2 clipMax = (new Vector2(cmd.ClipRect.Z, cmd.ClipRect.W) - clipOffset) * clipScale;
+									if (clipMin.X < 0) clipMin.X = 0;
+									if (clipMin.Y < 0) clipMin.Y = 0;
+									if (clipMax.X > fbSize.X) clipMax.X = fbSize.X;
+									if (clipMax.Y > fbSize.Y) clipMax.Y = fbSize.Y;
+									if (clipMax.X <= clipMin.X || clipMax.Y <= clipMin.Y) continue;
 
-						Recti r = new() {
-							Position = (Vector2i)clipMin,
-							Size = (Vector2i)(clipMax - clipMin)
-						};
-						renderer.ClipRect = r;
+									Recti r = new() {
+										Position = (Vector2i)clipMin,
+										Size = (Vector2i)(clipMax - clipMin)
+									};
+									renderer.ClipRect = r;
 
-						// We resort to unsafe code because this requires pointer shenanigans to setup the data arrays
-						unsafe {
-							fixed(ImDrawVert* pVtx = vtxBuffer) {
-								fixed(ushort* pIdx = idxBuffer) {
-									SDL2.Functions.SDL_RenderGeometryRaw(
-										renderer.Renderer.Ptr,
-										(IntPtr)(nint)cmd.TextureID,
-										(IntPtr)(pVtx + cmd.VtxOffset) + PosOffset, Stride,
-										(IntPtr)(pVtx + cmd.VtxOffset) + ColOffset, Stride,
-										(IntPtr)(pVtx + cmd.VtxOffset) + UVOffset, Stride,
+									var pCmdVtx = pVtx + cmd.VtxOffset;
+									var pCmdIdx = pIdx + cmd.IdxOffset;
+
+									SDL2.CheckError(SDL2.Functions.SDL_RenderGeometryRaw(
+										renderer.Renderer,
+										(IntPtr)    cmd.TextureID,
+
+										(float*)    ((nint)pCmdVtx + PosOffset), Stride,	
+										(Vector4b*) ((nint)pCmdVtx + ColOffset), Stride,
+										(float*)    ((nint)pCmdVtx + UVOffset),  Stride,
 										(int)(drawList.VtxBuffer.Count - cmd.VtxOffset),
-										(IntPtr)(pIdx + cmd.IdxOffset), (int)cmd.ElemCount, sizeof(ushort)
-									);
+										
+										(IntPtr)    pCmdIdx,
+										(int)cmd.ElemCount,
+										sizeof(ushort)
+									));
 								}
 							}
 						}

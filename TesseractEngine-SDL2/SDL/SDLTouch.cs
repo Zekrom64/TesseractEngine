@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Tesseract.Core.Native;
+using Tesseract.SDL.Native;
 
 namespace Tesseract.SDL {
 	
@@ -23,30 +24,62 @@ namespace Tesseract.SDL {
 		public float Pressure;
 	}
 
-	public struct SDLTouchDevice {
+	public readonly struct SDLTouchDevice {
 
 		public int DeviceIndex { get; init; }
 
-		public SDLTouchID TouchID => new() { TouchID = SDL2.Functions.SDL_GetTouchDevice(DeviceIndex) };
-
+		public SDLTouchID TouchID {
+			get {
+				unsafe {
+					return new() { TouchID = SDL2.Functions.SDL_GetTouchDevice(DeviceIndex) };
+				}
+			}
+		}
 	}
 
-	public struct SDLTouchID {
+	public readonly struct SDLTouchID {
 
 		public long TouchID { get; init; }
 
-		public SDLTouchDeviceType Type => SDL2.Functions.SDL_GetTouchDeviceType(TouchID);
+		public SDLTouchDeviceType Type {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GetTouchDeviceType(TouchID);
+				}
+			}
+		}
 
-		public int NumFingers => SDL2.Functions.SDL_GetNumTouchFingers(TouchID);
+		public int NumFingers {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GetNumTouchFingers(TouchID);
+				}
+			}
+		}
 
-		public IPointer<SDLFinger> GetTouchFinger(int index) => new UnmanagedPointer<SDLFinger>(SDL2.Functions.SDL_GetTouchFinger(TouchID, index));
+		public IPointer<SDLFinger> GetTouchFinger(int index) {
+			unsafe {
+				return new UnmanagedPointer<SDLFinger>((IntPtr)SDL2.Functions.SDL_GetTouchFinger(TouchID, index));
+			}
+		}
 
-		public void RecordGesture() => SDL2.Functions.SDL_RecordGesture(TouchID);
+		public void RecordGesture() {
+			unsafe {
+				SDL2.Functions.SDL_RecordGesture(TouchID);
+			}
+		}
 
-		public void LoadDollarTemplates(SDLRWOps rwops) => SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, rwops.RWOps.Ptr));
+		public void LoadDollarTemplates(SDLRWOps rwops) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, (SDL_RWops*)rwops.RWOps.Ptr));
+			}
+		}
 
-		public void LoadDollarTemplates(SDLSpanRWOps rwops) => SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, rwops.RWOps.Ptr));
-
+		public void LoadDollarTemplates(SDLSpanRWOps rwops) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_LoadDollarTemplates(TouchID, (SDL_RWops*)rwops.RWOps.Ptr));
+			}
+		}
 	}
 
 }
