@@ -8,33 +8,33 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBSyncFunctions {
+	public unsafe class ARBSyncFunctions {
 
-		public delegate nuint PFN_glFenceSync(uint condition, uint flags);
 		[ExternFunction(AltNames = new string[] { "glFenceSyncARB" })]
-		public PFN_glFenceSync glFenceSync;
+		[NativeType("GLsync glFenceSync(GLenum condition, GLbitfield flags)")]
+		public delegate* unmanaged<uint, uint, nuint> glFenceSync;
 		public delegate byte PFN_glIsSync(nuint sync);
 		[ExternFunction(AltNames = new string[] { "glIsSync" })]
-		public PFN_glIsSync glIsSync;
+		[NativeType("GLboolean glIsSync(GLsync sync)")]
+		public delegate* unmanaged<nuint, byte> glIsSync;
 		public delegate void PFN_glDeleteSync(nuint sync);
 		[ExternFunction(AltNames = new string[] { "glDeleteSync" })]
-		public PFN_glDeleteSync glDeleteSync;
-		public delegate GLWaitResult PFN_glClientWaitSync(nuint sync, uint flags, ulong timeout);
+		[NativeType("void glDeleteSync(GLsync sync)")]
+		public delegate* unmanaged<nuint, void> glDeleteSync;
 		[ExternFunction(AltNames = new string[] { "glClientWaitSync" })]
-		public PFN_glClientWaitSync glClientWaitSync;
-		public delegate void PFN_glWaitSync(nuint sync, uint flags, ulong timeout);
+		[NativeType("GLenum glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)")]
+		public delegate* unmanaged<nuint, uint, ulong, GLWaitResult> glClientWaitSync;
 		[ExternFunction(AltNames = new string[] { "glWaitSync" })]
-		public PFN_glWaitSync glWaitSync;
-		public delegate void PFN_glGetInteger64v(uint pname, [NativeType("GLint64*")] IntPtr _params);
+		[NativeType("void glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)")]
+		public delegate* unmanaged<nuint, uint, ulong, void> glWaitSync;
 		[ExternFunction(AltNames = new string[] { "glGetInteger64v" })]
-		public PFN_glGetInteger64v glGetInteger64v;
-		public delegate void PFN_glGetSynciv(nuint sync, uint pname, int bufSize, out int length, [NativeType("GLint*")] IntPtr values);
+		[NativeType("void glGetInteger64v(GLenum pname, GLint64* pParams)")]
+		public delegate* unmanaged<uint, ulong*, void> glGetInteger64v;
 		[ExternFunction(AltNames = new string[] { "glGetSynciv" })]
-		public PFN_glGetSynciv glGetSynciv;
+		[NativeType("void glGetSynciv(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* pLength, GLint* pValues)")]
+		public delegate* unmanaged<nuint, uint, int, out int, int*, void> glGetSynciv;
 
 	}
-#nullable restore
 
 	public class ARBSync : IGLObject {
 
@@ -47,25 +47,45 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public nuint FenceSync(GLSyncCondition condition, uint flags = 0) => Functions.glFenceSync((uint)condition, flags);
+		public nuint FenceSync(GLSyncCondition condition, uint flags = 0) {
+			unsafe {
+				return Functions.glFenceSync((uint)condition, flags);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsSync(nuint sync) => Functions.glIsSync(sync) != 0;
+		public bool IsSync(nuint sync) {
+			unsafe {
+				return Functions.glIsSync(sync) != 0;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DeleteSync(nuint sync) => Functions.glDeleteSync(sync);
+		public void DeleteSync(nuint sync) {
+			unsafe {
+				Functions.glDeleteSync(sync);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public GLWaitResult ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => Functions.glClientWaitSync(sync, (uint)flags, timeout);
+		public GLWaitResult ClientWaitSync(nuint sync, GLSyncFlags flags, ulong timeout) {
+			unsafe {
+				return Functions.glClientWaitSync(sync, (uint)flags, timeout);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void WaitSync(nuint sync, GLSyncFlags flags, ulong timeout) => Functions.glWaitSync(sync, (uint)flags, timeout);
+		public void WaitSync(nuint sync, GLSyncFlags flags, ulong timeout) {
+			unsafe {
+				Functions.glWaitSync(sync, (uint)flags, timeout);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ulong GetInteger64(uint pname, uint index) {
+		public ulong GetInteger64(uint pname) {
 			ulong val = 0;
 			unsafe {
-				Functions.glGetInteger64v(pname, (IntPtr)(&val));
+				Functions.glGetInteger64v(pname, &val);
 			}
 			return val;
 		}
@@ -74,7 +94,7 @@ namespace Tesseract.OpenGL {
 		public int GetSync(nuint sync, GLGetSync pname) {
 			int val = 0;
 			unsafe {
-				Functions.glGetSynciv(sync, (uint)pname, 1, out int _, (IntPtr)(&val));
+				Functions.glGetSynciv(sync, (uint)pname, 1, out int _, &val);
 			}
 			return val;
 		}

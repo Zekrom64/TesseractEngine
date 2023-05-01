@@ -9,21 +9,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class KHRRobustnessFunctions {
+	public unsafe class KHRRobustnessFunctions {
 
-		public delegate uint PFN_glGetGraphicsResetStatus();
 		[ExternFunction(AltNames = new string[] { "glGetGraphicsResetStatusKHR" })]
-		public PFN_glGetGraphicsResetStatus glGetGraphicsResetStatus;
-		public delegate void PFN_glReadnPixels(int x, int y, int width, int height, uint format, uint type, int bufSize, IntPtr data);
+		[NativeType("GLenum glGetGraphicsResetStatus()")]
+		public delegate* unmanaged<uint> glGetGraphicsResetStatus;
 		[ExternFunction(AltNames = new string[] { "glReadnPixelsARB" })]
-		public PFN_glReadnPixels glReadnPixels;
+		[NativeType("void glReadnPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, void* pData)")]
+		public delegate* unmanaged<int, int, int, int, uint, uint, int, IntPtr, void> glReadnPixels;
 		// glGetnUniformfv
 		// glGetnUniformiv
 		// glGetnUniformuiv
 
 	}
-#nullable restore
 
 	public class KHRRobustness : IGLObject {
 
@@ -37,7 +35,11 @@ namespace Tesseract.OpenGL {
 
 		public GLGraphicsResetStatus GraphicsResetStatus {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => (GLGraphicsResetStatus) Functions.glGetGraphicsResetStatus();
+			get {
+				unsafe {
+					return (GLGraphicsResetStatus)Functions.glGetGraphicsResetStatus();
+				}
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,8 +53,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ReadnPixels(Recti area, GLFormat format, GLType type, int bufSize, IntPtr data) =>
-			Functions.glReadnPixels(area.Position.X, area.Position.Y, area.Size.X, area.Size.Y, (uint)format, (uint)type, bufSize, data);
-
+		public void ReadnPixels(Recti area, GLFormat format, GLType type, int bufSize, IntPtr data) {
+			unsafe {
+				Functions.glReadnPixels(area.Position.X, area.Position.Y, area.Size.X, area.Size.Y, (uint)format, (uint)type, bufSize, data);
+			}
+		}
 	}
 }

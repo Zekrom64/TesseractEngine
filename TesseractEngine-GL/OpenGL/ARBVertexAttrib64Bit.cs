@@ -8,19 +8,17 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBVertexAttrib64BitFunctions {
+	public unsafe class ARBVertexAttrib64BitFunctions {
 
-		public delegate void PFN_glVertexAttribLPointer(uint index, int size, uint type, int stride, IntPtr pointer);
 		[ExternFunction(AltNames = new string[] { "glVertexAttribLPointerARB" })]
-		public PFN_glVertexAttribLPointer glVertexAttribLPointer;
+		[NativeType("void glVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, void* pPointer)")]
+		public delegate* unmanaged<uint, int, uint, int, IntPtr, void> glVertexAttribLPointer;
 
-		public delegate void PFN_glVertexArrayVertexAttribLOffsetEXT(uint vaobj, uint buffer, uint index, int size, uint type, int stride, IntPtr pointer);
 		[ExternFunction(Relaxed = true)]
-		public PFN_glVertexArrayVertexAttribLOffsetEXT glVertexArrayVertexAttribLOffsetEXT;
+		[NativeType("void glVertexArrayVertexAttribLOffsetEXT(GLuint vertexArray, GLuint buffer, GLuint index, GLsizei index, GLenum type, GLsizei stride, void* pPointer)")]
+		public delegate* unmanaged<uint, uint, uint, int, uint, int, IntPtr, void> glVertexArrayVertexAttribLOffsetEXT;
 
 	}
-#nullable restore
 
 	public class ARBVertexAttrib64Bit : IGLObject {
 
@@ -33,11 +31,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void VertexAttribLPointer(uint index, int size, GLTextureType type, int stride, nint offset) => Functions.glVertexAttribLPointer(index, size, (uint)type, stride, offset);
+		public void VertexAttribLPointer(uint index, int size, GLTextureType type, int stride, nint offset) {
+			unsafe {
+				Functions.glVertexAttribLPointer(index, size, (uint)type, stride, offset);
+			}
+		}
 
-		public void VertexArrayVertexAttribLOffset(uint vaobj, uint buffer, uint index, int size, GLTextureType type, int stride, nint offset) =>
-			Functions.glVertexArrayVertexAttribLOffsetEXT(vaobj, buffer, index, size, (uint)type, stride, offset);
-
+		public void VertexArrayVertexAttribLOffset(uint vaobj, uint buffer, uint index, int size, GLTextureType type, int stride, nint offset) {
+			unsafe {
+				Functions.glVertexArrayVertexAttribLOffsetEXT(vaobj, buffer, index, size, (uint)type, stride, offset);
+			}
+		}
 	}
 
 }

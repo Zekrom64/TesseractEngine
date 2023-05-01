@@ -82,23 +82,20 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRSurfaceInstanceFunctions {
+	public unsafe class KHRSurfaceInstanceFunctions {
 
-		public delegate void PFN_vkDestroySurfaceKHR(IntPtr instance, ulong surface, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator);
-		public delegate VKResult PFN_vkGetPhysicalDeviceSurfaceSupportKHR(IntPtr physicalDevice, uint queueFamilyIndex, ulong surface, out bool supported);
-		public delegate VKResult PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(IntPtr physicalDevice, ulong surface, out VKSurfaceCapabilitiesKHR capabilities);
-		public delegate VKResult PFN_vkGetPhysicalDeviceSurfaceFormatsKHR(IntPtr physicalDevice, ulong surface, ref uint surfaceFormatCount, [NativeType("VkSurfaceFormatKHR*")] IntPtr pSurfaceFormats);
-		public delegate VKResult PFN_vkGetPhysicalDeviceSurfacePresentModesKHR(IntPtr physicalDevice, ulong surface, ref uint presentModeCount, [NativeType("VkPresentModeKHR*")] IntPtr pPresentModes);
-
-		public PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;
-		public PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
-		public PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
-		public PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
-		public PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR;
+		[NativeType("void vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroySurfaceKHR;
+		[NativeType("VkResult vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, VkSurfaceKHR surface, VkBool32* pSupported)")]
+		public delegate* unmanaged<IntPtr, uint, ulong, out VKBool32, VKResult> vkGetPhysicalDeviceSurfaceSupportKHR;
+		[NativeType("VkResult vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR* pCapabilities)")]
+		public delegate* unmanaged<IntPtr, ulong, out VKSurfaceCapabilitiesKHR, VKResult> vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+		[NativeType("VkResult vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t* pSurfaceFormatCount, VkSurfaceFormatKHR* pSurfaceFormats)")]
+		public delegate* unmanaged<IntPtr, ulong, ref uint, VKSurfaceFormatKHR*, VKResult> vkGetPhysicalDeviceSurfaceFormatsKHR;
+		[NativeType("VkResult vkGetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes)")]
+		public delegate* unmanaged<IntPtr, ulong, ref uint, VKPresentModeKHR*, VKResult> vkGetPhysicalDeviceSurfacePresentModesKHR;
 
 	}
-#nullable restore
 
 	public static class KHRSurface {
 
@@ -124,7 +121,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.KHRSurfaceFunctions!.vkDestroySurfaceKHR(Instance, SurfaceKHR, Allocator);
+			unsafe {
+				Instance.KHRSurfaceFunctions!.vkDestroySurfaceKHR(Instance, SurfaceKHR, Allocator);
+			}
 		}
 
 		public static implicit operator ulong(VKSurfaceKHR surface) => surface != null ? surface.SurfaceKHR : 0;

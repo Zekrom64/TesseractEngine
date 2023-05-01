@@ -9,30 +9,28 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBInvalidateSubdataFunctions {
+	public unsafe class ARBInvalidateSubdataFunctions {
 
-		public delegate void PFN_glInvalidateTexSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth);
 		[ExternFunction(AltNames = new string[] { "glInvalidateTexSubImageARB" })]
-		public PFN_glInvalidateTexSubImage glInvalidateTexSubImage;
-		public delegate void PFN_glInvalidateTexImage(uint texture, int level);
+		[NativeType("void glInvalidateTexSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth)")]
+		public delegate* unmanaged<uint, int, int, int, int, int, int, int, void> glInvalidateTexSubImage;
 		[ExternFunction(AltNames = new string[] { "glInvalidateTexImageARB" })]
-		public PFN_glInvalidateTexImage glInvalidateTexImage;
-		public delegate void PFN_glInvalidateBufferSubData(uint buffer, nint offset, nint length);
+		[NativeType("void glInvalidateTexImage(GLuint texture, GLint level)")]
+		public delegate* unmanaged<uint, int, void> glInvalidateTexImage;
 		[ExternFunction(AltNames = new string[] { "glInvalidateBufferSubDataARB" })]
-		public PFN_glInvalidateBufferSubData glInvalidateBufferSubData;
-		public delegate void PFN_glInvalidateBufferData(uint buffer);
+		[NativeType("void glInvalidateBufferSubData(GLuint texture, GLintptr offset, GLsizeiptr length)")]
+		public delegate* unmanaged<uint, nint, nint, void> glInvalidateBufferSubData;
 		[ExternFunction(AltNames = new string[] { "glInvalidateBufferDataARB" })]
-		public PFN_glInvalidateBufferData glInvalidateBufferData;
-		public delegate void PFN_glInvalidateFramebuffer(uint target, int numAttachments, [NativeType("const GLenum*")] IntPtr attachments);
+		[NativeType("void glInvalidateBufferData(GLuint buffer)")]
+		public delegate* unmanaged<uint, void> glInvalidateBufferData;
 		[ExternFunction(AltNames = new string[] { "glInvalidateFramebufferARB" })]
-		public PFN_glInvalidateFramebuffer glInvalidateFramebuffer;
-		public delegate void PFN_glInvalidateSubFramebuffer(uint target, int numAttachments, [NativeType("const GLenum*")] IntPtr attachments, int x, int y, int width, int height);
+		[NativeType("void glInvalidateFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* pAttachments)")]
+		public delegate* unmanaged<uint, int, uint*, void> glInvalidateFramebuffer;
 		[ExternFunction(AltNames = new string[] { "glInvalidateSubFramebufferARB" })]
-		public PFN_glInvalidateSubFramebuffer glInvalidateSubFramebuffer;
+		[NativeType("void glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* pAttachments, GLint x, GLint y, GLsizei width, GLsizei height)")]
+		public delegate* unmanaged<uint, int, uint*, int, int, int, int, void> glInvalidateSubFramebuffer;
 
 	}
-#nullable restore
 
 	public class ARBInvalidateSubdata : IGLObject {
 
@@ -45,22 +43,38 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void InvalidateTexSubImage(uint texture, int level, Vector3i offset, Vector3i size) => Functions.glInvalidateTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z);
+		public void InvalidateTexSubImage(uint texture, int level, Vector3i offset, Vector3i size) {
+			unsafe {
+				Functions.glInvalidateTexSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void InvalidateTexImage(uint texture, int level) => Functions.glInvalidateTexImage(texture, level);
+		public void InvalidateTexImage(uint texture, int level) {
+			unsafe {
+				Functions.glInvalidateTexImage(texture, level);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void InvalidateBufferSubData(uint buffer, nint offset, nint length) => Functions.glInvalidateBufferSubData(buffer, offset, length);
+		public void InvalidateBufferSubData(uint buffer, nint offset, nint length) {
+			unsafe {
+				Functions.glInvalidateBufferSubData(buffer, offset, length);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void InvalidateBufferData(uint buffer) => Functions.glInvalidateBufferData(buffer);
+		public void InvalidateBufferData(uint buffer) {
+			unsafe {
+				Functions.glInvalidateBufferData(buffer);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void InvalidateFramebuffer(GLFramebufferTarget target, in ReadOnlySpan<GLFramebufferAttachment> attachments) {
 			unsafe {
 				fixed(GLFramebufferAttachment* pAttachments = attachments) {
-					Functions.glInvalidateFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments);
+					Functions.glInvalidateFramebuffer((uint)target, attachments.Length, (uint*)pAttachments);
 				}
 			}
 		}
@@ -69,7 +83,7 @@ namespace Tesseract.OpenGL {
 		public void InvalidateFramebuffer(GLFramebufferTarget target, params GLFramebufferAttachment[] attachments) {
 			unsafe {
 				fixed (GLFramebufferAttachment* pAttachments = attachments) {
-					Functions.glInvalidateFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments);
+					Functions.glInvalidateFramebuffer((uint)target, attachments.Length, (uint*)pAttachments);
 				}
 			}
 		}
@@ -78,7 +92,7 @@ namespace Tesseract.OpenGL {
 		public void InvalidateSubFramebuffer(GLFramebufferTarget target, in ReadOnlySpan<GLFramebufferAttachment> attachments, Recti area) {
 			unsafe {
 				fixed (GLFramebufferAttachment* pAttachments = attachments) {
-					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
+					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (uint*)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
 				}
 			}
 		}
@@ -87,7 +101,7 @@ namespace Tesseract.OpenGL {
 		public void InvalidateSubFramebuffer(GLFramebufferTarget target, Recti area, params GLFramebufferAttachment[] attachments) {
 			unsafe {
 				fixed (GLFramebufferAttachment* pAttachments = attachments) {
-					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (IntPtr)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
+					Functions.glInvalidateSubFramebuffer((uint)target, attachments.Length, (uint*)pAttachments, area.Position.X, area.Position.Y, area.Size.X, area.Size.Y);
 				}
 			}
 		}

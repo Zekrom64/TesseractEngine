@@ -8,30 +8,33 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class EXTTextureIntegerFunctions {
+	public unsafe class EXTTextureIntegerFunctions {
 
-		public delegate void PFN_glClearColorIi(int r, int g, int b, int a);
 		[ExternFunction(AltNames = new string[] { "glClearColorIiEXT" })]
-		public PFN_glClearColorIi glClearColorIi;
-		public delegate void PFN_glClearColorIui(uint r, uint g, uint b, uint a);
+		[NativeType("void glClearColorIi(GLint r, GLint g, GLint b, GLint a)")]
+		public delegate* unmanaged<int, int, int, int, void> glClearColorIi;
+
 		[ExternFunction(AltNames = new string[] { "glClearColorIuiEXT" })]
-		public PFN_glClearColorIui glClearColorIui;
-		public delegate void PFN_glTexParameterIiv(uint target, uint pname, IntPtr _params);
+		[NativeType("void glClearColorIui(GLuint r, GLuint g, GLuint b, GLuint a)")]
+		public delegate* unmanaged<uint, uint, uint, uint, void> glClearColorIui;
+
 		[ExternFunction(AltNames = new string[] { "glTexParameterIivEXT" })]
-		public PFN_glTexParameterIiv glTexParameterIiv;
-		public delegate void PFN_glTexParameterIuiv(uint target, uint pname, IntPtr _params);
+		[NativeType("void glTexParameterIiv(GLenum target, GLenum pname, const GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glTexParameterIiv;
+
 		[ExternFunction(AltNames = new string[] { "glTexParameterIuivEXT" })]
-		public PFN_glTexParameterIuiv glTexParameterIuiv;
-		public delegate void PFN_glGetTexParameterIiv(uint target, uint pname, IntPtr _params);
+		[NativeType("void glTexParameterIuiv(GLenum target, GLenum pname, const GLuint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint*, void> glTexParameterIuiv;
+
 		[ExternFunction(AltNames = new string[] { "glGetTexParameterIivEXT" })]
-		public PFN_glGetTexParameterIiv glGetTexParameterIiv;
-		public delegate void PFN_glGetTexParameterIuiv(uint target, uint pname, IntPtr _params);
+		[NativeType("void glGetTexParameterIiv(GLenum target, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, int*, void> glGetTexParameterIiv;
+
 		[ExternFunction(AltNames = new string[] { "glGetTexParameterIuivEXT" })]
-		public PFN_glGetTexParameterIuiv glGetTexParameterIuiv;
+		[NativeType("void glGetTexParameterIuiv(GLenum target, GLenum pname, GLuint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint*, void> glGetTexParameterIuiv;
 
 	}
-#nullable restore
 
 	public class EXTTextureInteger : IGLObject {
 
@@ -44,16 +47,24 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColor(int r, int g, int b, int a) => Functions.glClearColorIi(r, g, b, a);
+		public void ClearColor(int r, int g, int b, int a) {
+			unsafe {
+				Functions.glClearColorIi(r, g, b, a);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClearColor(uint r, uint g, uint b, uint a) => Functions.glClearColorIui(r, g, b, a);
+		public void ClearColor(uint r, uint g, uint b, uint a) {
+			unsafe {
+				Functions.glClearColorIui(r, g, b, a);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetTexParameter(GLTextureTarget target, GLTexParamter pname, Span<int> param) {
 			unsafe {
 				fixed (int* pParams = param) {
-					Functions.glGetTexParameterIiv((uint)target, (uint)pname, (IntPtr)pParams);
+					Functions.glGetTexParameterIiv((uint)target, (uint)pname, pParams);
 				}
 			}
 			return param;
@@ -63,7 +74,7 @@ namespace Tesseract.OpenGL {
 		public Span<uint> GetTexParameter(GLTextureTarget target, GLTexParamter pname, Span<uint> param) {
 			unsafe {
 				fixed (uint* pParams = param) {
-					Functions.glGetTexParameterIuiv((uint)target, (uint)pname, (IntPtr)pParams);
+					Functions.glGetTexParameterIuiv((uint)target, (uint)pname, pParams);
 				}
 			}
 			return param;
@@ -73,7 +84,7 @@ namespace Tesseract.OpenGL {
 		public void TexParameter(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<int> param) {
 			unsafe {
 				fixed (int* pParam = param) {
-					Functions.glTexParameterIiv((uint)target, (uint)pname, (IntPtr)pParam);
+					Functions.glTexParameterIiv((uint)target, (uint)pname, pParam);
 				}
 			}
 		}
@@ -82,7 +93,7 @@ namespace Tesseract.OpenGL {
 		public void TexParameter(GLTextureTarget target, GLTexParamter pname, in ReadOnlySpan<uint> param) {
 			unsafe {
 				fixed (uint* pParam = param) {
-					Functions.glTexParameterIuiv((uint)target, (uint)pname, (IntPtr)pParam);
+					Functions.glTexParameterIuiv((uint)target, (uint)pname, pParam);
 				}
 			}
 		}

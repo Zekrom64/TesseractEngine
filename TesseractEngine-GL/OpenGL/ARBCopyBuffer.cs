@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBCopyBufferFunctions {
+	public unsafe class ARBCopyBufferFunctions {
 
-		public delegate void PFN_glCopyBufferSubData(uint readTarget, uint writeTarget, nint readOffset, nint writeOffset, nint size);
 		[ExternFunction(AltNames = new string[] { "glCopyBufferSubDataARB", "glCopyBufferSubDataEXT" })]
-		public PFN_glCopyBufferSubData glCopyBufferSubData;
+		[NativeType("void glCopyBufferSubData(GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)")]
+		public delegate* unmanaged<uint, uint, nint, nint, nint, void> glCopyBufferSubData;
 
 	}
-#nullable restore
 
 	public class ARBCopyBuffer : IGLObject {
 
@@ -27,9 +25,12 @@ namespace Tesseract.OpenGL {
 			GL = gl;
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CopyBufferSubData(GLBufferTarget readTarget, GLBufferTarget writeTarget, nint readOffset, nint writeOffset, nint size) => Functions.glCopyBufferSubData((uint)readTarget, (uint)writeTarget, readOffset, writeOffset, size);
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CopyBufferSubData(GLBufferTarget readTarget, GLBufferTarget writeTarget, nint readOffset, nint writeOffset, nint size) {
+			unsafe {
+				Functions.glCopyBufferSubData((uint)readTarget, (uint)writeTarget, readOffset, writeOffset, size);
+			}
+		}
 	}
 }

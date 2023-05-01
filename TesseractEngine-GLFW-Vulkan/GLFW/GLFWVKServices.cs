@@ -15,11 +15,13 @@ namespace Tesseract.GLFW {
 
 		public string[] RequiredInstanceExtensions {
 			get {
-				IntPtr names = GLFW3.Functions.glfwGetRequiredInstanceExtensions(out uint count);
-				UnmanagedPointer<IntPtr> pNames = new(names);
-				string[] exts = new string[count];
-				for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
-				return exts;
+				unsafe {
+					IntPtr names = GLFW3.Functions.glfwGetRequiredInstanceExtensions(out uint count);
+					UnmanagedPointer<IntPtr> pNames = new(names);
+					string[] exts = new string[count];
+					for (int i = 0; i < count; i++) exts[i] = MemoryUtil.GetUTF8(pNames[i])!;
+					return exts;
+				}
 			}
 		}
 
@@ -30,8 +32,10 @@ namespace Tesseract.GLFW {
 		}
 
 		public VKSurfaceKHR CreateSurface(VKInstance instance, VulkanAllocationCallbacks? allocator = null) {
-			VK.CheckError((VKResult)GLFW3.Functions.glfwCreateWindowSurface(instance, Window.Window.Window, allocator, out ulong surface), "Failed to create window surface");
-			return new VKSurfaceKHR(instance, surface, allocator);
+			unsafe {
+				VK.CheckError((VKResult)GLFW3.Functions.glfwCreateWindowSurface(instance, Window.Window.Window, allocator, out ulong surface), "Failed to create window surface");
+				return new VKSurfaceKHR(instance, surface, allocator);
+			}
 		}
 	}
 

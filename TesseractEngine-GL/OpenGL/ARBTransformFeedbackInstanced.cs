@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTransformFeedbackInstancedFunctions {
+	public unsafe class ARBTransformFeedbackInstancedFunctions {
 
-		public delegate void PFN_glDrawTransformFeedbackInstanced(uint mode, uint id, int primcount);
 		[ExternFunction(AltNames = new string[] { "glDrawTransformFeedbackInstancedARB" })]
-		public PFN_glDrawTransformFeedbackInstanced glDrawTransformFeedbackInstanced;
-		public delegate void PFN_glDrawTransformFeedbackStreamInstanced(uint mode, uint id, uint stream, int primcount);
+		[NativeType("void glDrawTransformFeedbackInstanced(GLenum mode, GLuint id, GLsizei primCount)")]
+		public delegate* unmanaged<uint, uint, int, void> glDrawTransformFeedbackInstanced;
 		[ExternFunction(AltNames = new string[] { "glDrawTransformFeedbackStreamInstancedARB" })]
-		public PFN_glDrawTransformFeedbackStreamInstanced glDrawTransformFeedbackStreamInstanced;
+		[NativeType("void glDrawTransformFeedbackStreamInstanced(GLenum mode, GLuint id, GLuint stream, GLsizei primCount)")]
+		public delegate* unmanaged<uint, uint, uint, int, void> glDrawTransformFeedbackStreamInstanced;
 
 	}
-#nullable restore
 
 	public class ARBTransformFeedbackInstanced : IGLObject {
 
@@ -32,10 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawTransformFeedbackInstanced(GLDrawMode mode, uint id, int primCount) => Functions.glDrawTransformFeedbackInstanced((uint)mode, id, primCount);
+		public void DrawTransformFeedbackInstanced(GLDrawMode mode, uint id, int primCount) {
+			unsafe {
+				Functions.glDrawTransformFeedbackInstanced((uint)mode, id, primCount);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawTransformFeedbackStreamInstanced(GLDrawMode mode, uint id, uint stream, int primCount) => Functions.glDrawTransformFeedbackStreamInstanced((uint)mode, id, stream, primCount);
-
+		public void DrawTransformFeedbackStreamInstanced(GLDrawMode mode, uint id, uint stream, int primCount) {
+			unsafe {
+				Functions.glDrawTransformFeedbackStreamInstanced((uint)mode, id, stream, primCount);
+			}
+		}
 	}
 }

@@ -23,10 +23,11 @@ namespace Tesseract.Vulkan {
 
 		public ulong CounterValue {
 			get {
-				var vkGetSemaphoreCounterValue = Device.VK12Functions?.vkGetSemaphoreCounterValue;
-				if (vkGetSemaphoreCounterValue == null) vkGetSemaphoreCounterValue = new(Device.KHRTimelineSemaphore!.vkGetSemaphoreCounterValueKHR);
-				VK.CheckError(vkGetSemaphoreCounterValue(Device, Semaphore, out ulong value));
-				return value;
+				unsafe {
+					var vkGetSemaphoreCounterValue = Device.VK12Functions != null ? Device.VK12Functions.vkGetSemaphoreCounterValue : Device.KHRTimelineSemaphore!.vkGetSemaphoreCounterValueKHR;
+					VK.CheckError(vkGetSemaphoreCounterValue(Device, Semaphore, out ulong value));
+					return value;
+				}
 			}
 		}
 
@@ -38,7 +39,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroySemaphore(Device, Semaphore, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroySemaphore(Device, Semaphore, Allocator);
+			}
 		}
 
 		public void Signal(ulong value) {
@@ -48,8 +51,10 @@ namespace Tesseract.Vulkan {
 				Value = value
 			};
 			VKResult err;
-			if (Device.VK12Functions) err = Device.VK12Functions!.vkSignalSemaphore(Device, signalInfo);
-			else err = Device.KHRTimelineSemaphore!.vkSignalSemaphoreKHR(Device, signalInfo);
+			unsafe {
+				if (Device.VK12Functions) err = Device.VK12Functions!.vkSignalSemaphore(Device, signalInfo);
+				else err = Device.KHRTimelineSemaphore!.vkSignalSemaphoreKHR(Device, signalInfo);
+			}
 			VK.CheckError(err);
 		}
 

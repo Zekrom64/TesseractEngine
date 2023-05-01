@@ -8,45 +8,37 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBBindlessTextureFunctions {
+	public unsafe class ARBBindlessTextureFunctions {
 
-		public delegate ulong PFN_glGetTextureHandleARB(uint texture);
-		public delegate ulong PFN_glGetTextureSamplerHandleARB(uint texture, uint sampler);
+		[NativeType("GLuint64 glGetTextureHandleARB(GLuint texture)")]
+		public delegate* unmanaged<uint, ulong> glGetTextureHandleARB;
+		[NativeType("GLuint64 glGetTextureSamplerHandleARB(GLuint texture, GLuint sampler)")]
+		public delegate* unmanaged<uint, uint, ulong> glGetTextureSamplerHandleARB;
 
-		public delegate void PFN_glMakeTextureHandleResidentARB(ulong handle);
-		public delegate void PFN_glMakeTextureHandleNonResidentARB(ulong handle);
+		[NativeType("void glMakeTextureHandleResidentARB(GLuint64 handle)")]
+		public delegate* unmanaged<ulong, void> glMakeTextureHandleResidentARB;
+		[NativeType("void glMakeTextureHandleNonResidentARB(GLuint64 handle)")]
+		public delegate* unmanaged<ulong, void> glMakeTextureHandleNonResidentARB;
 
-		public delegate ulong PFN_glGetImageHandleARB(uint texture, int level, byte layered, int layer, uint format);
+		[NativeType("GLuint64 glGetImageHandleARB(GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum format)")]
+		public delegate* unmanaged<uint, int, byte, int, uint, ulong> glGetImageHandleARB;
 
-		public delegate void PFN_glMakeImageHandleResidentARB(ulong handle, uint access);
-		public delegate void PFN_glMakeImageHandleNonResidentARB(ulong handle);
+		[NativeType("void glMakeImageHandleResidentARB(GLuint64 handle, GLbitfield access)")]
+		public delegate* unmanaged<ulong, uint, void> glMakeImageHandleResidentARB;
+		[NativeType("void glMakeImageHandleNonResidentARB(GLuint64 handle)")]
+		public delegate* unmanaged<ulong, void> glMakeImageHandleNonResidentARB;
 
-		public delegate void PFN_glUniformHandleui64ARB(int location, ulong value);
-		public delegate void PFN_glProgramUniformHandleui64ARB(uint program, int location, ulong value);
+		[NativeType("void glUniformHandleui64ARB(GLint location, GLuint64 value)")]
+		public delegate* unmanaged<int, ulong, void> glUniformHandleui64ARB;
+		[NativeType("void glProgramUniformHandleui64ARB(GLuint program, GLint location, GLuint64 value)")]
+		public delegate* unmanaged<uint, int, ulong, void> glProgramUniformHandleui64ARB;
 
-		public delegate byte PFN_glIsTextureHandleResidentARB(ulong handle);
-		public delegate byte PFN_glIsImageHandleResidentARB(ulong handle);
-
-		public PFN_glGetTextureHandleARB glGetTextureHandleARB;
-		public PFN_glGetTextureSamplerHandleARB glGetTextureSamplerHandleARB;
-
-		public PFN_glMakeTextureHandleResidentARB glMakeTextureHandleResidentARB;
-		public PFN_glMakeTextureHandleNonResidentARB glMakeTextureHandleNonResidentARB;
-
-		public PFN_glGetImageHandleARB glGetImageHandleARB;
-
-		public PFN_glMakeImageHandleResidentARB glMakeImageHandleResidentARB;
-		public PFN_glMakeImageHandleNonResidentARB glMakeImageHandleNonResidentARB;
-
-		public PFN_glUniformHandleui64ARB glUniformHandleui64ARB;
-		public PFN_glProgramUniformHandleui64ARB glProgramUniformHandleui64ARB;
-
-		public PFN_glIsTextureHandleResidentARB glIsTextureHandleResidentARB;
-		public PFN_glIsImageHandleResidentARB glIsImageHandleResidentARB;
+		[NativeType("GLboolean glIsTextureHandleResidentARB(GLuint64 handle)")]
+		public delegate* unmanaged<ulong, byte> glIsTextureHandleResidentARB;
+		[NativeType("GLboolean glIsImageHandleResidentARB(GLuint64 handle)")]
+		public delegate* unmanaged<ulong, byte> glIsImageHandleResidentARB;
 
 	}
-#nullable restore
 
 	public class ARBBindlessTexture : IGLObject {
 
@@ -59,38 +51,80 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ulong GetTextureHandle(uint texture) => Functions.glGetTextureHandleARB(texture);
+		public ulong GetTextureHandle(uint texture) {
+			unsafe {
+				return Functions.glGetTextureHandleARB(texture);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ulong GetTextureSamplerHandle(uint texture, uint sampler) => Functions.glGetTextureSamplerHandleARB(texture, sampler);
+		public ulong GetTextureSamplerHandle(uint texture, uint sampler) {
+			unsafe {
+				return Functions.glGetTextureSamplerHandleARB(texture, sampler);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MakeTextureHandleResident(ulong handle) => Functions.glMakeTextureHandleResidentARB(handle);
+		public void MakeTextureHandleResident(ulong handle) {
+			unsafe {
+				Functions.glMakeTextureHandleResidentARB(handle);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MakeTextureHandleNonResident(ulong handle) => Functions.glMakeTextureHandleNonResidentARB(handle);
+		public void MakeTextureHandleNonResident(ulong handle) {
+			unsafe {
+				Functions.glMakeTextureHandleNonResidentARB(handle);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ulong GetImageHandle(uint texture, int level, bool layered, int layer, GLInternalFormat format) =>
-			Functions.glGetImageHandleARB(texture, level, (byte)(layered ? 1 : 0), layer, (uint)format);
+		public ulong GetImageHandle(uint texture, int level, bool layered, int layer, GLInternalFormat format) {
+			unsafe {
+				return Functions.glGetImageHandleARB(texture, level, (byte)(layered ? 1 : 0), layer, (uint)format);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MakeImageHandleResident(ulong handle, GLAccess access) => Functions.glMakeImageHandleResidentARB(handle, (uint)access);
+		public void MakeImageHandleResident(ulong handle, GLAccess access) {
+			unsafe {
+				Functions.glMakeImageHandleResidentARB(handle, (uint)access);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MakeImageHandleNonResident(ulong handle) => Functions.glMakeImageHandleNonResidentARB(handle);
+		public void MakeImageHandleNonResident(ulong handle) {
+			unsafe {
+				Functions.glMakeImageHandleNonResidentARB(handle);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UniformHandle(int location, ulong value) => Functions.glUniformHandleui64ARB(location, value);
+		public void UniformHandle(int location, ulong value) {
+			unsafe {
+				Functions.glUniformHandleui64ARB(location, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ProgramUniformHandle(uint program, int location, ulong value) => Functions.glProgramUniformHandleui64ARB(program, location, value);
+		public void ProgramUniformHandle(uint program, int location, ulong value) {
+			unsafe {
+				Functions.glProgramUniformHandleui64ARB(program, location, value);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsTextureHandleResident(ulong handle) => Functions.glIsTextureHandleResidentARB(handle) != 0;
+		public bool IsTextureHandleResident(ulong handle) {
+			unsafe {
+				return Functions.glIsTextureHandleResidentARB(handle) != 0;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsImageHandleResident(ulong handle) => Functions.glIsImageHandleResidentARB(handle) != 0;
-
+		public bool IsImageHandleResident(ulong handle) {
+			unsafe {
+				return Functions.glIsImageHandleResidentARB(handle) != 0;
+			}
+		}
 	}
 }

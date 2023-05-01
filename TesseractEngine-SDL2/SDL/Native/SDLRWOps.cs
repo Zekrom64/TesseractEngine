@@ -8,49 +8,6 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.SDL.Native {
 
-	/// <summary>
-	/// Returns the size of the file in this RWops, or -1 if unknown.
-	/// </summary>
-	/// <param name="context">RWops context structure</param>
-	/// <returns>Size of file, or -1</returns>
-	public delegate long PFN_SDL_RWops_size([NativeType("SDL_RWops*")] IntPtr context);
-
-	/// <summary>
-	/// Seek to the offset relative to a position in the stream.
-	/// </summary>
-	/// <param name="context">RWops context structure</param>
-	/// <param name="offset">Offset to seek</param>
-	/// <param name="whence">Position to seek relative to</param>
-	/// <returns>The final offset in the data stream, or -1 on error</returns>
-	public delegate long PFN_SDL_RWops_seek([NativeType("SDL_RWops*")] IntPtr context, long offset, SDLRWWhence whence);
-
-	/// <summary>
-	/// Reads up to a maximum number of objects of a given size from the data stream.
-	/// </summary>
-	/// <param name="context">RWops context structure</param>
-	/// <param name="ptr">Pointer to write objects to</param>
-	/// <param name="size">Size of objects</param>
-	/// <param name="maxnum">Number of objects to read</param>
-	/// <returns>Number of objects read, or 0 if at end of file</returns>
-	public delegate UIntPtr PFN_SDL_RWops_read([NativeType("SDL_RWops*")] IntPtr context, IntPtr ptr, UIntPtr size, UIntPtr maxnum);
-
-	/// <summary>
-	/// Writes up to a number of objects of a given size to the data stream.
-	/// </summary>
-	/// <param name="context">RWops context structure</param>
-	/// <param name="ptr">Pointer to read objects from</param>
-	/// <param name="size">Size of objects</param>
-	/// <param name="num">Number of objects to write</param>
-	/// <returns>Number of obejcts written, or 0 on error or at end of file</returns>
-	public delegate UIntPtr PFN_SDL_RWops_write([NativeType("SDL_RWops*")] IntPtr context, IntPtr ptr, UIntPtr size, UIntPtr num);
-
-	/// <summary>
-	/// Closes and frees the RWops structure.
-	/// </summary>
-	/// <param name="context">RWops context structure</param>
-	/// <returns>Zero if successful, or -1 on error</returns>
-	public delegate int PFN_SDL_RWops_close([NativeType("SDL_RWops*")] IntPtr context);
-
 	[StructLayout(LayoutKind.Sequential)]
 	public struct SDL_RWops_hidden_androidio {
 
@@ -128,16 +85,16 @@ namespace Tesseract.SDL.Native {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct SDL_RWops {
 
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public PFN_SDL_RWops_size Size;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public PFN_SDL_RWops_seek Seek;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public PFN_SDL_RWops_read Read;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public PFN_SDL_RWops_write Write;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public PFN_SDL_RWops_close Close;
+		[NativeType("SInt64 (*size)(SDL_RWops* context)")]
+		public unsafe delegate* unmanaged<SDL_RWops*, long> Size;
+		[NativeType("SInt64 (*seek)(SDL_RWops* context, SInt64 offset, int whence)")]
+		public unsafe delegate* unmanaged<SDL_RWops*, long, SDLRWWhence, long> Seek;
+		[NativeType("size_t (*read)(SDL_RWops* context, void* ptr, size_t size, size_t maxnum)")]
+		public unsafe delegate* unmanaged<SDL_RWops*, IntPtr, nuint, nuint, nuint> Read;
+		[NativeType("size_t (*write)(SDL_RWops* context, void* ptr, size_t size, size_t num)")]
+		public unsafe delegate* unmanaged<SDL_RWops*, IntPtr, nuint, nuint, nuint> Write;
+		[NativeType("int (*close)(SDL_RWops* context)")]
+		public unsafe delegate* unmanaged<SDL_RWops*, int> Close;
 
 		public SDLRWOpsType Type;
 		public SDL_RWops_hidden Hidden;

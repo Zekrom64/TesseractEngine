@@ -9,30 +9,28 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBMultiBindFunctions {
+	public unsafe class ARBMultiBindFunctions {
 
-		public delegate void PFN_glBindBuffersBase(uint target, uint first, int count, [NativeType("const GLuint*")] IntPtr buffers);
 		[ExternFunction(AltNames = new string[] { "glBindBuffersBaseARB" })]
-		public PFN_glBindBuffersBase glBindBuffersBase;
-		public delegate void PFN_glBindBuffersRange(uint target, uint first, int count, [NativeType("const GLuint*")] IntPtr buffers, [NativeType("const GLintptr*")] IntPtr offsets, [NativeType("const GLsizeiptr*")] IntPtr sizes);
+		[NativeType("void glBindBuffersBase(GLenum target, GLuint first, GLsizei count, const GLuint* pBuffers)")]
+		public delegate* unmanaged<uint, uint, int, uint*, void> glBindBuffersBase;
 		[ExternFunction(AltNames = new string[] { "glBindBuffersRangeARB" })]
-		public PFN_glBindBuffersRange glBindBuffersRange;
-		public delegate void PFN_glBindTextures(uint first, int count, [NativeType("const GLuint*")] IntPtr textures);
+		[NativeType("void glBindBuffersRange(GLuint target, GLuint first, GLsizei count, const GLuint* pBuffers, const GLintptr* pOffsets, const GLsizeiptr* pSizes)")]
+		public delegate* unmanaged<uint, uint, int, uint*, nint*, nint*, void> glBindBuffersRange;
 		[ExternFunction(AltNames = new string[] { "glBindTexturesARB" })]
-		public PFN_glBindTextures glBindTextures;
-		public delegate void PFN_glBindSamplers(uint first, int count, [NativeType("const GLuint*")] IntPtr samples);
+		[NativeType("void glBindTextures(GLuint first, GLsizei count, const GLuint* pTextures)")]
+		public delegate* unmanaged<uint, int, uint*, void> glBindTextures;
 		[ExternFunction(AltNames = new string[] { "glBindSamplersARB" })]
-		public PFN_glBindSamplers glBindSamplers;
-		public delegate void PFN_glBindImageTextures(uint first, int count, [NativeType("const GLuint*")] IntPtr textures);
+		[NativeType("void glBindSamplers(GLuint first, GLsizei count, const GLuint* pSamplers)")]
+		public delegate* unmanaged<uint, int, uint*, void> glBindSamplers;
 		[ExternFunction(AltNames = new string[] { "glBindImageTexturesARB" })]
-		public PFN_glBindImageTextures glBindImageTextures;
-		public delegate void PFN_glBindVertexBuffers(uint first, int count, [NativeType("const GLuint*")] IntPtr buffers, [NativeType("const GLintptr*")] IntPtr offsets, [NativeType("const GLsizei*")] IntPtr strides);
+		[NativeType("void glBindImageTextures(GLuint first, GLsizei count, const GLuint* pTextures)")]
+		public delegate* unmanaged<uint, int, uint*, void> glBindImageTextures;
 		[ExternFunction(AltNames = new string[] { "glBindVertexBuffersARB" })]
-		public PFN_glBindVertexBuffers glBindVertexBuffers;
+		[NativeType("void glBindVertexBuffers(GLuint first, GLsizei count, const GLuint* pBuffers, const GLintptr* pOffsets, const GLsizei* pStrides)")]
+		public delegate* unmanaged<uint, int, uint*, nint*, int*, void> glBindVertexBuffers;
 
 	}
-#nullable restore
 
 	public class ARBMultiBind : IGLObject {
 
@@ -48,7 +46,7 @@ namespace Tesseract.OpenGL {
 		public void BindBuffersBase(GLBufferRangeTarget target, uint first, in ReadOnlySpan<uint> buffers) {
 			unsafe {
 				fixed(uint* pBuffers = buffers) {
-					Functions.glBindBuffersBase((uint)target, first, buffers.Length, (IntPtr)pBuffers);
+					Functions.glBindBuffersBase((uint)target, first, buffers.Length, pBuffers);
 				}
 			}
 		}
@@ -57,7 +55,7 @@ namespace Tesseract.OpenGL {
 		public void BindBuffersBase(GLBufferRangeTarget target, uint first, params uint[] buffers) {
 			unsafe {
 				fixed (uint* pBuffers = buffers) {
-					Functions.glBindBuffersBase((uint)target, first, buffers.Length, (IntPtr)pBuffers);
+					Functions.glBindBuffersBase((uint)target, first, buffers.Length, pBuffers);
 				}
 			}
 		}
@@ -68,7 +66,7 @@ namespace Tesseract.OpenGL {
 			unsafe {
 				fixed(uint* pBuffers = buffers) {
 					fixed(nint* pOffsets = offsets, pSizes = sizes) {
-						Functions.glBindBuffersRange((uint)target, first, count, (IntPtr)pBuffers, (IntPtr)pOffsets, (IntPtr)pSizes);
+						Functions.glBindBuffersRange((uint)target, first, count, pBuffers, pOffsets, pSizes);
 					}
 				}
 			}
@@ -78,7 +76,7 @@ namespace Tesseract.OpenGL {
 		public void BindImageTextures(uint first, in ReadOnlySpan<uint> textures) {
 			unsafe {
 				fixed(uint* pTextures = textures) {
-					Functions.glBindImageTextures(first, textures.Length, (IntPtr)pTextures);
+					Functions.glBindImageTextures(first, textures.Length, pTextures);
 				}
 			}
 		}
@@ -87,7 +85,7 @@ namespace Tesseract.OpenGL {
 		public void BindImageTextures(uint first, params uint[] textures) {
 			unsafe {
 				fixed (uint* pTextures = textures) {
-					Functions.glBindImageTextures(first, textures.Length, (IntPtr)pTextures);
+					Functions.glBindImageTextures(first, textures.Length, pTextures);
 				}
 			}
 		}
@@ -96,7 +94,7 @@ namespace Tesseract.OpenGL {
 		public void BindSamplers(uint first, in ReadOnlySpan<uint> samplers) {
 			unsafe {
 				fixed(uint* pSamplers = samplers) {
-					Functions.glBindSamplers(first, samplers.Length, (IntPtr)pSamplers);
+					Functions.glBindSamplers(first, samplers.Length, pSamplers);
 				}
 			}
 		}
@@ -105,7 +103,7 @@ namespace Tesseract.OpenGL {
 		public void BindSamplers(uint first, params uint[] samplers) {
 			unsafe {
 				fixed (uint* pSamplers = samplers) {
-					Functions.glBindSamplers(first, samplers.Length, (IntPtr)pSamplers);
+					Functions.glBindSamplers(first, samplers.Length, pSamplers);
 				}
 			}
 		}
@@ -114,7 +112,7 @@ namespace Tesseract.OpenGL {
 		public void BindTextures(uint first, in ReadOnlySpan<uint> textures) {
 			unsafe {
 				fixed (uint* pTextures = textures) {
-					Functions.glBindTextures(first, textures.Length, (IntPtr)pTextures);
+					Functions.glBindTextures(first, textures.Length, pTextures);
 				}
 			}
 		}
@@ -123,7 +121,7 @@ namespace Tesseract.OpenGL {
 		public void BindTextures(uint first, params uint[] textures) {
 			unsafe {
 				fixed (uint* pTextures = textures) {
-					Functions.glBindTextures(first, textures.Length, (IntPtr)pTextures);
+					Functions.glBindTextures(first, textures.Length, pTextures);
 				}
 			}
 		}
@@ -135,7 +133,7 @@ namespace Tesseract.OpenGL {
 				fixed(uint* pBuffers = buffers) {
 					fixed(nint* pOffsets = offsets) {
 						fixed(int* pStrides = strides) {
-							Functions.glBindVertexBuffers(first, count, (IntPtr)pBuffers, (IntPtr)pOffsets, (IntPtr)pStrides);
+							Functions.glBindVertexBuffers(first, count, pBuffers, pOffsets, pStrides);
 						}
 					}
 				}

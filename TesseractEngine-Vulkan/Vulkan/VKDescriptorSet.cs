@@ -30,7 +30,7 @@ namespace Tesseract.Vulkan {
 			GC.SuppressFinalize(this);
 			ulong set = DescriptorSet;
 			unsafe {
-				VK.CheckError(Device.VK10Functions.vkFreeDescriptorSets(Device, DescriptorPool, 1, (IntPtr)(&set)), "Failed to free descriptor set");
+				VK.CheckError(Device.VK10Functions.vkFreeDescriptorSets(Device, DescriptorPool, 1, &set), "Failed to free descriptor set");
 			}
 		}
 

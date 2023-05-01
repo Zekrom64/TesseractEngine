@@ -23,15 +23,15 @@ namespace Tesseract.Vulkan {
 
 		public byte[] Data {
 			get {
-				nuint size = 0;
-				VK.CheckError(Device.VK10Functions.vkGetPipelineCacheData(Device, PipelineCache, ref size, IntPtr.Zero), "Failed to get pipeline cache data");
-				byte[] data = new byte[size];
 				unsafe {
-					fixed(byte* pData = data) {
+					nuint size = 0;
+					VK.CheckError(Device.VK10Functions.vkGetPipelineCacheData(Device, PipelineCache, ref size, IntPtr.Zero), "Failed to get pipeline cache data");
+					byte[] data = new byte[size];
+					fixed (byte* pData = data) {
 						VK.CheckError(Device.VK10Functions.vkGetPipelineCacheData(Device, PipelineCache, ref size, (IntPtr)pData), "Failed to get pipeline cache data");
 					}
+					return data;
 				}
-				return data;
 			}
 		}
 
@@ -43,14 +43,16 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyPipelineCache(Device, PipelineCache, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyPipelineCache(Device, PipelineCache, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Merge([NativeType("VkPipelineCache[]")] in ReadOnlySpan<ulong> caches) {
 			unsafe {
 				fixed(ulong* pCaches = caches) {
-					VK.CheckError(Device.VK10Functions.vkMergePipelineCaches(Device, PipelineCache, (uint)caches.Length, (IntPtr)pCaches), "Failed to merge pipeline caches");
+					VK.CheckError(Device.VK10Functions.vkMergePipelineCaches(Device, PipelineCache, (uint)caches.Length, pCaches), "Failed to merge pipeline caches");
 				}
 			}
 		}
@@ -59,7 +61,7 @@ namespace Tesseract.Vulkan {
 		public void Merge([NativeType("VkPipelineCache[]")] params ulong[] caches) {
 			unsafe {
 				fixed(ulong* pCaches = caches) {
-					VK.CheckError(Device.VK10Functions.vkMergePipelineCaches(Device, PipelineCache, (uint)caches.Length, (IntPtr)pCaches), "Failed to merge pipeline caches");
+					VK.CheckError(Device.VK10Functions.vkMergePipelineCaches(Device, PipelineCache, (uint)caches.Length, pCaches), "Failed to merge pipeline caches");
 				}
 			}
 		}

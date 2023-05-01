@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBMultiDrawIndirectFunctions {
+	public unsafe class ARBMultiDrawIndirectFunctions {
 
-		public delegate void PFN_glMultiDrawArraysIndirect(uint mode, IntPtr indirect, int primcount, int stride);
 		[ExternFunction(AltNames = new string[] { "glMultiDrawArraysIndirectARB" })]
-		public PFN_glMultiDrawArraysIndirect glMultiDrawArraysIndirect;
-		public delegate void PFN_glMultiDrawElementsIndirect(uint mode, uint type, IntPtr indirect, int primcount, int stride);
+		[NativeType("void glMultiDrawArraysIndirect(GLenum mode, void* pIndirect, GLsizei primCount, GLsizei stride)")]
+		public delegate* unmanaged<uint, IntPtr, int, int, void> glMultiDrawArraysIndirect;
 		[ExternFunction(AltNames = new string[] { "glMultiDrawElementsIndirectARB" })]
-		public PFN_glMultiDrawElementsIndirect glMultiDrawElementsIndirect;
+		[NativeType("void glMultiDrawElementsIndirect(GLenum mode, GLenum type, void* pIndirect, GLsizei primCount, GLsizei stride)")]
+		public delegate* unmanaged<uint, uint, IntPtr, int, int, void> glMultiDrawElementsIndirect;
 
 	}
-#nullable restore
 
 	public class ARBMultiDrawIndirect : IGLObject {
 
@@ -32,10 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MultiDrawArraysIndirect(GLDrawMode mode, nint offset, int primcount, int stride) => Functions.glMultiDrawArraysIndirect((uint)mode, offset, primcount, stride);
+		public void MultiDrawArraysIndirect(GLDrawMode mode, nint offset, int primcount, int stride) {
+			unsafe {
+				Functions.glMultiDrawArraysIndirect((uint)mode, offset, primcount, stride);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void MultiDrawElementsIndirect(GLDrawMode mode, GLIndexType type, nint offset, int primcount, int stride) => Functions.glMultiDrawElementsIndirect((uint)mode, (uint)type, offset, primcount, stride);
-
+		public void MultiDrawElementsIndirect(GLDrawMode mode, GLIndexType type, nint offset, int primcount, int stride) {
+			unsafe {
+				Functions.glMultiDrawElementsIndirect((uint)mode, (uint)type, offset, primcount, stride);
+			}
+		}
 	}
 }

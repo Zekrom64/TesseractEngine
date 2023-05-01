@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTextureStorageMultisampleFunctions {
+	public unsafe class ARBTextureStorageMultisampleFunctions {
 
-		public delegate void PFN_glTexStorage2DMultisample(uint target, int samples, uint internalFormat, int width, int height, byte fixedSampleLocations);
 		[ExternFunction(AltNames = new string[] { "glTexStorage2DMultisampleARB" })]
-		public PFN_glTexStorage2DMultisample glTexStorage2DMultisample;
-		public delegate void PFN_glTexStorage3DMultisample(uint target, int samples, uint internalFormat, int width, int height, int depth, byte fixedSampleLocations);
+		[NativeType("void glTexStorage2DMultisample(GLenum target, GLint samples, GLenum internalFormat, GLsizei width, GLsizei height, GLboolean fixedSampleLocations)")]
+		public delegate* unmanaged<uint, int, uint, int, int, byte, void> glTexStorage2DMultisample;
+		[NativeType("void glTexStorage3DMultisample(GLenum target, GLint samples, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedSampleLocations)")]
 		[ExternFunction(AltNames = new string[] { "glTexStorage3DMultisampleARB" })]
-		public PFN_glTexStorage3DMultisample glTexStorage3DMultisample;
+		public delegate* unmanaged<uint, int, uint, int, int, int, byte, void> glTexStorage3DMultisample;
 
 	}
-#nullable restore
 
 	public class ARBTextureStorageMultisample : IGLObject {
 
@@ -32,10 +30,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexStorage2DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, bool fixedSampleLocations) => Functions.glTexStorage2DMultisample((uint)target, samples, (uint)internalFormat, width, height, (byte)(fixedSampleLocations ? 1 : 0));
+		public void TexStorage2DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, bool fixedSampleLocations) {
+			unsafe {
+				Functions.glTexStorage2DMultisample((uint)target, samples, (uint)internalFormat, width, height, (byte)(fixedSampleLocations ? 1 : 0));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexStorage3DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, int depth, bool fixedSampleLocations) => Functions.glTexStorage3DMultisample((uint)target, samples, (uint)internalFormat, width, height, depth, (byte)(fixedSampleLocations ? 1 : 0));
-
+		public void TexStorage3DMultisample(GLTextureTarget target, int samples, GLInternalFormat internalFormat, int width, int height, int depth, bool fixedSampleLocations) {
+			unsafe {
+				Functions.glTexStorage3DMultisample((uint)target, samples, (uint)internalFormat, width, height, depth, (byte)(fixedSampleLocations ? 1 : 0));
+			}
+		}
 	}
 }

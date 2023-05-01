@@ -9,18 +9,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBGetTextureSubImageFunctions {
+	public unsafe class ARBGetTextureSubImageFunctions {
 
-		public delegate void PFN_glGetTextureSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, int bufSize, IntPtr pixels);
 		[ExternFunction(AltNames = new string[] { "glGetTextureSubImageARB" })]
-		public PFN_glGetTextureSubImage glGetTextureSubImage;
-		public delegate void PFN_glGetCompressedTextureSubImage(uint texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int bufSize, IntPtr pixels);
+		[NativeType("void glGetTextureSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLsizei bufSize, void* pPixels)")]
+		public delegate* unmanaged<uint, int, int, int, int, int, int, int, uint, uint, int, IntPtr, void> glGetTextureSubImage;
 		[ExternFunction(AltNames = new string[] { "glGetCompressedTextureSubImageARB" })]
-		public PFN_glGetCompressedTextureSubImage glGetCompressedTextureSubImage;
+		[NativeType("void glGetCompressedTextureSubImage(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLsizei bufSize, void* pPixels)")]
+		public delegate* unmanaged<uint, int, int, int, int, int, int, int, int, IntPtr, void> glGetCompressedTextureSubImage;
 
 	}
-#nullable restore
 
 	public class ARBGetTextureSubImage : IGLObject {
 
@@ -43,8 +41,11 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetTextureSubImage(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, int bufSize, IntPtr pixels) =>
+		public void GetTextureSubImage(uint texture, int level, Vector3i offset, Vector3i size, GLFormat format, GLTextureType type, int bufSize, IntPtr pixels) {
+			unsafe {
 				Functions.glGetTextureSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, (uint)format, (uint)type, bufSize, pixels);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<T> GetCompressedTextureSubImage<T>(uint texture, int level, Vector3i offset, Vector3i size, Span<T> pixels) where T : unmanaged {
@@ -57,8 +58,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void GetCompressedTextureSubImage(uint texture, int level, Vector3i offset, Vector3i size, int bufSize, IntPtr pixels) =>
-			Functions.glGetCompressedTextureSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, bufSize, pixels);
-
+		public void GetCompressedTextureSubImage(uint texture, int level, Vector3i offset, Vector3i size, int bufSize, IntPtr pixels) {
+			unsafe {
+				Functions.glGetCompressedTextureSubImage(texture, level, offset.X, offset.Y, offset.Z, size.X, size.Y, size.Z, bufSize, pixels);
+			}
+		}
 	}
 }

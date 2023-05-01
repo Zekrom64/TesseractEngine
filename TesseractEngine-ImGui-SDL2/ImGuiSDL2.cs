@@ -241,7 +241,7 @@ namespace Tesseract.ImGui.SDL {
 			IImGuiIO io = GImGui.IO;
 			SDL2.CaptureMouse = mouseButtonsDown != 0;
 			SDLWindow? focusedWindow = SDL2.GetKeyboardFocus();
-			bool isAppFocused = window == focusedWindow || (focusedWindow != null && window.Window.Ptr == focusedWindow.Window.Ptr);
+			bool isAppFocused = window == focusedWindow || (focusedWindow != null && window.Window == focusedWindow.Window);
 			if (isAppFocused) {
 				if (io.WantSetMousePos) window.WarpMouseInWindow((int)io.MousePos.X, (int)io.MousePos.Y);
 				if (mouseCanUseGlobalState && mouseButtonsDown == 0) {

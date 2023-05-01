@@ -138,10 +138,12 @@ namespace Tesseract.SDL.Services {
 		public bool Fullscreen { get => (Window.Flags & SDLWindowFlags.Fullscreen) != 0; }
 		public IDisplay? FullscreenDisplay {
 			get {
-				if (!Fullscreen) return null;
-				int index = SDL2.Functions.SDL_GetWindowDisplayIndex(Window.Window.Ptr);
-				if (index < 0) throw new SDLException(SDL2.GetError());
-				else return new SDLServiceDisplay(new SDLDisplay(index));
+				unsafe {
+					if (!Fullscreen) return null;
+					int index = SDL2.Functions.SDL_GetWindowDisplayIndex(Window.Window);
+					if (index < 0) throw new SDLException(SDL2.GetError());
+					else return new SDLServiceDisplay(new SDLDisplay(index));
+				}
 			}
 		}
 
@@ -239,8 +241,9 @@ namespace Tesseract.SDL.Services {
 				if (attributes.TryGet(WindowAttributes.Closing, out bool closing)) Closing = closing;
 				if (attributes.TryGet(WindowAttributes.Opacity, out float opacity)) Opacity = opacity;
 			}
-
-			SDL2.Functions.SDL_SetWindowData(Window.Window.Ptr, WindowDataID, new ObjectPointer<SDLServiceWindow>(this).Ptr);
+			unsafe {
+				Window[WindowDataID] = new ObjectPointer<SDLServiceWindow>(this).Ptr;
+			}
 		}
 
 		public T? GetService<T>(IService<T> service) where T : notnull {
@@ -249,7 +252,7 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public void Restore() {
-			if (Fullscreen) SDL2.CheckError(SDL2.Functions.SDL_SetWindowFullscreen(Window.Window.Ptr, 0));
+			if (Fullscreen) Window.Fullscreen = default;
 			Window.Restore();
 		}
 
@@ -270,14 +273,15 @@ namespace Tesseract.SDL.Services {
 					RefreshRate = mode.RefreshRate
 				};
 			}
-			SDL2.Functions.SDL_GetClosestDisplayMode(sdldisplay.DisplayIndex, sdlmode, out sdlmode);
+			var closestMode = sdldisplay.GetClosestDisplayMode(sdlmode);
+			if (closestMode != null) sdlmode = closestMode.Value;
 			// SDL's fullscreen system is a bit wonky
 			// First set the window's display mode to the selected mode
-			SDL2.CheckError(SDL2.Functions.SDL_SetWindowDisplayMode(Window.Window.Ptr, sdlmode));
+			Window.DisplayMode = sdlmode;
 			// Then move the window to the center of the display
-			SDL2.Functions.SDL_SetWindowPosition(Window.Window.Ptr, SDL2.WindowPosCenteredOnDisplay(sdldisplay), SDL2.WindowPosCenteredOnDisplay(sdldisplay));
+			Window.Position = new Vector2i(SDL2.WindowPosCenteredOnDisplay(sdldisplay), SDL2.WindowPosCenteredOnDisplay(sdldisplay));
 			// Then make fullscreen on the display
-			SDL2.CheckError(SDL2.Functions.SDL_SetWindowFullscreen(Window.Window.Ptr, (uint)SDLWindowFlags.FullscreenDesktop));
+			Window.Fullscreen = SDLWindowFlags.FullscreenDesktop;
 		}
 
 		public IGammaRamp GammaRamp {
@@ -287,7 +291,7 @@ namespace Tesseract.SDL.Services {
 					fixed (ushort* pRed = ramp.Red) {
 						fixed (ushort* pGreen = ramp.Green) {
 							fixed (ushort* pBlue = ramp.Blue) {
-								SDL2.CheckError(SDL2.Functions.SDL_GetWindowGammaRamp(Window.Window.Ptr, (IntPtr)pRed, (IntPtr)pGreen, (IntPtr)pBlue));
+								SDL2.CheckError(SDL2.Functions.SDL_GetWindowGammaRamp(Window.Window, pRed, pGreen, pBlue));
 							}
 						}
 					}
@@ -299,7 +303,7 @@ namespace Tesseract.SDL.Services {
 					fixed (ushort* pRed = value.Red) {
 						fixed (ushort* pGreen = value.Green) {
 							fixed (ushort* pBlue = value.Blue) {
-								SDL2.CheckError(SDL2.Functions.SDL_SetWindowGammaRamp(Window.Window.Ptr, (IntPtr)pRed, (IntPtr)pGreen, (IntPtr)pBlue));
+								SDL2.CheckError(SDL2.Functions.SDL_SetWindowGammaRamp(Window.Window, pRed, pGreen, pBlue));
 							}
 						}
 					}
@@ -341,7 +345,7 @@ namespace Tesseract.SDL.Services {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			ObjectPointer<SDLServiceWindow> gchandle = new(SDL2.Functions.SDL_GetWindowData(Window.Window.Ptr, WindowDataID));
+			ObjectPointer<SDLServiceWindow> gchandle = new(Window[WindowDataID]);
 			gchandle.Dispose();
 			Window.Dispose();
 		}

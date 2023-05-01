@@ -8,21 +8,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBTextureStorageFunctions {
+	public unsafe class ARBTextureStorageFunctions {
 
-		public delegate void PFN_glTexStorage1D(uint target, int levels, uint internalFormat, int width);
 		[ExternFunction(AltNames = new string[] { "glTexStorage1DARB" })]
-		public PFN_glTexStorage1D glTexStorage1D;
-		public delegate void PFN_glTexStorage2D(uint target, int levels, uint internalFormat, int width, int height);
+		[NativeType("void glTexStorage1D(GLenum target, GLint levels, GLenum internalFormat, GLsizei width)")]
+		public delegate* unmanaged<uint, int, uint, int, void> glTexStorage1D;
 		[ExternFunction(AltNames = new string[] { "glTexStorage2DARB" })]
-		public PFN_glTexStorage2D glTexStorage2D;
-		public delegate void PFN_glTexStorage3D(uint target, int levels, uint internalFormat, int width, int height, int depth);
+		[NativeType("void glTexStorage2D(GLenum target, GLint levels, GLenum internalFormat, GLsizei width, GLsizei height)")]
+		public delegate* unmanaged<uint, int, uint, int, int, void> glTexStorage2D;
 		[ExternFunction(AltNames = new string[] { "glTexStorage3DARB" })]
-		public PFN_glTexStorage3D glTexStorage3D;
+		[NativeType("void glTexStorage3D(GLenum target, GLint levels, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth)")]
+		public delegate* unmanaged<uint, int, uint, int, int, int, void> glTexStorage3D;
 
 	}
-#nullable restore
 
 	public class ARBTextureStorage {
 
@@ -35,14 +33,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexStorage1D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width) => Functions.glTexStorage1D((uint)target, levels, (uint)internalFormat, width);
+		public void TexStorage1D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width) {
+			unsafe {
+				Functions.glTexStorage1D((uint)target, levels, (uint)internalFormat, width);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexStorage2D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width, int height) => Functions.glTexStorage2D((uint)target, levels, (uint)internalFormat, width, height);
+		public void TexStorage2D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width, int height) {
+			unsafe {
+				Functions.glTexStorage2D((uint)target, levels, (uint)internalFormat, width, height);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void TexStorage3D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width, int height, int depth) => Functions.glTexStorage3D((uint)target, levels, (uint)internalFormat, width, height, depth);
-
+		public void TexStorage3D(GLTextureTarget target, int levels, GLInternalFormat internalFormat, int width, int height, int depth) {
+			unsafe {
+				Functions.glTexStorage3D((uint)target, levels, (uint)internalFormat, width, height, depth);
+			}
+		}
 	}
 
 }

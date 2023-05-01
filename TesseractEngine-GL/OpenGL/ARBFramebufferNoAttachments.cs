@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBFramebufferNoAttachmentsFunctions {
+	public unsafe class ARBFramebufferNoAttachmentsFunctions {
 
-		public delegate void PFN_glFramebufferParameteri(uint target, uint pname, int param);
 		[ExternFunction(AltNames = new string[] { "glFramebufferParameteriARB" })]
-		public PFN_glFramebufferParameteri glFramebufferParameteri;
-		public delegate void PFN_glGetFramebufferParameteriv(uint target, uint pname, [NativeType("GLint*")] IntPtr v);
+		[NativeType("void glFramebufferParameteri(GLenum target, GLenum pname, GLint param)")]
+		public delegate* unmanaged<uint, uint, int, void> glFramebufferParameteri;
 		[ExternFunction(AltNames = new string[] { "glGetFramebufferParameterivARB" })]
-		public PFN_glGetFramebufferParameteriv glGetFramebufferParameteriv;
+		[NativeType("void glGetFramebufferParameteriv(GLenum target, GLenum pname, GLint* pParam)")]
+		public delegate* unmanaged<uint, uint, out int, void> glGetFramebufferParameteriv;
 
 	}
-#nullable restore
 
 	public class ARBFramebufferNoAttachments : IGLObject {
 
@@ -32,13 +30,16 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void FramebufferParameter(GLFramebufferTarget target, GLFramebufferParameter pname, int param) => Functions.glFramebufferParameteri((uint)target, (uint)pname, param);
+		public void FramebufferParameter(GLFramebufferTarget target, GLFramebufferParameter pname, int param) {
+			unsafe {
+				Functions.glFramebufferParameteri((uint)target, (uint)pname, param);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetFramebufferParameteri(GLFramebufferTarget target, GLFramebufferParameter pname) {
 			unsafe {
-				int v = 0;
-				Functions.glGetFramebufferParameteriv((uint)target, (uint)pname, (IntPtr)(&v));
+				Functions.glGetFramebufferParameteriv((uint)target, (uint)pname, out int v);
 				return v;
 			}
 		}

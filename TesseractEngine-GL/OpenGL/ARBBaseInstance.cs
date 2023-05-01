@@ -8,21 +8,19 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBBaseInstanceFunctions {
+	public unsafe class ARBBaseInstanceFunctions {
 
-		public delegate void PFN_glDrawArraysInstancedBaseInstance(uint mode, int first, int count, int primcount, uint baseinstance);
 		[ExternFunction(AltNames = new string[] { "glDrawArraysInstancedBaseInstanceARB" })]
-		public PFN_glDrawArraysInstancedBaseInstance glDrawArraysInstancedBaseInstance;
-		public delegate void PFN_glDrawElementsInstancedBaseInstance(uint mode, int count, uint type, IntPtr indices, int primcount, uint baseinstance);
+		[NativeType("void glDrawArraysInstancedBaseInstance(GLenum mode, GLint first, GLint count, GLint primCount, GLuint baseInstance)")]
+		public delegate* unmanaged<uint, int, int, int, uint, void> glDrawArraysInstancedBaseInstance;
 		[ExternFunction(AltNames = new string[] { "glDrawElementsInstancedBaseInstanceARB" })]
-		public PFN_glDrawElementsInstancedBaseInstance glDrawElementsInstancedBaseInstance;
-		public delegate void PFN_glDrawElementsInstancedBaseVertexBaseInstance(uint mode, int count, uint type, IntPtr indices, int primcount, int basevertex, uint baseinstance);
+		[NativeType("void glDrawElementsInstancedBaseInstance(GLenum mode, GLint count, GLenum type, void* pIndices, GLint primCount, GLuint baseInstance)")]
+		public delegate* unmanaged<uint, int, uint, IntPtr, int, uint, void> glDrawElementsInstancedBaseInstance;
 		[ExternFunction(AltNames = new string[] { "glDrawElementsInstancedBaseVertexBaseInstanceARB" })]
-		public PFN_glDrawElementsInstancedBaseVertexBaseInstance glDrawElementsInstancedBaseVertexBaseInstance;
+		[NativeType("void glDrawElementsInstancedBaseVertexBaseInstanceARB(GLenum mode, GLint count, GLenum type, void* pIndices, GLint primCount, GLint baseVertex, GLuint baseInstance)")]
+		public delegate* unmanaged<uint, int, uint, IntPtr, int, int, uint, void> glDrawElementsInstancedBaseVertexBaseInstance;
 
 	}
-#nullable restore
 
 	public class ARBBaseInstance : IGLObject {
 
@@ -35,14 +33,25 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawArraysInstancedBaseInstance(GLDrawMode mode, int first, int count, int primCount, uint baseInstance) => Functions.glDrawArraysInstancedBaseInstance((uint)mode, first, count, primCount, baseInstance);
+		public void DrawArraysInstancedBaseInstance(GLDrawMode mode, int first, int count, int primCount, uint baseInstance) {
+			unsafe {
+				Functions.glDrawArraysInstancedBaseInstance((uint)mode, first, count, primCount, baseInstance);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsInstancedBaseInstance(GLDrawMode mode, int count, GLIndexType type, nint offset, int primCount, uint baseInstance) => Functions.glDrawElementsInstancedBaseInstance((uint)mode, count, (uint)type, offset, primCount, baseInstance);
+		public void DrawElementsInstancedBaseInstance(GLDrawMode mode, int count, GLIndexType type, nint offset, int primCount, uint baseInstance) {
+			unsafe {
+				Functions.glDrawElementsInstancedBaseInstance((uint)mode, count, (uint)type, offset, primCount, baseInstance);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsInstancedBaseVertexBaseInstance(GLDrawMode mode, int count, GLIndexType type, nint offset, int primCount, int baseVertex, uint baseInstance) => Functions.glDrawElementsInstancedBaseVertexBaseInstance((uint)mode, count, (uint)type, offset, primCount, baseVertex, baseInstance);
-
+		public void DrawElementsInstancedBaseVertexBaseInstance(GLDrawMode mode, int count, GLIndexType type, nint offset, int primCount, int baseVertex, uint baseInstance) {
+			unsafe {
+				Functions.glDrawElementsInstancedBaseVertexBaseInstance((uint)mode, count, (uint)type, offset, primCount, baseVertex, baseInstance);
+			}
+		}
 	}
 
 }

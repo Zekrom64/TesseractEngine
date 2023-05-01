@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBColorBufferFloatFunctions {
+	public unsafe class ARBColorBufferFloatFunctions {
 
-		public delegate void PFN_glClampColor(uint target, uint clamp);
 		[ExternFunction(AltNames = new string[] { "glClampColorARB" })]
-		public PFN_glClampColor glClampColor;
+		[NativeType("void glClampColor(GLenum target, GLenum clamp)")]
+		public delegate* unmanaged<uint, uint, void> glClampColor;
 
 	}
-#nullable restore
 
 	public class ARBColorBufferFloat : IGLObject {
 
@@ -29,8 +27,11 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClampColor(GLClampColorTarget target, GLClampColorMode mode) => Functions.glClampColor((uint)target, (uint)mode);
-
+		public void ClampColor(GLClampColorTarget target, GLClampColorMode mode) {
+			unsafe {
+				Functions.glClampColor((uint)target, (uint)mode);
+			}
+		}
 	}
 
 }

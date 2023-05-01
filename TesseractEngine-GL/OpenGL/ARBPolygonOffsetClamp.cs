@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBPolygonOffsetClampFunctions {
+	public unsafe class ARBPolygonOffsetClampFunctions {
 
-		public delegate void PFN_glPolygonOffsetClamp(float factor, float units, float clamp);
 		[ExternFunction(AltNames = new string[] { "glPolygonOffsetClampARB" })]
-		public PFN_glPolygonOffsetClamp glPolygonOffsetClamp;
+		[NativeType("void glPolygonOffsetClamp(GLfloat factor, GLfloat units, GLfloat clamp)")]
+		public delegate* unmanaged<float, float, float, void> glPolygonOffsetClamp;
 
 	}
-#nullable restore
 
 	public class ARBPolygonOffsetClamp : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PolygonOffsetClamp(float factor, float units, float clamp) => Functions.glPolygonOffsetClamp(factor, units, clamp);
-
+		public void PolygonOffsetClamp(float factor, float units, float clamp) {
+			unsafe {
+				Functions.glPolygonOffsetClamp(factor, units, clamp);
+			}
+		}
 	}
 }

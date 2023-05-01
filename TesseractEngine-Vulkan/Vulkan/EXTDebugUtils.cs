@@ -31,9 +31,9 @@ namespace Tesseract.Vulkan {
 		public VKStructureType Type { get => type; init => type = value; }
 		private readonly IntPtr next;
 		public IntPtr Next { get => next; init => next = value; }
-		[MarshalAs(UnmanagedType.LPUTF8Str)]
-		private readonly string labelName;
-		public string LabelName { get => labelName; init => labelName = value; }
+		private readonly IntPtr labelName;
+		[NativeType("const char*")]
+		public IntPtr LabelName { get => labelName; init => labelName = value; }
 		private readonly Vector4 color;
 		public Vector4 Color { get => color; init => color = value; }
 
@@ -48,14 +48,14 @@ namespace Tesseract.Vulkan {
 		public IntPtr Next { get => next; init => next = value; }
 		private readonly uint flags;
 		public uint Flags { get => flags; init => flags = value; }
-		[MarshalAs(UnmanagedType.LPUTF8Str)]
-		private readonly string messageIdName;
-		public string MessageIdName { get => messageIdName; init => messageIdName = value; }
+		private readonly IntPtr messageIdName;
+		[NativeType("const char*")]
+		public IntPtr MessageIdName { get => messageIdName; init => messageIdName = value; }
 		private readonly int messageIdNumber;
 		public int MessageIdNumber { get => messageIdNumber; init => messageIdNumber = value; }
-		[MarshalAs(UnmanagedType.LPUTF8Str)]
-		private readonly string message;
-		public string Message { get => message; init => message = value; }
+		private readonly IntPtr message;
+		[NativeType("const char*")]
+		public IntPtr Message { get => message; init => message = value; }
 		private readonly uint queueLabelCount;
 		public uint QueueLabelCount { get => queueLabelCount; init => queueLabelCount = value; }
 		private readonly IntPtr queueLabels;
@@ -85,9 +85,9 @@ namespace Tesseract.Vulkan {
 		public VKObjectType ObjectType { get => objectType; init => objectType = value; }
 		private readonly ulong objectHandle;
 		public ulong ObjectHandle { get => objectHandle; init => objectHandle = value; }
-		[MarshalAs(UnmanagedType.LPUTF8Str)]
-		private readonly string objectName;
-		public string ObjectName { get => objectName; init => objectName = value; }
+		private readonly IntPtr objectName;
+		[NativeType("const char*")]
+		public IntPtr ObjectName { get => objectName; init => objectName = value; }
 
 	}
 
@@ -124,9 +124,8 @@ namespace Tesseract.Vulkan {
 		public VKDebugUtilsMessageSeverityFlagBigsEXT MessageSeverity { get => messageSeverity; init => messageSeverity = value; }
 		private readonly VKDebugUtilsMessageTypeFlagBitsEXT messageType;
 		public VKDebugUtilsMessageTypeFlagBitsEXT MessageType { get => messageType; init => messageType = value; }
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		private readonly VKDebugUtilsMessengerCallbackEXT userCallback;
-		public VKDebugUtilsMessengerCallbackEXT UserCallback { get => userCallback; init => userCallback = value; }
+		private readonly IntPtr userCallback;
+		public VKDebugUtilsMessengerCallbackEXT UserCallback { init => userCallback = Marshal.GetFunctionPointerForDelegate(value); }
 		private readonly IntPtr userData;
 		public IntPtr UserData { get => userData; init => userData = value; }
 
@@ -134,35 +133,32 @@ namespace Tesseract.Vulkan {
 
 	public delegate VKBool32 VKDebugUtilsMessengerCallbackEXT(VKDebugUtilsMessageSeverityFlagBigsEXT messageSeverity, VKDebugUtilsMessageTypeFlagBitsEXT messageTypes, in VKDebugUtilsMessengerCallbackDataEXT callbackData, IntPtr userData);
 
-#nullable disable
-	public class EXTDebugUtilsInstanceFunctions {
+	public unsafe class EXTDebugUtilsInstanceFunctions {
 
-		public delegate void PFN_vkCmdBeginDebugUtilsLabelEXT(IntPtr commandBuffer, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate void PFN_vkCmdEndDebugUtilsLabelEXT(IntPtr commandBuffer);
-		public delegate void PFN_vkCmdInsertDebugUtilsLabelEXT(IntPtr commandBuffer, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate VKResult PFN_vkCreateDebugUtilsMessengerEXT(IntPtr instance, in VKDebugUtilsMessengerCreateInfoEXT createInfo, IntPtr allocator, out ulong messenger);
-		public delegate void PFN_vkDestroyDebugUtilsMessengerEXT(IntPtr instance, ulong messenger, IntPtr allocator);
-		public delegate void PFN_vkQueueBeginDebugUtilsLabelEXT(IntPtr queue, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate void PFN_vkQueueEndDebugUtilsLabelEXT(IntPtr queue);
-		public delegate void PFN_vkQueueInsertDebugUtilsLabelEXT(IntPtr queue, in VKDebugUtilsLabelEXT labelInfo);
-		public delegate VKResult PFN_vkSetDebugUtilsObjectNameEXT(IntPtr device, in VKDebugUtilsObjectNameInfoEXT nameInfo);
-		public delegate VKResult PFN_vkSetDebugUtilsObjectTagEXT(IntPtr device, in VKDebugUtilsObjectTagInfoEXT tagInfo);
-		public delegate void PFN_vkSubmitDebugUtilsMessageEXT(IntPtr instance, VKDebugUtilsMessageSeverityFlagBigsEXT messageSeverity, VKDebugUtilsMessageTypeFlagBitsEXT messageTypes, in VKDebugUtilsMessengerCallbackDataEXT callbackData);
-
-		public PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT;
-		public PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT;
-		public PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT;
-		public PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT;
-		public PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT;
-		public PFN_vkQueueBeginDebugUtilsLabelEXT vkQueueBeginDebugUtilsLabelEXT;
-		public PFN_vkQueueEndDebugUtilsLabelEXT vkQueueEndDebugUtilsLabelEXT;
-		public PFN_vkQueueInsertDebugUtilsLabelEXT vkQueueInsertDebugUtilsLabelEXT;
-		public PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT;
-		public PFN_vkSetDebugUtilsObjectTagEXT vkSetDebugUtilsObjectTagEXT;
-		public PFN_vkSubmitDebugUtilsMessageEXT vkSubmitDebugUtilsMessageEXT;
+		[NativeType("void vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer cmdbuf, const VkDebugUtilsLabelEXT* pLabelInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkCmdBeginDebugUtilsLabelEXT;
+		[NativeType("void vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer cmdbuf)")]
+		public delegate* unmanaged<IntPtr, void> vkCmdEndDebugUtilsLabelEXT;
+		[NativeType("void vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer cmdbuf, const VkDebugUtilsLabelEXT* pLabelInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkCmdInsertDebugUtilsLabelEXT;
+		[NativeType("VkResult vkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pMessenger)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsMessengerCreateInfoEXT, VKAllocationCallbacks*, out ulong, VKResult> vkCreateDebugUtilsMessengerEXT;
+		[NativeType("void vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroyDebugUtilsMessengerEXT;
+		[NativeType("void vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkQueueBeginDebugUtilsLabelEXT;
+		[NativeType("void vkQueueEndDebugUtilsLabelEXT(VkQueue queue)")]
+		public delegate* unmanaged<IntPtr, void> vkQueueEndDebugUtilsLabelEXT;
+		[NativeType("void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsLabelEXT, void> vkQueueInsertDebugUtilsLabelEXT;
+		[NativeType("VkResult vkSetDebugUtilsObjectNameEXT(VkDevice device, const VKDebugUtilsObjectNameInfoEXT* pNameInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsObjectNameInfoEXT, VKResult> vkSetDebugUtilsObjectNameEXT;
+		[NativeType("VkResult vkSetDebugUtilsObjectTagEXT(VkDevice device, const VkDebugUtilsObjectTagInfoEXT* pTagInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDebugUtilsObjectTagInfoEXT, VKResult> vkSetDebugUtilsObjectTagEXT;
+		[NativeType("void vkSubmitDebugUtilsMessageEXT(VkInstance instance, VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, VkDebugUtilsMessageTypeFlags messageTypes, const VkDebugUtilsMessangerCallbackDataEXT* pCallbackData)")]
+		public delegate* unmanaged<IntPtr, VKDebugUtilsMessageSeverityFlagBigsEXT, VKDebugUtilsMessageTypeFlagBitsEXT, in VKDebugUtilsMessengerCallbackDataEXT, void> vkSubmitDebugUtilsMessageEXT;
 
 	}
-#nullable restore
 
 	public class EXTDebugUtils {
 
@@ -186,7 +182,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Instance.EXTDebugUtilsFunctions!.vkDestroyDebugUtilsMessengerEXT(Instance, Messenger, Allocator);
+			unsafe {
+				Instance.EXTDebugUtilsFunctions!.vkDestroyDebugUtilsMessengerEXT(Instance, Messenger, Allocator);
+			}
 		}
 
 		public static implicit operator ulong(VKDebugUtilsMessengerEXT messenger) => messenger.Messenger; 

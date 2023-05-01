@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBBufferStorageFunctions {
+	public unsafe class ARBBufferStorageFunctions {
 
-		public delegate void PFN_glBufferStorage(uint target, nint size, IntPtr data, uint flags);
 		[ExternFunction(AltNames = new string[] { "glBufferStorageARB" })]
-		public PFN_glBufferStorage glBufferStorage;
+		[NativeType("void glBufferStorage(GLenum target, GLsizei size, void* pData, GLbitfield flags)")]
+		public delegate* unmanaged<uint, nint, IntPtr, uint, void> glBufferStorage;
 
 	}
-#nullable restore
 
 	public class ARBBufferStorage : IGLObject {
 
@@ -29,10 +27,18 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BufferStorage(GLBufferTarget target,  nint size, IntPtr data, GLBufferStorageFlags flags) => Functions.glBufferStorage((uint)target, size, data, (uint)flags);
+		public void BufferStorage(GLBufferTarget target, nint size, IntPtr data, GLBufferStorageFlags flags) {
+			unsafe {
+				Functions.glBufferStorage((uint)target, size, data, (uint)flags);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BufferStorage(GLBufferTarget target, nint size, GLBufferStorageFlags flags) => Functions.glBufferStorage((uint)target, size, IntPtr.Zero, (uint)flags);
+		public void BufferStorage(GLBufferTarget target, nint size, GLBufferStorageFlags flags) {
+			unsafe {
+				Functions.glBufferStorage((uint)target, size, IntPtr.Zero, (uint)flags);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BufferStorage<T>(GLBufferTarget target, in ReadOnlySpan<T> data, GLBufferStorageFlags flags) where T : unmanaged {

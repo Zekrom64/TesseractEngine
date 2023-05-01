@@ -8,19 +8,17 @@ using Tesseract.Core.Numerics;
 using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
+	
+	public unsafe class ARBComputeShaderFunctions {
 
-#nullable disable
-	public class ARBComputeShaderFunctions {
-
-		public delegate void PFN_glDispatchCompute(uint numGroupsX, uint numGroupsY, uint numGroupsZ);
 		[ExternFunction(AltNames = new string[] { "glDispatchComputeARB" })]
-		public PFN_glDispatchCompute glDispatchCompute;
-		public delegate void PFN_glDispatchComputeIndirect(IntPtr indirect);
+		[NativeType("void glDispatchCompute(GLuint numGroupsX, GLuint numGroupsY, GLuint numGroupsZ)")]
+		public delegate* unmanaged<uint, uint, uint, void> glDispatchCompute;
 		[ExternFunction(AltNames = new string[] { "glDispatchComputeIndiretARB" })]
-		public PFN_glDispatchComputeIndirect glDispatchComputeIndirect;
+		[NativeType("void glDispatchComputeIndirect(GLintptr indirect)")]
+		public delegate* unmanaged<IntPtr, void> glDispatchComputeIndirect;
 
 	}
-#nullable restore
 
 	public class ARBComputeShader : IGLObject {
 
@@ -33,10 +31,17 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DispatchCompute(Vector3ui numGroups) => Functions.glDispatchCompute(numGroups.X, numGroups.Y, numGroups.Y);
+		public void DispatchCompute(Vector3ui numGroups) {
+			unsafe {
+				Functions.glDispatchCompute(numGroups.X, numGroups.Y, numGroups.Y);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DispatchComputeIndirect(nint offset) => Functions.glDispatchComputeIndirect(offset);
-
+		public void DispatchComputeIndirect(nint offset) {
+			unsafe {
+				Functions.glDispatchComputeIndirect(offset);
+			}
+		}
 	}
 }

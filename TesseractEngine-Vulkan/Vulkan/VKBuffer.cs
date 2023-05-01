@@ -24,8 +24,10 @@ namespace Tesseract.Vulkan {
 		public VKMemoryRequirements MemoryRequirements {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Device.VK10Functions.vkGetBufferMemoryRequirements(Device, Buffer, out VKMemoryRequirements requirements);
-				return requirements;
+				unsafe {
+					Device.VK10Functions.vkGetBufferMemoryRequirements(Device, Buffer, out VKMemoryRequirements requirements);
+					return requirements;
+				}
 			}
 		}
 
@@ -35,8 +37,10 @@ namespace Tesseract.Vulkan {
 					Type = VKStructureType.BufferDeviceAddressInfo,
 					Buffer = Buffer
 				};
-				if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferDeviceAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress!.vkGetBufferDeviceAddressKHR(Device, info);
+				unsafe {
+					if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferDeviceAddress(Device, info);
+					else return Device.KHRBufferDeviceAddress!.vkGetBufferDeviceAddressKHR(Device, info);
+				}
 			}
 		}
 
@@ -46,8 +50,10 @@ namespace Tesseract.Vulkan {
 					Type = VKStructureType.BufferDeviceAddressInfo,
 					Buffer = Buffer
 				};
-				if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferOpaqueCaptureAddress(Device, info);
-				else return Device.KHRBufferDeviceAddress!.vkGetBufferOpaqueCaptureAddressKHR(Device, info);
+				unsafe {
+					if (Device.VK12Functions) return Device.VK12Functions!.vkGetBufferOpaqueCaptureAddress(Device, info);
+					else return Device.KHRBufferDeviceAddress!.vkGetBufferOpaqueCaptureAddressKHR(Device, info);
+				}
 			}
 		}
 
@@ -59,12 +65,17 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyBuffer(Device, Buffer, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyBuffer(Device, Buffer, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void BindMemory(VKDeviceMemory memory, ulong memoryOffset) =>
-			VK.CheckError(Device.VK10Functions.vkBindBufferMemory(Device, Buffer, memory, memoryOffset), "Failed to bind buffer memory");
+		public void BindMemory(VKDeviceMemory memory, ulong memoryOffset) {
+			unsafe {
+				VK.CheckError(Device.VK10Functions.vkBindBufferMemory(Device, Buffer, memory, memoryOffset), "Failed to bind buffer memory");
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator ulong(VKBuffer? buffer) => buffer != null ? buffer.Buffer : 0;

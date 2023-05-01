@@ -95,8 +95,8 @@ namespace Tesseract.SDL {
 		public ushort Samples;
 		private readonly ushort padding;
 		public uint Size;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioCallback Callback;
+		[NativeType("void callback(void* userdata, UInt8* stream, int len)")]
+		public unsafe delegate* unmanaged<IntPtr, IntPtr, int, void> Callback;
 		public IntPtr Userdata;
 	}
 
@@ -114,63 +114,48 @@ namespace Tesseract.SDL {
 		public int LenCvt;
 		public int LenMult;
 		public double LenRatio;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter0;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter1;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter2;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter3;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter4;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter5;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter6;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter7;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter8;
-		[MarshalAs(UnmanagedType.FunctionPtr)]
-		public SDLAudioFilter Filter9;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter0;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter1;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter2;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter3;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter4;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter5;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter6;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter7;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter8;
+		public unsafe delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void> Filter9;
 		public int FilterIndex;
 
 		public SDLAudioFilter this[int index] {
-			get => index switch {
-				0 => Filter0,
-				1 => Filter1,
-				2 => Filter2,
-				3 => Filter3,
-				4 => Filter4,
-				5 => Filter5,
-				6 => Filter6,
-				7 => Filter7,
-				8 => Filter8,
-				9 => Filter9,
-				_ => throw new IndexOutOfRangeException()
-			};
+			get {
+				if (index < 0 || index > 9) throw new IndexOutOfRangeException();
+				unsafe {
+					fixed(delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void>* pFilters = &Filter0) {
+						return Marshal.GetDelegateForFunctionPointer<SDLAudioFilter>((IntPtr)pFilters[index]);
+					}
+				}
+			}
 			set {
-				switch(index) {
-					case 0: Filter0 = value; break;
-					case 1: Filter1 = value; break;
-					case 2: Filter2 = value; break;
-					case 3: Filter3 = value; break;
-					case 4: Filter4 = value; break;
-					case 5: Filter5 = value; break;
-					case 6: Filter6 = value; break;
-					case 7: Filter7 = value; break;
-					case 8: Filter8 = value; break;
-					case 9: Filter9 = value; break;
-					default: throw new IndexOutOfRangeException();
+				if (index < 0 || index > 9) throw new IndexOutOfRangeException();
+				unsafe {
+					fixed (delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void>* pFilters = &Filter0) {
+						pFilters[index] = (delegate* unmanaged<ref SDLAudioCVT, SDLAudioFormat, void>)Marshal.GetFunctionPointerForDelegate(value);
+					}
 				}
 			}
 		}
 
-		public void Build(SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate) =>
-			SDL2.CheckError(SDL2.Functions.SDL_BuildAudioCVT(out this, srcFormat, srcChannels, srcRate, dstFormat, dstChannels, dstRate));
+		public void Build(SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, int dstRate) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_BuildAudioCVT(out this, srcFormat, srcChannels, srcRate, dstFormat, dstChannels, dstRate));
+			}
+		}
 
-		public void Convert() => SDL2.CheckError(SDL2.Functions.SDL_ConvertAudio(this));
+		public void Convert() {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_ConvertAudio(this));
+			}
+		}
 	}
 
 	public enum SDLAudioStatus {
@@ -179,25 +164,49 @@ namespace Tesseract.SDL {
 		Paused
 	}
 
-	public class AudioDevice : IDisposable {
+	public class SDLAudioDevice : IDisposable {
 
 		public uint AudioDeviceID { get; private set; }
 
 		public SDLAudioSpec AudioSpec { get; }
 
-		public SDLAudioStatus Status => SDL2.Functions.SDL_GetAudioDeviceStatus(AudioDeviceID);
-
-		public uint QueuedAudioSize => SDL2.Functions.SDL_GetQueuedAudioSize(AudioDeviceID);
-
-		public AudioDevice(string device, bool capture, SDLAudioSpec desired, SDLAudioAllowChange allowedChanges) {
-			AudioDeviceID = SDL2.Functions.SDL_OpenAudioDevice(device, capture ? 1 : 0, desired, out SDLAudioSpec obtained, allowedChanges);
-			if (AudioDeviceID == 0) throw new SDLException(SDL2.GetError());
-			AudioSpec = obtained;
+		public SDLAudioStatus Status {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GetAudioDeviceStatus(AudioDeviceID);
+				}
+			}
 		}
 
-		public void Pause() => SDL2.Functions.SDL_PauseAudioDevice(AudioDeviceID, 1);
+		public uint QueuedAudioSize {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_GetQueuedAudioSize(AudioDeviceID);
+				}
+			}
+		}
 
-		public void Unpause() => SDL2.Functions.SDL_PauseAudioDevice(AudioDeviceID, 1);
+		public SDLAudioDevice(string device, bool capture, SDLAudioSpec desired, SDLAudioAllowChange allowedChanges) {
+			unsafe {
+				fixed(byte* pDevice = MemoryUtil.StackallocUTF8(device, stackalloc byte[256])) {
+					AudioDeviceID = SDL2.Functions.SDL_OpenAudioDevice(pDevice, capture, desired, out SDLAudioSpec obtained, allowedChanges);
+					if (AudioDeviceID == 0) throw new SDLException(SDL2.GetError());
+					AudioSpec = obtained;
+				}
+			}
+		}
+
+		public void Pause() {
+			unsafe {
+				SDL2.Functions.SDL_PauseAudioDevice(AudioDeviceID, true);
+			}
+		}
+
+		public void Unpause() {
+			unsafe {
+				SDL2.Functions.SDL_PauseAudioDevice(AudioDeviceID, false);
+			}
+		}
 
 		public void Queue(in ReadOnlySpan<byte> data) {
 			unsafe {
@@ -207,7 +216,11 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public void Queue(IConstPointer<byte> data, uint length) => SDL2.CheckError(SDL2.Functions.SDL_QueueAudio(AudioDeviceID, data.Ptr, length));
+		public void Queue(IConstPointer<byte> data, uint length) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_QueueAudio(AudioDeviceID, data.Ptr, length));
+			}
+		}
 
 		public uint Deueue(Span<byte> data) {
 			unsafe {
@@ -217,18 +230,36 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		public uint Dequeue(IConstPointer<byte> data, uint length) => SDL2.Functions.SDL_DequeueAudio(AudioDeviceID, data.Ptr, length);
+		public uint Dequeue(IConstPointer<byte> data, uint length) {
+			unsafe {
+				return SDL2.Functions.SDL_DequeueAudio(AudioDeviceID, data.Ptr, length);
+			}
+		}
 
-		public void ClearQueuedAudio() => SDL2.Functions.SDL_ClearQueuedAudio(AudioDeviceID);
+		public void ClearQueuedAudio() {
+			unsafe {
+				SDL2.Functions.SDL_ClearQueuedAudio(AudioDeviceID);
+			}
+		}
 
-		public void Lock() => SDL2.Functions.SDL_LockAudioDevice(AudioDeviceID);
+		public void Lock() {
+			unsafe {
+				SDL2.Functions.SDL_LockAudioDevice(AudioDeviceID);
+			}
+		}
 
-		public void Unlock() => SDL2.Functions.SDL_UnlockAudioDevice(AudioDeviceID);
+		public void Unlock() {
+			unsafe {
+				SDL2.Functions.SDL_UnlockAudioDevice(AudioDeviceID);
+			}
+		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
 			if (AudioDeviceID != 0) {
-				SDL2.Functions.SDL_CloseAudioDevice(AudioDeviceID);
+				unsafe {
+					SDL2.Functions.SDL_CloseAudioDevice(AudioDeviceID);
+				}
 				AudioDeviceID = 0;
 			}
 		}
@@ -237,31 +268,44 @@ namespace Tesseract.SDL {
 
 	public class SDLAudioStream : IDisposable {
 
-		public IPointer<SDL_AudioStream> AudioStream { get; private set; }
+		[NativeType("SDL_AudioStream*")]
+		public IntPtr AudioStream { get; private set; }
 
-		public int Available => SDL2.Functions.SDL_AudioStreamAvailable(AudioStream.Ptr);
+		public int Available {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_AudioStreamAvailable(AudioStream);
+				}
+			}
+		}
 
 		public SDLAudioStream(SDLAudioFormat srcFormat, byte srcChannels, int srcRate, SDLAudioFormat dstFormat, byte dstChannels, byte dstRate) {
-			IntPtr pStream = SDL2.Functions.SDL_NewAudioStream(srcFormat, srcChannels, srcRate, dstFormat, dstChannels, dstRate);
-			if (pStream == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			AudioStream = new UnmanagedPointer<SDL_AudioStream>(pStream);
+			unsafe {
+				IntPtr pStream = SDL2.Functions.SDL_NewAudioStream(srcFormat, srcChannels, srcRate, dstFormat, dstChannels, dstRate);
+				if (pStream == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				AudioStream = pStream;
+			}
 		}
 
 		public void Put(in ReadOnlySpan<byte> buf) {
 			unsafe {
 				fixed(byte* pBuf = buf) {
-					SDL2.CheckError(SDL2.Functions.SDL_AudioStreamPut(AudioStream.Ptr, (IntPtr)pBuf, buf.Length));
+					SDL2.CheckError(SDL2.Functions.SDL_AudioStreamPut(AudioStream, (IntPtr)pBuf, buf.Length));
 				}
 			}
 		}
 
-		public void Put(IConstPointer<byte> buf, int len) => SDL2.CheckError(SDL2.Functions.SDL_AudioStreamPut(AudioStream.Ptr, buf.Ptr, len));
+		public void Put(IConstPointer<byte> buf, int len) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_AudioStreamPut(AudioStream, buf.Ptr, len));
+			}
+		}
 
 		public Span<byte> Get(Span<byte> buf) {
 			int len;
 			unsafe {
 				fixed(byte* pBuf = buf) {
-					len = SDL2.Functions.SDL_AudioStreamGet(AudioStream.Ptr, (IntPtr)pBuf, buf.Length);
+					len = SDL2.Functions.SDL_AudioStreamGet(AudioStream, (IntPtr)pBuf, buf.Length);
 				}
 			}
 			SDL2.CheckError(len);
@@ -269,20 +313,32 @@ namespace Tesseract.SDL {
 		}
 
 		public int Get(IPointer<byte> buf, int len) {
-			len = SDL2.Functions.SDL_AudioStreamGet(AudioStream.Ptr, buf.Ptr, len);
-			SDL2.CheckError(len);
-			return len;
+			unsafe {
+				len = SDL2.Functions.SDL_AudioStreamGet(AudioStream, buf.Ptr, len);
+				SDL2.CheckError(len);
+				return len;
+			}
 		}
 
-		public void Flush() => SDL2.CheckError(SDL2.Functions.SDL_AudioStreamFlush(AudioStream.Ptr));
+		public void Flush() {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_AudioStreamFlush(AudioStream));
+			}
+		}
 
-		public void Clear() => SDL2.Functions.SDL_AudioStreamClear(AudioStream.Ptr);
+		public void Clear() {
+			unsafe {
+				SDL2.Functions.SDL_AudioStreamClear(AudioStream);
+			}
+		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			if (AudioStream != null) {
-				SDL2.Functions.SDL_FreeAudioStream(AudioStream.Ptr);
-				AudioStream = new NullPointer<SDL_AudioStream>();
+			if (AudioStream != IntPtr.Zero) {
+				unsafe {
+					SDL2.Functions.SDL_FreeAudioStream(AudioStream);
+				}
+				AudioStream = IntPtr.Zero;
 			}
 		}
 

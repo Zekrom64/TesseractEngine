@@ -10,28 +10,26 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBShaderSubroutineFunctions {
+	public unsafe class ARBShaderSubroutineFunctions {
 
-		public delegate int PFN_glGetSubroutineUniformLocation(uint program, uint shadertype, [MarshalAs(UnmanagedType.LPStr)] string name);
-		public PFN_glGetSubroutineUniformLocation glGetSubroutineUniformLocation;
-		public delegate uint PFN_glGetSubroutineIndex(uint program, uint shadertype, [MarshalAs(UnmanagedType.LPStr)] string name);
-		public PFN_glGetSubroutineIndex glGetSubroutineIndex;
-		public delegate void PFN_glGetActiveSubroutineUniformiv(uint program, uint shadertype, uint index, uint pname, [NativeType("GLint*")] IntPtr values);
-		public PFN_glGetActiveSubroutineUniformiv glGetActiveSubroutineUniformiv;
-		public delegate void PFN_glGetActiveSubroutineUniformName(uint program, uint shadertype, uint index, int bufsize, out int length, [NativeType("GLchar*")] IntPtr name);
-		public PFN_glGetActiveSubroutineUniformName glGetActiveSubroutineUniformName;
-		public delegate void PFN_glGetActiveSubroutineName(uint program, uint shadertype, uint index, int bufsize, out int length, [NativeType("GLchar*")] IntPtr name);
-		public PFN_glGetActiveSubroutineName glGetActiveSubroutineName;
-		public delegate void PFN_glUniformSubroutinesuiv(uint shadertype, int count, [NativeType("const GLuint*")] IntPtr indices);
-		public PFN_glUniformSubroutinesuiv glUniformSubroutinesuiv;
-		public delegate void PFN_glGetUniformSubroutineuiv(uint shadertype, int location, [NativeType("GLuint*")] IntPtr _params);
-		public PFN_glGetUniformSubroutineuiv glGetUniformSubroutineuiv;
-		public delegate void PFN_glGetProgramStageiv(uint program, uint shadertype, uint pname, [NativeType("GLint*")] IntPtr values);
-		public PFN_glGetProgramStageiv glGetProgramStageiv;
+		[NativeType("GLint glGetSubroutineUniformLocation(GLuint program, GLenum shaderType, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, int> glGetSubroutineUniformLocation;
+		[NativeType("GLuint glGetSubroutineIndex(GLuint program, GLenum shaderTYpe, const char* name)")]
+		public delegate* unmanaged<uint, uint, byte*, uint> glGetSubroutineIndex;
+		[NativeType("void glGetActiveSubroutineUniformiv(GLuint program, GLenum shaderType, GLuint index, GLenum pname, GLint* pValues)")]
+		public delegate* unmanaged<uint, uint, uint, uint, int*, void> glGetActiveSubroutineUniformiv;
+		[NativeType("void glGetActiveSubroutineUniformName(GLuint program, GLenum shaderType, GLuint index, GLsizei bufSize, GLsizei* pLength, GLchar* pName)")]
+		public delegate* unmanaged<uint, uint, uint, int, out int, byte*, void> glGetActiveSubroutineUniformName;
+		[NativeType("void glGetActiveSubroutineName(GLuint program, GLenum shaderType, GLuint index, GLsizei bufSize, GLsizei* pLength, GLchar* pName)")]
+		public delegate* unmanaged<uint, uint, uint, int, out int, byte*, void> glGetActiveSubroutineName;
+		[NativeType("void glUniformSubroutinesuiv(GLenum shaderType, GLsizei count, const GLuint* pIndices)")]
+		public delegate* unmanaged<uint, int, uint*, void> glUniformSubroutinesuiv;
+		[NativeType("void glGetUniformSubroutineuiv(GLenum shaderType, GLint location, GLuint* pParams)")]
+		public delegate* unmanaged<uint, int, uint*, void> glGetUniformSubroutineuiv;
+		[NativeType("void glGetProgramStageiv(GLuint program, GLenum shaderType, GLenum pname, GLint* pValues)")]
+		public delegate* unmanaged<uint, uint, uint, int*, void> glGetProgramStageiv;
 
 	}
-#nullable restore
 
 	public class ARBShaderSubroutine : IGLObject {
 
@@ -44,16 +42,28 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int GetSubroutineUniformLocation(uint program, GLShaderType shaderType, string name) => Functions.glGetSubroutineUniformLocation(program, (uint)shaderType, name);
+		public int GetSubroutineUniformLocation(uint program, GLShaderType shaderType, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetSubroutineUniformLocation(program, (uint)shaderType, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public uint GetSubroutineIndex(uint program, GLShaderType shaderType, string name) => Functions.glGetSubroutineIndex(program, (uint)shaderType, name);
+		public uint GetSubroutineIndex(uint program, GLShaderType shaderType, string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.glGetSubroutineIndex(program, (uint)shaderType, pName);
+				}
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<int> GetActiveSubroutineUniform(uint program, GLShaderType shaderType, uint index, GLGetActiveSubroutineUniform pname, Span<int> values) {
 			unsafe {
 				fixed(int* pValues = values) {
-					Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, (uint)pname, (IntPtr)pValues);
+					Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, (uint)pname, pValues);
 				}
 			}
 			return values;
@@ -63,7 +73,7 @@ namespace Tesseract.OpenGL {
 		public int GetActiveSubroutineUniform(uint program, GLShaderType shaderType, uint index, GLGetActiveSubroutineUniform pname) {
 			int value = 0;
 			unsafe {
-				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, (uint)pname, (IntPtr)(&value));
+				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, (uint)pname, &value);
 			}
 			return value;
 		}
@@ -71,10 +81,10 @@ namespace Tesseract.OpenGL {
 		public string GetActiveSubroutineUniformName(uint program, GLShaderType shaderType, uint index) {
 			unsafe {
 				int len = 0;
-				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, GLEnums.GL_UNIFORM_NAME_LENGTH, (IntPtr)(&len));
+				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, GLEnums.GL_UNIFORM_NAME_LENGTH, &len);
 				Span<byte> name = stackalloc byte[len];
 				fixed(byte* pName = name) {
-					Functions.glGetActiveSubroutineUniformName(program, (uint)shaderType, index, len, out len, (IntPtr)pName);
+					Functions.glGetActiveSubroutineUniformName(program, (uint)shaderType, index, len, out len, pName);
 				}
 				return MemoryUtil.GetASCII(name[..len]);
 			}
@@ -83,10 +93,10 @@ namespace Tesseract.OpenGL {
 		public string GetActiveSubroutineName(uint program, GLShaderType shaderType, uint index) {
 			unsafe {
 				int len = 0;
-				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, GLEnums.GL_UNIFORM_NAME_LENGTH, (IntPtr)(&len));
+				Functions.glGetActiveSubroutineUniformiv(program, (uint)shaderType, index, GLEnums.GL_UNIFORM_NAME_LENGTH, &len);
 				Span<byte> name = stackalloc byte[len];
 				fixed (byte* pName = name) {
-					Functions.glGetActiveSubroutineName(program, (uint)shaderType, index, len, out len, (IntPtr)pName);
+					Functions.glGetActiveSubroutineName(program, (uint)shaderType, index, len, out len, pName);
 				}
 				return MemoryUtil.GetASCII(name[..len]);
 			}
@@ -96,7 +106,7 @@ namespace Tesseract.OpenGL {
 		public void UniformSubroutines(GLShaderType shaderType, in ReadOnlySpan<uint> indices) {
 			unsafe {
 				fixed(uint* pIndices = indices) {
-					Functions.glUniformSubroutinesuiv((uint)shaderType, indices.Length, (IntPtr)pIndices);
+					Functions.glUniformSubroutinesuiv((uint)shaderType, indices.Length, pIndices);
 				}
 			}
 		}
@@ -105,7 +115,7 @@ namespace Tesseract.OpenGL {
 		public void UniformSubroutines(GLShaderType shaderType, params uint[] indices) {
 			unsafe {
 				fixed (uint* pIndices = indices) {
-					Functions.glUniformSubroutinesuiv((uint)shaderType, indices.Length, (IntPtr)pIndices);
+					Functions.glUniformSubroutinesuiv((uint)shaderType, indices.Length, pIndices);
 				}
 			}
 		}
@@ -114,7 +124,7 @@ namespace Tesseract.OpenGL {
 		public uint GetUniformSubroutine(GLShaderType shaderType, int location) {
 			uint value = 0;
 			unsafe {
-				Functions.glGetUniformSubroutineuiv((uint)shaderType, location, (IntPtr)(&value));
+				Functions.glGetUniformSubroutineuiv((uint)shaderType, location, &value);
 			}
 			return value;
 		}
@@ -123,7 +133,7 @@ namespace Tesseract.OpenGL {
 		public int GetProgramStage(uint program, GLShaderType type, GLGetProgramStage pname) {
 			int value = 0;
 			unsafe {
-				Functions.glGetProgramStageiv(program, (uint)type, (uint)pname, (IntPtr)(&value));
+				Functions.glGetProgramStageiv(program, (uint)type, (uint)pname, &value);
 			}
 			return value;
 		}

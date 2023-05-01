@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBDrawIndirectFunctions {
+	public unsafe class ARBDrawIndirectFunctions {
 
-		public delegate void PFN_glDrawArraysIndirect(uint mode, IntPtr indirect);
 		[ExternFunction(AltNames = new string[] { "glDrawArraysIndirectARB" })]
-		public PFN_glDrawArraysIndirect glDrawArraysIndirect;
-		public delegate void PFN_glDrawElementsIndirect(uint mode, uint type, IntPtr indirect);
+		[NativeType("void glDrawArraysIndirect(GLenum mode, void* pIndirect)")]
+		public delegate* unmanaged<uint, IntPtr, void> glDrawArraysIndirect;
 		[ExternFunction(AltNames = new string[] { "glDrawElementsIndirectARB" })]
-		public PFN_glDrawElementsIndirect glDrawElementsIndirect;
+		[NativeType("void glDrawElementsIndirect(GLenum mode, GLenum type, void* pIndirect)")]
+		public delegate* unmanaged<uint, uint, IntPtr, void> glDrawElementsIndirect;
 
 	}
-#nullable restore
 
 	public class ARBDrawIndirect {
 
@@ -32,11 +30,18 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawArraysIndirect(GLDrawMode mode, nint offset) => Functions.glDrawArraysIndirect((uint)mode, offset);
+		public void DrawArraysIndirect(GLDrawMode mode, nint offset) {
+			unsafe {
+				Functions.glDrawArraysIndirect((uint)mode, offset);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DrawElementsIndirect(GLDrawMode mode, GLIndexType type, nint offset) => Functions.glDrawElementsIndirect((uint)mode, (uint)type, offset);
-
+		public void DrawElementsIndirect(GLDrawMode mode, GLIndexType type, nint offset) {
+			unsafe {
+				Functions.glDrawElementsIndirect((uint)mode, (uint)type, offset);
+			}
+		}
 	}
 
 }

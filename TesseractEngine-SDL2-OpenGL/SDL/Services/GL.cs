@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tesseract.Core.Native;
 using Tesseract.OpenGL;
 
 namespace Tesseract.SDL.Services {
@@ -18,8 +19,10 @@ namespace Tesseract.SDL.Services {
 			get {
 				if (!majorVersion.HasValue) {
 					MakeGLCurrent();
-					SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMajorVersion, out int value));
-					majorVersion = value;
+					unsafe {
+						SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMajorVersion, out int value));
+						majorVersion = value;
+					}
 				}
 				return majorVersion.Value;
 			}
@@ -29,8 +32,10 @@ namespace Tesseract.SDL.Services {
 			get {
 				if (!minorVersion.HasValue) {
 					MakeGLCurrent();
-					SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMinorVersion, out int value));
-					minorVersion = value;
+					unsafe {
+						SDL2.CheckError(SDL2.Functions.SDL_GL_GetAttribute(SDLGLAttr.ContextMinorVersion, out int value));
+						minorVersion = value;
+					}
 				}
 				return minorVersion.Value;
 			}
@@ -42,40 +47,58 @@ namespace Tesseract.SDL.Services {
 		}
 
 		public SDLGLContext(SDLWindow window) {
-			Window = window.Window.Ptr;
-			IntPtr pContext = SDL2.Functions.SDL_GL_CreateContext(Window);
-			if (pContext == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			Context = pContext;
+			Window = window.Window;
+			unsafe {
+				IntPtr pContext = SDL2.Functions.SDL_GL_CreateContext(Window);
+				if (pContext == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				Context = pContext;
+			}
 		}
 
 		public IntPtr GetGLProcAddress(string procName) {
 			MakeGLCurrent();
-			return SDL2.Functions.SDL_GL_GetProcAddress(procName);
+			unsafe {
+				fixed (byte* pProcName = MemoryUtil.StackallocUTF8(procName, stackalloc byte[256])) {
+					return SDL2.Functions.SDL_GL_GetProcAddress(pProcName);
+				}
+			}
 		}
 
 		public bool HasGLExtension(string extension) {
 			MakeGLCurrent();
-			return SDL2.Functions.SDL_GL_ExtensionSupported(extension);
+			unsafe {
+				fixed(byte* pExtension = MemoryUtil.StackallocUTF8(extension, stackalloc byte[256])) {
+					return SDL2.Functions.SDL_GL_ExtensionSupported(pExtension);
+				}
+			}
 		}
 
 		public void MakeGLCurrent() {
-			if (SDL2.Functions.SDL_GL_GetCurrentContext() != Context)
-				SDL2.CheckError(SDL2.Functions.SDL_GL_MakeCurrent(Window, Context));
+			unsafe {
+				if (SDL2.Functions.SDL_GL_GetCurrentContext() != Context)
+					SDL2.CheckError(SDL2.Functions.SDL_GL_MakeCurrent(Window, Context));
+			}
 		}
 
 		public void SetGLSwapInterval(int swapInterval) {
 			MakeGLCurrent();
-			SDL2.CheckError(SDL2.Functions.SDL_GL_SetSwapInterval(swapInterval));
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_GL_SetSwapInterval(swapInterval));
+			}
 		}
 
 		public void SwapGLBuffers() {
 			MakeGLCurrent();
-			SDL2.Functions.SDL_GL_SwapWindow(Window);
+			unsafe {
+				SDL2.Functions.SDL_GL_SwapWindow(Window);
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			SDL2.Functions.SDL_GL_DeleteContext(Context);
+			unsafe {
+				SDL2.Functions.SDL_GL_DeleteContext(Context);
+			}
 		}
 
 	}

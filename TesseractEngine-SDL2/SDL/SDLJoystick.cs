@@ -46,123 +46,341 @@ namespace Tesseract.SDL {
 
 		public int DeviceIndex { get; init; }
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickNameForIndex(DeviceIndex))!;
-
-		public int PlayerIndex => SDL2.Functions.SDL_JoystickGetDevicePlayerIndex(DeviceIndex);
-
-		public Guid GUID => SDL2.Functions.SDL_JoystickGetDeviceGUID(DeviceIndex);
-
-		public ushort Vendor => SDL2.Functions.SDL_JoystickGetDeviceVendor(DeviceIndex);
-
-		public ushort Product => SDL2.Functions.SDL_JoystickGetDeviceProduct(DeviceIndex);
-
-		public SDLJoystickType Type => SDL2.Functions.SDL_JoystickGetDeviceType(DeviceIndex);
-
-		public int InstanceID => SDL2.Functions.SDL_JoystickGetDeviceInstanceID(DeviceIndex);
-
-		public SDLJoystick Open() {
-			IntPtr pJoy = SDL2.Functions.SDL_JoystickOpen(DeviceIndex);
-			if (pJoy == IntPtr.Zero) throw new SDLException(SDL2.GetError());
-			return new SDLJoystick(pJoy);
+		public string Name {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickNameForIndex(DeviceIndex))!;
+				}
+			}
 		}
 
-		public void DetachVirtual() => SDL2.CheckError(SDL2.Functions.SDL_JoystickDetachVirtual(DeviceIndex));
+		public int PlayerIndex {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDevicePlayerIndex(DeviceIndex);
+				}
+			}
+		}
 
-		public bool IsVirtual => SDL2.Functions.SDL_JoystickIsVirtual(DeviceIndex);
+		public Guid GUID {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDeviceGUID(DeviceIndex);
+				}
+			}
+		}
 
-		public bool IsGameController => SDL2.Functions.SDL_IsGameController(DeviceIndex);
+		public ushort Vendor {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDeviceVendor(DeviceIndex);
+				}
+			}
+		}
 
-		public SDLGameControllerDevice GameController => new() { DeviceIndex = DeviceIndex };
+		public ushort Product {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDeviceProduct(DeviceIndex);
+				}
+			}
+		}
+
+		public SDLJoystickType Type {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDeviceType(DeviceIndex);
+				}
+			}
+		}
+
+		public int InstanceID {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetDeviceInstanceID(DeviceIndex);
+				}
+			}
+		}
+
+		public SDLJoystick Open() {
+			unsafe {
+				IntPtr pJoy = SDL2.Functions.SDL_JoystickOpen(DeviceIndex);
+				if (pJoy == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new SDLJoystick(pJoy);
+			}
+		}
+
+		public void DetachVirtual() {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_JoystickDetachVirtual(DeviceIndex));
+			}
+		}
+
+		public bool IsVirtual {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickIsVirtual(DeviceIndex);
+				}
+			}
+		}
+
+		public bool IsGameController {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_IsGameController(DeviceIndex);
+				}
+			}
+		}
+
+		public SDLGameControllerDevice GameController {
+			get {
+				return new() {
+					DeviceIndex = DeviceIndex
+				};
+			}
+		}
 
 	}
 
 	public class SDLJoystick : IDisposable {
 
-		public IPointer<SDL_Joystick> Joystick { get; }
+		[NativeType("SDL_Joystick*")]
+		public IntPtr Joystick { get; }
 
 		internal SDLJoystick(IntPtr pJoystick) {
-			Joystick = new UnmanagedPointer<SDL_Joystick>(pJoystick);
+			Joystick = pJoystick;
 		}
 
 		public static SDLJoystick? FromInstanceID(int instanceID) {
-			IntPtr pJoy = SDL2.Functions.SDL_JoystickFromInstanceID(instanceID);
-			if (pJoy == IntPtr.Zero) return null;
-			return new SDLJoystick(pJoy);
+			unsafe {
+				IntPtr pJoy = SDL2.Functions.SDL_JoystickFromInstanceID(instanceID);
+				if (pJoy == IntPtr.Zero) return null;
+				return new SDLJoystick(pJoy);
+			}
 		}
 
 		public static SDLJoystick? FromPlayerIndex(int playerIndex) {
-			IntPtr pJoy = SDL2.Functions.SDL_JoystickFromPlayerIndex(playerIndex);
-			if (pJoy == IntPtr.Zero) return null;
-			return new SDLJoystick(pJoy);
+			unsafe {
+				IntPtr pJoy = SDL2.Functions.SDL_JoystickFromPlayerIndex(playerIndex);
+				if (pJoy == IntPtr.Zero) return null;
+				return new SDLJoystick(pJoy);
+			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			SDL2.Functions.SDL_JoystickClose(Joystick.Ptr);
+			unsafe {
+				SDL2.Functions.SDL_JoystickClose(Joystick);
+			}
 		}
 
-		public void SetVirtualAxis(int axis, short value) => SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualAxis(Joystick.Ptr, axis, value));
+		public void SetVirtualAxis(int axis, short value) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualAxis(Joystick, axis, value));
+			}
+		}
 
-		public void SetVirtualButton(int button, SDLButtonState state) => SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualButton(Joystick.Ptr, button, state));
+		public void SetVirtualButton(int button, SDLButtonState state) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualButton(Joystick, button, state));
+			}
+		}
 
-		public void SetVirtualHat(int hat, SDLButtonState state) => SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualHat(Joystick.Ptr, hat, state));
+		public void SetVirtualHat(int hat, SDLHat state) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_JoystickSetVirtualHat(Joystick, hat, state));
+			}
+		}
 
-		public string Name => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickName(Joystick.Ptr))!;
+		public string Name {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickName(Joystick))!;
+				}
+			}
+		}
 
 		public int PlayerIndex {
-			get => SDL2.Functions.SDL_JoystickGetPlayerIndex(Joystick.Ptr);
-			set => SDL2.Functions.SDL_JoystickSetPlayerIndex(Joystick.Ptr, value);
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetPlayerIndex(Joystick);
+				}
+			}
+			set {
+				unsafe {
+					SDL2.Functions.SDL_JoystickSetPlayerIndex(Joystick, value);
+				}
+			}
 		}
 
-		public Guid GUID => SDL2.Functions.SDL_JoystickGetGUID(Joystick.Ptr);
+		public Guid GUID {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetGUID(Joystick);
+				}
+			}
+		}
 
-		public ushort Vendor => SDL2.Functions.SDL_JoystickGetVendor(Joystick.Ptr);
+		public ushort Vendor {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetVendor(Joystick);
+				}
+			}
+		}
 
-		public ushort Product => SDL2.Functions.SDL_JoystickGetProduct(Joystick.Ptr);
+		public ushort Product {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetProduct(Joystick);
+				}
+			}
+		}
 
-		public ushort ProductVersion => SDL2.Functions.SDL_JoystickGetProductVersion(Joystick.Ptr);
+		public ushort ProductVersion {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetProductVersion(Joystick);
+				}
+			}
+		}
 
-		public string? Serial => MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickGetSerial(Joystick.Ptr));
+		public string? Serial {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(SDL2.Functions.SDL_JoystickGetSerial(Joystick));
+				}
+			}
+		}
 
-		public SDLJoystickType Type => SDL2.Functions.SDL_JoystickGetType(Joystick.Ptr);
+		public SDLJoystickType Type {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetType(Joystick);
+				}
+			}
+		}
 
-		public bool Attached => SDL2.Functions.SDL_JoystickGetAttached(Joystick.Ptr);
+		public bool Attached {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickGetAttached(Joystick);
+				}
+			}
+		}
 
-		public int InstanceID => SDL2.Functions.SDL_JoystickInstanceID(Joystick.Ptr);
+		public int InstanceID {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickInstanceID(Joystick);
+				}
+			}
+		}
 
-		public int NumAxes => SDL2.Functions.SDL_JoystickNumAxes(Joystick.Ptr);
+		public int NumAxes {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickNumAxes(Joystick);
+				}
+			}
+		}
 
-		public int NumBalls => SDL2.Functions.SDL_JoystickNumBalls(Joystick.Ptr);
+		public int NumBalls {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickNumBalls(Joystick);
+				}
+			}
+		}
 
-		public int NumHats => SDL2.Functions.SDL_JoystickNumHats(Joystick.Ptr);
+		public int NumHats {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickNumHats(Joystick);
+				}
+			}
+		}
 
-		public int NumButtons => SDL2.Functions.SDL_JoystickNumButtons(Joystick.Ptr);
+		public int NumButtons {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickNumButtons(Joystick);
+				}
+			}
+		}
 
-		public short GetAxis(int axis) => SDL2.Functions.SDL_JoystickGetAxis(Joystick.Ptr, axis);
+		public short GetAxis(int axis) {
+			unsafe {
+				return SDL2.Functions.SDL_JoystickGetAxis(Joystick, axis);
+			}
+		}
 
 		public short? GetAxisInitialState(int axis) {
-			if (!SDL2.Functions.SDL_JoystickGetAxisInitialState(Joystick.Ptr, axis, out short state)) return null;
-			else return state;
+			unsafe {
+				if (!SDL2.Functions.SDL_JoystickGetAxisInitialState(Joystick, axis, out short state)) return null;
+				else return state;
+			}
 		}
 
-		public SDLHat GetHat(int hat) => SDL2.Functions.SDL_JoystickGetHat(Joystick.Ptr, hat);
+		public SDLHat GetHat(int hat) {
+			unsafe {
+				return SDL2.Functions.SDL_JoystickGetHat(Joystick, hat);
+			}
+		}
 
-		public void GetBall(int ball, out int dx, out int dy) => SDL2.CheckError(SDL2.Functions.SDL_JoystickGetBall(Joystick.Ptr, ball, out dx, out dy));
+		public void GetBall(int ball, out int dx, out int dy) {
+			unsafe {
+				SDL2.CheckError(SDL2.Functions.SDL_JoystickGetBall(Joystick, ball, out dx, out dy));
+			}
+		}
 
-		public SDLButtonState GetButton(int button) => SDL2.Functions.SDL_JoystickGetButton(Joystick.Ptr, button);
+		public SDLButtonState GetButton(int button) {
+			unsafe {
+				return SDL2.Functions.SDL_JoystickGetButton(Joystick, button);
+			}
+		}
 
-		public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, uint durationMillisec) => SDL2.Functions.SDL_JoystickRumble(Joystick.Ptr, lowFreqRumble, highFreqRumble, durationMillisec);
+		public void Rumble(ushort lowFreqRumble, ushort highFreqRumble, uint durationMillisec) {
+			unsafe {
+				SDL2.Functions.SDL_JoystickRumble(Joystick, lowFreqRumble, highFreqRumble, durationMillisec);
+			}
+		}
 
-		public void RumbleTriggers(ushort leftRumble, ushort rightRumble, uint durationMillisec) => SDL2.Functions.SDL_JoystickRumbleTriggers(Joystick.Ptr, leftRumble, rightRumble, durationMillisec);
+		public void RumbleTriggers(ushort leftRumble, ushort rightRumble, uint durationMillisec) {
+			unsafe {
+				SDL2.Functions.SDL_JoystickRumbleTriggers(Joystick, leftRumble, rightRumble, durationMillisec);
+			}
+		}
 
-		public bool HasLED => SDL2.Functions.SDL_JoystickHasLED(Joystick.Ptr);
+		public bool HasLED {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickHasLED(Joystick);
+				}
+			}
+		}
 
-		public void SetLED(byte red, byte green, byte blue) => SDL2.Functions.SDL_JoystickSetLED(Joystick.Ptr, red, green, blue);
+		public void SetLED(byte red, byte green, byte blue) {
+			unsafe {
+				SDL2.Functions.SDL_JoystickSetLED(Joystick, red, green, blue);
+			}
+		}
 
-		public SDLJoystickPowerLevel CurrentPowerLevel => SDL2.Functions.SDL_JoystickCurrentPowerLevel(Joystick.Ptr);
+		public SDLJoystickPowerLevel CurrentPowerLevel {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickCurrentPowerLevel(Joystick);
+				}
+			}
+		}
 
-		public bool IsHaptic => SDL2.Functions.SDL_JoystickIsHaptic(Joystick.Ptr) > 0;
-
+		public bool IsHaptic {
+			get {
+				unsafe {
+					return SDL2.Functions.SDL_JoystickIsHaptic(Joystick) > 0;
+				}
+			}
+		}
 	}
 
 }

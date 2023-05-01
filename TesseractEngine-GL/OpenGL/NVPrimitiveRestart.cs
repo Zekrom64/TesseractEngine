@@ -8,18 +8,16 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class NVPrimitiveRestartFunctions {
+	public unsafe class NVPrimitiveRestartFunctions {
 
-		public delegate void PFN_glPrimitiveRestart();
 		[ExternFunction(AltNames = new string[] { "glPrimitiveRestartNV" })]
-		public PFN_glPrimitiveRestart glPrimitiveRestart;
-		public delegate void PFN_glPrimitiveRestartIndex(uint index);
+		[NativeType("void glPrimitiveRestart()")]
+		public delegate* unmanaged<void> glPrimitiveRestart;
 		[ExternFunction(AltNames = new string[] { "glPrimitiveRestartIndexNV" })]
-		public PFN_glPrimitiveRestartIndex glPrimitiveRestartIndex;
+		[NativeType("void glPrimitiveRestartIndex(GLuint index)")]
+		public delegate* unmanaged<uint, void> glPrimitiveRestartIndex;
 
 	}
-#nullable restore
 
 	public class NVPrimitiveRestart : IGLObject {
 
@@ -30,13 +28,20 @@ namespace Tesseract.OpenGL {
 			GL = gl;
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PrimitiveRestart() => Functions.glPrimitiveRestart();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void PrimitiveRestartIndex(uint index) => Functions.glPrimitiveRestartIndex(index);
+		public void PrimitiveRestart() {
+			unsafe {
+				Functions.glPrimitiveRestart();
+			}
+		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void PrimitiveRestartIndex(uint index) {
+			unsafe {
+				Functions.glPrimitiveRestartIndex(index);
+			}
+		}
 	}
 
 }

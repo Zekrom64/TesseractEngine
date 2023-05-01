@@ -17,20 +17,16 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_buffer_device_address
 
-#nullable disable
-	public class KHRBufferDeviceAddressDeviceFunctions {
+	public unsafe class KHRBufferDeviceAddressDeviceFunctions {
 
-		[return: NativeType("VkDeviceAddress")]
-		public delegate ulong PFN_vkGetBufferDeviceAddressKHR([NativeType("VkDevice")] IntPtr device, in VKBufferDeviceAddressInfo info);
-		public delegate ulong PFN_vkGetBufferOpaqueCaptureAddressKHR([NativeType("VkDevice")] IntPtr device, in VKBufferDeviceAddressInfo info);
-		public delegate ulong PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR([NativeType("VkDevice")] IntPtr device, in VKDeviceMemoryOpaqueCaptureAddressInfo info);
-
-		public PFN_vkGetBufferDeviceAddressKHR vkGetBufferDeviceAddressKHR;
-		public PFN_vkGetBufferOpaqueCaptureAddressKHR vkGetBufferOpaqueCaptureAddressKHR;
-		public PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR vkGetDeviceMemoryOpaqueCaptureAddressKHR;
+		[NativeType("VkDeviceSize vkGetBufferDeviceAddressKHR(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
+		public delegate* unmanaged<IntPtr, in VKBufferDeviceAddressInfo, ulong> vkGetBufferDeviceAddressKHR;
+		[NativeType("uint64_t vkGetBufferOpaqueCaptureAddressKHR(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)")]
+		public delegate* unmanaged<IntPtr, in VKBufferDeviceAddressInfo, ulong> vkGetBufferOpaqueCaptureAddressKHR;
+		[NativeType("uint64_t vkGetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice device, const VKDeviceMemoryOpaqueCaptureAddressInfo* pInfo)")]
+		public delegate* unmanaged<IntPtr, in VKDeviceMemoryOpaqueCaptureAddressInfo, ulong> vkGetDeviceMemoryOpaqueCaptureAddressKHR;
 
 	}
-#nullable restore
 
 	public static class KHRBufferDeviceAddress {
 
@@ -40,21 +36,18 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_create_renderpass2
 
-#nullable disable
-	public class KHRCreateRenderpass2DeviceFunctions {
+	public unsafe class KHRCreateRenderpass2DeviceFunctions {
 
-		public delegate void PFN_vkCmdBeginRenderPass2KHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKRenderPassBeginInfo renderPassBegin, in VKSubpassBeginInfo subpassBeginInfo);
-		public delegate void PFN_vkCmdEndRenderPass2KHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKSubpassEndInfo subpassEndInfo);
-		public delegate void PFN_vkCmdNextSubpass2KHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, in VKSubpassBeginInfo subpassBeginInfo, in VKSubpassEndInfo subpassEndInfo);
-		public delegate VKResult PFN_vkCreateRenderPass2KHR([NativeType("VkDevice")] IntPtr device, in VKRenderPassCreateInfo2 createInfo2, [NativeType("const VkAllocationCallbacks*")] IntPtr pAllocator, [NativeType("VkRenderPass")] out ulong renderPass);
-
-		public PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR;
-		public PFN_vkCmdEndRenderPass2KHR vkCmdEndRenderPass2KHR;
-		public PFN_vkCmdNextSubpass2KHR vkCmdNextSubpass2KHR;
-		public PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR;
+		[NativeType("void vkCmdBeginRenderPass2KHR(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo* pRenderPassBegin, const VkSubpassBeginInfo* pSubpassBeginInfo)")]
+		public delegate* unmanaged<IntPtr, in VKRenderPassBeginInfo, in VKSubpassBeginInfo, void> vkCmdBeginRenderPass2KHR;
+		[NativeType("void vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfo* pSubpassEndInfo)")]
+		public delegate* unmanaged<IntPtr, in VKSubpassEndInfo, void> vkCmdEndRenderPass2KHR;
+		[NativeType("void vkCmdNextSubpass2KHR(VkCommandBuffer commandBuffer, const VkSubpassBeginInfo* pSubpassBeginInfo, const VkSubpassEndInfo* pSubpassEndInfo)")]
+		public delegate* unmanaged<IntPtr, in VKSubpassBeginInfo, in VKSubpassEndInfo, void> vkCmdNextSubpass2KHR;
+		[NativeType("VkResult vkCreateRenderPass2KHR(VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo2, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass)")]
+		public delegate* unmanaged<IntPtr, in VKRenderPassCreateInfo2, VKAllocationCallbacks*, out ulong, VKResult> vkCreateRenderPass2KHR;
 
 	}
-#nullable restore
 
 	public static class KHRCreateRenderpass2 {
 
@@ -72,17 +65,14 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_draw_indirect_count
 
-#nullable disable
-	public class KHRDrawIndirectCountDeviceFunctions {
+	public unsafe class KHRDrawIndirectCountDeviceFunctions {
 
-		public delegate void PFN_vkCmdDrawIndexedIndirectCountKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, [NativeType("VkBuffer")] ulong buffer, ulong offset, [NativeType("VkBuffer")] ulong countBuffer, ulong countBufferOffset, uint maxDrawCount, uint stride);
-		public delegate void PFN_vkCmdDrawIndirectCountKHR([NativeType("VkCommandBuffer")] IntPtr commandBuffer, [NativeType("VkBuffer")] ulong buffer, ulong offset, [NativeType("VkBuffer")] ulong countBuffer, ulong countBufferOffset, uint maxDrawCount, uint stride);
-
-		public PFN_vkCmdDrawIndexedIndirectCountKHR vkCmdDrawIndexedIndirectCountKHR;
-		public PFN_vkCmdDrawIndirectCountKHR vkCmdDrawIndirectCountKHR;
+		[NativeType("void vkCmdDrawIndexedIndirectCountKHR(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride)")]
+		public delegate* unmanaged<IntPtr, ulong, ulong, ulong, ulong, uint, uint, void> vkCmdDrawIndexedIndirectCountKHR;
+		[NativeType("void vkCmdDrawIndirectCountKHR(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferoffset, uint32_t maxDrawCount, uint32_t stride)")]
+		public delegate* unmanaged<IntPtr, ulong, ulong, ulong, ulong, uint, uint, void> vkCmdDrawIndirectCountKHR;
 
 	}
-#nullable restore
 
 	public static class KHRDrawIndirectCount {
 
@@ -172,19 +162,16 @@ namespace Tesseract.Vulkan {
 
 	// VK_KHR_timeline_semaphore
 
-#nullable disable
-	public class KHRTimelineSemaphoreDeviceFunctions {
+	public unsafe class KHRTimelineSemaphoreDeviceFunctions {
 
-		public delegate VKResult PFN_vkGetSemaphoreCounterValueKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSemaphore")] ulong semaphore, out ulong value);
-		public delegate VKResult PFN_vkSignalSemaphoreKHR([NativeType("VkDevice")] IntPtr device, in VKSemaphoreSignalInfo signalInfo);
-		public delegate VKResult PFN_vkWaitSemaphoresKHR([NativeType("VkDevice")] IntPtr device, in VKSemaphoreWaitInfo waitInfo, ulong timeout);
-
-		public PFN_vkGetSemaphoreCounterValueKHR vkGetSemaphoreCounterValueKHR;
-		public PFN_vkSignalSemaphoreKHR vkSignalSemaphoreKHR;
-		public PFN_vkWaitSemaphoresKHR vkWaitSemaphoresKHR;
+		[NativeType("VkResult vkGetSemaphoreCounterValueKHR(VkDevice device, VkSemaphore semaphore, uint64_t* pValue)")]
+		public delegate* unmanaged<IntPtr, ulong, out ulong, VKResult> vkGetSemaphoreCounterValueKHR;
+		[NativeType("VkResult vkSignalSemaphoreKHR(VkDevice device, const VkSemaphoreSignalInfo* pSignalInfo)")]
+		public delegate* unmanaged<IntPtr, in VKSemaphoreSignalInfo, VKResult> vkSignalSemaphoreKHR;
+		[NativeType("VkResult vkWaitSemaphoresKHR(VkDevice device, const VkSemaphoreWaitInfo* pWaitInfo, uint64_t timeout)")]
+		public delegate* unmanaged<IntPtr, in VKSemaphoreWaitInfo, ulong, VKResult> vkWaitSemaphoresKHR;
 
 	}
-#nullable restore
 
 	public static class KHRTimelineSemaphore {
 
@@ -218,15 +205,12 @@ namespace Tesseract.Vulkan {
 
 	// VK_EXT_host_query_reset
 
-#nullable disable
-	public class EXTHostQueryResetDeviceFunctions {
+	public unsafe class EXTHostQueryResetDeviceFunctions {
 
-		public delegate void PFN_vkResetQueryPoolEXT([NativeType("VkDevice")] IntPtr device, [NativeType("VkQueryPool")] ulong queryPool, uint firstQuery, uint queryCount);
-
-		public PFN_vkResetQueryPoolEXT vkResetQueryPoolEXT;
+		[NativeType("void vkResetQueryPoolEXT(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)")]
+		public delegate* unmanaged<IntPtr, ulong, uint, uint, void> vkResetQueryPoolEXT;
 
 	}
-#nullable restore
 
 	public static class EXTHostQueryReset {
 

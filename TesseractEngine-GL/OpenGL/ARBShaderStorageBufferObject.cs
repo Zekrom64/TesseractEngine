@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBShaderStorageBufferObjectFunctions {
+	public unsafe class ARBShaderStorageBufferObjectFunctions {
 
-		public delegate void PFN_glShaderStorageBlockBinding(uint program, uint storageBlockIndex, uint storageBlockBinding);
 		[ExternFunction(AltNames = new string[] { "glShaderStorageBlockBindingARB" })]
-		public PFN_glShaderStorageBlockBinding glShaderStorageBlockBinding;
+		[NativeType("void glShaderStorageBlockBinding(GLuint program, GLuint storageBlockIndex, GLuint storageBlockBinding)")]
+		public delegate* unmanaged<uint, uint, uint, void> glShaderStorageBlockBinding;
 
 	}
-#nullable restore
 
 	public class ARBShaderStorageBufferObject : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ShaderStorageBlockBinding(uint program, uint storageBlockIndex, uint storageBlockBinding) => Functions.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
-
+		public void ShaderStorageBlockBinding(uint program, uint storageBlockIndex, uint storageBlockBinding) {
+			unsafe {
+				Functions.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
+			}
+		}
 	}
 }

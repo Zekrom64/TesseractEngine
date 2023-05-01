@@ -81,9 +81,11 @@ namespace Tesseract.SDL {
 		/// </summary>
 		/// <returns>Error string</returns>
 		public static string GetError() {
-			string error = MemoryUtil.GetASCII(Functions.SDL_GetError())!;
-			Functions.SDL_ClearError();
-			return error;
+			unsafe {
+				string error = MemoryUtil.GetASCII(Functions.SDL_GetError())!;
+				Functions.SDL_ClearError();
+				return error;
+			}
 		}
 
 		/// <summary>
@@ -105,7 +107,11 @@ namespace Tesseract.SDL {
 		/// <seealso cref="InitSubSystem(SDLSubsystems)"/>
 		/// <seealso cref="Quit"/>
 		/// <param name="flags">Subsystems to initialize</param>
-		public static void Init(SDLSubsystems flags) => CheckError(Functions.SDL_Init((uint)flags));
+		public static void Init(SDLSubsystems flags) {
+			unsafe {
+				CheckError(Functions.SDL_Init((uint)flags));
+			}
+		}
 
 		/// <summary>
 		/// <para>Initializes specific SDL subsystems.</para>
@@ -119,27 +125,47 @@ namespace Tesseract.SDL {
 		/// <seealso cref="QuitSubSystem(SDLSubsystems)"/>
 		/// <seealso cref="Quit"/>
 		/// <param name="flags">Subsystems to explicitly initialize</param>
-		public static void InitSubSystem(SDLSubsystems flags) => CheckError(Functions.SDL_InitSubSystem((uint)flags));
+		public static void InitSubSystem(SDLSubsystems flags) {
+			unsafe {
+				CheckError(Functions.SDL_InitSubSystem((uint)flags));
+			}
+		}
 
 		/// <summary>
 		/// Cleans up specific SDL subsystems.
 		/// </summary>
 		/// <param name="flags"></param>
-		public static void QuitSubSystem(SDLSubsystems flags) => Functions.SDL_QuitSubSystem((uint)flags);
+		public static void QuitSubSystem(SDLSubsystems flags) {
+			unsafe {
+				Functions.SDL_QuitSubSystem((uint)flags);
+			}
+		}
 
 		/// <summary>
 		/// Cleans up all initialized subsystems.
 		/// </summary>
-		public static void Quit() => Functions.SDL_Quit();
+		public static void Quit() {
+			unsafe {
+				Functions.SDL_Quit();
+			}
+		}
 
 		// SDL_pixels.h
 
 		/// <summary>
-		/// Fills the ramp array with a gamma ramp computed from a gamma value.
+		/// Fills the ramp array with a gamma ramp computed from a gamma value. The ramp
+		/// array must have a minimum size of 256.
 		/// </summary>
 		/// <param name="gamma">The gamma value</param>
 		/// <param name="ramp">Array to store computed gamma ramp in</param>
-		public static void CalculateGammaRamp(float gamma, ushort[] ramp) => Functions.SDL_CalculateGammaRamp(gamma, ramp);
+		public static void CalculateGammaRamp(float gamma, Span<ushort> ramp) {
+			if (ramp.Length < 256) throw new ArgumentException("Gamma ramp array not large enough", nameof(ramp));
+			unsafe {
+				fixed(ushort* pRamp = ramp) {
+					Functions.SDL_CalculateGammaRamp(gamma, pRamp);
+				}
+			}
+		}
 
 		// SDL_rwops.h
 
@@ -163,7 +189,7 @@ namespace Tesseract.SDL {
 			unsafe {
 				Recti cclip = clip.GetValueOrDefault();
 				fixed (Vector2i* pPoints = points) {
-					if (Functions.SDL_EnclosePoints((IntPtr)pPoints, points.Length, clip.HasValue ? ((IntPtr)(&cclip)) : IntPtr.Zero, out Recti ret)) return ret;
+					if (Functions.SDL_EnclosePoints(pPoints, points.Length, clip.HasValue ? &cclip : (Recti*)0, out Recti ret)) return ret;
 					else return null;
 				}
 			}
@@ -179,8 +205,11 @@ namespace Tesseract.SDL {
 		/// <param name="x2">Second line X coordinate</param>
 		/// <param name="y2">Second line Y coordinate</param>
 		/// <returns>If the rectangle and line intersect</returns>
-		public static bool IntersectRectAndLine(in Recti rect, ref int x1, ref int y1, ref int x2, ref int y2) =>
-			Functions.SDL_IntersectRectAndLine(rect, ref x1, ref y1, ref x2, ref y2);
+		public static bool IntersectRectAndLine(in Recti rect, ref int x1, ref int y1, ref int x2, ref int y2) {
+			unsafe {
+				return Functions.SDL_IntersectRectAndLine(rect, ref x1, ref y1, ref x2, ref y2);
+			}
+		}
 
 		// SDL_blendmode.h
 
@@ -197,8 +226,11 @@ namespace Tesseract.SDL {
 		/// <seealso cref="SDLBlendMode"/>
 		/// <seealso cref="SDLBlendFactor"/>
 		/// <seealso cref="SDLBlendOperation"/>
-		public static SDLBlendMode ComposeCustomBlendMode(SDLBlendFactor srcColorFactor, SDLBlendFactor dstColorFactor, SDLBlendOperation colorOperation, SDLBlendFactor srcAlphaFactor, SDLBlendFactor dstAlphaFactor, SDLBlendOperation alphaOperation) =>
-			Functions.SDL_ComposeCustomBlendMode(srcColorFactor, dstColorFactor, colorOperation, srcAlphaFactor, dstAlphaFactor, alphaOperation);
+		public static SDLBlendMode ComposeCustomBlendMode(SDLBlendFactor srcColorFactor, SDLBlendFactor dstColorFactor, SDLBlendOperation colorOperation, SDLBlendFactor srcAlphaFactor, SDLBlendFactor dstAlphaFactor, SDLBlendOperation alphaOperation) {
+			unsafe {
+				return Functions.SDL_ComposeCustomBlendMode(srcColorFactor, dstColorFactor, colorOperation, srcAlphaFactor, dstAlphaFactor, alphaOperation);
+			}
+		}
 
 		// SDL_surface.h
 
@@ -207,23 +239,13 @@ namespace Tesseract.SDL {
 		/// </summary>
 		/// <param name="rwops">RWOps stream to load from</param>
 		/// <returns>Loaded surface</returns>
-		/// <seealso cref="LoadBMP(SDLSpanRWOps)"/>
-		public static SDLSurface LoadBMP(SDLRWOps rwops) {
-			IntPtr pSurface = Functions.SDL_LoadBMP_RW(rwops.RWOps.Ptr, 0);
-			if (pSurface != IntPtr.Zero) throw new SDLException(GetError());
-			return new SDLSurface(new UnmanagedPointer<SDL_Surface>(pSurface));
-		}
-
-		/// <summary>
-		/// Loads a BMP file from an SDL RWOps stream.
-		/// </summary>
-		/// <param name="rwops">RWOps stream to load from</param>
-		/// <returns>Loaded surface</returns>
 		/// <seealso cref="LoadBMP(SDLRWOps)"/>
 		public static SDLSurface LoadBMP(SDLSpanRWOps rwops) {
-			IntPtr pSurface = Functions.SDL_LoadBMP_RW(rwops.RWOps.Ptr, 0);
-			if (pSurface != IntPtr.Zero) throw new SDLException(GetError());
-			return new SDLSurface(new UnmanagedPointer<SDL_Surface>(pSurface));
+			unsafe {
+				IntPtr pSurface = (IntPtr)Functions.SDL_LoadBMP_RW((SDL_RWops*)rwops.RWOps.Ptr, 0);
+				if (pSurface != IntPtr.Zero) throw new SDLException(GetError());
+				return new SDLSurface(new UnmanagedPointer<SDL_Surface>(pSurface));
+			}
 		}
 
 		/// <summary>
@@ -231,16 +253,11 @@ namespace Tesseract.SDL {
 		/// </summary>
 		/// <param name="surface">Surface to save</param>
 		/// <param name="rwops">RWOps stream to save to</param>
-		public static void SaveBMP(SDLSurface surface, SDLRWOps rwops) =>
-			CheckError(Functions.SDL_SaveBMP_RW(surface.Surface.Ptr, rwops.RWOps.Ptr, 0));
-
-		/// <summary>
-		/// Saves a surface as a BMP file to an SDL RWOps stream.
-		/// </summary>
-		/// <param name="surface">Surface to save</param>
-		/// <param name="rwops">RWOps stream to save to</param>
-		public static void SaveBMP(SDLSurface surface, SDLSpanRWOps rwops) =>
-			CheckError(Functions.SDL_SaveBMP_RW(surface.Surface.Ptr, rwops.RWOps.Ptr, 0));
+		public static void SaveBMP(SDLSurface surface, SDLSpanRWOps rwops) {
+			unsafe {
+				CheckError(Functions.SDL_SaveBMP_RW((SDL_Surface*)surface.Surface.Ptr, (SDL_RWops*)rwops.RWOps.Ptr, 0));
+			}
+		}
 
 		/// <summary>
 		/// Converts pixel data from one format to another.
@@ -254,8 +271,11 @@ namespace Tesseract.SDL {
 		/// <param name="dst">Destination pixels</param>
 		/// <param name="dstPitch">Destination pixel pitch in bytes per row</param>
 		/// <seealso cref="ConvertPixels(int, int, SDLPixelFormatEnum, Span{byte}, int, SDLPixelFormatEnum, Span{byte}, int)"/>
-		public static void ConvertPixels(int width, int height, SDLPixelFormatEnum srcFormat, IntPtr src, int srcPitch, SDLPixelFormatEnum dstFormat, IntPtr dst, int dstPitch) =>
-			CheckError(Functions.SDL_ConvertPixels(width, height, srcFormat, src, srcPitch, dstFormat, dst, dstPitch));
+		public static void ConvertPixels(int width, int height, SDLPixelFormatEnum srcFormat, IntPtr src, int srcPitch, SDLPixelFormatEnum dstFormat, IntPtr dst, int dstPitch) {
+			unsafe {
+				CheckError(Functions.SDL_ConvertPixels(width, height, srcFormat, src, srcPitch, dstFormat, dst, dstPitch));
+			}
+		}
 
 		/// <summary>
 		/// Converts pixel data from one format to another.
@@ -283,8 +303,16 @@ namespace Tesseract.SDL {
 		/// The global conversion mode for YUV formats.
 		/// </summary>
 		public static SDLYUVConversionMode YUVConversionMode {
-			get => Functions.SDL_GetYUVConversionMode();
-			set => Functions.SDL_SetYUVConversionMode(value);
+			get {
+				unsafe {
+					return Functions.SDL_GetYUVConversionMode();
+				}
+			}
+			set {
+				unsafe {
+					Functions.SDL_SetYUVConversionMode(value);
+				}
+			}
 		}
 
 		/// <summary>
@@ -293,7 +321,11 @@ namespace Tesseract.SDL {
 		/// <param name="width">Resolution width</param>
 		/// <param name="height">Resolution height</param>
 		/// <returns>YUV conversion mode to use at resolution</returns>
-		public static SDLYUVConversionMode GetConversionModeForResolution(int width, int height) => Functions.SDL_GetYUVConversionModeForResolution(width, height);
+		public static SDLYUVConversionMode GetConversionModeForResolution(int width, int height) {
+			unsafe {
+				return Functions.SDL_GetYUVConversionModeForResolution(width, height);
+			}
+		}
 
 		// SDL_video.h
 
@@ -302,9 +334,11 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public static SDLDisplay[] Displays {
 			get {
-				int num = Functions.SDL_GetNumVideoDisplays();
-				if (num < 0) throw new SDLException(GetError());
-				return LINQ.Seq(num).Select(index => new SDLDisplay(index)).ToArray();
+				unsafe {
+					int num = Functions.SDL_GetNumVideoDisplays();
+					if (num < 0) throw new SDLException(GetError());
+					return LINQ.Seq(num).Select(index => new SDLDisplay(index)).ToArray();
+				}
 			}
 		}
 
@@ -337,9 +371,11 @@ namespace Tesseract.SDL {
 		/// </summary>
 		public static string[] VideoDrivers {
 			get {
-				string[] drivers = new string[Functions.SDL_GetNumVideoDrivers()];
-				for (int i = 0; i < drivers.Length; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetVideoDriver(i))!;
-				return drivers;
+				unsafe {
+					string[] drivers = new string[Functions.SDL_GetNumVideoDrivers()];
+					for (int i = 0; i < drivers.Length; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetVideoDriver(i))!;
+					return drivers;
+				}
 			}
 		}
 
@@ -347,17 +383,33 @@ namespace Tesseract.SDL {
 		/// Initializes the video subsystem, optionally specifying a video driver.
 		/// </summary>
 		/// <param name="driverName">Video driver name, or null for default</param>
-		public static void VideoInit(string driverName) => CheckError(Functions.SDL_VideoInit(driverName));
+		public static void VideoInit(string? driverName) {
+			unsafe {
+				fixed (byte* pDriverName = driverName != null ? MemoryUtil.StackallocASCII(driverName, stackalloc byte[1024]) : Span<byte>.Empty) {
+					CheckError(Functions.SDL_VideoInit(driverName != null ? pDriverName : (byte*)0));
+				}
+			}
+		}
 
 		/// <summary>
 		/// Shuts down the video subsystem.
 		/// </summary>
-		public static void VideoQuit() => Functions.SDL_VideoQuit();
+		public static void VideoQuit() {
+			unsafe {
+				Functions.SDL_VideoQuit();
+			}
+		}
 
 		/// <summary>
 		/// The current video driver.
 		/// </summary>
-		public static string CurrentVideoDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentVideoDriver())!;
+		public static string CurrentVideoDriver {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(Functions.SDL_GetCurrentVideoDriver())!;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets a window from a stored ID, or null if it doesn't exist.
@@ -365,8 +417,10 @@ namespace Tesseract.SDL {
 		/// <param name="id">Window ID</param>
 		/// <returns>Window with ID, or null</returns>
 		public static SDLWindow? GetWindowFromID(uint id) {
-			IntPtr ptr = Functions.SDL_GetWindowFromID(id);
-			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
+			unsafe {
+				IntPtr ptr = Functions.SDL_GetWindowFromID(id);
+				return ptr == IntPtr.Zero ? null : new SDLWindow(ptr);
+			}
 		}
 
 		/// <summary>
@@ -374,50 +428,114 @@ namespace Tesseract.SDL {
 		/// </summary>
 		/// <returns>Window with grabbed input or null</returns>
 		public static SDLWindow? GetGrabbedWindow() {
-			IntPtr ptr = Functions.SDL_GetGrabbedWindow();
-			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
+			unsafe {
+				IntPtr ptr = Functions.SDL_GetGrabbedWindow();
+				return ptr == IntPtr.Zero ? null : new SDLWindow(ptr);
+			}
 		}
 
 		// SDL_keyboard.h
 
 		public static SDLWindow? GetKeyboardFocus() {
-			IntPtr ptr = Functions.SDL_GetKeyboardFocus();
-			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
+			unsafe {
+				IntPtr ptr = Functions.SDL_GetKeyboardFocus();
+				return ptr == IntPtr.Zero ? null : new SDLWindow(ptr);
+			}
 		}
 
 		public static ReadOnlySpan<SDLButtonState> GetKeyboardState() {
-			IntPtr ptr = Functions.SDL_GetKeyboardState(out int numkeys);
 			unsafe {
+				IntPtr ptr = Functions.SDL_GetKeyboardState(out int numkeys);
 				return new ReadOnlySpan<SDLButtonState>((void*)ptr, numkeys);
 			}
 		}
 
 		public static SDLKeymod ModState {
-			get => Functions.SDL_GetModState();
-			set => Functions.SDL_SetModState(value);
+			get {
+				unsafe {
+					return Functions.SDL_GetModState();
+				}
+			}
+			set {
+				unsafe {
+					Functions.SDL_SetModState(value);
+				}
+			}
 		}
 
-		public static SDLKeycode GetKeyFromScancode(SDLScancode scancode) => Functions.SDL_GetKeyFromScancode(scancode);
+		public static SDLKeycode GetKeyFromScancode(SDLScancode scancode) {
+			unsafe {
+				return Functions.SDL_GetKeyFromScancode(scancode);
+			}
+		}
 
-		public static SDLScancode GetScancodeFromKey(SDLKeycode key) => Functions.SDL_GetScancodeFromKey(key);
+		public static SDLScancode GetScancodeFromKey(SDLKeycode key) {
+			unsafe {
+				return Functions.SDL_GetScancodeFromKey(key);
+			}
+		}
 
-		public static string? GetScancodeName(SDLScancode scancode) => MemoryUtil.GetASCII(Functions.SDL_GetScancodeName(scancode));
+		public static string? GetScancodeName(SDLScancode scancode) {
+			unsafe {
+				return MemoryUtil.GetASCII(Functions.SDL_GetScancodeName(scancode));
+			}
+		}
 
-		public static SDLScancode GetScancodeFromName(string name) => Functions.SDL_GetScancodeFromName(name);
+		public static SDLScancode GetScancodeFromName(string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.SDL_GetScancodeFromName(pName);
+				}
+			}
+		}
 
-		public static string? GetKeyName(SDLKeycode key) => MemoryUtil.GetASCII(Functions.SDL_GetKeyName(key));
+		public static string? GetKeyName(SDLKeycode key) {
+			unsafe {
+				return MemoryUtil.GetASCII(Functions.SDL_GetKeyName(key));
+			}
+		}
 
-		public static SDLKeycode GetKeyFromName(string name) => Functions.SDL_GetKeyFromName(name);
+		public static SDLKeycode GetKeyFromName(string name) {
+			unsafe {
+				fixed (byte* pName = MemoryUtil.StackallocUTF8(name, stackalloc byte[256])) {
+					return Functions.SDL_GetKeyFromName(pName);
+				}
+			}
+		}
 
-		public static void StartTextInput() => Functions.SDL_StartTextInput();
+		public static void StartTextInput() {
+			unsafe {
+				Functions.SDL_StartTextInput();
+			}
+		}
 
-		public static bool IsTextInputActive => Functions.SDL_IsTextInputActive();
+		public static bool IsTextInputActive {
+			get {
+				unsafe {
+					return Functions.SDL_IsTextInputActive();
+				}
+			}
+		}
 
-		public static void StopTextInput() => Functions.SDL_StopTextInput();
+		public static void StopTextInput() {
+			unsafe {
+				Functions.SDL_StopTextInput();
+			}
+		}
 
-		public static void SetTextInputRect(in Recti rect) => Functions.SDL_SetTextInputRect(rect);
+		public static void SetTextInputRect(in Recti rect) {
+			unsafe {
+				Functions.SDL_SetTextInputRect(rect);
+			}
+		}
 
-		public static bool HasScreenKeyboardSupport => Functions.SDL_HasScreenKeyboardSupport();
+		public static bool HasScreenKeyboardSupport {
+			get {
+				unsafe {
+					return Functions.SDL_HasScreenKeyboardSupport();
+				}
+			}
+		}
 
 		// SDL_mouse.h
 
@@ -430,35 +548,81 @@ namespace Tesseract.SDL {
 		public static SDLMouseButtonState MakeMouseButton(int index) => (SDLMouseButtonState)(1 << (index - 1));
 
 		public static SDLWindow? GetMouseFocus() {
-			IntPtr ptr = Functions.SDL_GetMouseFocus();
-			return ptr == IntPtr.Zero ? null : new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(ptr));
+			unsafe {
+				IntPtr ptr = Functions.SDL_GetMouseFocus();
+				return ptr == IntPtr.Zero ? null : new SDLWindow(ptr);
+			}
 		}
 
-		public static SDLMouseButtonState GetMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetMouseState(out x, out y);
+		public static SDLMouseButtonState GetMouseState(out int x, out int y) {
+			unsafe {
+				return (SDLMouseButtonState)Functions.SDL_GetMouseState(out x, out y);
+			}
+		}
 
-		public static SDLMouseButtonState GetGlobalMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetGlobalMouseState(out x, out y);
+		public static SDLMouseButtonState GetGlobalMouseState(out int x, out int y) {
+			unsafe {
+				return (SDLMouseButtonState)Functions.SDL_GetGlobalMouseState(out x, out y);
+			}
+		}
 
-		public static SDLMouseButtonState GetRelativeMouseState(out int x, out int y) => (SDLMouseButtonState)Functions.SDL_GetRelativeMouseState(out x, out y);
+		public static SDLMouseButtonState GetRelativeMouseState(out int x, out int y) {
+			unsafe {
+				return (SDLMouseButtonState)Functions.SDL_GetRelativeMouseState(out x, out y);
+			}
+		}
 
-		public static void WarpMouseGlobal(int x, int y) => CheckError(Functions.SDL_WarpMouseGlobal(x, y));
+		public static void WarpMouseGlobal(int x, int y) {
+			unsafe {
+				CheckError(Functions.SDL_WarpMouseGlobal(x, y));
+			}
+		}
 
 		public static bool RelativeMouseMode {
-			get => Functions.SDL_GetRelativeMouseMode();
-			set => CheckError(Functions.SDL_SetRelativeMouseMode(value));
+			get {
+				unsafe {
+					return Functions.SDL_GetRelativeMouseMode();
+				}
+			}
+			set {
+				unsafe {
+					CheckError(Functions.SDL_SetRelativeMouseMode(value));
+				}
+			}
 		}
 
 		public static bool CaptureMouse {
-			set => CheckError(Functions.SDL_CaptureMouse(value));
+			set {
+				unsafe {
+					CheckError(Functions.SDL_CaptureMouse(value));
+				}
+			}
 		}
 
 		public static SDLCursor Cursor {
-			get => new(new UnmanagedPointer<SDL_Cursor>(Functions.SDL_GetCursor()));
-			set => Functions.SDL_SetCursor(value.Cursor.Ptr);
+			get {
+				unsafe {
+					return new(Functions.SDL_GetCursor());
+				}
+			}
+			set {
+				unsafe {
+					Functions.SDL_SetCursor(value.Cursor);
+				}
+			}
 		}
 
 		public static bool ShowCursor {
-			get => Functions.SDL_ShowCursor(-1) == 1;
-			set => Functions.SDL_ShowCursor(value ? 1 : 0);
+			get {
+				unsafe {
+					return Functions.SDL_ShowCursor(-1) == 1;
+				}
+			}
+			set {
+				unsafe {
+					Functions.SDL_ShowCursor(value ? 1 : 0);
+				}
+			}
 		}
 
 		// SDL_joystick.h
@@ -469,179 +633,402 @@ namespace Tesseract.SDL {
 		public const uint TouchMouseID = 0xFFFFFFFF;
 		public const long MouseTouchID = -1;
 
-		public static void LockJoysticks() => Functions.SDL_LockJoysticks();
+		public static void LockJoysticks() {
+			unsafe {
+				Functions.SDL_LockJoysticks();
+			}
+		}
 
-		public static void UnlockJoysticks() => Functions.SDL_UnlockJoysticks();
+		public static void UnlockJoysticks() {
+			unsafe {
+				Functions.SDL_UnlockJoysticks();
+			}
+		}
 
 		public static SDLJoystickDevice[] Joysticks {
 			get {
-				SDLJoystickDevice[] joysticks = new SDLJoystickDevice[Functions.SDL_NumJoysticks()];
-				for (int i = 0; i < joysticks.Length; i++) joysticks[i] = new SDLJoystickDevice() { DeviceIndex = i };
-				return joysticks;
+				unsafe {
+					SDLJoystickDevice[] joysticks = new SDLJoystickDevice[Functions.SDL_NumJoysticks()];
+					for (int i = 0; i < joysticks.Length; i++) joysticks[i] = new SDLJoystickDevice() { DeviceIndex = i };
+					return joysticks;
+				}
 			}
 		}
 
 		public static SDLJoystickDevice JoystickAttachVirtual(SDLJoystickType type, int naxes, int nbuttons, int nhats) {
-			int dev = Functions.SDL_JoystickAttachVirtual(type, naxes, nbuttons, nhats);
-			if (dev == -1) throw new SDLException(GetError());
-			return new SDLJoystickDevice() { DeviceIndex = dev };
+			unsafe {
+				int dev = Functions.SDL_JoystickAttachVirtual(type, naxes, nbuttons, nhats);
+				if (dev == -1) throw new SDLException(GetError());
+				return new SDLJoystickDevice() { DeviceIndex = dev };
+			}
 		}
 
-		public static void JoystickUpdate() => Functions.SDL_JoystickUpdate();
+		public static void JoystickUpdate() {
+			unsafe {
+				Functions.SDL_JoystickUpdate();
+			}
+		}
 
 		public static bool JoystickEventState {
-			get => Functions.SDL_JoystickEventState(-1) == 1;
-			set => Functions.SDL_JoystickEventState(value ? 1 : 0);
+			get {
+				unsafe {
+					return Functions.SDL_JoystickEventState(-1) == 1;
+				}
+			}
+			set {
+				unsafe {
+					Functions.SDL_JoystickEventState(value ? 1 : 0);
+				}
+			}
 		}
 
 		// SDL_gamecontroller.h
 
-		public static int GameControllerAddMappingsFromRW(SDLRWOps rwops) {
-			int n = Functions.SDL_GameControllerAddMappingsFromRW(rwops.RWOps.Ptr, 0);
-			if (n < 0) throw new SDLException(GetError());
-			return n;
-		}
-
 		public static int GameControllerAddMappingsFromRW(SDLSpanRWOps rwops) {
-			int n = Functions.SDL_GameControllerAddMappingsFromRW(rwops.RWOps.Ptr, 0);
-			if (n < 0) throw new SDLException(GetError());
-			return n;
+			unsafe {
+				int n = Functions.SDL_GameControllerAddMappingsFromRW((SDL_RWops*)rwops.RWOps.Ptr, false);
+				if (n < 0) throw new SDLException(GetError());
+				return n;
+			}
 		}
 
 		public static bool GameControllerAddMapping(string mapping) {
-			int n = Functions.SDL_GameControllerAddMapping(mapping);
-			if (n < 0) throw new SDLException(GetError());
-			return n == 1;
+			unsafe {
+				fixed(byte* pMapping = MemoryUtil.StackallocUTF8(mapping, stackalloc byte[1024])) {
+					int n = Functions.SDL_GameControllerAddMapping(pMapping);
+					if (n < 0) throw new SDLException(GetError());
+					return n == 1;
+				}
+			}
 		}
 
 		public static SDLGameControllerMapping[] Mappings {
 			get {
-				int n = Functions.SDL_GameControllerNumMappings();
-				SDLGameControllerMapping[] mappings = new SDLGameControllerMapping[n];
-				for (int i = 0; i < n; i++) mappings[i] = new SDLGameControllerMapping() { MappingIndex = i };
-				return mappings;
+				unsafe {
+					int n = Functions.SDL_GameControllerNumMappings();
+					SDLGameControllerMapping[] mappings = new SDLGameControllerMapping[n];
+					for (int i = 0; i < n; i++) mappings[i] = new SDLGameControllerMapping() { MappingIndex = i };
+					return mappings;
+				}
 			}
 		}
 
 		public static string? GameControllerMappingForGUID(Guid guid) {
-			IntPtr pMapping = Functions.SDL_GameControllerMappingForGUID(guid);
-			string? mapping = MemoryUtil.GetASCII(pMapping);
-			Functions.SDL_free(pMapping);
-			return mapping;
+			unsafe {
+				IntPtr pMapping = Functions.SDL_GameControllerMappingForGUID(guid);
+				string? mapping = MemoryUtil.GetASCII(pMapping);
+				Functions.SDL_free(pMapping);
+				return mapping;
+			}
 		}
 
-		public static void GameControllerUpdate() => Functions.SDL_GameControllerUpdate();
+		public static void GameControllerUpdate() {
+			unsafe {
+				Functions.SDL_GameControllerUpdate();
+			}
+		}
 
-		public static SDLGameControllerAxis GameControllerGetAxisFromString(string str) => Functions.SDL_GameControllerGetAxisFromString(str);
+		public static SDLGameControllerAxis GameControllerGetAxisFromString(string str) {
+			unsafe {
+				fixed (byte* pStr = MemoryUtil.StackallocUTF8(str, stackalloc byte[256])) {
+					return Functions.SDL_GameControllerGetAxisFromString(pStr);
+				}
+			}
+		}
 
-		public static string? GameControllerGetStringForAxis(SDLGameControllerAxis axis) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForAxis(axis));
+		public static string? GameControllerGetStringForAxis(SDLGameControllerAxis axis) {
+			unsafe {
+				return MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForAxis(axis));
+			}
+		}
 
-		public static SDLGameControllerButton GameControllerGetButtonFromString(string str) => Functions.SDL_GameControllerGetButtonFromString(str);
+		public static SDLGameControllerButton GameControllerGetButtonFromString(string str) {
+			unsafe {
+				fixed (byte* pStr = MemoryUtil.StackallocUTF8(str, stackalloc byte[256])) {
+					return Functions.SDL_GameControllerGetButtonFromString(pStr);
+				}
+			}
+		}
 
-		public static string? GameControllerGetStringForButton(SDLGameControllerButton button) => MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForButton(button));
+		public static string? GameControllerGetStringForButton(SDLGameControllerButton button) {
+			unsafe {
+				return MemoryUtil.GetASCII(Functions.SDL_GameControllerGetStringForButton(button));
+			}
+		}
 
 		// SDL_touch.h
 
 		public static SDLTouchDevice[] TouchDevices {
 			get {
-				SDLTouchDevice[] devices = new SDLTouchDevice[Functions.SDL_GetNumTouchDevices()];
-				for (int i = 0; i < devices.Length; i++) devices[i] = new SDLTouchDevice() { DeviceIndex = i };
-				return devices;
+				unsafe {
+					SDLTouchDevice[] devices = new SDLTouchDevice[Functions.SDL_GetNumTouchDevices()];
+					for (int i = 0; i < devices.Length; i++) devices[i] = new SDLTouchDevice() { DeviceIndex = i };
+					return devices;
+				}
 			}
 		}
 
 		// SDL_events.h
 
-		public static void PumpEvents() => Functions.SDL_PumpEvents();
+		public static void PumpEvents() {
+			unsafe {
+				Functions.SDL_PumpEvents();
+			}
+		}
 
 		public static Span<SDLEvent> PeepEvents(Span<SDLEvent> events, int numevents, SDLEventAction action, uint minType = 0, uint maxType = uint.MaxValue) {
 			unsafe {
 				fixed (SDLEvent* pEvents = events) {
-					Functions.SDL_PeepEvents((IntPtr)pEvents, numevents, action, minType, maxType);
+					Functions.SDL_PeepEvents(pEvents, numevents, action, minType, maxType);
 				}
 			}
 			return events;
 		}
 
-		public static bool HasEvent(SDLEventType type) => Functions.SDL_HasEvent((uint)type);
+		public static bool HasEvent(SDLEventType type) {
+			unsafe {
+				return Functions.SDL_HasEvent((uint)type);
+			}
+		}
 
-		public static bool HasEvents(uint minType = 0, uint maxType = uint.MaxValue) => Functions.SDL_HasEvents(minType, maxType);
+		public static bool HasEvents(uint minType = 0, uint maxType = uint.MaxValue) {
+			unsafe {
+				return Functions.SDL_HasEvents(minType, maxType);
+			}
+		}
 
-		public static void FlushEvent(SDLEventType type) => Functions.SDL_FlushEvent((uint)type);
+		public static void FlushEvent(SDLEventType type) {
+			unsafe {
+				Functions.SDL_FlushEvent((uint)type);
+			}
+		}
 
-		public static void FlushEvents(uint minType = 0, uint maxType = uint.MaxValue) => Functions.SDL_FlushEvents(minType, maxType);
+		public static void FlushEvents(uint minType = 0, uint maxType = uint.MaxValue) {
+			unsafe {
+				Functions.SDL_FlushEvents(minType, maxType);
+			}
+		}
 
 		public static SDLEvent? PollEvent() {
-			if (Functions.SDL_PollEvent(out SDLEvent evt) == 1) return evt;
-			else return null;
+			unsafe {
+				if (Functions.SDL_PollEvent(out SDLEvent evt) == 1) return evt;
+				else return null;
+			}
 		}
 
 		public static SDLEvent WaitEvent() {
-			if (Functions.SDL_WaitEvent(out SDLEvent evt) != 0) throw new SDLException(GetError());
-			return evt;
+			unsafe {
+				if (Functions.SDL_WaitEvent(out SDLEvent evt) != 0) throw new SDLException(GetError());
+				return evt;
+			}
 		}
 
 		public static SDLEvent? WaitEventTimeout(int timeout) {
-			// SDL doesn't actually tell us if WaitEventTimeout succeeds or timed out, so a sentry event type is used to detect this
-			// Note: Newer SDL versions will set the type to SDL_POLLSENTINEL, we initialize it anyway in case older SDL versions are used
-			SDLEvent evt = new() { Type = SDLEventType.PollSentinel };
-			if (Functions.SDL_WaitEventTimeout(ref evt, timeout) == 0) {
-				if (evt.Type == SDLEventType.PollSentinel) return null;
-				throw new SDLException(GetError());
+			unsafe {
+				// SDL doesn't actually tell us if WaitEventTimeout succeeds or timed out, so a sentry event type is used to detect this
+				// Note: Newer SDL versions will set the type to SDL_POLLSENTINEL, we initialize it anyway in case older SDL versions are used
+				SDLEvent evt = new() { Type = SDLEventType.PollSentinel };
+				if (Functions.SDL_WaitEventTimeout(ref evt, timeout) == 0) {
+					if (evt.Type == SDLEventType.PollSentinel) return null;
+					throw new SDLException(GetError());
+				}
+				return evt.Type == SDLEventType.FirstEvent ? null : evt;
 			}
-			return evt.Type == SDLEventType.FirstEvent ? null : evt;
 		}
 
-		public static void PushEvent(SDLEvent evt) => Functions.SDL_PushEvent(evt);
+		public static void PushEvent(SDLEvent evt) {
+			unsafe {
+				Functions.SDL_PushEvent(evt);
+			}
+		}
 
-		public static void SetEventFilter(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_SetEventFilter(filter, userdata);
+		public static void SetEventFilter(SDLEventFilter filter, IntPtr userdata = default) {
+			unsafe {
+				Functions.SDL_SetEventFilter(Marshal.GetFunctionPointerForDelegate(filter), userdata);
+			}
+		}
 
 		public static bool GetEventFilter(out SDLEventFilter? filter, out IntPtr userdata) {
-			if (!Functions.SDL_GetEventFilter(out IntPtr pFilter, out userdata)) {
-				filter = null;
-				return false;
-			} else {
-				filter = Marshal.GetDelegateForFunctionPointer<SDLEventFilter>(pFilter);
-				return true;
+			unsafe {
+				if (!Functions.SDL_GetEventFilter(out IntPtr pFilter, out userdata)) {
+					filter = null;
+					return false;
+				} else {
+					filter = Marshal.GetDelegateForFunctionPointer<SDLEventFilter>(pFilter);
+					return true;
+				}
 			}
 		}
 
-		public static void AddEventWatch(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_AddEventWatch(filter, userdata);
+		public static void AddEventWatch(SDLEventFilter filter, IntPtr userdata = default) {
+			unsafe {
+				Functions.SDL_AddEventWatch(Marshal.GetFunctionPointerForDelegate(filter), userdata);
+			}
+		}
 
-		public static void DelEventWatch(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_DelEventWatch(filter, userdata);
+		public static void DelEventWatch(SDLEventFilter filter, IntPtr userdata = default) {
+			unsafe {
+				Functions.SDL_DelEventWatch(Marshal.GetFunctionPointerForDelegate(filter), userdata);
+			}
+		}
 
-		public static void FilterEvents(SDLEventFilter filter, IntPtr userdata = default) => Functions.SDL_FilterEvents(filter, userdata);
+		public static void FilterEvents(SDLEventFilter filter, IntPtr userdata = default) {
+			unsafe {
+				Functions.SDL_FilterEvents(Marshal.GetFunctionPointerForDelegate(filter), userdata);
+			}
+		}
 
 		// SDL_cpuinfo.h
 
-		public static int CPUCount => Functions.SDL_GetCPUCount();
+		public static int CPUCount {
+			get {
+				unsafe {
+					return Functions.SDL_GetCPUCount();
+				}
+			}
+		}
 
-		public static int CPUCacheLineSize => Functions.SDL_GetCPUCacheLineSize();
+		public static int CPUCacheLineSize {
+			get {
+				unsafe {
+					return Functions.SDL_GetCPUCacheLineSize();
+				}
+			}
+		}
 
-		public static bool HasRDTSC => Functions.SDL_HasRDTSC();
-		public static bool HasAltiVec => Functions.SDL_HasAltiVec();
-		public static bool HasMMX => Functions.SDL_HasMMX();
-		public static bool Has3DNow => Functions.SDL_Has3DNow();
-		public static bool HasSSE => Functions.SDL_HasSSE();
-		public static bool HasSSE2 => Functions.SDL_HasSSE2();
-		public static bool HasSSE3 => Functions.SDL_HasSSE3();
-		public static bool HasSSE41 => Functions.SDL_HasSSE41();
-		public static bool HasSSE42 => Functions.SDL_HasSSE42();
-		public static bool HasAVX => Functions.SDL_HasAVX();
-		public static bool HasAVX2 => Functions.SDL_HasAVX2();
-		public static bool HasAVX512F => Functions.SDL_HasAVX512F();
-		public static bool HasARMSIMD => Functions.SDL_HasARMSIMD();
-		public static bool HasNEON => Functions.SDL_HasNEON();
+		public static bool HasRDTSC {
+			get {
+				unsafe {
+					return Functions.SDL_HasRDTSC();
+				}
+			}
+		}
 
-		public static int SystemRAM => Functions.SDL_GetSystemRAM();
+		public static bool HasAltiVec {
+			get {
+				unsafe {
+					return Functions.SDL_HasAltiVec();
+				}
+			}
+		}
+		public static bool HasMMX {
+			get {
+				unsafe {
+					return Functions.SDL_HasMMX();
+				}
+			}
+		}
+		public static bool Has3DNow {
+			get {
+				unsafe {
+					return Functions.SDL_Has3DNow();
+				}
+			}
+		}
+		public static bool HasSSE {
+			get {
+				unsafe {
+					return Functions.SDL_HasSSE();
+				}
+			}
+		}
+		public static bool HasSSE2 {
+			get {
+				unsafe {
+					return Functions.SDL_HasSSE2();
+				}
+			}
+		}
+		public static bool HasSSE3 {
+			get {
+				unsafe {
+					return Functions.SDL_HasSSE3();
+				}
+			}
+		}
+		public static bool HasSSE41 {
+			get {
+				unsafe {
+					return Functions.SDL_HasSSE41();
+				}
+			}
+		}
+		public static bool HasSSE42 {
+			get {
+				unsafe {
+					return Functions.SDL_HasSSE42();
+				}
+			}
+		}
+		public static bool HasAVX {
+			get {
+				unsafe {
+					return Functions.SDL_HasAVX();
+				}
+			}
+		}
+		public static bool HasAVX2 {
+			get {
+				unsafe {
+					return Functions.SDL_HasAVX2();
+				}
+			}
+		}
+		public static bool HasAVX512F {
+			get {
+				unsafe {
+					return Functions.SDL_HasAVX512F();
+				}
+			}
+		}
+		public static bool HasARMSIMD {
+			get {
+				unsafe {
+					return Functions.SDL_HasARMSIMD();
+				}
+			}
+		}
+		public static bool HasNEON {
+			get {
+				unsafe {
+					return Functions.SDL_HasNEON();
+				}
+			}
+		}
 
-		public static nuint SIMDAlignment => Functions.SDL_SIMDGetAlignment();
+		public static int SystemRAM {
+			get {
+				unsafe {
+					return Functions.SDL_GetSystemRAM();
+				}
+			}
+		}
 
-		public static IntPtr SIMDAlloc(nuint len) => Functions.SDL_SIMDAlloc(len);
+		public static nuint SIMDAlignment {
+			get {
+				unsafe {
+					return Functions.SDL_SIMDGetAlignment();
+				}
+			}
+		}
 
-		public static IntPtr SIMDRealloc(IntPtr ptr, nuint len) => Functions.SDL_SIMDRealloc(ptr, len);
+		public static IntPtr SIMDAlloc(nuint len) {
+			unsafe {
+				return Functions.SDL_SIMDAlloc(len);
+			}
+		}
 
-		public static void SIMDFree(IntPtr ptr) => Functions.SDL_SIMDFree(ptr);
+		public static IntPtr SIMDRealloc(IntPtr ptr, nuint len) {
+			unsafe {
+				return Functions.SDL_SIMDRealloc(ptr, len);
+			}
+		}
+
+		public static void SIMDFree(IntPtr ptr) {
+			unsafe {
+				Functions.SDL_SIMDFree(ptr);
+			}
+		}
 
 		// SDL_audio.h
 
@@ -649,52 +1036,84 @@ namespace Tesseract.SDL {
 
 		public static string[] AudioDrivers {
 			get {
-				int numDrivers = Functions.SDL_GetNumAudioDrivers();
-				string[] drivers = new string[numDrivers];
-				for (int i = 0; i < numDrivers; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDriver(i))!;
-				return drivers;
+				unsafe {
+					int numDrivers = Functions.SDL_GetNumAudioDrivers();
+					string[] drivers = new string[numDrivers];
+					for (int i = 0; i < numDrivers; i++) drivers[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDriver(i))!;
+					return drivers;
+				}
 			}
 		}
 
-		public static void AudioInit(string driverName) => CheckError(Functions.SDL_AudioInit(driverName));
+		public static void AudioInit(string driverName) {
+			unsafe {
+				fixed(byte* pDriverName = MemoryUtil.StackallocUTF8(driverName, stackalloc byte[256])) {
+					CheckError(Functions.SDL_AudioInit(pDriverName));
+				}
+			}
+		}
 
-		public static void AudioQuit() => Functions.SDL_AudioQuit();
+		public static void AudioQuit() {
+			unsafe {
+				Functions.SDL_AudioQuit();
+			}
+		}
 
-		public static string? CurrentAudioDriver => MemoryUtil.GetASCII(Functions.SDL_GetCurrentAudioDriver());
+		public static string? CurrentAudioDriver {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(Functions.SDL_GetCurrentAudioDriver());
+				}
+			}
+		}
 
-		public static void OpenAudio(in SDLAudioSpec desired, out SDLAudioSpec obtained) => CheckError(Functions.SDL_OpenAudio(desired, out obtained));
+		public static void OpenAudio(in SDLAudioSpec desired, out SDLAudioSpec obtained) {
+			unsafe {
+				CheckError(Functions.SDL_OpenAudio(desired, out obtained));
+			}
+		}
 
 		public static string[] AudioDevices {
 			get {
-				int numDevices = Functions.SDL_GetNumAudioDevices(0);
-				string[] devices = new string[numDevices];
-				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 0))!;
-				return devices;
+				unsafe {
+					int numDevices = Functions.SDL_GetNumAudioDevices(false);
+					string[] devices = new string[numDevices];
+					for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, false))!;
+					return devices;
+				}
 			}
 		}
 
 		public static string[] AudioCaptureDevices {
 			get {
-				int numDevices = Functions.SDL_GetNumAudioDevices(1);
-				string[] devices = new string[numDevices];
-				for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, 1))!;
-				return devices;
+				unsafe {
+					int numDevices = Functions.SDL_GetNumAudioDevices(true);
+					string[] devices = new string[numDevices];
+					for (int i = 0; i < numDevices; i++) devices[i] = MemoryUtil.GetASCII(Functions.SDL_GetAudioDeviceName(i, true))!;
+					return devices;
+				}
 			}
 		}
 
-		public static void PauseAudio(bool pauseOn) => Functions.SDL_PauseAudio(pauseOn ? 1 : 0);
+		public static void PauseAudio(bool pauseOn) {
+			unsafe {
+				Functions.SDL_PauseAudio(pauseOn);
+			}
+		}
 
 		public static (SDLAudioSpec, ManagedPointer<byte>, uint) LoadWAV(SDLRWOps rwops) {
-			IntPtr pSpec = Functions.SDL_LoadWAV_RW(rwops.RWOps.Ptr, 0, out SDLAudioSpec spec, out IntPtr buf, out uint len);
-			if (pSpec == IntPtr.Zero) throw new SDLException(GetError());
-			return (spec, new ManagedPointer<byte>(buf, ptr => Functions.SDL_FreeWAV(ptr)), len);
+			unsafe {
+				IntPtr pSpec = (IntPtr)Functions.SDL_LoadWAV_RW((SDL_RWops*)rwops.RWOps.Ptr, false, out SDLAudioSpec spec, out byte* buf, out uint len);
+				if (pSpec == IntPtr.Zero) throw new SDLException(GetError());
+				return (spec, new ManagedPointer<byte>((IntPtr)buf, ptr => Functions.SDL_FreeWAV((byte*)ptr)), len);
+			}
 		}
 
 		public static Span<byte> MixAudio(Span<byte> dst, in ReadOnlySpan<byte> src, int volume) {
 			unsafe {
 				fixed(byte* pDst = dst) {
 					fixed(byte* pSrc = src) {
-						Functions.SDL_MixAudio((IntPtr)pDst, (IntPtr)pSrc, (uint)Math.Min(dst.Length, src.Length), volume);
+						Functions.SDL_MixAudio(pDst, pSrc, (uint)Math.Min(dst.Length, src.Length), volume);
 					}
 				}
 			}
@@ -702,15 +1121,17 @@ namespace Tesseract.SDL {
 		}
 
 		public static IPointer<byte> MixAudio(IPointer<byte> dst, IConstPointer<byte> src, uint length, int volume) {
-			Functions.SDL_MixAudio(dst.Ptr, src.Ptr, length, volume);
-			return dst;
+			unsafe {
+				Functions.SDL_MixAudio((byte*)dst.Ptr, (byte*)src.Ptr, length, volume);
+				return dst;
+			}
 		}
 
 		public static Span<byte> MixAudio(Span<byte> dst, in ReadOnlySpan<byte> src, SDLAudioFormat format, int volume) {
 			unsafe {
 				fixed (byte* pDst = dst) {
 					fixed (byte* pSrc = src) {
-						Functions.SDL_MixAudioFormat((IntPtr)pDst, (IntPtr)pSrc, format, (uint)Math.Min(dst.Length, src.Length), volume);
+						Functions.SDL_MixAudioFormat(pDst, pSrc, format, (uint)Math.Min(dst.Length, src.Length), volume);
 					}
 				}
 			}
@@ -718,54 +1139,104 @@ namespace Tesseract.SDL {
 		}
 
 		public static IPointer<byte> MixAudio(IPointer<byte> dst, IConstPointer<byte> src, SDLAudioFormat format, uint length, int volume) {
-			Functions.SDL_MixAudioFormat(dst.Ptr, src.Ptr, format, length, volume);
-			return dst;
+			unsafe {
+				Functions.SDL_MixAudioFormat((byte*)dst.Ptr, (byte*)src.Ptr, format, length, volume);
+				return dst;
+			}
 		}
 
-		public static void LockAudio() => Functions.SDL_LockAudio();
+		public static void LockAudio() {
+			unsafe {
+				Functions.SDL_LockAudio();
+			}
+		}
 
-		public static void UnlockAudio() => Functions.SDL_UnlockAudio();
+		public static void UnlockAudio() {
+			unsafe {
+				Functions.SDL_UnlockAudio();
+			}
+		}
 
-		public static void CloseAudio() => Functions.SDL_CloseAudio();
+		public static void CloseAudio() {
+			unsafe {
+				Functions.SDL_CloseAudio();
+			}
+		}
 
 		// SDL_clipboard.h
 
 		public static string? ClipboardText {
 			get {
-				if (!Functions.SDL_HasClipboardText()) return null;
-				return MemoryUtil.GetASCII(Functions.SDL_GetClipboardText());
+				unsafe {
+					if (!Functions.SDL_HasClipboardText()) return null;
+					return MemoryUtil.GetASCII(Functions.SDL_GetClipboardText());
+				}
 			}
-			set => Functions.SDL_SetClipboardText(value);
+			set {
+				unsafe {
+					fixed(byte* pValue = MemoryUtil.StackallocUTF8(value, stackalloc byte[1024])) {
+						Functions.SDL_SetClipboardText(pValue);
+					}
+				}
+			}
 		}
 
 		// SDL_filesystem.h
 
-		public static string BasePath => MemoryUtil.GetASCII(Functions.SDL_GetBasePath())!;
+		public static string BasePath {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(Functions.SDL_GetBasePath())!;
+				}
+			}
+		}
 
-		public static string? GetPrefPath(string org, string app) => MemoryUtil.GetASCII(Functions.SDL_GetPrefPath(org, app));
+		public static string? GetPrefPath(string org, string app) {
+			unsafe {
+				fixed(byte* pOrg = MemoryUtil.StackallocUTF8(org, stackalloc byte[1024]), pApp = MemoryUtil.StackallocUTF8(app, stackalloc byte[1024])) {
+					return MemoryUtil.GetASCII(Functions.SDL_GetPrefPath(pOrg, pApp));
+				}
+			}
+		}
 
 		// SDL_gesture.h
 
-		public static void RecordGesture() => Functions.SDL_RecordGesture(-1);
+		public static void RecordGesture(long deviceID = -1) {
+			unsafe {
+				Functions.SDL_RecordGesture(deviceID);
+			}
+		}
 
-		public static void SaveAllDollarTemplates(SDLRWOps rwops) => CheckError(Functions.SDL_SaveAllDollarTemplates(rwops.RWOps.Ptr));
+		public static void SaveAllDollarTemplates(SDLSpanRWOps rwops) {
+			unsafe {
+				CheckError(Functions.SDL_SaveAllDollarTemplates((SDL_RWops*)rwops.RWOps.Ptr));
+			}
+		}
 
-		public static void SaveAllDollarTemplates(SDLSpanRWOps rwops) => CheckError(Functions.SDL_SaveAllDollarTemplates(rwops.RWOps.Ptr));
-
-		public static void SaveDollarTemplate(long gestureID, SDLRWOps rwops) => CheckError(Functions.SDL_SaveDollarTemplate(gestureID, rwops.RWOps.Ptr));
-
-		public static void SaveDollarTemplate(long gestureID, SDLSpanRWOps rwops) => CheckError(Functions.SDL_SaveDollarTemplate(gestureID, rwops.RWOps.Ptr));
+		public static void SaveDollarTemplate(long gestureID, SDLSpanRWOps rwops) {
+			unsafe {
+				CheckError(Functions.SDL_SaveDollarTemplate(gestureID, (SDL_RWops*)rwops.RWOps.Ptr));
+			}
+		}
 
 		// SDL_haptic.h
 
 		public const uint HapticInfinity = 4294967295U;
 
-		public static bool MouseIsHaptic => Functions.SDL_MouseIsHaptic() != 0;
+		public static bool MouseIsHaptic {
+			get {
+				unsafe {
+					return Functions.SDL_MouseIsHaptic() != 0;
+				}
+			}
+		}
 
 		public static SDLHaptic HapticOpenFromMouse() {
-			IntPtr haptic = Functions.SDL_HapticOpenFromMouse();
-			if (haptic == IntPtr.Zero) throw new SDLException(GetError());
-			return new SDLHaptic(haptic);
+			unsafe {
+				IntPtr haptic = Functions.SDL_HapticOpenFromMouse();
+				if (haptic == IntPtr.Zero) throw new SDLException(GetError());
+				return new SDLHaptic(haptic);
+			}
 		}
 
 		// SDL_hints.h
@@ -877,101 +1348,180 @@ namespace Tesseract.SDL {
 		public const string HintAudioDeviceStreamName = "SDL_AUDIO_DEVICE_STREAM_NAME";
 		public const string HintPreferredLocales = "SDL_PREFERRED_LOCALES";
 
-		public static void SetHint(string hint, string value, SDLHintPriority priority) => Functions.SDL_SetHintWithPriority(hint, value, priority);
+		public static void SetHint(string hint, string value, SDLHintPriority priority) {
+			unsafe {
+				fixed(byte* pHint = MemoryUtil.StackallocUTF8(hint, stackalloc byte[256]), pValue = MemoryUtil.StackallocUTF8(value, stackalloc byte[256])) {
+					Functions.SDL_SetHintWithPriority(pHint, pValue, priority);
+				}
+			}
+		}
 
-		public static void SetHint(string hint, string value) => Functions.SDL_SetHint(hint, value);
+		public static void SetHint(string hint, string value) {
+			unsafe {
+				fixed (byte* pHint = MemoryUtil.StackallocUTF8(hint, stackalloc byte[256]), pValue = MemoryUtil.StackallocUTF8(value, stackalloc byte[256])) {
+					Functions.SDL_SetHint(pHint, pValue);
+				}
+			}
+		}
 
-		public static string? GetHint(string hint) => MemoryUtil.GetASCII(Functions.SDL_GetHint(hint));
+		public static string? GetHint(string hint) {
+			unsafe {
+				fixed(byte* pHint = MemoryUtil.StackallocUTF8(hint, stackalloc byte[256])) {
+					return MemoryUtil.GetASCII(Functions.SDL_GetHint(pHint));
+				}
+			}
+		}
 
-		public static bool GetHintBoolean(string hint, bool defaultValue = false) => Functions.SDL_GetHintBoolean(hint, defaultValue);
+		public static bool GetHintBoolean(string hint, bool defaultValue = false) {
+			unsafe {
+				fixed (byte* pHint = MemoryUtil.StackallocUTF8(hint, stackalloc byte[256])) {
+					return Functions.SDL_GetHintBoolean(pHint, defaultValue);
+				}
+			}
+		}
 
-		public static void AddHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) => Functions.SDL_AddHintCallback(hint, callback, userdata);
+		public static void AddHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) {
+			unsafe {
+				fixed (byte* pHint = MemoryUtil.StackallocUTF8(hint, stackalloc byte[256])) {
+					Functions.SDL_AddHintCallback(pHint, Marshal.GetFunctionPointerForDelegate(callback), userdata);
+				}
+			}
+		}
 
-		public static void DelHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) => Functions.SDL_DelHintCallback(hint, callback, userdata);
+		public static void DelHintCallback(string hint, SDLHintCallback callback, IntPtr userdata) {
+			unsafe {
+				fixed(byte* pHint = MemoryUtil.StackallocASCII(hint, stackalloc byte[256])) {
+					Functions.SDL_DelHintCallback(pHint, Marshal.GetFunctionPointerForDelegate(callback), userdata);
+				}
+			}
+		}
 
 		// SDL_locale.h
 
 		public static SDLLocale[] PreferredLocales {
 			get {
-				IntPtr ptrLocales = Functions.SDL_GetPreferredLocales();
-				if (ptrLocales == IntPtr.Zero) throw new SDLException(GetError());
-				List<SDLLocale> locales = new();
-				ManagedPointer<SDLLocale> pLocales = new(ptrLocales);
-				SDLLocale locale;
-				do {
-					locale = pLocales.Value;
-					if (locale.Language != null) locales.Add(locale);
-				} while (locale.Language != null);
-				return locales.ToArray();
+				unsafe {
+					SDL_Locale* pLocales = Functions.SDL_GetPreferredLocales();
+					if (pLocales == (SDL_Locale*)0) throw new SDLException(GetError());
+					
+					List<SDLLocale> locales = new();
+					string? language;
+					do {
+						language = MemoryUtil.GetUTF8(pLocales->Language);
+						if (language != null) locales.Add(new SDLLocale() { Language = language, Country = MemoryUtil.GetUTF8(pLocales->Contry)! });
+					} while (language != null);
+
+					Functions.SDL_free((IntPtr)pLocales);
+
+					return locales.ToArray();
+				}
 			}
 		}
 
 		// SDL_log.h
 
-		public static void LogSetAllPriority(SDLLogPriority priority) => Functions.SDL_LogSetAllPriority(priority);
+		public static void LogSetAllPriority(SDLLogPriority priority) {
+			unsafe {
+				Functions.SDL_LogSetAllPriority(priority);
+			}
+		}
 
-		public static void LogSetPriority(int category, SDLLogPriority priority) => Functions.SDL_LogSetPriority(category, priority);
+		public static void LogSetPriority(int category, SDLLogPriority priority) {
+			unsafe {
+				Functions.SDL_LogSetPriority(category, priority);
+			}
+		}
 
-		public static SDLLogPriority LogGetPriority(int category) => Functions.SDL_LogGetPriority(category);
+		public static SDLLogPriority LogGetPriority(int category) {
+			unsafe {
+				return Functions.SDL_LogGetPriority(category);
+			}
+		}
 
-		public static void LogResetPriorities() => Functions.SDL_LogResetPriorities();
+		public static void LogResetPriorities() {
+			unsafe {
+				Functions.SDL_LogResetPriorities();
+			}
+		}
 
 		public static void Log(string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_Log("%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed(byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_Log(pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogVerbose(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogVerbose(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogVerbose(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogDebug(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogDebug(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogDebug(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogInfo(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogInfo(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogInfo(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogWarn(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogWarn(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogWarn(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogError(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogError(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogError(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogCritical(int category, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogCritical(category, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogCritical(category, pFmt, pMsg);
+				}
+			}
 		}
 
 		public static void LogMessage(int category, SDLLogPriority priority, string msg) {
-			IntPtr pMsg = Marshal.StringToHGlobalAnsi(msg);
-			Functions.SDL_LogMessage(category, priority, "%s", pMsg);
-			Marshal.FreeHGlobal(pMsg);
+			unsafe {
+				fixed (byte* pFmt = "%s"u8, pMsg = MemoryUtil.StackallocUTF8(msg, stackalloc byte[1024])) {
+					Functions.SDL_LogMessage(category, priority, pFmt, pMsg);
+				}
+			}
 		}
 
-		public static (SDLLogOutputFunction?, IntPtr) LogOutputFunction {
+		public static (SDLLogOutputFunction? Callback, IntPtr UserData) LogOutputFunction {
 			get {
-				Functions.SDL_LogGetOutputFunction(out IntPtr pCallback, out IntPtr userdata);
-				SDLLogOutputFunction? callback = null;
-				if (pCallback != IntPtr.Zero) callback = Marshal.GetDelegateForFunctionPointer<SDLLogOutputFunction>(pCallback);
-				return (callback, userdata);
+				unsafe {
+					Functions.SDL_LogGetOutputFunction(out IntPtr pCallback, out IntPtr userdata);
+					SDLLogOutputFunction? callback = null;
+					if (pCallback != IntPtr.Zero) callback = Marshal.GetDelegateForFunctionPointer<SDLLogOutputFunction>(pCallback);
+					return (callback, userdata);
+				}
 			}
-			set => Functions.SDL_LogSetOutputFunction(value.Item1, value.Item2);
+			set {
+				unsafe {
+					Functions.SDL_LogSetOutputFunction(value.Callback != null ? Marshal.GetFunctionPointerForDelegate(value.Callback) : IntPtr.Zero, value.UserData);
+				}
+			}
 		}
 
 		// SDL_messagebox.h
@@ -983,43 +1533,72 @@ namespace Tesseract.SDL {
 			if (data.ColorScheme != null) colorScheme = new ManagedPointer<SDLMessageBoxColorScheme>(data.ColorScheme.Value);
 			SDL_MessageBoxData mbdata = new() {
 				Flags = data.Flags,
-				Window = data.Window != null ? data.Window.Window.Ptr : IntPtr.Zero,
+				Window = data.Window != null ? data.Window.Window : IntPtr.Zero,
 				Title = data.Title,
 				Message = data.Message,
 				NumButtons = buttons.ArraySize,
 				Buttons = buttons.Ptr,
 				ColorScheme = colorScheme.Ptr
 			};
-			int ret = Functions.SDL_ShowMessageBox(mbdata, out int buttonID);
-			if (mbdata.Buttons != IntPtr.Zero) buttons.Dispose();
-			if (mbdata.ColorScheme != IntPtr.Zero) colorScheme.Dispose();
-			CheckError(ret);
-			return buttonID;
+			unsafe {
+				int ret = Functions.SDL_ShowMessageBox(mbdata, out int buttonID);
+				if (mbdata.Buttons != IntPtr.Zero) buttons.Dispose();
+				if (mbdata.ColorScheme != IntPtr.Zero) colorScheme.Dispose();
+				CheckError(ret);
+				return buttonID;
+			}
 		}
 
-		public static void ShowSimpleMessageBox(SDLMessageBoxFlags flags, string title, string message, SDLWindow? window = null) =>
-			CheckError(Functions.SDL_ShowSimpleMessageBox(flags, title, message, window != null ? window.Window.Ptr : IntPtr.Zero));
+		public static void ShowSimpleMessageBox(SDLMessageBoxFlags flags, string title, string message, SDLWindow? window = null) {
+			unsafe {
+				fixed(byte* pTitle = MemoryUtil.StackallocUTF8(title, stackalloc byte[256]), pMessage = MemoryUtil.StackallocUTF8(message, stackalloc byte[1024])) {
+					CheckError(Functions.SDL_ShowSimpleMessageBox(flags, pTitle, pMessage, window != null ? window.Window : IntPtr.Zero));
+				}
+			}
+		}
 
 		// SDL_metal.h
 
-		public static void MetalDestroyView(IntPtr view) => Functions.SDL_Metal_DestroyView(view);
+		public static void MetalDestroyView(IntPtr view) {
+			unsafe {
+				Functions.SDL_Metal_DestroyView(view);
+			}
+		}
 
-		public static IntPtr MetalGetLayer(IntPtr view) => Functions.SDL_Metal_GetLayer(view);
+		public static IntPtr MetalGetLayer(IntPtr view) {
+			unsafe {
+				return Functions.SDL_Metal_GetLayer(view);
+			}
+		}
 
 		// SDL_misc.h
 
-		public static void OpenURL(string url) => CheckError(Functions.SDL_OpenURL(url));
+		public static void OpenURL(string url) {
+			unsafe {
+				fixed (byte* pURL = MemoryUtil.StackallocUTF8(url, stackalloc byte[1024])) {
+					CheckError(Functions.SDL_OpenURL(pURL));
+				}
+			}
+		}
 
 		// SDL_platform.h
 
-		public static string Platform => MemoryUtil.GetASCII(Functions.SDL_GetPlatform())!;
+		public static string Platform {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(Functions.SDL_GetPlatform())!;
+				}
+			}
+		}
 
 		// SDL_power.h
 
 		public static (SDLPowerState, int, int) PowerState {
 			get {
-				SDLPowerState state = Functions.SDL_GetPowerInfo(out int secs, out int pct);
-				return (state, secs, pct);
+				unsafe {
+					SDLPowerState state = Functions.SDL_GetPowerInfo(out int secs, out int pct);
+					return (state, secs, pct);
+				}
 			}
 		}
 
@@ -1027,16 +1606,20 @@ namespace Tesseract.SDL {
 
 		public static SDLRendererInfo[] RenderDrivers {
 			get {
-				int n = Functions.SDL_GetNumRenderDrivers();
-				SDLRendererInfo[] infos = new SDLRendererInfo[n];
-				for (int i = 0; i < n; i++) Functions.SDL_GetRenderDriverInfo(i, out infos[i]);
-				return infos;
+				unsafe {
+					int n = Functions.SDL_GetNumRenderDrivers();
+					SDLRendererInfo[] infos = new SDLRendererInfo[n];
+					for (int i = 0; i < n; i++) Functions.SDL_GetRenderDriverInfo(i, out infos[i]);
+					return infos;
+				}
 			}
 		}
 
 		public static (SDLWindow, SDLRenderer) CreateWindowAndRenderer(int width, int height, SDLWindowFlags windowFlags) {
-			CheckError(Functions.SDL_CreateWindowAndRenderer(width, height, windowFlags, out IntPtr window, out IntPtr renderer));
-			return (new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window)), new SDLRenderer(renderer));
+			unsafe {
+				CheckError(Functions.SDL_CreateWindowAndRenderer(width, height, windowFlags, out IntPtr window, out IntPtr renderer));
+				return (new SDLWindow(window), new SDLRenderer(renderer));
+			}
 		}
 
 		// SDL_shape.h
@@ -1046,80 +1629,139 @@ namespace Tesseract.SDL {
 		public const int WindowLacksShape = -3;
 
 		public static SDLWindow CreateShapedWindow(string title, uint x, uint y, uint w, uint h, SDLWindowFlags flags) {
-			IntPtr window = Functions.SDL_CreateShapedWindow(title, x, y, w, h, flags);
-			if (window == IntPtr.Zero) throw new SDLException(GetError());
-			return new SDLWindow((IPointer<SDL_Window>)new UnmanagedPointer<SDL_Window>(window));
+			unsafe {
+				fixed(byte* pTitle = MemoryUtil.StackallocUTF8(title, stackalloc byte[1024])) {
+					IntPtr window = Functions.SDL_CreateShapedWindow(pTitle, x, y, w, h, flags);
+					if (window == IntPtr.Zero) throw new SDLException(GetError());
+					return new SDLWindow(window);
+				}
+			}
 		}
 
 		// SDL_system.h
 
-		public static void SetWindowsMessageHook(SDLWindowsMessageHook callback, IntPtr userdata) => Functions.SDL_SetWindowsMessageHook(callback, userdata);
+		public static void SetWindowsMessageHook(SDLWindowsMessageHook callback, IntPtr userdata) {
+			unsafe {
+				Functions.SDL_SetWindowsMessageHook(Marshal.GetFunctionPointerForDelegate(callback), userdata);
+			}
+		}
 
-		public static void LinuxSetThreadPriority(long threadID, int priority) => Functions.SDL_LinuxSetThreadPriority(threadID, priority);
-
-		public static void OnApplicationWillTerminate() => Functions.SDL_OnApplicationWillTerminate();
-
-		public static void OnApplicationDidReceiveMemoryWarning() => Functions.SDL_OnApplicationDidReceiveMemoryWarning();
-
-		public static void OnApplicationWillResignActive() => Functions.SDL_OnApplicationWillResignActive();
-
-		public static void OnApplicationDidEnterBackground() => Functions.SDL_OnApplicationDidEnterBackground();
-
-		public static void OnApplicationWillEnterForeground() => Functions.SDL_OnApplicationWillEnterForeground();
-
-		public static void OnApplicationDidBecomeActive() => Functions.SDL_OnApplicationDidBecomeActive();
+		public static void LinuxSetThreadPriority(long threadID, int priority) {
+			unsafe {
+				Functions.SDL_LinuxSetThreadPriority(threadID, priority);
+			}
+		}
 
 		// SDL_version.h
 
 		public static SDLVersion Version {
 			get {
-				Functions.SDL_GetVersion(out SDLVersion ver);
-				return ver;
+				unsafe {
+					Functions.SDL_GetVersion(out SDLVersion ver);
+					return ver;
+				}
 			}
 		}
 
-		public static string Revision => MemoryUtil.GetASCII(Functions.SDL_GetRevision())!;
+		public static string Revision {
+			get {
+				unsafe {
+					return MemoryUtil.GetASCII(Functions.SDL_GetRevision())!;
+				}
+			}
+		}
 
-		public static int RevisionNumber => Functions.SDL_GetRevisionNumber();
+		public static int RevisionNumber {
+			get {
+				unsafe {
+					return Functions.SDL_GetRevisionNumber();
+				}
+			}
+		}
 
 		// SDL_sensor.h
 
 		public const float StandardGravity = 9.80665f;
 
-		public static void LockSensors() => Functions.SDL_LockSensors();
+		public static void LockSensors() {
+			unsafe {
+				Functions.SDL_LockSensors();
+			}
+		}
 
-		public static void UnlockSensors() => Functions.SDL_UnlockSensors();
+		public static void UnlockSensors() {
+			unsafe {
+				Functions.SDL_UnlockSensors();
+			}
+		}
 
 		public static SDLSensorDevice[] SensorDevices {
 			get {
-				int n = Functions.SDL_NumSensors();
-				SDLSensorDevice[] sensors = new SDLSensorDevice[n];
-				for (int i = 0; i < n; i++) sensors[i] = new SDLSensorDevice { DeviceIndex = i };
-				return sensors;
+				unsafe {
+					int n = Functions.SDL_NumSensors();
+					SDLSensorDevice[] sensors = new SDLSensorDevice[n];
+					for (int i = 0; i < n; i++) sensors[i] = new SDLSensorDevice { DeviceIndex = i };
+					return sensors;
+				}
 			}
 		}
 
 		public static SDLSensor? SensorFromInstanceID(int instanceID) {
-			IntPtr pSensor = Functions.SDL_SensorFromInstanceID(instanceID);
-			if (pSensor == IntPtr.Zero) return null;
-			return new SDLSensor(pSensor);
+			unsafe {
+				IntPtr pSensor = Functions.SDL_SensorFromInstanceID(instanceID);
+				if (pSensor == IntPtr.Zero) return null;
+				return new SDLSensor(pSensor);
+			}
 		}
 
-		public static void SensorUpdate() => SDL2.Functions.SDL_SensorUpdate();
+		public static void SensorUpdate() {
+			unsafe {
+				Functions.SDL_SensorUpdate();
+			}
+		}
 
 		// SDL_timer.h
 
-		public static uint Ticks => Functions.SDL_GetTicks();
+		public static uint Ticks {
+			get {
+				unsafe {
+					return Functions.SDL_GetTicks();
+				}
+			}
+		}
 
-		public static ulong PerformanceCounter => Functions.SDL_GetPerformanceCounter();
+		public static ulong PerformanceCounter {
+			get {
+				unsafe {
+					return Functions.SDL_GetPerformanceCounter();
+				}
+			}
+		}
 
-		public static ulong PerformanceFrequency => Functions.SDL_GetPerformanceFrequency();
+		public static ulong PerformanceFrequency {
+			get {
+				unsafe {
+					return Functions.SDL_GetPerformanceFrequency();
+				}
+			}
+		}
 
-		public static void Delay(uint ms) => Functions.SDL_Delay(ms);
+		public static void Delay(uint ms) {
+			unsafe {
+				Functions.SDL_Delay(ms);
+			}
+		}
 
-		public static int AddTimer(uint interval, SDLTimerCallback callback, IntPtr param = default) => Functions.SDL_AddTimer(interval, callback, param);
+		public static int AddTimer(uint interval, SDLTimerCallback callback, IntPtr param = default) {
+			unsafe {
+				return Functions.SDL_AddTimer(interval, Marshal.GetFunctionPointerForDelegate(callback), param);
+			}
+		}
 
-		public static bool RemoveTimer(int timerID) => Functions.SDL_RemoveTimer(timerID);
-
+		public static bool RemoveTimer(int timerID) {
+			unsafe {
+				return Functions.SDL_RemoveTimer(timerID);
+			}
+		}
 	}
 }

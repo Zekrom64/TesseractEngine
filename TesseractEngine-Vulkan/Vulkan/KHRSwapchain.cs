@@ -167,36 +167,33 @@ namespace Tesseract.Vulkan {
 
 	}
 
-#nullable disable
-	public class KHRSwapchainDeviceFunctions {
+	public unsafe class KHRSwapchainDeviceFunctions {
 
-		public delegate VKResult PFN_vkCreateSwapchainKHR([NativeType("VkDevice")] IntPtr device, in VKSwapchainCreateInfoKHR createInfo, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator, out ulong swapchain);
-		public delegate void PFN_vkDestroySwapchainKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSwapchainKHR")] ulong swapchain, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator);
-		public delegate VKResult PFN_vkGetSwapchainImagesKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSwapchainKHR")] ulong swapchain, ref uint swapchainImageCount, [NativeType("VkImage*")] IntPtr swapchainImages);
-		public delegate VKResult PFN_vkAcquireNextImageKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSwapchainKHR")] ulong swapchain, ulong timeout, [NativeType("VkSemaphore")] ulong semaphore, [NativeType("VkFence")] ulong fence, out uint imageIndex);
-		public delegate VKResult PFN_vkQueuePresentKHR([NativeType("VkQueue")] IntPtr queue, in VKPresentInfoKHR presentInfo);
-		public delegate VKResult PFN_vkGetDeviceGroupPresentCapabilitiesKHR([NativeType("VkDevice")] IntPtr device, out VKDeviceGroupPresentCapabilitiesKHR deviceGroupPresentCapabilities);
-		public delegate VKResult PFN_vkGetDeviceGroupSurfacePresentModesKHR([NativeType("VkDevice")] IntPtr device, [NativeType("VkSurfaceKHR")] ulong surface, out VKDeviceGroupPresentModeFlagBitsKHR modes);
-		public delegate VKResult PFN_vkGetPhysicalDevicePresentRectanglesKHR([NativeType("VkPhysicalDevice")] IntPtr physicalDevice, [NativeType("VkSurfaceKHR")] ulong surface, ref uint rectCount, [NativeType("VkRect2D*")] IntPtr rects);
-		public delegate VKResult PFN_vkAcquireNextImage2KHR([NativeType("VkDevice")] IntPtr device, in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex);
-
-		public PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
-		public PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
-		public PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
-		public PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
-		public PFN_vkQueuePresentKHR vkQueuePresentKHR;
+		[NativeType("VkResult vkCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSwapchainKHR* pSwapchain)")]
+		public delegate* unmanaged<IntPtr, in VKSwapchainCreateInfoKHR, VKAllocationCallbacks*, out ulong, VKResult> vkCreateSwapchainKHR;
+		[NativeType("void vkDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* pAllocator)")]
+		public delegate* unmanaged<IntPtr, ulong, VKAllocationCallbacks*, void> vkDestroySwapchainKHR;
+		[NativeType("VkResult vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages)")]
+		public delegate* unmanaged<IntPtr, ulong, ref uint, ulong*, VKResult> vkGetSwapchainImagesKHR;
+		[NativeType("VkResult vkAcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout, VkSemaphore semaphore, VkFence fence, uint32_t* pImageIndex)")]
+		public delegate* unmanaged<IntPtr, ulong, ulong, ulong, ulong, out uint, VKResult> vkAcquireNextImageKHR;
+		[NativeType("VkResult vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo)")]
+		public delegate* unmanaged<IntPtr, in VKPresentInfoKHR, VKResult> vkQueuePresentKHR;
 		// With Vulkan 1.1 or VK_KHR_device_group
+		[NativeType("VkResult vkGetDeviceGroupPresentCapabilitiesKHR(VkDevice device, VkDeviceGroupPresentCapabilitiesKHR* pDeviceGroupPresentCapabilities)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_vkGetDeviceGroupPresentCapabilitiesKHR vkGetDeviceGroupPresentCapabilitiesKHR;
+		public delegate* unmanaged<IntPtr, out VKDeviceGroupPresentCapabilitiesKHR, VKResult> vkGetDeviceGroupPresentCapabilitiesKHR;
+		[NativeType("VkResult vkGetDeviceGroupSurfacePresentModesKHR(VkDevice device, VkSurfaceKHR surface, VkDeviceGroupPresentModeFlagsKHR* pModes)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_vkGetDeviceGroupSurfacePresentModesKHR vkGetDeviceGroupSurfacePresentModesKHR;
+		public delegate* unmanaged<IntPtr, ulong, out VKDeviceGroupPresentModeFlagBitsKHR, VKResult> vkGetDeviceGroupSurfacePresentModesKHR;
+		[NativeType("VkResult vkGetPhysicalDevicePresentRectanglesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t* pRectCount, VkRect2D* pRects)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_vkGetPhysicalDevicePresentRectanglesKHR vkGetPhysicalDevicePresentRectanglesKHR;
+		public delegate* unmanaged<IntPtr, ulong, ref uint, VKRect2D*, VKResult> vkGetPhysicalDevicePresentRectanglesKHR;
+		[NativeType("VkResult vkAcquireNextImage2KHR(VkDevice device, const VkAcquireNextImageInfoKHR* pAcquireInfo, uint32_t* pImageIndex)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR;
+		public delegate* unmanaged<IntPtr, in VKAcquireNextImageInfoKHR, out uint, VKResult> vkAcquireNextImage2KHR;
 
 	}
-#nullable restore
 
 	public static class KHRSwapchain {
 
@@ -225,17 +222,21 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.KHRSwapchain!.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
+			unsafe {
+				Device.KHRSwapchain!.vkDestroySwapchainKHR(Device, SwapchainKHR, Allocator);
+			}
 		}
 
 		public VKImage[] Images {
 			get {
 				uint count = 0;
-				VK.CheckError(Device.KHRSwapchain!.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, IntPtr.Zero), "Failed to get swapchain images");
+				unsafe {
+					VK.CheckError(Device.KHRSwapchain!.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, (ulong*)0), "Failed to get swapchain images");
+				}
 				Span<ulong> images = stackalloc ulong[(int)count];
 				unsafe {
 					fixed(ulong* pImages = images) {
-						VK.CheckError(Device.KHRSwapchain.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, (IntPtr)pImages), "Failed to get swapchain images");
+						VK.CheckError(Device.KHRSwapchain.vkGetSwapchainImagesKHR(Device, SwapchainKHR, ref count, pImages), "Failed to get swapchain images");
 					}
 				}
 				VKImage[] imgs = new VKImage[count];
@@ -245,12 +246,18 @@ namespace Tesseract.Vulkan {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKResult AcquireNextImage(ulong timeout, VKSemaphore? semaphore, VKFence? fence, out uint imageIndex) =>
-			Device.KHRSwapchain!.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
+		public VKResult AcquireNextImage(ulong timeout, VKSemaphore? semaphore, VKFence? fence, out uint imageIndex) {
+			unsafe {
+				return Device.KHRSwapchain!.vkAcquireNextImageKHR(Device, SwapchainKHR, timeout, semaphore, fence, out imageIndex);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) =>
-			Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
+		public VKResult AcquireNextImage2(in VKAcquireNextImageInfoKHR acquireInfo, out uint imageIndex) {
+			unsafe {
+				return Device.KHRSwapchain!.vkAcquireNextImage2KHR(Device, acquireInfo, out imageIndex);
+			}
+		}
 
 		public static implicit operator ulong(VKSwapchainKHR? swapchain) => swapchain != null ? swapchain.SwapchainKHR : 0;
 

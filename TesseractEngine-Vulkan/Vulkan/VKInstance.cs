@@ -75,17 +75,19 @@ namespace Tesseract.Vulkan {
 
 		public VKPhysicalDevice[] PhysicalDevices {
 			get {
-				uint count = 0;
-				VK.CheckError(VK10Functions.vkEnumeratePhysicalDevices(Instance, ref count, IntPtr.Zero));
-				Span<IntPtr> devs = stackalloc IntPtr[(int)count];
 				unsafe {
-					fixed(IntPtr* pDevs = devs) {
-						VK.CheckError(VK10Functions.vkEnumeratePhysicalDevices(Instance, ref count, (IntPtr)pDevs));
+					uint count = 0;
+					VK.CheckError(VK10Functions.vkEnumeratePhysicalDevices(Instance, ref count, (IntPtr*)0));
+					Span<IntPtr> devs = stackalloc IntPtr[(int)count];
+					unsafe {
+						fixed (IntPtr* pDevs = devs) {
+							VK.CheckError(VK10Functions.vkEnumeratePhysicalDevices(Instance, ref count, pDevs));
+						}
 					}
+					VKPhysicalDevice[] devices = new VKPhysicalDevice[count];
+					for (int i = 0; i < count; i++) devices[i] = new VKPhysicalDevice(this, devs[i]);
+					return devices;
 				}
-				VKPhysicalDevice[] devices = new VKPhysicalDevice[count];
-				for (int i = 0; i < count; i++) devices[i] = new VKPhysicalDevice(this, devs[i]);
-				return devices;
 			}
 		}
 
@@ -93,21 +95,24 @@ namespace Tesseract.Vulkan {
 
 		public VKPhysicalDeviceGroupProperties[] PhysicalDeviceGroups {
 			get {
-				var vkEnumeratePhysicalDeviceGroups = VK11Functions?.vkEnumeratePhysicalDeviceGroups;
-				if (vkEnumeratePhysicalDeviceGroups == null) vkEnumeratePhysicalDeviceGroups = new(KHRDeviceGroupCreationFunctions!.vkEnumeratePhysicalDeviceGroupsKHR);
-				uint count = 0;
-				VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, IntPtr.Zero));
-				using ManagedPointer<VKPhysicalDeviceGroupProperties> pProperties = new((int)count);
-				VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, pProperties));
-				var properties = new VKPhysicalDeviceGroupProperties[count];
-				for (int i = 0; i < count; i++) properties[i] = pProperties[i];
-				return properties;
+				unsafe {
+					var vkEnumeratePhysicalDeviceGroups = VK11Functions != null ? VK11Functions.vkEnumeratePhysicalDeviceGroups : KHRDeviceGroupCreationFunctions!.vkEnumeratePhysicalDeviceGroupsKHR;
+					uint count = 0;
+					VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, (VKPhysicalDeviceGroupProperties*)0));
+					VKPhysicalDeviceGroupProperties[] groups = new VKPhysicalDeviceGroupProperties[count];
+					fixed(VKPhysicalDeviceGroupProperties* pGroups = groups) {
+						VK.CheckError(vkEnumeratePhysicalDeviceGroups(Instance, ref count, pGroups));
+					}
+					return groups;
+				}
 			}
 		}
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			VK10Functions.vkDestroyInstance(Instance, Allocator != null ? Allocator.Pointer!.Ptr : IntPtr.Zero);
+			unsafe {
+				VK10Functions.vkDestroyInstance(Instance, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -116,23 +121,38 @@ namespace Tesseract.Vulkan {
 		// EXT_debug_report
 
 		public VKDebugReportCallbackEXT CreateDebugReportCallbackEXT(in VKDebugReportCallbackCreateInfoEXT createInfo, VulkanAllocationCallbacks? allocator = null) {
-			VK.CheckError(EXTDebugReportFunctions!.vkCreateDebugReportCallbackEXT(Instance, createInfo, allocator, out ulong callback));
-			return new VKDebugReportCallbackEXT(this, callback, allocator);
+			unsafe {
+				VK.CheckError(EXTDebugReportFunctions!.vkCreateDebugReportCallbackEXT(Instance, createInfo, allocator, out ulong callback));
+				return new VKDebugReportCallbackEXT(this, callback, allocator);
+			}
 		}
 
-		public void DebugReportMessageEXT(VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, string layerPrefix, string message) =>
-			EXTDebugReportFunctions!.vkDebugReportMessageEXT(Instance, flags, objectType, obj, location, messageCode, layerPrefix, message);
+		public void DebugReportMessageEXT(VKDebugReportFlagBitsEXT flags, VKDebugReportObjectTypeEXT objectType, ulong obj, nuint location, int messageCode, string layerPrefix, string message) {
+			unsafe {
+				Span<byte> strLayerPrefix = MemoryUtil.StackallocUTF8(layerPrefix, stackalloc byte[256]);
+				Span<byte> strMessage = MemoryUtil.StackallocUTF8(message, stackalloc byte[4096]);
+				fixed(byte* pLayerPrefix = strLayerPrefix) {
+					fixed(byte* pMessage = strMessage) {
+						EXTDebugReportFunctions!.vkDebugReportMessageEXT(Instance, flags, objectType, obj, location, messageCode, (IntPtr)pLayerPrefix, (IntPtr)pMessage);
+					}
+				}
+			}
+		}
 
 		// EXT_debug_utils
 
 		public VKDebugUtilsMessengerEXT CreateDebugUtilsMessengerEXT(in VKDebugUtilsMessengerCreateInfoEXT createInfo, VulkanAllocationCallbacks? allocator = null) {
-			VK.CheckError(EXTDebugUtilsFunctions!.vkCreateDebugUtilsMessengerEXT(Instance, createInfo, allocator, out ulong messenger));
-			return new VKDebugUtilsMessengerEXT(this, messenger, allocator);
+			unsafe {
+				VK.CheckError(EXTDebugUtilsFunctions!.vkCreateDebugUtilsMessengerEXT(Instance, createInfo, allocator, out ulong messenger));
+				return new VKDebugUtilsMessengerEXT(this, messenger, allocator);
+			}
 		}
 
-		public void SubmitDebugUtilsMessageEXT(VKDebugUtilsMessageSeverityFlagBigsEXT messageSeverity, VKDebugUtilsMessageTypeFlagBitsEXT messageTypes, in VKDebugUtilsMessengerCallbackDataEXT callbackData) =>
-			EXTDebugUtilsFunctions!.vkSubmitDebugUtilsMessageEXT(Instance, messageSeverity, messageTypes, callbackData);
-
+		public void SubmitDebugUtilsMessageEXT(VKDebugUtilsMessageSeverityFlagBigsEXT messageSeverity, VKDebugUtilsMessageTypeFlagBitsEXT messageTypes, in VKDebugUtilsMessengerCallbackDataEXT callbackData) {
+			unsafe {
+				EXTDebugUtilsFunctions!.vkSubmitDebugUtilsMessageEXT(Instance, messageSeverity, messageTypes, callbackData);
+			}
+		}
 	}
 
 }

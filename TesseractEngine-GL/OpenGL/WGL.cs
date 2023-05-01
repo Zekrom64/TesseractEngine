@@ -8,49 +8,45 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class WGLFunctions {
+	using HGLRC = IntPtr;
+	using HDC = IntPtr;
 
-		public delegate bool PFN_wglCopyContext([NativeType("HGLRC")] IntPtr hglrcSource, [NativeType("HGLRC")] IntPtr hglrcDest, uint attribs);
-		[return: NativeType("HGLRC")]
-		public delegate IntPtr PFN_wglCreateContext([NativeType("HDC")] IntPtr hDC);
-		[return: NativeType("HGLRC")]
-		public delegate IntPtr PFN_wglCreateLayerContext([NativeType("HDC")] IntPtr hDC, int layerPlane);
-		public delegate bool PFN_wglDeleteContext([NativeType("HGLRC")] IntPtr hglrc);
-		public delegate bool PFN_wglDescribeLayerPlane([NativeType("HDC")] IntPtr hDC, int layerPlanes, int overlayUnderlayPlane, uint plpdSize, IntPtr plpd);
-		[return: NativeType("HGLRC")]
-		public delegate IntPtr PFN_wglGetCurrentContext();
-		[return: NativeType("HDC")]
-		public delegate IntPtr PFN_wglGetCurrentDC();
-		public delegate int PFN_wglGetLayerPaletteEntries([NativeType("HDC")] IntPtr hDC, int layerPlane, int firstEntry, int numEntries, IntPtr pColors);
-		public delegate IntPtr PFN_wglGetProcAddress([MarshalAs(UnmanagedType.LPStr)] string name);
-		public delegate bool PFN_wglMakeCurrent([NativeType("HDC")] IntPtr hDC, [NativeType("HGLRC")] IntPtr hglrc);
-		public delegate bool PFN_wglRealizeLayerPalette([NativeType("HDC")] IntPtr hDC, int layerPlane, bool realize);
-		public delegate int PFN_wglSetLayerPaletteEntries([NativeType("HDC")] IntPtr hDC, int layerPlane, int firstEntry, int numEntries, IntPtr pColors);
-		public delegate bool PFN_wglShareLists([NativeType("HGLRC")] IntPtr hglrc1, [NativeType("HGLRC")] IntPtr hglrc2);
-		public delegate bool PFN_wglSwapLayerBuffers([NativeType("HDC")] IntPtr hDC, uint planes);
-		public delegate bool PFN_wglUseFontBitmapsA([NativeType("HDC")] IntPtr hDC, uint firstGlyph, uint numGlyphs, uint displayList);
-		public delegate bool PFN_wglUseFontOutlinesA([NativeType("HDC")] IntPtr hDC, uint firstGlyph, uint numGlyphs, uint displayList, float deviation, float extrusion, int format, IntPtr lpgmf);
+	public unsafe class WGLFunctions {
 
-		public PFN_wglCopyContext wglCopyContext;
-		public PFN_wglCreateContext wglCreateContext;
-		public PFN_wglCreateLayerContext wglCreateLayerContext;
-		public PFN_wglDeleteContext wglDeleteContext;
-		public PFN_wglDescribeLayerPlane wglDescribeLayerPlane;
-		public PFN_wglGetCurrentContext wglGetCurrentContext;
-		public PFN_wglGetCurrentDC wglGetCurrentDC;
-		public PFN_wglGetLayerPaletteEntries wglGetLayerPaletteEntries;
-		public PFN_wglGetProcAddress wglGetProcAddress;
-		public PFN_wglMakeCurrent wglMakeCurrent;
-		public PFN_wglRealizeLayerPalette wglRealizeLayerPalette;
-		public PFN_wglSetLayerPaletteEntries wglSetLayerPaletteEntries;
-		public PFN_wglShareLists wglShareLists;
-		public PFN_wglSwapLayerBuffers wglSwapLayerBuffers;
-		public PFN_wglUseFontBitmapsA wglUseFontBitmapsA;
-		public PFN_wglUseFontOutlinesA wglUseFontOutlinesA;
+		[NativeType("BOOL wglCopyContext(HGLRC hglrcSource, HGLRC hglrcDest, UINT attribs)")]
+		public delegate* unmanaged<HGLRC, HGLRC, uint, bool> wglCopyContext;
+		[NativeType("HGLRC wglCreateContext(HDC hDC)")]
+		public delegate* unmanaged<HDC, HGLRC> wglCreateContext;
+		[NativeType("HGLRC wglCreateLayerContext(HDC hDC, int layerPlane)")]
+		public delegate* unmanaged<HDC, int, HGLRC> wglCreateLayerContext;
+		[NativeType("BOOL wglDeleteContext(HGLRC hglrc)")]
+		public delegate* unmanaged<HGLRC, bool> wglDeleteContext;
+		[NativeType("BOOL wglDescribeLayerPlane(HDC hDC, int layerPlanes, int overlayUnderlayPlane, UINT plpdSize, PLLAYERPLANEDESCRIPTOR plpd)")]
+		public delegate* unmanaged<HDC, int, int, uint, IntPtr, bool> wglDescribeLayerPlane;
+		[NativeType("HGLRC wglGetCurrentContext()")]
+		public delegate* unmanaged<HGLRC> wglGetCurrentContext;
+		[NativeType("HDC wglGetCurrentDC()")]
+		public delegate* unmanaged<HDC> wglGetCurrentDC;
+		[NativeType("int wglGetLayerPaletteEntries(HDC hDC, int layerPlane, int firstEntry, int numEntries, COLORREF* pColors)")]
+		public delegate* unmanaged<HDC, int, int, int, IntPtr, int> wglGetLayerPaletteEntries;
+		[NativeType("void* wglGetProcAddress(LPCSTR name)")]
+		public delegate* unmanaged<byte*, IntPtr> wglGetProcAddress;
+		[NativeType("BOOL wglMakeCurrent(HDC hDC, HGLRC hglrc)")]
+		public delegate* unmanaged<HDC, HGLRC, bool> wglMakeCurrent;
+		[NativeType("BOOL wglRealizeLayerPalette(HDC hDC, int layerPlane, BOOL realize)")]
+		public delegate* unmanaged<HDC, int, bool, bool> wglRealizeLayerPalette;
+		[NativeType("int wglSetLayerPaletteEntries(HDC hDC, int layerPlane, int firstEntry, int numEntries, COLORREF* pColors)")]
+		public delegate* unmanaged<HDC, int, int, int, IntPtr, int> wglSetLayerPaletteEntries;
+		[NativeType("BOOL wglShareLists(HGLRC hglrc1, HGLRC hglrc2)")]
+		public delegate* unmanaged<HGLRC, HGLRC, bool> wglShareLists;
+		[NativeType("BOOL wglSwapLayerBuffers(HDC hDC, UINT planes)")]
+		public delegate* unmanaged<HDC, uint, bool> wglSwapLayerBuffers;
+		[NativeType("BOOL wglUseFontBitmapsA(HDC hDC, DWORD firstGlyph, DWORD numGlyphs, DWORD displayList)")]
+		public delegate* unmanaged<HDC, uint, uint, uint, bool> wglUseFontBitmapsA;
+		[NativeType("BOOL wglUseFontOutlinesA(HDC hDC, DWORD firstGlyph, DWORD numGlyphs, DWORD displayList, FLOAT deviation, FLOAT extrusion, int format, LPGLYPHMETRICSFLOAT lpgmf)")]
+		public delegate* unmanaged<HDC, uint, uint, uint, float, float, int, IntPtr, bool> wglUseFontOutlinesA;
 
 	}
-#nullable restore
 
 	public class WGL : IGLObject {
 
@@ -63,11 +59,20 @@ namespace Tesseract.OpenGL {
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
 
-		[NativeType("HGLRC")]
-		public IntPtr CurrentContext => Functions.wglGetCurrentContext();
+		public HGLRC CurrentContext {
+			get {
+				unsafe {
+					return Functions.wglGetCurrentContext();
+				}
+			}
+		}
 
-		[NativeType("HDC")]
-		public IntPtr CurrentDC => Functions.wglGetCurrentDC();
-
+		public HDC CurrentDC {
+			get {
+				unsafe {
+					return Functions.wglGetCurrentDC();
+				}
+			}
+		}
 	}
 }

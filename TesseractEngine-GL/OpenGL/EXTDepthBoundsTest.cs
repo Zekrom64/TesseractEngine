@@ -9,14 +9,12 @@ using Tesseract.OpenGL.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class EXTDepthBoundsTestFunctions {
+	public unsafe class EXTDepthBoundsTestFunctions {
 
-		public delegate void PFN_glDepthBoundsEXT(double zmin, double zmax);
-		public PFN_glDepthBoundsEXT glDepthBoundsEXT;
+		[NativeType("void glDepthBoundsEXT(GLdouble zmin, GLdouble zmax)")]
+		public delegate* unmanaged<double, double, void> glDepthBoundsEXT;
 
 	}
-#nullable restore
 
 	public class EXTDepthBoundsTest : IGLObject {
 
@@ -28,12 +26,16 @@ namespace Tesseract.OpenGL {
 			Library.LoadFunctions(context.GetGLProcAddress, Functions);
 		}
 
-		public (double, double) DepthBounds {
+		public (double Min, double Max) DepthBounds {
 			get {
 				Span<double> bounds = GL.GL11.GetDouble(GLEnums.GL_DEPTH_BOUNDS_EXT, stackalloc double[2]);
 				return (bounds[0], bounds[1]);
 			}
-			set => Functions.glDepthBoundsEXT(value.Item1, value.Item2);
+			set {
+				unsafe {
+					Functions.glDepthBoundsEXT(value.Min, value.Max);
+				}
+			}
 		}
 
 	}

@@ -10,42 +10,40 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBViewportArrayFunctions {
+	public unsafe class ARBViewportArrayFunctions {
 
-		public delegate void PFN_glViewportArrayv(uint first, int count, [NativeType("const GLfloat*")] IntPtr v);
 		[ExternFunction(AltNames = new string[] { "glViewportArrayvARB" })]
-		public PFN_glViewportArrayv glViewportArrayv;
-		public delegate void PFN_glViewportIndexedf(uint index, float x, float y, float w, float h);
+		[NativeType("void glViewportArrayv(GLuint first, GLsizei count, const GLfloat* pValues)")]
+		public delegate* unmanaged<uint, int, float*, void> glViewportArrayv;
 		[ExternFunction(AltNames = new string[] { "glViewportIndexedfARB" })]
-		public PFN_glViewportIndexedf glViewportIndexedf;
-		public delegate void PFN_glViewportIndexedfv(uint index, [NativeType("const GLfloat*")] IntPtr v);
+		[NativeType("void glViewportIndexedf(GLuint index, GLfloat x, GLfloat y, GLfloat w, GLfloat h)")]
+		public delegate* unmanaged<uint, float, float, float, float, void> glViewportIndexedf;
 		[ExternFunction(AltNames = new string[] { "glViewportIndexedfvARB" })]
-		public PFN_glViewportIndexedfv glViewportIndexedfv;
-		public delegate void PFN_glScissorArrayv(uint first, int count, [NativeType("const GLint*")] IntPtr v);
+		[NativeType("void glViewportIndexedfv(GLuint index, const GLfloat* pValues)")]
+		public delegate* unmanaged<uint, float*, void> glViewportIndexedfv;
 		[ExternFunction(AltNames = new string[] { "glScissorArrayvARB" })]
-		public PFN_glScissorArrayv glScissorArrayv;
-		public delegate void PFN_glScissorIndexed(uint index, int left, int bottom, int width, int height);
+		[NativeType("void glScissorArrayv(GLuint first, GLsizei count, const GLint* pValues)")]
+		public delegate* unmanaged<uint, int, int*, void> glScissorArrayv;
 		[ExternFunction(AltNames = new string[] { "glScissorIndexedARB" })]
-		public PFN_glScissorIndexed glScissorIndexed;
-		public delegate void PFN_glScissorIndexedv(uint index, [NativeType("const GLint*")] IntPtr v);
+		[NativeType("void glScissorIndexed(GLuint index, GLint left, GLint bottom, GLsizei width, GLsizei height)")]
+		public delegate* unmanaged<uint, int, int, int, int, void> glScissorIndexed;
 		[ExternFunction(AltNames = new string[] { "glScsissorIndexedvARB" })]
-		public PFN_glScissorIndexedv glScissorIndexedv;
-		public delegate void PFN_glDepthRangeArrayv(uint first, int count, [NativeType("const GLclampd*")] IntPtr v);
+		[NativeType("void glScissorIndexedv(GLuint index, const GLint* pValues)")]
+		public delegate* unmanaged<uint, int*, void> glScissorIndexedv;
 		[ExternFunction(AltNames = new string[] { "glDepthRangeArrayvARB" })]
-		public PFN_glDepthRangeArrayv glDepthRangeArrayv;
-		public delegate void PFN_glDepthRangeIndexed(uint index, double n, double f);
+		[NativeType("void glDepthRangeArrayv(GLuint first, GLsizei count, const GLclampd* pValues)")]
+		public delegate* unmanaged<uint, int, double*, void> glDepthRangeArrayv;
 		[ExternFunction(AltNames = new string[] { "glDepthRangeIndexedARB" })]
-		public PFN_glDepthRangeIndexed glDepthRangeIndexed;
-		public delegate void PFN_glGetFloati_v(uint target, uint index, [NativeType("GLfloat*")] IntPtr data);
+		[NativeType("void glDepthRangeIndexed(GLuint index, GLclampd near, GLclampd far)")]
+		public delegate* unmanaged<uint, double, double, void> glDepthRangeIndexed;
 		[ExternFunction(AltNames = new string[] { "glGetFloati_vARB" })]
-		public PFN_glGetFloati_v glGetFloati_v;
-		public delegate void PFN_glGetDoublei_v(uint target, uint index, [NativeType("GLdouble*")] IntPtr data);
+		[NativeType("void glGetFloati_v(GLenum target, GLuint index, GLfloat* pData)")]
+		public delegate* unmanaged<uint, uint, float*, void> glGetFloati_v;
 		[ExternFunction(AltNames = new string[] { "glGetDoublei_vARB" })]
-		public PFN_glGetDoublei_v glGetDoublei_v;
+		[NativeType("void glGetDoublei_v(GLenum target, GLuint index, GLdouble* pData)")]
+		public delegate* unmanaged<uint, uint, double*, void> glGetDoublei_v;
 
 	}
-#nullable restore
 
 	public class ARBViewportArray : IGLObject {
 
@@ -61,7 +59,7 @@ namespace Tesseract.OpenGL {
 		public void ViewportArray(in ReadOnlySpan<Rectf> v, uint first = 0) {
 			unsafe {
 				fixed(Rectf* pV = v) {
-					Functions.glViewportArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glViewportArrayv(first, v.Length, (float*)pV);
 				}
 			}
 		}
@@ -70,18 +68,22 @@ namespace Tesseract.OpenGL {
 		public void ViewportArray(uint first, params Rectf[] v) {
 			unsafe {
 				fixed (Rectf* pV = v) {
-					Functions.glViewportArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glViewportArrayv(first, v.Length, (float*)pV);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ViewportIndexed(uint index, float x, float y, float w, float h) => Functions.glViewportIndexedf(index, x, y, w, h);
+		public void ViewportIndexed(uint index, float x, float y, float w, float h) {
+			unsafe {
+				Functions.glViewportIndexedf(index, x, y, w, h);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ViewportIndexed(uint index, Rectf v) {
 			unsafe {
-				Functions.glViewportIndexedfv(index, (IntPtr)(&v));
+				Functions.glViewportIndexedfv(index, (float*)(&v));
 			}
 		}
 
@@ -89,7 +91,7 @@ namespace Tesseract.OpenGL {
 		public void ScissorArray(in ReadOnlySpan<Recti> v, uint first = 0) {
 			unsafe {
 				fixed(Recti* pV = v) {
-					Functions.glScissorArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glScissorArrayv(first, v.Length, (int*)pV);
 				}
 			}
 		}
@@ -98,18 +100,22 @@ namespace Tesseract.OpenGL {
 		public void ScissorArray(uint first, params Recti[] v) {
 			unsafe {
 				fixed (Recti* pV = v) {
-					Functions.glScissorArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glScissorArrayv(first, v.Length, (int*)pV);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ScissorIndexed(uint index, int left, int bottom, int width, int height) => Functions.glScissorIndexed(index, left, bottom, width, height);
+		public void ScissorIndexed(uint index, int left, int bottom, int width, int height) {
+			unsafe {
+				Functions.glScissorIndexed(index, left, bottom, width, height);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ScissorIndexed(uint index, Recti v) {
 			unsafe {
-				Functions.glScissorIndexedv(index, (IntPtr)(&v));
+				Functions.glScissorIndexedv(index, (int*)&v);
 			}
 		}
 
@@ -117,7 +123,7 @@ namespace Tesseract.OpenGL {
 		public void DepthRangeArray(in ReadOnlySpan<Vector2d> v, uint first = 0) {
 			unsafe {
 				fixed(Vector2d* pV = v) {
-					Functions.glDepthRangeArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glDepthRangeArrayv(first, v.Length, (double*)pV);
 				}
 			}
 		}
@@ -126,19 +132,23 @@ namespace Tesseract.OpenGL {
 		public void DepthRangeArray(uint first, params Vector2d[] v) {
 			unsafe {
 				fixed (Vector2d* pV = v) {
-					Functions.glDepthRangeArrayv(first, v.Length, (IntPtr)pV);
+					Functions.glDepthRangeArrayv(first, v.Length, (double*)pV);
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DepthRangeIndexed(uint index, double n, double f) => Functions.glDepthRangeIndexed(index, n, f);
+		public void DepthRangeIndexed(uint index, double n, double f) {
+			unsafe {
+				Functions.glDepthRangeIndexed(index, n, f);
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Span<float> GetFloat(uint pname, uint index, Span<float> v) {
 			unsafe {
 				fixed(float* pV = v) {
-					Functions.glGetFloati_v(pname, index, (IntPtr)pV);
+					Functions.glGetFloati_v(pname, index, pV);
 				}
 			}
 			return v;
@@ -148,7 +158,7 @@ namespace Tesseract.OpenGL {
 		public Span<double> GetDouble(uint pname, uint index, Span<double> v) {
 			unsafe {
 				fixed(double* pV = v) {
-					Functions.glGetDoublei_v(pname, index, (IntPtr)pV);
+					Functions.glGetDoublei_v(pname, index, pV);
 				}
 			}
 			return v;

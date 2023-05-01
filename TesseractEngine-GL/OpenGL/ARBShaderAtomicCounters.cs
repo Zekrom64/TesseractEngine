@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBShaderAtomicCountersFunctions {
+	public unsafe class ARBShaderAtomicCountersFunctions {
 
-		public delegate void PFN_glGetActiveAtomicCounterBufferiv(uint program, uint bufferIndex, uint pname, [NativeType("GLint*")] IntPtr _params);
 		[ExternFunction(AltNames = new string[] { "glGetActiveAtomicCounterBufferivARB" })]
-		public PFN_glGetActiveAtomicCounterBufferiv glGetActiveAtomicCounterBufferiv;
+		[NativeType("void glGetActiveAtomicCounterBufferiv(GLuint program, GLuint bufferIndex, GLenum pname, GLint* pParams)")]
+		public delegate* unmanaged<uint, uint, uint, int*, void> glGetActiveAtomicCounterBufferiv;
 
 	}
-#nullable restore
 
 	public class ARBShaderAtomicCounters {
 
@@ -32,7 +30,7 @@ namespace Tesseract.OpenGL {
 		public Span<int> GetActiveAtomicCounterBuffer(uint program, uint bufferIndex, GLGetActiveAtomicCounterBuffer pname, Span<int> values) {
 			unsafe {
 				fixed(int* pValues = values) {
-					Functions.glGetActiveAtomicCounterBufferiv(program, bufferIndex, (uint)pname, (IntPtr)pValues);
+					Functions.glGetActiveAtomicCounterBufferiv(program, bufferIndex, (uint)pname, pValues);
 				}
 			}
 			return values;

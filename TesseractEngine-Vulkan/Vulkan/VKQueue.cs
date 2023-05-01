@@ -31,7 +31,7 @@ namespace Tesseract.Vulkan {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Submit(VKSubmitInfo submitInfo, VKFence? fence = null) {
 			unsafe {
-				VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, 1, (IntPtr)(&submitInfo), fence), "Failed to submit to queue");
+				VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, 1, &submitInfo, fence), "Failed to submit to queue");
 			}
 		}
 
@@ -39,18 +39,22 @@ namespace Tesseract.Vulkan {
 		public void Submit(in ReadOnlySpan<VKSubmitInfo> infos, VKFence? fence = null) {
 			unsafe {
 				fixed(VKSubmitInfo* pInfos = infos) {
-					VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, (uint)infos.Length, (IntPtr)pInfos, fence), "Failed to submit to queue");
+					VK.CheckError(Device.VK10Functions.vkQueueSubmit(Queue, (uint)infos.Length, pInfos, fence), "Failed to submit to queue");
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void WaitIdle() => VK.CheckError(Device.VK10Functions.vkQueueWaitIdle(Queue));
+		public void WaitIdle() {
+			unsafe {
+				VK.CheckError(Device.VK10Functions.vkQueueWaitIdle(Queue));
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BindSparse(VKBindSparseInfo info, VKFence? fence = null) {
 			unsafe {
-				VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, 1, (IntPtr)(&info), fence), "Failed to bind sparse memory");
+				VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, 1, &info, fence), "Failed to bind sparse memory");
 			}
 		}
 
@@ -58,7 +62,7 @@ namespace Tesseract.Vulkan {
 		public void BindSparse(in ReadOnlySpan<VKBindSparseInfo> infos, VKFence? fence = null) {
 			unsafe {
 				fixed(VKBindSparseInfo* pInfos = infos) {
-					VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, (uint)infos.Length, (IntPtr)pInfos, fence != null ? fence.Fence : 0), "Failed to bind sparse memory");
+					VK.CheckError(Device.VK10Functions.vkQueueBindSparse(Queue, (uint)infos.Length, pInfos, fence != null ? fence.Fence : 0), "Failed to bind sparse memory");
 				}
 			}
 		}
@@ -73,29 +77,44 @@ namespace Tesseract.Vulkan {
 		// VK_KHR_swapchain
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public VKResult PresentKHR(in VKPresentInfoKHR presentInfo) =>
-			Device.KHRSwapchain!.vkQueuePresentKHR(Queue, presentInfo);
+		public VKResult PresentKHR(in VKPresentInfoKHR presentInfo) {
+			unsafe {
+				return Device.KHRSwapchain!.vkQueuePresentKHR(Queue, presentInfo);
+			}
+		}
 
 		// VK_EXT_debug_utils
 
-		public void BeginDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkQueueBeginDebugUtilsLabelEXT(Queue, labelInfo);
+		public void BeginDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) {
+			unsafe {
+				Device.Instance.EXTDebugUtilsFunctions!.vkQueueBeginDebugUtilsLabelEXT(Queue, labelInfo);
+			}
+		}
 
-		public void EndDebugUtilsLabelEXT() => Device.Instance.EXTDebugUtilsFunctions!.vkQueueEndDebugUtilsLabelEXT(Queue);
+		public void EndDebugUtilsLabelEXT() {
+			unsafe {
+				Device.Instance.EXTDebugUtilsFunctions!.vkQueueEndDebugUtilsLabelEXT(Queue);
+			}
+		}
 
-		public void InsertDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) => Device.Instance.EXTDebugUtilsFunctions!.vkQueueInsertDebugUtilsLabelEXT(Queue, labelInfo);
+		public void InsertDebugUtilsLabelEXT(in VKDebugUtilsLabelEXT labelInfo) {
+			unsafe {
+				Device.Instance.EXTDebugUtilsFunctions!.vkQueueInsertDebugUtilsLabelEXT(Queue, labelInfo);
+			}
+		}
 
 		// VK_KHR_synchronization2
 
 		public void Submit2(VKSubmitInfo2 submit, VKFence? fence = null) {
 			unsafe {
-				Device.KHRSynchronization2!.vkQueueSubmit2(Queue, 1, (IntPtr)(&submit), fence);
+				Device.KHRSynchronization2!.vkQueueSubmit2(Queue, 1, &submit, fence);
 			}
 		}
 
 		public void Submit2(in ReadOnlySpan<VKSubmitInfo2> submits, VKFence? fence = null) {
 			unsafe {
 				fixed(VKSubmitInfo2* pSubmits = submits) {
-					Device.KHRSynchronization2!.vkQueueSubmit2(Queue, (uint)submits.Length, (IntPtr)pSubmits, fence);
+					Device.KHRSynchronization2!.vkQueueSubmit2(Queue, (uint)submits.Length, pSubmits, fence);
 				}
 			}
 		}

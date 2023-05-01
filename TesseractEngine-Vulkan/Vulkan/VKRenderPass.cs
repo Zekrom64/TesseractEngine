@@ -25,8 +25,10 @@ namespace Tesseract.Vulkan {
 		public Vector2ui RenderAreaGranularity {
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get {
-				Device.VK10Functions.vkGetRenderAreaGranularity(Device, RenderPass, out Vector2ui granularity);
-				return granularity;
+				unsafe {
+					Device.VK10Functions.vkGetRenderAreaGranularity(Device, RenderPass, out Vector2ui granularity);
+					return granularity;
+				}
 			}
 		}
 
@@ -38,7 +40,9 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			Device.VK10Functions.vkDestroyRenderPass(Device, RenderPass, Allocator);
+			unsafe {
+				Device.VK10Functions.vkDestroyRenderPass(Device, RenderPass, Allocator);
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -28,13 +28,17 @@ namespace Tesseract.Vulkan {
 
 		public void Dispose() {
 			GC.SuppressFinalize(this);
-			if (Device.VK11Functions) Device.VK11Functions!.vkDestroyDescriptorUpdateTemplate(Device, DescriptorUpdateTemplate, Allocator);
-			else Device.KHRDescriptorUpdateTemplate!.vkDestroyDescriptorUpdateTemplateKHR(Device, DescriptorUpdateTemplate, Allocator);
+			unsafe {
+				if (Device.VK11Functions) Device.VK11Functions!.vkDestroyDescriptorUpdateTemplate(Device, DescriptorUpdateTemplate, Allocator);
+				else Device.KHRDescriptorUpdateTemplate!.vkDestroyDescriptorUpdateTemplateKHR(Device, DescriptorUpdateTemplate, Allocator);
+			}
 		}
 
 		public void UpdateDescriptorSet(VKDescriptorSet descriptorSet, IntPtr data) {
-			if (Device.VK11Functions) Device.VK11Functions!.vkUpdateDescriptorSetWithTemplate(Device, descriptorSet, DescriptorUpdateTemplate, data);
-			else Device.KHRDescriptorUpdateTemplate!.vkUpdateDescriptorSetWithTemplateKHR(Device, descriptorSet, DescriptorUpdateTemplate, data);
+			unsafe {
+				if (Device.VK11Functions) Device.VK11Functions!.vkUpdateDescriptorSetWithTemplate(Device, descriptorSet, DescriptorUpdateTemplate, data);
+				else Device.KHRDescriptorUpdateTemplate!.vkUpdateDescriptorSetWithTemplateKHR(Device, descriptorSet, DescriptorUpdateTemplate, data);
+			}
 		}
 
 		public void UpdateDescriptorSet<T>(VKDescriptorSet descriptorSet, params T[] data) where T : unmanaged {

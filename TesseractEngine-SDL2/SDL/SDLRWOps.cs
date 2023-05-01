@@ -28,7 +28,7 @@ namespace Tesseract.SDL {
 		/// </summary>
 		StdFile = 2,
 		/// <summary>
-		/// Andriod asset file.
+		/// Android asset file.
 		/// </summary>
 		JNIFile = 3,
 		/// <summary>
@@ -77,7 +77,11 @@ namespace Tesseract.SDL {
 		/// <param name="path">The path to the file</param>
 		/// <param name="mode">The mode to open the file with</param>
 		public SDLRWOps(string path, string mode) {
-			RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromFile(path, mode), ptr => SDL2.Functions.SDL_FreeRW(ptr));
+			unsafe {
+				fixed(byte* pPath = MemoryUtil.StackallocUTF8(path, stackalloc byte[1024]), pMode = MemoryUtil.StackallocUTF8(mode, stackalloc byte[16])) {
+					RWOps = new ManagedPointer<SDL_RWops>((IntPtr)SDL2.Functions.SDL_RWFromFile(pPath, pMode), ptr => SDL2.Functions.SDL_FreeRW((SDL_RWops*)ptr));
+				}
+			}
 		}
 
 		/// <summary>
@@ -87,41 +91,47 @@ namespace Tesseract.SDL {
 		public SDLRWOps(Memory<byte> memory) {
 			memHandle = memory.Pin();
 			unsafe {
-				RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
+				RWOps = new ManagedPointer<SDL_RWops>((IntPtr)SDL2.Functions.SDL_RWFromMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW((SDL_RWops*)ptr));
 			}
 		}
 
 		public SDLRWOps(ReadOnlyMemory<byte> memory) {
 			memHandle = memory.Pin();
 			unsafe {
-				RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
+				RWOps = new ManagedPointer<SDL_RWops>((IntPtr)SDL2.Functions.SDL_RWFromConstMem((IntPtr)memHandle.Pointer, memory.Length), ptr => SDL2.Functions.SDL_FreeRW((SDL_RWops*)ptr));
 			}
 		}
 
 		public long Size {
 			get {
-				long size = SDL2.Functions.SDL_RWsize(RWOps.Ptr);
-				if (size < 0) throw new SDLException(SDL2.GetError());
-				return size;
+				unsafe {
+					long size = SDL2.Functions.SDL_RWsize((SDL_RWops*)RWOps.Ptr);
+					if (size < 0) throw new SDLException(SDL2.GetError());
+					return size;
+				}
 			}
 		}
 
 		public long Position {
 			get {
-				long pos = SDL2.Functions.SDL_RWtell(RWOps.Ptr);
-				if (pos < 0) throw new SDLException(SDL2.GetError());
-				return pos;
+				unsafe {
+					long pos = SDL2.Functions.SDL_RWtell((SDL_RWops*)RWOps.Ptr);
+					if (pos < 0) throw new SDLException(SDL2.GetError());
+					return pos;
+				}
 			}
 			set {
-				long newpos = SDL2.Functions.SDL_RWseek(RWOps.Ptr, value, SDLRWWhence.Set);
-				if (newpos < 0) throw new SDLException(SDL2.GetError());
+				unsafe {
+					long newpos = SDL2.Functions.SDL_RWseek((SDL_RWops*)RWOps.Ptr, value, SDLRWWhence.Set);
+					if (newpos < 0) throw new SDLException(SDL2.GetError());
+				}
 			}
 		}
 
 		public int Read(Span<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					int read = (int)SDL2.Functions.SDL_RWread(RWOps.Ptr, (IntPtr)pSpan, (UIntPtr)1, (UIntPtr)span.Length);
+					int read = (int)SDL2.Functions.SDL_RWread((SDL_RWops*)RWOps.Ptr, (IntPtr)pSpan, 1, (nuint)span.Length);
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
@@ -140,7 +150,7 @@ namespace Tesseract.SDL {
 		public int Write(Span<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					int read = (int)SDL2.Functions.SDL_RWwrite(RWOps.Ptr, (IntPtr)pSpan, (UIntPtr)1, (UIntPtr)span.Length);
+					int read = (int)SDL2.Functions.SDL_RWwrite((SDL_RWops*)RWOps.Ptr, (IntPtr)pSpan, 1, (nuint)span.Length);
 					if (read == 0) {
 						IntPtr error = SDL2.Functions.SDL_GetError();
 						if (error != IntPtr.Zero) {
@@ -156,11 +166,11 @@ namespace Tesseract.SDL {
 
 		public int Write(byte[] data, int offset, int length) => Write(new Span<byte>(data).Slice(offset, length));
 
-		public Span<byte> LoadFile() {
-			IntPtr data = SDL2.Functions.SDL_LoadFile_RW(RWOps.Ptr, out UIntPtr size, 0);
-			if (data == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+		public ManagedPointer<byte> LoadFile() {
 			unsafe {
-				return new Span<byte>((void*)data, (int)size);
+				IntPtr data = SDL2.Functions.SDL_LoadFile_RW((SDL_RWops*)RWOps.Ptr, out nuint size, false);
+				if (data == IntPtr.Zero) throw new SDLException(SDL2.GetError());
+				return new ManagedPointer<byte>(data, ptr => SDL2.Functions.SDL_free(data));
 			}
 		}
 
@@ -173,9 +183,9 @@ namespace Tesseract.SDL {
 
 	}
 
-	public ref struct SDLSpanRWOps {
+	public readonly ref struct SDLSpanRWOps {
 
-		public ManagedPointer<SDL_RWops> RWOps { get; private set; }
+		public ManagedPointer<SDL_RWops> RWOps { get; }
 
 		public SDLSpanRWOps(ManagedPointer<SDL_RWops> rwops) {
 			RWOps = rwops;
@@ -184,7 +194,7 @@ namespace Tesseract.SDL {
 		public SDLSpanRWOps(Span<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
+					RWOps = new ManagedPointer<SDL_RWops>((IntPtr)SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW((SDL_RWops*)ptr));
 				}
 			}
 		}
@@ -192,7 +202,7 @@ namespace Tesseract.SDL {
 		public SDLSpanRWOps(ReadOnlySpan<byte> span) {
 			unsafe {
 				fixed (byte* pSpan = span) {
-					RWOps = new ManagedPointer<SDL_RWops>(SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW(ptr));
+					RWOps = new ManagedPointer<SDL_RWops>((IntPtr)SDL2.Functions.SDL_RWFromConstMem((IntPtr)pSpan, span.Length), ptr => SDL2.Functions.SDL_FreeRW((SDL_RWops*)ptr));
 				}
 			}
 		}
@@ -205,18 +215,20 @@ namespace Tesseract.SDL {
 
 		// RWOp functions may silently catch exceptions, but this is to avoid exceptions propagating through native code.
 
-		private static long RWSize(IntPtr pOps) {
+		[UnmanagedCallersOnly]
+		private static unsafe long RWSize(SDL_RWops* pOps) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps->Hidden.Unknown.Data1).Value!;
 				return stream.Stream.Length;
 			} catch(Exception) {
 				return -1;
 			}
 		}
 
-		private static long RWSeek(IntPtr pOps, long offset, SDLRWWhence whence) {
+		[UnmanagedCallersOnly]
+		private static unsafe long RWSeek(SDL_RWops* pOps, long offset, SDLRWWhence whence) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps->Hidden.Unknown.Data1).Value!;
 				if (!stream.Stream.CanSeek) return -1;
 				switch (whence) {
 					case SDLRWWhence.Set:
@@ -237,31 +249,33 @@ namespace Tesseract.SDL {
 			}
 		}
 
-		private static UIntPtr RWRead(IntPtr pOps, IntPtr pDst, UIntPtr size, UIntPtr maxnum) {
+		[UnmanagedCallersOnly]
+		private static unsafe nuint RWRead(SDL_RWops* pOps, IntPtr pDst, nuint size, nuint maxnum) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
-				long bytes = (long)(size.ToUInt64() * maxnum.ToUInt64());
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps->Hidden.Unknown.Data1).Value!;
+				long bytes = (long)(size * maxnum);
 				long offset = 0;
 				while (offset < bytes) {
 					unsafe {
 						int length = (int)Math.Min(bytes - offset, int.MaxValue);
 						Span<byte> dst = new((void*)pDst, length);
 						int nread = stream.Stream.Read(dst);
-						if (nread == 0) return (UIntPtr)offset;
+						if (nread == 0) return (nuint)offset;
 						offset += nread;
 					}
 				}
-				return (UIntPtr)offset;
+				return (nuint)offset;
 			} catch (Exception) {
-				return UIntPtr.Zero;
+				return 0;
 			}
 		}
 
-		private static UIntPtr RWWrite(IntPtr pOps, IntPtr pDst, UIntPtr size, UIntPtr maxnum) {
+		[UnmanagedCallersOnly]
+		private static unsafe nuint RWWrite(SDL_RWops* pOps, IntPtr pDst, nuint size, nuint maxnum) {
 			long offset = 0;
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
-				long bytes = (long)(size.ToUInt64() * maxnum.ToUInt64());
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps->Hidden.Unknown.Data1).Value!;
+				long bytes = (long)(size * maxnum);
 				while (offset < bytes) {
 					unsafe {
 						int length = (int)Math.Min(bytes - offset, int.MaxValue);
@@ -270,15 +284,16 @@ namespace Tesseract.SDL {
 						offset += length;
 					}
 				}
-				return (UIntPtr)offset;
+				return (nuint)offset;
 			} catch (Exception) {
-				return (UIntPtr)offset;
+				return (nuint)offset;
 			}
 		}
 
-		private static int RWClose(IntPtr pOps) {
+		[UnmanagedCallersOnly]
+		private static unsafe int RWClose(SDL_RWops* pOps) {
 			try {
-				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps).Value!;
+				SDLStreamRWOps stream = new ObjectPointer<SDLStreamRWOps>(pOps->Hidden.Unknown.Data1).Value!;
 				stream.Stream.Dispose();
 				return 0;
 			} catch (Exception) {
@@ -297,22 +312,24 @@ namespace Tesseract.SDL {
 		public SDLStreamRWOps(Stream stream) {
 			Stream = stream;
 			self = new ObjectPointer<SDLStreamRWOps>(this);
-			rwops = new ManagedPointer<SDL_RWops> {
-				Value = new SDL_RWops() {
-					Size = RWSize,
-					Seek = RWSeek,
-					Read = RWRead,
-					Write = RWWrite,
-					Close = RWClose,
-					Type = SDLRWOpsType.Unknown,
-					// Hidden data 1 is a pointer to self
-					Hidden = new SDL_RWops_hidden() {
-						Unknown = new SDL_RWops_hidden_unknown() {
-							Data1 = self.Ptr
+			unsafe {
+				rwops = new ManagedPointer<SDL_RWops> {
+					Value = new SDL_RWops() {
+						Size = &RWSize,
+						Seek = &RWSeek,
+						Read = &RWRead,
+						Write = &RWWrite,
+						Close = &RWClose,
+						Type = SDLRWOpsType.Unknown,
+						// Hidden data 1 is a pointer to self
+						Hidden = new SDL_RWops_hidden() {
+							Unknown = new SDL_RWops_hidden_unknown() {
+								Data1 = self.Ptr
+							}
 						}
 					}
-				}
-			};
+				};
+			}
 		}
 
 		public void Dispose() {

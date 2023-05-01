@@ -11,433 +11,346 @@ namespace Tesseract.GLFW.Native {
 
 	using XID = UIntPtr;
 
-#nullable disable
-	public class GLFW3Functions {
+	public unsafe class GLFW3Functions {
 
 		// glfw3.h
 
-		public delegate bool PFN_glfwInit();
-		public delegate void PFN_glfwTerminate();
-		public delegate void PFN_glfwInitHint(GLFWInitHint hint, int value);
-		public delegate void PFN_glfwGetVersion(out int major, out int minor, out int rev);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetVersionString();
-		public delegate GLFWError PFN_glfwGetError([NativeType("const char**")] out IntPtr description);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWErrorFun PFN_glfwSetErrorCallback([MarshalAs(UnmanagedType.FunctionPtr)] GLFWErrorFun callback);
+		[NativeType("int glfwInit()")]
+		public delegate* unmanaged<bool> glfwInit;
+		[NativeType("void glfwTerminate()")]
+		public delegate* unmanaged<void> glfwTerminate;
+		[NativeType("void glfwInitHint(int hint, int value)")]
+		public delegate* unmanaged<GLFWInitHint, int, void> glfwInitHint;
+		[NativeType("void glfwGetVersion(int* major, int* minor, int* patch)")]
+		public delegate* unmanaged<out int, out int, out int, void> glfwGetVersion;
+		[NativeType("const char* glfwGetVersionString()")]
+		public delegate* unmanaged<IntPtr> glfwGetVersionString;
+		[NativeType("int glfwGetError(const char** description)")]
+		public delegate* unmanaged<out IntPtr, GLFWError> glfwGetError;
+		[NativeType("GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun cbk)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwSetErrorCallback;
 
-		public PFN_glfwInit glfwInit;
-		public PFN_glfwTerminate glfwTerminate;
-		public PFN_glfwInitHint glfwInitHint;
-		public PFN_glfwGetVersion glfwGetVersion;
-		public PFN_glfwGetVersionString glfwGetVersionString;
-		public PFN_glfwGetError glfwGetError;
-		public PFN_glfwSetErrorCallback glfwSetErrorCallback;
+		[NativeType("GLFWmonitor** glfwGetMonitors(int* count)")]
+		public delegate* unmanaged<out int, IntPtr> glfwGetMonitors;
+		[NativeType("GLFWmonitor* glfwGetPrimaryMonitor()")]
+		public delegate* unmanaged<IntPtr> glfwGetPrimaryMonitor;
+		[NativeType("void glfwGetMonitorPos(GLFWmonitor* monitor, int* xpos, int* ypos)")]
+		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetMonitorPos;
+		[NativeType("void glfwGetMonitorWorkarea(GLFWmonitor* monitor, int* xpos, int* ypos, int* width, int* height)")]
+		public delegate* unmanaged<IntPtr, out int, out int, out int, out int, void> glfwGetMonitorWorkarea;
+		[NativeType("void glfwGetMonitorPhysicalSize(GLFWmonitor* monitor, int* widthMM, int* heightMM)")]
+		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetMonitorPhysicalSize;
+		[NativeType("void glfwGetMonitorContentScale(GLFWmonitor* monitor, float* scaleX, float* scaleY)")]
+		public delegate* unmanaged<IntPtr, out float, out float, void> glfwGetMonitorContentScale;
+		[NativeType("const char* glfwGetMonitorName(GLFWmonitor* monitor)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetMonitorName;
+		[NativeType("void glfwSetMonitorUserPointer(GLFWmonitor* monitor, void* pointer)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetMonitorUserPointer;
+		[NativeType("void* glfwGetMonitorUserPointer(GLFWmonitor* monitor)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetMonitorUserPointer;
+		[NativeType("GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwSetMonitorCallback;
+		[NativeType("const GLFWvidmode* glfwGetVideoModes(GLFWmonitor* monitor, int* count)")]
+		public delegate* unmanaged<IntPtr, out int, GLFWVidMode*> glfwGetVideoModes;
+		[NativeType("const GLFWvidmode* glfwGetVideoMode(GLFWmonitor* monitor)")]
+		public delegate* unmanaged<IntPtr, GLFWVidMode*> glfwGetVideoMode;
+		[NativeType("void glfwSetGamma(GLFWmonitor* monitor, float gamma)")]
+		public delegate* unmanaged<IntPtr, float, void> glfwSetGamma;
+		[NativeType("const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* monitor)")]
+		public delegate* unmanaged<IntPtr, GLFWGammaRamp*> glfwGetGammaRamp;
+		[NativeType("void glfwSetGammaRamp(GLFWmonitor* monitor, const GLFWgammaramp* gammaRamp)")]
+		public delegate* unmanaged<IntPtr, in GLFWGammaRamp, void> glfwSetGammaRamp;
 
-		[return: NativeType("GLFWmonitor**")]
-		public delegate IntPtr PFN_glfwGetMonitors(out int count);
-		[return: NativeType("GLFWmonitor*")]
-		public delegate IntPtr PFN_glfwGetPrimaryMonitor();
-		public delegate void PFN_glfwGetMonitorPos([NativeType("GLFWmonitor*")] IntPtr monitor, out int xpos, out int ypos);
-		public delegate void PFN_glfwGetMonitorWorkarea([NativeType("GLFWmonitor*")] IntPtr monitor, out int xpos, out int ypos, out int width, out int height);
-		public delegate void PFN_glfwGetMonitorPhysicalSize([NativeType("GLFWmonitor*")] IntPtr monitor, out int widthMM, out int heightMM);
-		public delegate void PFN_glfwGetMonitorContentScale([NativeType("GLFWmonitor*")] IntPtr monitor, out float scaleX, out float scaleY);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetMonitorName([NativeType("GLFWmonitor*")] IntPtr monitor);
-		public delegate void PFN_glfwSetMonitorUserPointer([NativeType("GLFWmonitor*")] IntPtr monitor, IntPtr pointer);
-		public delegate IntPtr PFN_glfwGetMonitorUserPointer([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWMonitorFun PFN_glfwSetMonitorCallback([MarshalAs(UnmanagedType.FunctionPtr)] GLFWMonitorFun callback);
-		[return: NativeType("const GLFWvidmode*")]
-		public delegate IntPtr PFN_glfwGetVideoModes([NativeType("GLFWmonitor*")] IntPtr monitor, out int count);
-		[return: NativeType("const GLFWvidmode*")]
-		public delegate IntPtr PFN_glfwGetVideoMode([NativeType("GLFWmonitor*")] IntPtr monitor);
-		public delegate void PFN_glfwSetGamma([NativeType("GLFWmonitor*")] IntPtr monitor, float gamma);
-		[return: NativeType("const GLFWgammaramp*")]
-		public delegate IntPtr PFN_glfwGetGammaRamp([NativeType("GLFWmonitor*")] IntPtr monitor);
-		public delegate void PFN_glfwSetGammaRamp([NativeType("GLFWmonitor*")] IntPtr monitor, in GLFWGammaRamp gammaRamp);
+		[NativeType("void glfwDefaultWindowHints()")]
+		public delegate* unmanaged<void> glfwDefaultWindowHints;
+		[NativeType("void glfwWindowHint(int hint, int value)")]
+		public delegate* unmanaged<GLFWWindowAttrib, int, void> glfwWindowHint;
+		[NativeType("void glfwWindowHintString(int hint, const char* value)")]
+		public delegate* unmanaged<GLFWWindowAttrib, IntPtr, void> glfwWindowHintString;
+		[NativeType("GLFWwindow* glfwCreateWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)")]
+		public delegate* unmanaged<int, int, IntPtr, IntPtr, IntPtr, IntPtr> glfwCreateWindow;
+		[NativeType("void glfwDestroyWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwDestroyWindow;
+		[NativeType("int glfwWindowShouldClose(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, bool> glfwWindowShouldClose;
+		[NativeType("void glfwSetWindowShouldClose(GLFWwindow* window, int value)")]
+		public delegate* unmanaged<IntPtr, bool, void> glfwSetWindowShouldClose;
+		[NativeType("void glfwSetWindowTitle(GLFWwindow* window, const char* title)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetWindowTitle;
+		[NativeType("void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images)")]
+		public delegate* unmanaged<IntPtr, int, GLFWImage*, void> glfwSetWindowIcon;
+		[NativeType("void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos")]
+		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetWindowPos;
+		[NativeType("void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos)")]
+		public delegate* unmanaged<IntPtr, int, int, void> glfwSetWindowPos;
+		[NativeType("void glfwGetWindowSize(GLFWwindow* window, int* w, int* h)")]
+		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetWindowSize;
+		[NativeType("void glfwSetWindowSizeLimits(GLFWwindow* window, int minw, int minh, int maxw, int maxh)")]
+		public delegate* unmanaged<IntPtr, int, int, int, int, void> glfwSetWindowSizeLimits;
+		[NativeType("void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom)")]
+		public delegate* unmanaged<IntPtr, int, int, void> glfwSetWindowAspectRatio;
+		[NativeType("void glfwSetWindowSize(GLFWwindow* window, int w, int h)")]
+		public delegate* unmanaged<IntPtr, int, int, void> glfwSetWindowSize;
+		[NativeType("void glfwGetFramebufferSize(GLFWwindow* window, int* w, int* h)")]
+		public delegate* unmanaged<IntPtr, out int, out int, void> glfwGetFramebufferSize;
+		[NativeType("void glfwGetWindowFrameSize(GLFWwindow* window, int* left, int* top, int* right, int* bottom)")]
+		public delegate* unmanaged<IntPtr, out int, out int, out int, out int, void> glfwGetWindowFrameSize;
+		[NativeType("void glfwGetWindowContentScale(GLFWwindow* window, float* scaleX, float* scaleY)")]
+		public delegate* unmanaged<IntPtr, out float, out float, void> glfwGetWindowContentScale;
+		[NativeType("float glfwGetWindowOpacity(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, float> glfwGetWindowOpacity;
+		[NativeType("void glfwSetWindowOpacity(GLFWwindow* window, float opacity)")]
+		public delegate* unmanaged<IntPtr, float, void> glfwSetWindowOpacity;
+		[NativeType("void glfwIconifyWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwIconifyWindow;
+		[NativeType("void glfwRestoreWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwRestoreWindow;
+		[NativeType("void glfwMaximizeWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwMaximizeWindow;
+		[NativeType("void glfwShowWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwShowWindow;
+		[NativeType("void glfwHideWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwHideWindow;
+		[NativeType("void glfwFocusWindow(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwFocusWindow;
+		[NativeType("void glfwRequestWindowAttention(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwRequestWindowAttention;
+		[NativeType("GLFWmonitor* glfwGetWindowMonitor(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWindowMonitor;
+		[NativeType("void glfwSetWindowMonitor(GLFWwindow* window, GLFWmonitor* monitor, int xpos, int ypos, int width, int height, int refreshRate)")]
+		public delegate* unmanaged<IntPtr, IntPtr, int, int, int, int, int, void> glfwSetWindowMonitor;
+		[NativeType("int glfwGetWindowAttrib(GLFWwindow* window, int attrib)")]
+		public delegate* unmanaged<IntPtr, GLFWWindowAttrib, int> glfwGetWindowAttrib;
+		[NativeType("void glfwSetWindowAttrib(GLFWwindow* window, int attrib, int value)")]
+		public delegate* unmanaged<IntPtr, GLFWWindowAttrib, int, void> glfwSetWindowAttrib;
+		[NativeType("void* glfwGetWindowUserPointer(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWindowUserPointer;
+		[NativeType("void glfwSetWindowUserPointer(GLFWwindow* window, void* pointer)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetWindowUserPointer;
 
-		public PFN_glfwGetMonitors glfwGetMonitors;
-		public PFN_glfwGetPrimaryMonitor glfwGetPrimaryMonitor;
-		public PFN_glfwGetMonitorPos glfwGetMonitorPos;
-		public PFN_glfwGetMonitorWorkarea glfwGetMonitorWorkarea;
-		public PFN_glfwGetMonitorPhysicalSize glfwGetMonitorPhysicalSize;
-		public PFN_glfwGetMonitorContentScale glfwGetMonitorContentScale;
-		public PFN_glfwGetMonitorName glfwGetMonitorName;
-		public PFN_glfwSetMonitorUserPointer glfwSetMonitorUserPointer;
-		public PFN_glfwGetMonitorUserPointer glfwGetMonitorUserPointer;
-		public PFN_glfwSetMonitorCallback glfwSetMonitorCallback;
-		public PFN_glfwGetVideoModes glfwGetVideoModes;
-		public PFN_glfwGetVideoMode glfwGetVideoMode;
-		public PFN_glfwSetGamma glfwSetGamma;
-		public PFN_glfwGetGammaRamp glfwGetGammaRamp;
-		public PFN_glfwSetGammaRamp glfwSetGammaRamp;
+		[NativeType("GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* window, GLFWwindowposfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowPosCallback;
+		[NativeType("GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwindowsizefun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowSizeCallback;
+		[NativeType("GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* window, GLFWwindowclosefun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowCloseCallback;
+		[NativeType("GLFWwindowrefreshfun glfwSetWindowRefreshCallback(GLFWwindow* window, GLFWwindowrefreshfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowRefreshCallback;
+		[NativeType("GLFWwindowfocusfun glfwSetWindowFocusCallback(GLFWwindow* window, GLFWwindowfocusfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowFocusCallback;
+		[NativeType("GLFWwindowiconifyfun glfwSetWindowIconifyCallback(GLFWwindow* window, GLFWwindowiconifyfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowIconifyCallback;
+		[NativeType("GLFWwindowmaximizefun glfwSetWindowMaximizeCallback(GLFWwindow* window, GLFWwindowmaximizefun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowMaximizeCallback;
+		[NativeType("GLFWframebuffersizefun glfwSetFramebufferSizeCallback(GLFWwindow* window, GLFWframebuffersizefun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetFramebufferSizeCallback;
+		[NativeType("GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* window, GLFWwindowcontentscalefun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetWindowContentScaleCallback;
 
-		public delegate void PFN_glfwDefaultWindowHints();
-		public delegate void PFN_glfwWindowHint(GLFWWindowAttrib hint, int value);
-		public delegate void PFN_glfwWindowHintString(GLFWWindowAttrib hint, [MarshalAs(UnmanagedType.LPStr)] string value);
-		[return: NativeType("GLFWwindow*")]
-		public delegate IntPtr PFN_glfwCreateWindow(int width, int height, [MarshalAs(UnmanagedType.LPUTF8Str)] string title, [NativeType("GLFWmonitor*")] IntPtr monitor, [NativeType("GLFWwindow*")] IntPtr share);
-		public delegate void PFN_glfwDestroyWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate bool PFN_glfwWindowShouldClose([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwSetWindowShouldClose([NativeType("GLFWwindow*")] IntPtr window, bool value);
-		public delegate void PFN_glfwSetWindowTitle([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.LPUTF8Str)] string title);
-		public delegate void PFN_glfwSetWindowIcon([NativeType("GLFWwindow*")] IntPtr window, int count, [NativeType("const GLFWimage*")] IntPtr images);
-		public delegate void PFN_glfwGetWindowPos([NativeType("GLFWwindow*")] IntPtr window, out int xpos, out int ypos);
-		public delegate void PFN_glfwSetWindowPos([NativeType("GLFWwindow*")] IntPtr window, int xpos, int ypos);
-		public delegate void PFN_glfwGetWindowSize([NativeType("GLFWwindow*")] IntPtr window, out int w, out int h);
-		public delegate void PFN_glfwSetWindowSizeLimits([NativeType("GLFWwindow*")] IntPtr window, int minw, int minh, int maxw, int maxh);
-		public delegate void PFN_glfwSetWindowAspectRatio([NativeType("GLFWwindow*")] IntPtr window, int numer, int denom);
-		public delegate void PFN_glfwSetWindowSize([NativeType("GLFWwindow*")] IntPtr window, int w, int h);
-		public delegate void PFN_glfwGetFramebufferSize([NativeType("GLFWwindow*")] IntPtr window, out int w, out int h);
-		public delegate void PFN_glfwGetWindowFrameSize([NativeType("GLFWwindow*")] IntPtr window, out int left, out int top, out int right, out int bottom);
-		public delegate void PFN_glfwGetWindowContentScale([NativeType("GLFWwindow*")] IntPtr window, out float scaleX, out float scaleY);
-		public delegate float PFN_glfwGetWindowOpacity([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwSetWindowOpacity([NativeType("GLFWwindow*")] IntPtr window, float opacity);
-		public delegate void PFN_glfwIconifyWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwRestoreWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwMaximizeWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwShowWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwHideWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwFocusWindow([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwRequestWindowAttention([NativeType("GLFWwindow*")] IntPtr window);
-		[return: NativeType("GLFWmonitor*")]
-		public delegate IntPtr PFN_glfwGetWindowMonitor([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwSetWindowMonitor([NativeType("GLFWwindow*")] IntPtr window, [NativeType("GLFWmonitor*")] IntPtr monitor, int xpos, int ypos, int width, int height, int refreshRate);
-		public delegate int PFN_glfwGetWindowAttrib([NativeType("GLFWwindow*")] IntPtr window, GLFWWindowAttrib attrib);
-		public delegate void PFN_glfwSetWindowAttrib([NativeType("GLFWwindow*")] IntPtr window, GLFWWindowAttrib attrib, int value);
-		public delegate void PFN_glfwSetWindowUserPointer([NativeType("GLFWwindow*")] IntPtr window, IntPtr pointer);
-		public delegate IntPtr PFN_glfwGetWindowUserPointer([NativeType("GLFWwindow*")] IntPtr window);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowPosFun PFN_glfwSetWindowPosCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowPosFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowSizeFun PFN_glfwSetWindowSizeCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowSizeFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowCloseFun PFN_glfwSetWindowCloseCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowCloseFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowRefreshFun PFN_glfwSetWindowRefreshCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowRefreshFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowFocusFun PFN_glfwSetWindowFocusCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowFocusFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowIconifyFun PFN_glfwSetWindowIconifyCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowIconifyFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowMaximizeFun PFN_glfwSetWindowMaximizeCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowMaximizeFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWFramebufferSizeFun PFN_glfwSetFramebufferSizeCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWFramebufferSizeFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWWindowContentScaleFun PFN_glfwSetWindowContentScaleCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWWindowContentScaleFun callback);
+		[NativeType("void glfwPollEvents()")]
+		public delegate* unmanaged<void> glfwPollEvents;
+		[NativeType("void glfwWaitEvents()")]
+		public delegate* unmanaged<void> glfwWaitEvents;
+		[NativeType("void glfwWaitEventsTimeout(double timeout)")]
+		public delegate* unmanaged<double, void> glfwWaitEventsTimeout;
+		[NativeType("void glfwPostEmptyEvent()")]
+		public delegate* unmanaged<void> glfwPostEmptyEvent;
+		[NativeType("int glfwGetInputMode(GLFWwindow* window, int mode)")]
+		public delegate* unmanaged<IntPtr, GLFWInputMode, int> glfwGetInputMode;
+		[NativeType("void glfwSetInputMode(GLFWwindow* window, int mode, int value)")]
+		public delegate* unmanaged<IntPtr, GLFWInputMode, int, void> glfwSetInputMode;
+		[NativeType("bool glfwRawMouseMotionSupported()")]
+		public delegate* unmanaged<bool> glfwRawMouseMotionSupported;
 
-		public PFN_glfwDefaultWindowHints glfwDefaultWindowHints;
-		public PFN_glfwWindowHint glfwWindowHint;
-		public PFN_glfwWindowHintString glfwWindowHintString;
-		public PFN_glfwCreateWindow glfwCreateWindow;
-		public PFN_glfwDestroyWindow glfwDestroyWindow;
-		public PFN_glfwWindowShouldClose glfwWindowShouldClose;
-		public PFN_glfwSetWindowShouldClose glfwSetWindowShouldClose;
-		public PFN_glfwSetWindowTitle glfwSetWindowTitle;
-		public PFN_glfwSetWindowIcon glfwSetWindowIcon;
-		public PFN_glfwGetWindowPos glfwGetWindowPos;
-		public PFN_glfwSetWindowPos glfwSetWindowPos;
-		public PFN_glfwGetWindowSize glfwGetWindowSize;
-		public PFN_glfwSetWindowSizeLimits glfwSetWindowSizeLimits;
-		public PFN_glfwSetWindowAspectRatio glfwSetWindowAspectRatio;
-		public PFN_glfwSetWindowSize glfwSetWindowSize;
-		public PFN_glfwGetFramebufferSize glfwGetFramebufferSize;
-		public PFN_glfwGetWindowFrameSize glfwGetWindowFrameSize;
-		public PFN_glfwGetWindowContentScale glfwGetWindowContentScale;
-		public PFN_glfwGetWindowOpacity glfwGetWindowOpacity;
-		public PFN_glfwSetWindowOpacity glfwSetWindowOpacity;
-		public PFN_glfwIconifyWindow glfwIconifyWindow;
-		public PFN_glfwRestoreWindow glfwRestoreWindow;
-		public PFN_glfwMaximizeWindow glfwMaximizeWindow;
-		public PFN_glfwShowWindow glfwShowWindow;
-		public PFN_glfwHideWindow glfwHideWindow;
-		public PFN_glfwFocusWindow glfwFocusWindow;
-		public PFN_glfwRequestWindowAttention glfwRequestWindowAttention;
-		public PFN_glfwGetWindowMonitor glfwGetWindowMonitor;
-		public PFN_glfwSetWindowMonitor glfwSetWindowMonitor;
-		public PFN_glfwGetWindowAttrib glfwGetWindowAttrib;
-		public PFN_glfwSetWindowAttrib glfwSetWindowAttrib;
-		public PFN_glfwGetWindowUserPointer glfwGetWindowUserPointer;
-		public PFN_glfwSetWindowUserPointer glfwSetWindowUserPointer;
-		public PFN_glfwSetWindowPosCallback glfwSetWindowPosCallback;
-		public PFN_glfwSetWindowSizeCallback glfwSetWindowSizeCallback;
-		public PFN_glfwSetWindowCloseCallback glfwSetWindowCloseCallback;
-		public PFN_glfwSetWindowRefreshCallback glfwSetWindowRefreshCallback;
-		public PFN_glfwSetWindowFocusCallback glfwSetWindowFocusCallback;
-		public PFN_glfwSetWindowIconifyCallback glfwSetWindowIconifyCallback;
-		public PFN_glfwSetWindowMaximizeCallback glfwSetWindowMaximizeCallback;
-		public PFN_glfwSetFramebufferSizeCallback glfwSetFramebufferSizeCallback;
-		public PFN_glfwSetWindowContentScaleCallback glfwSetWindowContentScaleCallback;
+		[NativeType("const char* glfwGetKeyName(int key, int scancode)")]
+		public delegate* unmanaged<GLFWKey, int, IntPtr> glfwGetKeyName;
+		[NativeType("int glfwGetKeyScancode(int key)")]
+		public delegate* unmanaged<GLFWKey, int> glfwGetKeyScancode;
+		[NativeType("int glfwGetKey(GLFWwindow* window, int key)")]
+		public delegate* unmanaged<IntPtr, GLFWKey, GLFWButtonState> glfwGetKey;
 
-		public delegate void PFN_glfwPollEvents();
-		public delegate void PFN_glfwWaitEvents();
-		public delegate void PFN_glfwWaitEventsTimeout(double timeout);
-		public delegate void PFN_glfwPostEmptyEvent();
-		public delegate int PFN_glfwGetInputMode([NativeType("GLFWwindow*")] IntPtr window, GLFWInputMode mode);
-		public delegate void PFN_glfwSetInputMode([NativeType("GLFWwindow*")] IntPtr window, GLFWInputMode mode, int value);
-		public delegate bool PFN_glfwRawMouseMotionSupported();
+		[NativeType("int glfwGetMouseButton(GLFWwindow* window, int button)")]
+		public delegate* unmanaged<IntPtr, int, GLFWButtonState> glfwGetMouseButton;
+		[NativeType("void glfwGetCursorPos(GLFWwindow* window, double* xpos, double* ypos)")]
+		public delegate* unmanaged<IntPtr, out double, out double, void> glfwGetCursorPos;
+		[NativeType("void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos)")]
+		public delegate* unmanaged<IntPtr, double, double, void> glfwSetCursorPos;
 
-		public PFN_glfwPollEvents glfwPollEvents;
-		public PFN_glfwWaitEvents glfwWaitEvents;
-		public PFN_glfwWaitEventsTimeout glfwWaitEventsTimeout;
-		public PFN_glfwPostEmptyEvent glfwPostEmptyEvent;
-		public PFN_glfwGetInputMode glfwGetInputMode;
-		public PFN_glfwSetInputMode glfwSetInputMode;
-		public PFN_glfwRawMouseMotionSupported glfwRawMouseMotionSupported;
+		[NativeType("GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)")]
+		public delegate* unmanaged<in GLFWImage, int, int, IntPtr> glfwCreateCursor;
+		[NativeType("GLFWcursor* glfwCreateStandardCursor(int shape)")]
+		public delegate* unmanaged<GLFWCursorShape, IntPtr> glfwCreateStandardCursor;
+		[NativeType("void glfwDestroyCursor(GLFWcursor* cursor)")]
+		public delegate* unmanaged<IntPtr, void> glfwDestroyCursor;
+		[NativeType("void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetCursor;
 
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetKeyName(GLFWKey key, int scancode);
-		public delegate int PFN_glfwGetKeyScancode(GLFWKey key);
-		public delegate GLFWButtonState PFN_glfwGetKey([NativeType("GLFWwindow*")] IntPtr window, GLFWKey key);
+		[NativeType("GLFWkeyfun glfwSetKeyCallback(GLFWkeyfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetKeyCallback;
+		[NativeType("GLFWcharfun glfwSetCharCallback(GLFWcharfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetCharCallback;
+		[NativeType("GLFWcharmodsfun glfwSetCharModsCallback(GLFWcharmodsfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetCharModsCallback;
+		[NativeType("GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWmousebuttonfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetMouseButtonCallback;
+		[NativeType("GLFWcursorposfun glfwSetMouseButtonCallback(GLFWcursorposfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetCursorPosCallback;
+		[NativeType("GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWcursorenterfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetCursorEnterCallback;
+		[NativeType("GLFWscrollfun glfwSetScrollCallback(GLFWscrollfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetScrollCallback;
+		[NativeType("GLFWdropfun glfwSetDropCallback(GLFWdropfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwSetDropCallback;
 
-		public PFN_glfwGetKeyName glfwGetKeyName;
-		public PFN_glfwGetKeyScancode glfwGetKeyScancode;
-		public PFN_glfwGetKey glfwGetKey;
+		[NativeType("int glfwJoystickPresent(int jid)")]
+		public delegate* unmanaged<int, bool> glfwJoystickPresent;
+		[NativeType("const float* glfwGetJoystickAxes(int jid, int* count)")]
+		public delegate* unmanaged<int, out int, IntPtr> glfwGetJoystickAxes;
+		[NativeType("const unsigned char* glfwGetJoystickButtons(int jid, int* count)")]
+		public delegate* unmanaged<int, out int, IntPtr> glfwGetJoystickButtons;
+		[NativeType("const unsigned char* glfwGetJoystickHats(int jid, int* count)")]
+		public delegate* unmanaged<int, out int, IntPtr> glfwGetJoystickHats;
+		[NativeType("const char* glfwGetJoystickName(int jid)")]
+		public delegate* unmanaged<int, IntPtr> glfwGetJoystickName;
+		[NativeType("const char* glfwGetJoystickGUID(int jid)")]
+		public delegate* unmanaged<int, IntPtr> glfwGetJoystickGUID;
+		[NativeType("void glfwSetJoystickUserPointer(int jid, void* pointer)")]
+		public delegate* unmanaged<int, IntPtr, void> glfwSetJoystickUserPointer;
+		[NativeType("void* glfwGetJoystickUserPointer(int jid)")]
+		public delegate* unmanaged<int, IntPtr> glfwGetJoystickUserPointer;
+		[NativeType("int glfwJoystickIsGamepad(int jid)")]
+		public delegate* unmanaged<int, bool> glfwJoystickIsGamepad;
+		[NativeType("GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwSetJoystickCallback;
 
-		public delegate GLFWButtonState PFN_glfwGetMouseButton([NativeType("GLFWwindow*")] IntPtr window, int button);
-		public delegate void PFN_glfwGetCursorPos([NativeType("GLFWwindow*")] IntPtr window, out double xpos, out double ypos);
-		public delegate void PFN_glfwSetCursorPos([NativeType("GLFWwindow*")] IntPtr window, double xpos, double ypos);
+		[NativeType("int glfwUpdateGamepadMappings(const char* str)")]
+		public delegate* unmanaged<IntPtr, bool> glfwUpdateGamepadMappings;
+		[NativeType("const char* glfwGetGamepadName(int jid)")]
+		public delegate* unmanaged<int, IntPtr> glfwGetGamepadName;
+		[NativeType("int glfwGetGamepadState(int jid)")]
+		public delegate* unmanaged<int, out GLFWGamepadState, bool> glfwGetGamepadState;
 
-		public PFN_glfwGetMouseButton glfwGetMouseButton;
-		public PFN_glfwGetCursorPos glfwGetCursorPos;
-		public PFN_glfwSetCursorPos glfwSetCursorPos;
-		
-		[return: NativeType("GLFWcursor*")]
-		public delegate IntPtr PFN_glfwCreateCursor(in GLFWImage image, int xhot, int yhot);
-		[return: NativeType("GLFWcursor*")]
-		public delegate IntPtr PFN_glfwCreateStandardCursor(GLFWCursorShape shape);
-		public delegate void PFN_glfwDestroyCursor([NativeType("GLFWcursor*")] IntPtr cursor);
-		public delegate void PFN_glfwSetCursor([NativeType("GLFWwindow*")] IntPtr window, [NativeType("GLFWcursor*")] IntPtr cursor);
+		[NativeType("void glfwSetClipboardString(GLFWwindow* window, const char* str)")]
+		public delegate* unmanaged<IntPtr, IntPtr, void> glfwSetClipboardString;
+		[NativeType("const char* glfwGetClipboardString(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetClipboardString;
 
-		public PFN_glfwCreateCursor glfwCreateCursor;
-		public PFN_glfwCreateStandardCursor glfwCreateStandardCursor;
-		public PFN_glfwDestroyCursor glfwDestroyCursor;
-		public PFN_glfwSetCursor glfwSetCursor;
+		[NativeType("double glfwGetTime()")]
+		public delegate* unmanaged<double> glfwGetTime;
+		[NativeType("void glfwSetTime(double time)")]
+		public delegate* unmanaged<double, void> glfwSetTime;
+		[NativeType("uint64_t glfwGetTimerValue()")]
+		public delegate* unmanaged<ulong> glfwGetTimerValue;
+		[NativeType("uint64_t glfwGetTimerFrequency()")]
+		public delegate* unmanaged<ulong> glfwGetTimerFrequency;
 
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWKeyFun PFN_glfwSetKeyCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWKeyFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWCharFun PFN_glfwSetCharCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWCharFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWCharModsFun PFN_glfwSetCharModsCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWCharModsFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWMouseButtonFun PFN_glfwSetMouseButtonCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWMouseButtonFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWCursorPosFun PFN_glfwSetCursorPosCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWCursorPosFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWCursorEnterFun PFN_glfwSetCursorEnterCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWCursorEnterFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWScrollFun PFN_glfwSetScrollCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWScrollFun callback);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWDropFun PFN_glfwSetDropCallback([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.FunctionPtr)] GLFWDropFun callback);
+		[NativeType("void glfwMakeContextCurrent(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwMakeContextCurrent;
+		[NativeType("GLFWwindow* glfwGetCurrentContext()")]
+		public delegate* unmanaged<IntPtr> glfwGetCurrentContext;
+		[NativeType("void glfwSwapBuffers(GLFWwindow* window)")]
+		public delegate* unmanaged<IntPtr, void> glfwSwapBuffers;
+		[NativeType("void glfwSwapInterval(int interval)")]
+		public delegate* unmanaged<int, void> glfwSwapInterval;
+		[NativeType("int glfwExtensionSupported(const char* extension)")]
+		public delegate* unmanaged<IntPtr, bool> glfwExtensionSupported;
+		[NativeType("void* glfwGetProcAddress(const char* procname)")]
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetProcAddress;
 
-		public PFN_glfwSetKeyCallback glfwSetKeyCallback;
-		public PFN_glfwSetCharCallback glfwSetCharCallback;
-		public PFN_glfwSetCharModsCallback glfwSetCharModsCallback;
-		public PFN_glfwSetMouseButtonCallback glfwSetMouseButtonCallback;
-		public PFN_glfwSetCursorPosCallback glfwSetCursorPosCallback;
-		public PFN_glfwSetCursorEnterCallback glfwSetCursorEnterCallback;
-		public PFN_glfwSetScrollCallback glfwSetScrollCallback;
-		public PFN_glfwSetDropCallback glfwSetDropCallback;
-
-		public delegate bool PFN_glfwJoystickPresent(int jid);
-		[return: NativeType("const float*")]
-		public delegate IntPtr PFN_glfwGetJoystickAxes(int jid, out int count);
-		[return: NativeType("const unsigned char*")]
-		public delegate IntPtr PFN_glfwGetJoystickButtons(int jid, out int count);
-		[return: NativeType("const unsigned char*")]
-		public delegate IntPtr PFN_glfwGetJoystickHats(int jid, out int count);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetJoystickName(int jid);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetJoystickGUID(int jid);
-		public delegate void PFN_glfwSetJoystickUserPointer(int jid, IntPtr pointer);
-		public delegate IntPtr PFN_glfwGetJoystickUserPointer(int jid);
-		public delegate bool PFN_glfwJoystickIsGamepad(int jid);
-		[return: MarshalAs(UnmanagedType.FunctionPtr)]
-		public delegate GLFWJoystickFun PFN_glfwSetJoystickCallback([MarshalAs(UnmanagedType.FunctionPtr)] GLFWJoystickFun callback);
-
-		public PFN_glfwJoystickPresent glfwJoystickPresent;
-		public PFN_glfwGetJoystickAxes glfwGetJoystickAxes;
-		public PFN_glfwGetJoystickButtons glfwGetJoystickButtons;
-		public PFN_glfwGetJoystickHats glfwGetJoystickHats;
-		public PFN_glfwGetJoystickName glfwGetJoystickName;
-		public PFN_glfwGetJoystickGUID glfwGetJoystickGUID;
-		public PFN_glfwSetJoystickUserPointer glfwSetJoystickUserPointer;
-		public PFN_glfwGetJoystickUserPointer glfwGetJoystickUserPointer;
-		public PFN_glfwJoystickIsGamepad glfwJoystickIsGamepad;
-		public PFN_glfwSetJoystickCallback glfwSetJoystickCallback;
-
-		public delegate bool PFN_glfwUpdateGamepadMappings([MarshalAs(UnmanagedType.LPStr)] string str);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetGamepadName(int jid);
-		public delegate bool PFN_glfwGetGamepadState(int jid, out GLFWGamepadState state);
-
-		public PFN_glfwUpdateGamepadMappings glfwUpdateGamepadMappings;
-		public PFN_glfwGetGamepadName glfwGetGamepadName;
-		public PFN_glfwGetGamepadState glfwGetGamepadState;
-
-		public delegate void PFN_glfwSetClipboardString([NativeType("GLFWwindow*")] IntPtr window, [MarshalAs(UnmanagedType.LPUTF8Str)] string str);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetClipboardString([NativeType("GLFWwindow*")] IntPtr window);
-
-		public PFN_glfwSetClipboardString glfwSetClipboardString;
-		public PFN_glfwGetClipboardString glfwGetClipboardString;
-
-		public delegate double PFN_glfwGetTime();
-		public delegate void PFN_glfwSetTime(double time);
-		public delegate ulong PFN_glfwGetTimerValue();
-		public delegate ulong PFN_glfwGetTimerFrequency();
-
-		public PFN_glfwGetTime glfwGetTime;
-		public PFN_glfwSetTime glfwSetTime;
-		public PFN_glfwGetTimerValue glfwGetTimerValue;
-		public PFN_glfwGetTimerFrequency glfwGetTimerFrequency;
-
-		public delegate void PFN_glfwMakeContextCurrent([NativeType("GLFWwindow*")] IntPtr window);
-		[return: NativeType("GLFWwindow*")]
-		public delegate IntPtr PFN_glfwGetCurrentContext();
-		public delegate void PFN_glfwSwapBuffers([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwSwapInterval(int interval);
-		public delegate bool PFN_glfwExtensionSupported([MarshalAs(UnmanagedType.LPStr)] string extension);
-		public delegate IntPtr PFN_glfwGetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procname);
-
-		public PFN_glfwMakeContextCurrent glfwMakeContextCurrent;
-		public PFN_glfwGetCurrentContext glfwGetCurrentContext;
-		public PFN_glfwSwapBuffers glfwSwapBuffers;
-		public PFN_glfwSwapInterval glfwSwapInterval;
-		public PFN_glfwExtensionSupported glfwExtensionSupported;
-		public PFN_glfwGetProcAddress glfwGetProcAddress;
-
-		public delegate bool PFN_glfwVulkanSupported();
-		[return: NativeType("const char**")]
-		public delegate IntPtr PFN_glfwGetRequiredInstanceExtensions(out uint count);
-		public delegate IntPtr PFN_glfwGetInstanceProcAddress([NativeType("VkInstance")] IntPtr instance, [MarshalAs(UnmanagedType.LPStr)] string procname);
-		public delegate bool PFN_glfwGetPhysicalDevicePresentationSupport([NativeType("VkInstance")] IntPtr instance, [NativeType("VkPhysicalDevice")] IntPtr physicalDevice, uint queueFamily);
-		[return: NativeType("VkResult")]
-		public delegate int PFN_glfwCreateWindowSurface([NativeType("VkInstance")] IntPtr instance, [NativeType("GLFWwindow*")] IntPtr window, [NativeType("const VkAllocationCallbacks*")] IntPtr allocator, [NativeType("VkSurfaceKHR*")] out ulong surface);
-
-		public PFN_glfwVulkanSupported glfwVulkanSupported;
-		public PFN_glfwGetRequiredInstanceExtensions glfwGetRequiredInstanceExtensions;
-		public PFN_glfwGetInstanceProcAddress glfwGetInstanceProcAddress;
-		public PFN_glfwGetPhysicalDevicePresentationSupport glfwGetPhysicalDevicePresentationSupport;
-		public PFN_glfwCreateWindowSurface glfwCreateWindowSurface;
+		[NativeType("int glfwVulkanSupported()")]
+		public delegate* unmanaged<bool> glfwVulkanSupported;
+		[NativeType("const char** glfwGetRequiredInstanceExtensions(uint32_t* count)")]
+		public delegate* unmanaged<out uint, IntPtr> glfwGetRequiredInstanceExtensions;
+		[NativeType("void* glfwGetInstanceProcAddress(VkInstance instance, const char* procname)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> glfwGetInstanceProcAddress;
+		[NativeType("int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice physicalDevice, uint32_t queueFamily)")]
+		public delegate* unmanaged<IntPtr, IntPtr, uint, bool> glfwGetPhysicalDevicePresentationSupport;
+		[NativeType("VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window, const VkAllocationCallbacks* allocator, VkSurfaceKHR* surface)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr, out ulong, int> glfwCreateWindowSurface;
 
 		// glfw3native.h
 
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetWin32Adapter([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetWin32Monitor([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("HWND")]
-		public delegate IntPtr PFN_glfwGetWin32Window([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("const char* glfwGetWin32Adapter(GLFWmonitor* monitor)")]
 		[ExternFunction(Platform = PlatformType.Windows)]
-		public PFN_glfwGetWin32Adapter glfwGetWin32Adapter;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWin32Adapter;
+		[NativeType("const char* glfwGetWin32Monitor(GLFWmonitor* monitor)")]
 		[ExternFunction(Platform = PlatformType.Windows)]
-		public PFN_glfwGetWin32Monitor glfwGetWin32Monitor;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWin32Monitor;
+		[NativeType("HWND glfwGetWin32Window(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Windows)]
-		public PFN_glfwGetWin32Window glfwGetWin32Window;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWin32Window;
 
-		[return: NativeType("HGLRC")]
-		public delegate IntPtr PFN_glfwGetWGLContext([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("HGLRC glfwGetWGLContext(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Windows)]
-		public PFN_glfwGetWGLContext glfwGetWGLContext;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWGLContext;
 
-		[return: NativeType("CGDirectDisplayID")]
-		public delegate uint PFN_glfwGetCocoaMonitor([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("id")]
-		public delegate IntPtr PFN_glfwGetCocoaWindow([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("CGDirectDisplayID glfwGetCocoaMonitor(GLFWmonitor* monitor)")]
 		[ExternFunction(Platform = PlatformType.MacOSX)]
-		public PFN_glfwGetCocoaMonitor glfwGetCocoaMonitor;
+		public delegate* unmanaged<IntPtr, uint> glfwGetCocoaMonitor;
+		[NativeType("id glfwGetCocoaWindow(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.MacOSX)]
-		public PFN_glfwGetCocoaWindow glfwGetCocoaWindow;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetCocoaWindow;
 
-		[return: NativeType("id")]
-		public delegate IntPtr PFN_glfwGetNSGLContext([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("id glfwGetNSGLContext(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.MacOSX)]
-		public PFN_glfwGetNSGLContext glfwGetNSGLContext;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetNSGLContext;
 
-		[return: NativeType("Display*")]
-		public delegate IntPtr PFN_glfwGetX11Display();
-		[return: NativeType("RRCrtc")]
-		public delegate XID PFN_glfwGetX11Adapter([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("RROutput")]
-		public delegate XID PFN_glfwGetX11Monitor([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("Window")]
-		public delegate XID PFN_glfwGetX11Window([NativeType("GLFWwindow*")] IntPtr window);
-		public delegate void PFN_glfwSetX11SelectionString([MarshalAs(UnmanagedType.LPStr)] string str);
-		[return: NativeType("const char*")]
-		public delegate IntPtr PFN_glfwGetX11SelectionString();
+		[NativeType("Display* glfwGetX11Display()")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr> glfwGetX11Display;
+		[NativeType("RRCrtc glfwGetX11Adapter(GLFWmonitor* monitor)")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr, XID> glfwGetX11Adapter;
+		[NativeType("RROutput glfwGetX11Monitor(GLFWmonitor* monitor)")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr, XID> glfwGetX11Monitor;
+		[NativeType("Window glfwGetX11Window(GLFWwindow* window)")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr, XID> glfwGetX11Window;
+		[NativeType("void glfwSetX11SelectionString(const char* str)")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr, void> glfwSetX11SelectionString;
+		[NativeType("const char* glfwGetX11SelectionString()")]
+		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
+		public delegate* unmanaged<IntPtr> glfwGetX11SelectionString;
 
+		[NativeType("GLXContext* glfwGetGLXContext(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetX11Display glfwGetX11Display;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetGLXContext;
+		[NativeType("GLXWindow glfwGetGLXWindow(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetX11Adapter glfwGetX11Adapter;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetX11Monitor glfwGetX11Monitor;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetX11Window glfwGetX11Window;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwSetX11SelectionString glfwSetX11SelectionString;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetX11SelectionString glfwGetX11SelectionString;
+		public delegate* unmanaged<IntPtr, XID> glfwGetGLXWindow;
 
-		[return: NativeType("GLXContext")]
-		public delegate IntPtr PFN_glfwGetGLXContext([NativeType("GLFWwindow*")] IntPtr window);
-		[return: NativeType("GLXWindow")]
-		public delegate XID PFN_glfwGetGLXWindow([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("wl_display* glfwGetWaylandDisplay()")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetGLXContext glfwGetGLXContext;
+		public delegate* unmanaged<IntPtr> glfwGetWaylandDisplay;
+		[NativeType("wl_output* glfwGetWaylandMonitor(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetGLXWindow glfwGetGLXWindow;
-
-		[return: NativeType("wl_display*")]
-		public delegate IntPtr PFN_glfwGetWaylandDisplay();
-		[return: NativeType("wl_output*")]
-		public delegate IntPtr PFN_glfwGetWaylandMonitor([NativeType("GLFWmonitor*")] IntPtr monitor);
-		[return: NativeType("wl_surface*")]
-		public delegate IntPtr PFN_glfwGetWaylandWindow([NativeType("GLFWwindow*")] IntPtr window);
-
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWaylandMonitor;
+		[NativeType("wl_surface* glfwGetWaylandWindow(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetWaylandDisplay glfwGetWaylandDisplay;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetWaylandMonitor glfwGetWaylandMonitor;
-		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetWaylandWindow glfwGetWaylandWindow;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetWaylandWindow;
 
-		[return: NativeType("EGLDisplay")]
-		public delegate IntPtr PFN_glfwGetEGLDisplay();
-		[return: NativeType("EGLContext")]
-		public delegate IntPtr PFN_glfwGetEGLContext([NativeType("GLFWwindow*")] IntPtr window);
-		[return: NativeType("EGLSurface")]
-		public delegate IntPtr PFN_glfwGetEGLSurface([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("EGLDisplay glfwGetEGLDisplay()")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_glfwGetEGLDisplay glfwGetEGLDisplay;
+		public delegate* unmanaged<IntPtr> glfwGetEGLDisplay;
+		[NativeType("EGLContext glfwGetEGLContext(GLFWwindow* window)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_glfwGetEGLContext glfwGetEGLContext;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetEGLContext;
+		[NativeType("EGLSurface glfwGetEGLSurface(GLFWwindow* window)")]
 		[ExternFunction(Relaxed = true)]
-		public PFN_glfwGetEGLSurface glfwGetEGLSurface;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetEGLSurface;
 
-		public delegate bool PFN_glfwGetOSMesaColorBuffer([NativeType("GLFWwindow*")] IntPtr window, out int width, out int height, out int format, [NativeType("void**")] out IntPtr buffer);
-		public delegate bool PFN_glfwGetOSMesaDepthBuffer([NativeType("GLFWwindow*")] IntPtr window, out int width, out int height, out int bytesPerValue, [NativeType("void**")] out IntPtr buffer);
-		[return: NativeType("OSMesaContext")]
-		public delegate IntPtr PFN_glfwGetOSMesaContext([NativeType("GLFWwindow*")] IntPtr window);
-
+		[NativeType("int glfwGetOSMesaColorBuffer(GLFWwindow* window, int* width, int* height, int* format, void** buffer)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetOSMesaColorBuffer glfwGetOSMesaColorBuffer;
+		public delegate* unmanaged<IntPtr, out int, out int, out int, out IntPtr, bool> glfwGetOSMesaColorBuffer;
+		[NativeType("int glfwGetOSMesaDepthBuffer(GLFWwindow* window, int* width, int* height, int* bytesPerValue, void** buffer)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetOSMesaDepthBuffer glfwGetOSMesaDepthBuffer;
+		public delegate* unmanaged<IntPtr, out int, out int, out int, out IntPtr, bool> glfwGetOSMesaDepthBuffer;
+		[NativeType("OSMesaContext glfwGetOSMesaContext(GLFWwindow* window)")]
 		[ExternFunction(Platform = PlatformType.Linux, Relaxed = true)]
-		public PFN_glfwGetOSMesaContext glfwGetOSMesaContext;
+		public delegate* unmanaged<IntPtr, IntPtr> glfwGetOSMesaContext;
 
 	}
-#nullable restore
 
 }

@@ -8,15 +8,13 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.OpenGL {
 
-#nullable disable
-	public class ARBClipControlFunctions {
+	public unsafe class ARBClipControlFunctions {
 
-		public delegate void PFN_glClipControl(uint origin, uint depth);
 		[ExternFunction(AltNames = new string[] { "glClipControlARB" })]
-		public PFN_glClipControl glClipControl;
+		[NativeType("void glClipControl(GLenum origin, GLenum depth)")]
+		public delegate* unmanaged<uint, uint, void> glClipControl;
 
 	}
-#nullable restore
 
 	public class ARBClipControl : IGLObject {
 
@@ -29,7 +27,10 @@ namespace Tesseract.OpenGL {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ClipControl(GLOrigin origin, GLClipDepth depth) => Functions.glClipControl((uint)origin, (uint)depth);
-
+		public void ClipControl(GLOrigin origin, GLClipDepth depth) {
+			unsafe {
+				Functions.glClipControl((uint)origin, (uint)depth);
+			}
+		}
 	}
 }
