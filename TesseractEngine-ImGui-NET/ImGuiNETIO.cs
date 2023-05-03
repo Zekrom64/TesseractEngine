@@ -10,6 +10,8 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.ImGui.NET {
 
+	internal delegate void ImGuiNETSetPlatformImeData(IntPtr viewport, IntPtr data);
+
 	public class ImGuiNETIO : IImGuiIO, IDisposable {
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Cannot be readonly to set clipboard user data")]
@@ -24,7 +26,7 @@ namespace Tesseract.ImGui.NET {
 			// Shouldn't be null if we have IO...
 			Fonts = new ImGuiNETFontAtlas(io.Fonts);
 
-			pfnSetPlatformImeData = Marshal.GetFunctionPointerForDelegate(SetPlatformImeData);
+			pfnSetPlatformImeData = Marshal.GetFunctionPointerForDelegate(new ImGuiNETSetPlatformImeData(SetPlatformImeData));
 		}
 
 		public void Dispose() {
@@ -135,11 +137,14 @@ namespace Tesseract.ImGui.NET {
 			get => io.BackendPlatformName;
 			set {
 				backendPlatformName.Dispose();
-				backendPlatformName = MemoryUtil.AllocUTF8(value);
 				unsafe {
-					io.NativePtr->BackendPlatformName = (byte*)backendPlatformName.Ptr;
+					if (value != null) {
+						backendPlatformName = MemoryUtil.AllocUTF8(value);
+						io.NativePtr->BackendPlatformName = (byte*)backendPlatformName.Ptr;
+					} else {
+						io.NativePtr->BackendPlatformName = null;
+					}
 				}
-				
 			}
 		}
 
@@ -149,9 +154,13 @@ namespace Tesseract.ImGui.NET {
 			get => io.BackendRendererName;
 			set {
 				backendRendererName.Dispose();
-				backendRendererName = MemoryUtil.AllocUTF8(value);
 				unsafe {
-					io.NativePtr->BackendRendererName = (byte*)backendRendererName.Ptr;
+					if (value != null) {
+						backendRendererName = MemoryUtil.AllocUTF8(value);
+						io.NativePtr->BackendRendererName = (byte*)backendRendererName.Ptr;
+					} else {
+						io.NativePtr->BackendRendererName = null;
+					}
 				}
 			}
 		}

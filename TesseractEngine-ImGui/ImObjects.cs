@@ -105,7 +105,7 @@ namespace Tesseract.ImGui {
 		public uint VtxOffset;
 		public uint IdxOffset;
 		public uint ElemCount;
-		public ImDrawCallback UserCallback;
+		public ImDrawCallback? UserCallback;
 
 	}
 
@@ -143,6 +143,8 @@ namespace Tesseract.ImGui {
 	}
 
 	public interface IImVector<T> : IList<T>, IReadOnlyList<T> {
+
+		public new int Count { get; }
 
 		public Span<T> AsSpan();
 

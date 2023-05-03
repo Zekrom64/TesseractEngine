@@ -1276,7 +1276,7 @@ namespace Tesseract.ImGui.NET {
 			unsafe {
 				fixed (byte* pLabel = CheckStr(label), pOverlayText = CheckStr(overlayText, stackalloc byte[0])) {
 					fixed (float* pValues = values) {
-						ImGuiNative.igPlotHistogram_FloatPtr(pLabel, pValues, valuesCount, 0, overlayText.IsEmpty ? null : pOverlayText, scaleMin, scaleMax, graphSize, stride);
+						ImGuiNative.igPlotHistogram_FloatPtr(pLabel, pValues, valuesCount, 0, overlayText.IsEmpty ? null : pOverlayText, scaleMin, scaleMax, graphSize, stride * sizeof(float));
 					}
 				}
 			}
@@ -1293,7 +1293,7 @@ namespace Tesseract.ImGui.NET {
 			unsafe {
 				fixed (byte* pLabel = CheckStr(label), pOverlayText = CheckStr(overlayText, stackalloc byte[0])) {
 					fixed (float* pValues = values) {
-						ImGuiNative.igPlotLines_FloatPtr(pLabel, pValues, valuesCount, 0, overlayText.IsEmpty ? null : pOverlayText, scaleMin, scaleMax, graphSize, stride);
+						ImGuiNative.igPlotLines_FloatPtr(pLabel, pValues, valuesCount, 0, overlayText.IsEmpty ? null : pOverlayText, scaleMin, scaleMax, graphSize, stride * sizeof(float));
 					}
 				}
 			}

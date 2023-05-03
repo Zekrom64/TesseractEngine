@@ -20,7 +20,15 @@ namespace Tesseract.ImGui.NET {
 
 		private static ImDrawCmd Decode(ImGuiNET.ImDrawCmd cmd) {
 			unsafe {
-				ImDrawCallback cbk = callbacks[(int)cmd.UserCallbackData];
+				int icbk = (int)cmd.UserCallbackData;
+				ImDrawCallback? cbk = null;
+				if (icbk == -1) {
+					// Sentinel value for ResetRenderState
+					cbk = GImGui.ResetRenderState;
+				} else if (icbk > 0) {
+					// If positive, must be an index into the custom callbacks
+					cbk = callbacks[(int)cmd.UserCallbackData - 1];
+				}
 				return new ImDrawCmd() {
 					ClipRect = cmd.ClipRect,
 					ElemCount = cmd.ElemCount,
@@ -35,16 +43,27 @@ namespace Tesseract.ImGui.NET {
 		private static ImGuiNET.ImDrawCmd Encode(ImDrawCmd cmd) {
 			unsafe {
 				lock (callbacks) {
-					callbacks.Add(cmd.UserCallback);
-					delegate* unmanaged<IntPtr, ImGuiNET.ImDrawCmd*, void> cbk = &CustomDrawCallback;
+					// Default callback is null
+					nint cbk = 0;
+					if (cmd.UserCallback != null) {
+						if (cmd.UserCallback == GImGui.ResetRenderState) {
+							// If special ResetRenderState value, use -1
+							cbk = -1;
+						} else {
+							// Else register the custom callback and add the callback trampoline
+							callbacks.Add(cmd.UserCallback);
+							delegate* unmanaged<IntPtr, ImGuiNET.ImDrawCmd*, void> fptr = &CustomDrawCallback;
+							cbk = (nint)fptr;
+						}
+					}
 					return new ImGuiNET.ImDrawCmd() {
 						ClipRect = cmd.ClipRect,
 						ElemCount = cmd.ElemCount,
 						VtxOffset = cmd.VtxOffset,
 						IdxOffset = cmd.IdxOffset,
 						TextureId = (nint)cmd.TextureID,
-						UserCallback = (nint)cbk,
-						UserCallbackData = (void*)(callbacks.Count - 1)
+						UserCallback = cbk,
+						UserCallbackData = (void*)callbacks.Count
 					};
 				}
 			}
@@ -112,7 +131,7 @@ namespace Tesseract.ImGui.NET {
 		[UnmanagedCallersOnly]
 		private static unsafe void CustomDrawCallback(IntPtr parentList, ImGuiNET.ImDrawCmd* cmd) {
 			var cmd2 = Decode(*cmd);
-			cmd2.UserCallback(drawLists[parentList], cmd2);
+			cmd2.UserCallback?.Invoke(drawLists[parentList], cmd2);
 		}
 
 		public void AddCallback(ImDrawCallback callback) {
