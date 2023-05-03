@@ -197,25 +197,32 @@ namespace Tesseract.ImGui.Utilities {
 			/// Creates a new temporary string parameter.
 			/// </summary>
 			/// <param name="str">String value to set</param>
-			public StringParam(string? str) {
+			public StringParam(string? str) : this(str ?? ReadOnlySpan<char>.Empty) { }
+
+			/// <summary>
+			/// Creates a new temporary string parameter.
+			/// </summary>
+			/// <param name="str">String value to set</param>
+			public StringParam(in ReadOnlySpan<char> str) {
 				heapBuffer = default;
 				byteLength = 0;
 				StackBufferSpan.Fill(0);
 
-				if (str != null) {
-					// Try to convert into the stack allocated buffer first
-					var encode = Encoding.UTF8.GetEncoder();
-					encode.Convert(str, StackBufferSpan, false, out _, out byteLength, out bool completed);
+				// Try to convert into the stack allocated buffer first
+				var encode = Encoding.UTF8.GetEncoder();
+				encode.Convert(str, StackBufferSpan, false, out _, out byteLength, out bool completed);
 
-					// If unable to convert the whole string, convert via heap-allocated memory
-					if (!completed) {
-						heapBuffer = Encoding.UTF8.GetBytes(str + '\0');
-						byteLength = heapBuffer.Length - 1;
-					}
+				// If unable to convert the whole string, convert via heap-allocated memory
+				if (!completed) {
+					heapBuffer = new byte[Encoding.UTF8.GetByteCount(str) + 1];
+					Encoding.UTF8.GetBytes(str, heapBuffer.Span);
+					byteLength = heapBuffer.Length - 1;
 				}
 			}
 
 			public static implicit operator StringParam(string? str) => new(str);
+
+			public static implicit operator StringParam(in ReadOnlySpan<char> str) => new(str);
 
 			public static implicit operator ReadOnlySpan<byte>(StringParam param) => param.Bytes;
 

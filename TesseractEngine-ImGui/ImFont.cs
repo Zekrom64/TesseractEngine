@@ -15,7 +15,6 @@ namespace Tesseract.ImGui {
 		public IImFontAtlas ContainerAtlas { get; }
 		public char FallbackChar { get; }
 		public char EllipsisChar { get; }
-		public char DotChar { get; }
 		public bool DirtyLookupTables { get; }
 		public float Scale { get; set; }
 		public float Ascent { get; }

@@ -691,9 +691,9 @@ namespace Tesseract.ImGui {
 
 		public void PopStyleVar(int count = 1);
 
-		public void PushAllowKeyboardFocus(bool allowKeyboardFocus);
+		public void PushTabStop(bool allowKeyboardFocus);
 
-		public void PopAllowKeyboardFocus();
+		public void PopTabStop();
 
 		public void PushButtonRepeat(bool repeat);
 
@@ -836,11 +836,11 @@ namespace Tesseract.ImGui {
 
 		public void Image(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => Image(userTextureID, size, uv0, Vector2.One);
 
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding, Vector4 bgCol, Vector4 tintCol);
+		public bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 bgCol, Vector4 tintCol);
 
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding = -1, Vector4 bgCol = default) => ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, Vector4.One);
+		public bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 bgCol = default) => ImageButton(strID, userTextureID, size, uv0, uv1, bgCol, Vector4.One);
 
-		public bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(userTextureID, size, uv0, Vector2.One);
+		public bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(strID, userTextureID, size, uv0, Vector2.One);
 
 		public bool Checkbox(ReadOnlySpan<byte> label, ref bool v);
 
@@ -1249,7 +1249,7 @@ namespace Tesseract.ImGui {
 		//   wastefully sort your data every frame!
 		// - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
 
-		public IImGuiTableSortSpecs TableSortSpecs { get; }
+		public IImGuiTableSortSpecs? TableSortSpecs { get; }
 
 		// Tables: Miscellaneous functions
 		// - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
@@ -1473,7 +1473,7 @@ namespace Tesseract.ImGui {
 
 		public bool IsMouseDoubleClicked(ImGuiMouseButton button);
 
-		public int GetMouseClickedAmount(ImGuiMouseButton button);
+		public int GetMouseClickedCount(ImGuiMouseButton button);
 
 		public bool IsMouseHoveringRect(Vector2 rMin, Vector2 rMax, bool clip = true);
 
