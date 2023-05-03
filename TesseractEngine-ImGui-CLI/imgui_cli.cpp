@@ -673,11 +673,11 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			::ImGui::PopStyleVar(count);
 		}
 
-		virtual void PushAllowKeyboardFocus(bool allowKeyboardFocus) {
-			::ImGui::PushAllowKeyboardFocus(allowKeyboardFocus);
+		virtual void PushTabStop(bool allowTabStop) {
+			::ImGui::PushAllowKeyboardFocus(allowTabStop);
 		}
 
-		virtual void PopAllowKeyboardFocus() {
+		virtual void PopTabStop() {
 			::ImGui::PopAllowKeyboardFocus();
 		}
 
@@ -957,16 +957,16 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			Image(userTextureID, size, uv0, Vector2::One);
 		}
 
-		virtual bool ImageButton(System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0, System::Numerics::Vector2 uv1, int framePadding, System::Numerics::Vector4 bgCol, System::Numerics::Vector4 tintCol) {
-			return ::ImGui::ImageButton((void*)userTextureID, { size.X, size.Y }, { uv0.X, uv0.Y }, { uv1.X, uv1.Y }, framePadding, { bgCol.X, bgCol.Y, bgCol.Z, bgCol.W }, { tintCol.X, tintCol.Y, tintCol.Z, tintCol.W });
+		virtual bool ImageButton(System::ReadOnlySpan<byte> strID, System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0, System::Numerics::Vector2 uv1, System::Numerics::Vector4 bgCol, System::Numerics::Vector4 tintCol) {
+			return ::ImGui::ImageButton((void*)userTextureID, { size.X, size.Y }, { uv0.X, uv0.Y }, { uv1.X, uv1.Y }, 0, { bgCol.X, bgCol.Y, bgCol.Z, bgCol.W }, { tintCol.X, tintCol.Y, tintCol.Z, tintCol.W });
 		}
 
-		virtual bool ImageButton(System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0, System::Numerics::Vector2 uv1, int framePadding, System::Numerics::Vector4 bgCol) {
-			return ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, Vector4::One);
+		virtual bool ImageButton(System::ReadOnlySpan<byte> strID, System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0, System::Numerics::Vector2 uv1, System::Numerics::Vector4 bgCol) {
+			return ImageButton(strID, userTextureID, size, uv0, uv1, bgCol, Vector4::One);
 		}
 
-		virtual bool ImageButton(System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0) {
-			return ImageButton(userTextureID, size, uv0, Vector2::One, -1, Vector4::Zero);
+		virtual bool ImageButton(System::ReadOnlySpan<byte> strID, System::UIntPtr userTextureID, System::Numerics::Vector2 size, System::Numerics::Vector2 uv0) {
+			return ImageButton(strID, userTextureID, size, uv0, Vector2::One, Vector4::Zero);
 		}
 
 		virtual bool Checkbox(ReadOnlySpan<byte> label, bool% v) {
@@ -2343,7 +2343,7 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			return ::ImGui::IsMouseDoubleClicked((ImGuiMouseButton)button);
 		}
 
-		virtual int GetMouseClickedAmount(Tesseract::ImGui::ImGuiMouseButton button) {
+		virtual int GetMouseClickedCount(Tesseract::ImGui::ImGuiMouseButton button) {
 			return ::ImGui::GetMouseClickedCount((ImGuiMouseButton)button);
 		}
 

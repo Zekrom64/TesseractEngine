@@ -145,10 +145,6 @@ namespace Tesseract { namespace CLI { namespace ImGui {
 			virtual wchar_t get() { return m_font->EllipsisChar; }
 		}
 
-		virtual property wchar_t DotChar {
-			virtual wchar_t get() { return m_font->DotChar; }
-		}
-
 		virtual property bool DirtyLookupTables {
 			virtual bool get() { return m_font->DirtyLookupTables; }
 		}

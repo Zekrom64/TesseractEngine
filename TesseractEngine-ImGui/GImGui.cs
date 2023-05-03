@@ -194,9 +194,9 @@ namespace Tesseract.ImGui {
 
 		public static void PopStyleVar(int count = 1) => Instance.PopStyleVar(count);
 
-		public static void PushAllowKeyboardFocus(bool allowKeyboardFocus) => Instance.PushAllowKeyboardFocus(allowKeyboardFocus);
+		public static void PushAllowKeyboardFocus(bool allowKeyboardFocus) => Instance.PushTabStop(allowKeyboardFocus);
 
-		public static void PopAllowKeyboardFocus() => Instance.PopAllowKeyboardFocus();
+		public static void PopAllowKeyboardFocus() => Instance.PopTabStop();
 
 		public static void PushButtonRepeat(bool repeat) => Instance.PushButtonRepeat(repeat);
 
@@ -324,12 +324,12 @@ namespace Tesseract.ImGui {
 
 		public static void Image(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => Image(userTextureID, size, uv0, Vector2.One);
 
-		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding, Vector4 bgCol, Vector4 tintCol) =>
-			Instance.ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, tintCol);
+		public static bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 bgCol, Vector4 tintCol) =>
+			Instance.ImageButton(strID, userTextureID, size, uv0, uv1, bgCol, tintCol);
 
-		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, int framePadding = -1, Vector4 bgCol = default) => ImageButton(userTextureID, size, uv0, uv1, framePadding, bgCol, Vector4.One);
+		public static bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0, Vector2 uv1, Vector4 bgCol = default) => ImageButton(strID, userTextureID, size, uv0, uv1, bgCol, Vector4.One);
 
-		public static bool ImageButton(nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(userTextureID, size, uv0, Vector2.One);
+		public static bool ImageButton(ReadOnlySpan<byte> strID, nuint userTextureID, Vector2 size, Vector2 uv0 = default) => ImageButton(strID, userTextureID, size, uv0, Vector2.One);
 
 		public static bool Checkbox(string label, ref bool v) => Instance.Checkbox(label, ref v);
 
@@ -933,7 +933,7 @@ namespace Tesseract.ImGui {
 
 		public static bool IsMouseDoubleClicked(ImGuiMouseButton button) => Instance.IsMouseDoubleClicked(button);
 
-		public static int GetMouseClickedAmount(ImGuiMouseButton button) => Instance.GetMouseClickedAmount(button);
+		public static int GetMouseClickedAmount(ImGuiMouseButton button) => Instance.GetMouseClickedCount(button);
 
 		public static bool IsMouseHoveringRect(Vector2 rMin, Vector2 rMax, bool clip = true) => Instance.IsMouseHoveringRect(rMin, rMax, clip);
 

@@ -156,7 +156,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directx", "directx", "{BA98
 		Reference\DirectX\directx-headers\directx\dxgiformat.idl = Reference\DirectX\directx-headers\directx\dxgiformat.idl
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-ImGui-Core", "TesseractEngine-ImGui-Core\TesseractEngine-ImGui-Core.csproj", "{1DAA1842-EE66-4D25-9F87-72820283F1E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TesseractEngine-ImGui-Core", "TesseractEngine-ImGui-Core\TesseractEngine-ImGui-Core.csproj", "{1DAA1842-EE66-4D25-9F87-72820283F1E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesseractEngine-ImGui-NET", "TesseractEngine-ImGui-NET\TesseractEngine-ImGui-NET.csproj", "{5AE561DB-4EA5-4D76-B55A-799E7F969537}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -408,6 +410,18 @@ Global
 		{1DAA1842-EE66-4D25-9F87-72820283F1E2}.Release|x64.Build.0 = Release|Any CPU
 		{1DAA1842-EE66-4D25-9F87-72820283F1E2}.Release|x86.ActiveCfg = Release|Any CPU
 		{1DAA1842-EE66-4D25-9F87-72820283F1E2}.Release|x86.Build.0 = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|x64.Build.0 = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Debug|x86.Build.0 = Debug|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|x64.ActiveCfg = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|x64.Build.0 = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|x86.ActiveCfg = Release|Any CPU
+		{5AE561DB-4EA5-4D76-B55A-799E7F969537}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

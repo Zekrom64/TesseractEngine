@@ -142,7 +142,7 @@ namespace Tesseract.ImGui {
 
 	}
 
-	public interface IImVector<T> : IList<T> {
+	public interface IImVector<T> : IList<T>, IReadOnlyList<T> {
 
 		public Span<T> AsSpan();
 
