@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tesseract.Core.Collections;
 using Tesseract.Core.Utilities;
 
@@ -1006,6 +1007,39 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <param name="usage">Usage flags for the commands that will be run</param>
 		/// <param name="submitInfo">Submission info for the commands</param>
 		public void RunCommands(Action<ICommandSink> cmdSink, CommandBufferUsage usage, in CommandBufferSubmitInfo submitInfo);
+
+		/// <summary>
+		/// Shortcut for performing <see cref="RunCommands(Action{ICommandSink}, CommandBufferUsage, in CommandBufferSubmitInfo)">RunCommands</see> with
+		/// only a fence and waiting on the operation to complete.
+		/// </summary>
+		/// <param name="cmdSink">The method that will supply the commands</param>
+		/// <param name="usage">Usage flags for the commands that will be run</param>
+		/// <param name="timeout">The maximum time before the method must return</param>
+		/// <returns>If the operation timed out</returns>
+		public bool RunCommandsAndWait(Action<ICommandSink> cmdSink, CommandBufferUsage usage, ulong timeout = ulong.MaxValue) {
+			ISync fence = CreateSync(SyncCreateInfo.Fence);
+			RunCommands(cmdSink, usage, new CommandBufferSubmitInfo() { SignalSync = new ISync[] { fence } });
+			bool ret = fence.HostWait(timeout);
+			fence.Dispose();
+			return ret;
+		}
+
+		/// <summary>
+		/// Asynchronous version of <see cref="RunCommandsAndWait(Action{ICommandSink}, CommandBufferUsage, ulong)">RunCommandsAndWait</see>.
+		/// </summary>
+		/// <param name="cmdSink">The method that will supply the commands</param>
+		/// <param name="usage">Usage flags for the commands that will be run</param>
+		/// <param name="timeout">The maximum time before the task must complete</param>
+		/// <returns>A task returning if the operation timed out before completing</returns>
+		public Task<bool> RunCommandsAsync(Action<ICommandSink> cmdSink, CommandBufferUsage usage, ulong timeout = ulong.MaxValue) {
+			return Task.Run(async () => {
+				ISync fence = CreateSync(SyncCreateInfo.Fence);
+				RunCommands(cmdSink, usage, new CommandBufferSubmitInfo() { SignalSync = new ISync[] { fence } });
+				bool ret = await fence.AsAwait(timeout);
+				fence.Dispose();
+				return ret;
+			});
+		}
 
 		/// <summary>
 		/// Submits command buffers for execution, setting up the required synchronization for the commands.

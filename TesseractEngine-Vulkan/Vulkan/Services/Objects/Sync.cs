@@ -42,7 +42,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 			}
 		}
 
-			public bool HostPoll() => Fence.Status;
+		public bool HostPoll() => Fence.Status;
 
 		public void HostReset() => Fence.Reset();
 

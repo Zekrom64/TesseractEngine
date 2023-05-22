@@ -242,6 +242,24 @@ namespace Tesseract.Core.Graphics.Accelerated {
 	public record SyncCreateInfo {
 
 		/// <summary>
+		/// Standard creation information for a 'fence' type object.
+		/// </summary>
+		public static readonly SyncCreateInfo Fence = new() {
+			Direction = SyncDirection.GPUToHost,
+			Features = SyncFeatures.GPUWorkSignaling | SyncFeatures.HostPolling | SyncFeatures.HostWaiting,
+			Granularity = SyncGranularity.CommandBuffer
+		};
+
+		/// <summary>
+		/// Standard creation information for a 'sempaphore' type object.
+		/// </summary>
+		public static readonly SyncCreateInfo Semaphore = new() {
+			Direction = SyncDirection.GPUToGPU,
+			Features = SyncFeatures.GPUWorkSignaling | SyncFeatures.GPUWorkWaiting,
+			Granularity = SyncGranularity.CommandBuffer
+		};
+
+		/// <summary>
 		/// Required synchonrization granularity for the sync object.
 		/// </summary>
 		public required SyncGranularity Granularity { get; init; }
