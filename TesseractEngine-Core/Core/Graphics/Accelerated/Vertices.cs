@@ -20,16 +20,14 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		public int Location { get; init; } = -1;
 
 		/// <summary>
-		/// The format of the vertex attribute.
+		/// The format of the vertex attribute, or null to deduce from the field type.
 		/// </summary>
-		public required PixelFormat Format { get; init; }
+		public PixelFormatEnum? Format { get; init; } = null;
 
 		/// <summary>
-		/// The byte offset of the attribute
+		/// The byte offset of the attribute, or -1 to use the offset determined using <see cref="Marshal.OffsetOf{T}(string)"/>.
 		/// </summary>
 		public int Offset { get; init; } = -1;
-
-		public VertexAttribAttribute() { }
 
 	}
 
@@ -58,6 +56,35 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// </summary>
 		public uint Offset { get; set; }
 
+		private static readonly Dictionary<Type, PixelFormatEnum> formatTypes = new() {
+			{ typeof(byte), PixelFormatEnum.R8UNorm },
+			{ typeof(Vector3b), PixelFormatEnum.R8G8B8UNorm },
+			{ typeof(Vector4b), PixelFormatEnum.R8G8B8A8UNorm },
+
+			{ typeof(sbyte), PixelFormatEnum.R8SNorm },
+
+			{ typeof(ushort), PixelFormatEnum.R16UNorm },
+			{ typeof(Vector3us), PixelFormatEnum.R16G16B16UNorm },
+
+			{ typeof(short), PixelFormatEnum.R16SNorm },
+			{ typeof(Vector3s), PixelFormatEnum.R16G16B16SNorm },
+
+			{ typeof(int), PixelFormatEnum.R32SInt },
+			{ typeof(Vector2i), PixelFormatEnum.R32G32SInt },
+			{ typeof(Vector3i), PixelFormatEnum.R32G32B32SInt },
+			{ typeof(Vector4i), PixelFormatEnum.R32G32B32A32SInt },
+
+			{ typeof(uint), PixelFormatEnum.R32UInt },
+			{ typeof(Vector2ui), PixelFormatEnum.R32G32UInt },
+			{ typeof(Vector3ui), PixelFormatEnum.R32G32B32UInt },
+			{ typeof(Vector4ui), PixelFormatEnum.R32G32B32A32UInt },
+
+			{ typeof(float), PixelFormatEnum.R32SFloat },
+			{ typeof(Vector2), PixelFormatEnum.R32G32SFloat },
+			{ typeof(Vector3), PixelFormatEnum.R32G32B32SFloat },
+			{ typeof(Vector4), PixelFormatEnum.R32G32B32A32SFloat }
+		};
+
 		/// <summary>
 		/// Loads a list of attributes from the given type based on the type's fields.
 		/// </summary>
@@ -69,7 +96,9 @@ namespace Tesseract.Core.Graphics.Accelerated {
 			List<VertexAttrib> attribs = new();
 			foreach (FieldInfo field in type.GetFields().OrderBy(field => field.MetadataToken)) {
 				if (field.GetCustomAttribute(typeof(VertexAttribAttribute)) is VertexAttribAttribute attrib) {
-					PixelFormat format = attrib.Format;
+					PixelFormatEnum? formatEnum = attrib.Format;
+					if (formatEnum == null && formatTypes.TryGetValue(field.FieldType, out PixelFormatEnum formatVal)) formatEnum = formatVal;
+					PixelFormat format = PixelFormat.GetFromEnum(attrib.Format ?? throw new InvalidOperationException($"Cannot determine attribute format of field \"{field.Name}\""));
 					int location = attrib.Location;
 					if (location == -1) {
 						location = nextLocation++;

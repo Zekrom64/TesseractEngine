@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Tesseract.Core.Collections;
 using Tesseract.Core.Graphics.Accelerated;
 
 namespace Tesseract.Core.Graphics {
 
-    /// <summary>
-    /// Enumeration of pixel format channel types.
-    /// </summary>
-    public enum ChannelType {
+	/// <summary>
+	/// Enumeration of pixel format channel types.
+	/// </summary>
+	public enum ChannelType {
 		/// <summary>
 		/// Red color component channel.
 		/// </summary>
@@ -224,6 +225,8 @@ namespace Tesseract.Core.Graphics {
 			}
 			return channelTypeMap;
 		}
+
+		public PixelFormatEnum? EnumValue { get; private set; }
 
 		/// <summary>
 		/// The bitmask of texture aspects included in this pixel format.
@@ -1783,6 +1786,156 @@ namespace Tesseract.Core.Graphics {
 			new PixelChannel() { Type = ChannelType.Green, Offset = 9, Size = 9, NumberFormat = ChannelNumberFormat.Undefined },
 			new PixelChannel() { Type = ChannelType.Red, Offset = 0, Size = 9, NumberFormat = ChannelNumberFormat.Undefined }
 		);
+
+		//========================//
+		// Enumeration Conversion //
+		//========================//
+
+		private static readonly Dictionary<PixelFormatEnum, PixelFormat> enumToFormat = new() {
+			{ PixelFormatEnum.R8UNorm, R8UNorm },
+			{ PixelFormatEnum.R8SNorm, R8SNorm },
+			{ PixelFormatEnum.R8UScaled, R8UScaled },
+			{ PixelFormatEnum.R8SScaled, R8SScaled },
+			{ PixelFormatEnum.R8UInt, R8UInt },
+			{ PixelFormatEnum.R8SInt, R8SInt },
+			{ PixelFormatEnum.R8SRGB, R8SRGB },
+			{ PixelFormatEnum.R8G8UNorm, R8G8UNorm },
+			{ PixelFormatEnum.R8G8SNorm, R8G8SNorm },
+			{ PixelFormatEnum.R8G8UScaled, R8G8UScaled },
+			{ PixelFormatEnum.R8G8SScaled, R8G8SScaled },
+			{ PixelFormatEnum.R8G8UInt, R8G8UInt },
+			{ PixelFormatEnum.R8G8SInt, R8G8SInt },
+			{ PixelFormatEnum.R8G8SRGB, R8G8SRGB },
+			{ PixelFormatEnum.R8G8B8UNorm, R8G8B8UNorm },
+			{ PixelFormatEnum.R8G8B8SNorm, R8G8B8SNorm },
+			{ PixelFormatEnum.R8G8B8UScaled, R8G8B8UScaled },
+			{ PixelFormatEnum.R8G8B8SScaled, R8G8B8SScaled },
+			{ PixelFormatEnum.R8G8B8UInt, R8G8B8UInt },
+			{ PixelFormatEnum.R8G8B8SInt, R8G8B8SInt },
+			{ PixelFormatEnum.R8G8B8SRGB, R8G8B8SRGB },
+			{ PixelFormatEnum.B8G8R8UNorm, B8G8R8UNorm },
+			{ PixelFormatEnum.B8G8R8SNorm, B8G8R8SNorm },
+			{ PixelFormatEnum.B8G8R8UScaled, B8G8R8UScaled },
+			{ PixelFormatEnum.B8G8R8SScaled, B8G8R8SScaled },
+			{ PixelFormatEnum.B8G8R8UInt, B8G8R8UInt },
+			{ PixelFormatEnum.B8G8R8SInt, B8G8R8SInt },
+			{ PixelFormatEnum.B8G8R8SRGB, B8G8R8SRGB },
+			{ PixelFormatEnum.R8G8B8A8UNorm, R8G8B8A8UNorm },
+			{ PixelFormatEnum.R8G8B8A8SNorm, R8G8B8A8SNorm },
+			{ PixelFormatEnum.R8G8B8A8UScaled, R8G8B8A8UScaled },
+			{ PixelFormatEnum.R8G8B8A8SScaled, R8G8B8A8SScaled },
+			{ PixelFormatEnum.R8G8B8A8UInt, R8G8B8A8UInt },
+			{ PixelFormatEnum.R8G8B8A8SInt, R8G8B8A8SInt },
+			{ PixelFormatEnum.B8G8R8A8SRGB, R8G8B8A8SRGB },
+			{ PixelFormatEnum.B8G8R8A8UNorm, B8G8R8A8UNorm },
+			{ PixelFormatEnum.B8G8R8A8SNorm, B8G8R8A8SNorm },
+			{ PixelFormatEnum.B8G8R8A8UScaled, B8G8R8A8UScaled },
+			{ PixelFormatEnum.B8G8R8A8SScaled, B8G8R8A8SScaled },
+			{ PixelFormatEnum.B8G8R8A8UInt, B8G8R8A8UInt },
+			{ PixelFormatEnum.B8G8R8A8SInt, B8G8R8A8SInt },
+			{ PixelFormatEnum.B8G8R8A8SRGB, B8G8R8A8SRGB },
+
+			{ PixelFormatEnum.A8B8G8R8UNorm, A8B8G8R8UNorm },
+			{ PixelFormatEnum.A8R8G8B8UNorm, A8R8G8B8UNorm },
+
+			{ PixelFormatEnum.R16UNorm, R16UNorm },
+			{ PixelFormatEnum.R16SNorm, R16SNorm },
+			{ PixelFormatEnum.R16UScaled, R16UScaled },
+			{ PixelFormatEnum.R16SScaled, R16SScaled },
+			{ PixelFormatEnum.R16UInt, R16UInt },
+			{ PixelFormatEnum.R16SInt, R16SInt },
+			{ PixelFormatEnum.R16SFloat, R16SFloat },
+			{ PixelFormatEnum.R16G16UNorm, R16G16UNorm },
+			{ PixelFormatEnum.R16G16SNorm, R16G16SNorm },
+			{ PixelFormatEnum.R16G16UScaled, R16G16UScaled },
+			{ PixelFormatEnum.R16G16SScaled, R16G16SScaled },
+			{ PixelFormatEnum.R16G16UInt, R16G16UInt },
+			{ PixelFormatEnum.R16G16SInt, R16G16SInt },
+			{ PixelFormatEnum.R16G16SFloat, R16G16SFloat },
+			{ PixelFormatEnum.R16G16B16UNorm, R16G16B16UNorm },
+			{ PixelFormatEnum.R16G16B16SNorm, R16G16B16SNorm },
+			{ PixelFormatEnum.R16G16B16UScaled, R16G16B16UScaled },
+			{ PixelFormatEnum.R16G16B16SScaled, R16G16B16SScaled },
+			{ PixelFormatEnum.R16G16B16UInt, R16G16B16UInt },
+			{ PixelFormatEnum.R16G16B16SInt, R16G16B16SInt },
+			{ PixelFormatEnum.R16G16B16SFloat, R16G16B16SFloat },
+			{ PixelFormatEnum.R16G16B16A16UNorm, R16G16B16A16UNorm },
+			{ PixelFormatEnum.R16G16B16A16SNorm, R16G16B16A16SNorm },
+			{ PixelFormatEnum.R16G16B16A16UScaled, R16G16B16A16UScaled },
+			{ PixelFormatEnum.R16G16B16A16SScaled, R16G16B16A16SScaled },
+			{ PixelFormatEnum.R16G16B16A16UInt, R16G16B16A16UInt },
+			{ PixelFormatEnum.R16G16B16A16SInt, R16G16B16A16SInt },
+			{ PixelFormatEnum.R16G16B16A16SFloat, R16G16B16A16SFloat },
+
+			{ PixelFormatEnum.R32UInt, R32UInt },
+			{ PixelFormatEnum.R32SInt, R32SInt },
+			{ PixelFormatEnum.R32SFloat, R32SFloat },
+			{ PixelFormatEnum.R32G32UInt, R32G32UInt },
+			{ PixelFormatEnum.R32G32SInt, R32G32SInt },
+			{ PixelFormatEnum.R32G32SFloat, R32G32SFloat },
+			{ PixelFormatEnum.R32G32B32UInt, R32G32B32UInt },
+			{ PixelFormatEnum.R32G32B32SInt, R32G32B32SInt },
+			{ PixelFormatEnum.R32G32B32SFloat, R32G32B32SFloat },
+			{ PixelFormatEnum.R32G32B32A32UInt, R32G32B32A32UInt },
+			{ PixelFormatEnum.R32G32B32A32SInt, R32G32B32A32SInt },
+			{ PixelFormatEnum.R32G32B32A32SFloat, R32G32B32A32SFloat },
+
+			{ PixelFormatEnum.R64UInt, R64UInt },
+			{ PixelFormatEnum.R64SInt, R64SInt },
+			{ PixelFormatEnum.R64SFloat, R64SFloat },
+			{ PixelFormatEnum.R64G64UInt, R64G64UInt },
+			{ PixelFormatEnum.R64G64SInt, R64G64SInt },
+			{ PixelFormatEnum.R64G64SFloat, R64G64SFloat },
+			{ PixelFormatEnum.R64G64B64UInt, R64G64B64UInt },
+			{ PixelFormatEnum.R64G64B64SInt, R64G64B64SInt },
+			{ PixelFormatEnum.R64G64B64SFloat, R64G64B64SFloat },
+			{ PixelFormatEnum.R64G64B64A64UInt, R64G64B64A64UInt },
+			{ PixelFormatEnum.R64G64B64A64SInt, R64G64B64A64SInt },
+			{ PixelFormatEnum.R64G64B64A64SFloat, R64G64B64A64SFloat },
+
+			{ PixelFormatEnum.R4G4UNormPack8, R4G4UNormPack8 },
+			{ PixelFormatEnum.R4G4B4A4UNormPack16, R4G4B4A4UNormPack16 },
+			{ PixelFormatEnum.B4G4R4A4UNormPack16, B4G4R4A4UNormPack16 },
+			{ PixelFormatEnum.A4R4G4B4UNormPack16, A4R4G4B4UNormPack16 },
+			{ PixelFormatEnum.R5G6B5UNormPack16, R5G6B5UNormPack16 },
+			{ PixelFormatEnum.B5G6R5UNormPack16, B5G6R5UNormPack16 },
+			{ PixelFormatEnum.R5G5B5A1UNormPack16, R5G5B5A1UNormPack16 },
+			{ PixelFormatEnum.B5G5R5A1UNormPack16, B5G5R5A1UNormPack16 },
+			{ PixelFormatEnum.A1R5G5B5UNormPack16, A1R5G5B5UNormPack16 },
+
+			{ PixelFormatEnum.A8B8G8R8UNormPack32, A8B8G8R8UNormPack32 },
+			{ PixelFormatEnum.A8B8G8R8SNormPack32, A8B8G8R8SNormPack32 },
+			{ PixelFormatEnum.A8B8G8R8UScaledPack32, A8B8G8R8UScaledPack32 },
+			{ PixelFormatEnum.A8B8G8R8SScaledPack32, A8B8G8R8SScaledPack32 },
+			{ PixelFormatEnum.A8B8G8R8UIntPack32, A8B8G8R8UIntPack32 },
+			{ PixelFormatEnum.A8B8G8R8SIntPack32, A8B8G8R8SIntPack32 },
+			{ PixelFormatEnum.A8B8G8R8SRGBPack32, A8B8G8R8SRGBPack32 },
+
+			{ PixelFormatEnum.R16G16UNormPack32, R16G16UNormPack32 },
+
+			{ PixelFormatEnum.A2R10G10B10UNormPack32, A2R10G10B10UNormPack32 },
+			{ PixelFormatEnum.A2R10G10B10SNormPack32, A2R10G10B10SNormPack32 },
+			{ PixelFormatEnum.A2R10G10B10UScaledPack32, A2R10G10B10UScaledPack32 },
+			{ PixelFormatEnum.A2R10G10B10SScaledPack32, A2R10G10B10SScaledPack32 },
+			{ PixelFormatEnum.A2R10G10B10UIntPack32, A2R10G10B10UIntPack32 },
+			{ PixelFormatEnum.A2R10G10B10SIntPack32, A2R10G10B10SIntPack32 },
+			{ PixelFormatEnum.A2B10G10R10UNormPack32, A2B10G10R10UNormPack32 },
+			{ PixelFormatEnum.A2B10G10R10SNormPack32, A2B10G10R10SNormPack32 },
+			{ PixelFormatEnum.A2B10G10R10UScaledPack32, A2B10G10R10UScaledPack32 },
+			{ PixelFormatEnum.A2B10G10R10SScaledPack32, A2B10G10R10SScaledPack32 },
+			{ PixelFormatEnum.A2B10G10R10UIntPack32, A2B10G10R10UIntPack32 },
+			{ PixelFormatEnum.A2B10G10R10SIntPack32, A2B10G10R10SIntPack32 },
+
+			{ PixelFormatEnum.B10G11R11UFloatPack32, B10G11R11UFloatPack32 }
+		};
+
+		static PixelFormat() {
+			// Initialize each format with its corresponding enum value
+			foreach (var pair in enumToFormat) pair.Value.EnumValue = pair.Key;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static PixelFormat GetFromEnum(PixelFormatEnum val) => enumToFormat[val];
 
 	}
 }
