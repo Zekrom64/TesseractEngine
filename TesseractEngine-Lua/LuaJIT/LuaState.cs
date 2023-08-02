@@ -532,12 +532,14 @@ namespace Tesseract.LuaJIT {
 			GCHandle hFunc = GCHandle.FromIntPtr(state.ToPointer(Lua.UpValueIndex(1)));
 			LuaFunction func = (LuaFunction)hFunc.Target!;
 			// Invoke the delegate, passing its return value (converting C# exceptions)
+			Exception ex;
 			try {
 				return func(state);
 			} catch (Exception e) {
-				state.Error("C# error: " + e.Message);
-				return 0;
+				ex = e;
 			}
+			state.Error("C# error: " + ex.Message);
+			return 0;
 		}
 
 		// Inner trampoline function for delegate closures with upvalues
@@ -551,12 +553,14 @@ namespace Tesseract.LuaJIT {
 			// Remove the first argument to match the calling environment
 			state.Remove(1);
 			// Invoke the delegate, passing its return value (converting c# exceptions)
+			Exception ex;
 			try {
 				return func(state);
 			} catch (Exception e) {
-				state.Error("C# error: " + e.Message);
-				return 0;
+				ex = e;
 			}
+			state.Error("C# error: " + ex.Message);
+			return 0;
 		}
 
 		// Outer trampoline function for delegate closures with upvalues
@@ -875,6 +879,7 @@ namespace Tesseract.LuaJIT {
 		/// </summary>
 		/// <param name="nargs">The number of arguments to pass to the function</param>
 		/// <param name="nresults">The number of results to push</param>
+		/// <exception cref="LuaException">If there is an error calling the function</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Call(int nargs = 0, int nresults = Lua.MultRet) {
 			// Do a protected call anyway to make sure things get unwound correctly
@@ -920,12 +925,14 @@ namespace Tesseract.LuaJIT {
 			LuaState state = Get(pState);
 			GCHandle hFunc = GCHandle.FromIntPtr(state.ToUserdata(1));
 			LuaFunction func = (LuaFunction)hFunc.Target!;
+			Exception ex;
 			try {
 				return func(state);
 			} catch (Exception e) {
-				state.Error("C# exception: " + e.Message);
-				return 0;
+				ex = e;
 			}
+			state.Error("C# exception: " + ex.Message);
+			return 0;
 		}
 
 		/// <summary>
@@ -1049,13 +1056,15 @@ namespace Tesseract.LuaJIT {
 
 		/// <summary>
 		/// Pops the topmost value from the stack and generates a Lua error. This will perform
-		/// a <c>long_jmp</c> in native code (although a library like LuaJIT <i>should</i> unwind
-		/// the stack properly).
+		/// a <c>long_jmp</c> in native code (although a library like LuaJIT <i>may</i> unwind
+		/// the stack properly). However, this should not be relied on and user-code should
+		/// throw a managed exception instead (as managed functions registered in Lua will
+		/// catch any exceptions and convert them to errors before returning)
 		/// </summary>
 		/// <exception cref="Exception">If the Lua error function does not throw properly</exception>
 		[DoesNotReturn]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Error() {
+		protected void Error() {
 			unsafe {
 				Lua.Functions.lua_error(L);
 			}
@@ -1068,7 +1077,7 @@ namespace Tesseract.LuaJIT {
 		/// <param name="message">Error message</param>
 		[DoesNotReturn]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Error(ReadOnlySpan<char> message) {
+		protected void Error(ReadOnlySpan<char> message) {
 			PushString(message);
 			Error();
 		}
