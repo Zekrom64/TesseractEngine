@@ -31,7 +31,7 @@ namespace Tesseract.LuaJIT {
 
 			if (str[^1] == 0) return str;
 			unsafe {
-				fixed(byte* pStr = str) {
+				fixed (byte* pStr = str) {
 					if (pStr[str.Length] == 0) return str;
 				}
 			}
@@ -68,7 +68,7 @@ namespace Tesseract.LuaJIT {
 					hSelf = GCHandle.FromIntPtr(lua.lua_getexdata(l));
 				} else {
 					// Else fall back to the registry value
-					fixed(byte* pName = "__self"u8) {
+					fixed (byte* pName = "__self"u8) {
 						lua.lua_getfield(l, Lua.RegistryIndex, (IntPtr)pName);
 						hSelf = GCHandle.FromIntPtr(lua.lua_topointer(l, -1));
 						lua.lua_settop(l, -2);
@@ -634,7 +634,7 @@ namespace Tesseract.LuaJIT {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void PushBoolean(bool b) {
 			unsafe {
-				Lua.Functions.lua_pushboolean(L, b ?  1 : 0);
+				Lua.Functions.lua_pushboolean(L, b ? 1 : 0);
 			}
 		}
 
@@ -694,7 +694,7 @@ namespace Tesseract.LuaJIT {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void GetField(int index, ReadOnlySpan<byte> key) {
 			unsafe {
-				fixed(byte* pKey = CheckStr(key, stackalloc byte[1024])) {
+				fixed (byte* pKey = CheckStr(key, stackalloc byte[1024])) {
 					Lua.Functions.lua_getfield(L, index, (IntPtr)pKey);
 				}
 			}
@@ -780,6 +780,11 @@ namespace Tesseract.LuaJIT {
 		// Set Functions (stack -> Lua) //
 		//==============================//
 
+		/// <summary>
+		/// Pops a value and key off the stack (in that order) and stores them
+		/// in the table at the given index.
+		/// </summary>
+		/// <param name="index">Table stack index</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetTable(int index) {
 			unsafe {
@@ -787,18 +792,34 @@ namespace Tesseract.LuaJIT {
 			}
 		}
 
+		/// <summary>
+		/// Pops a value off the stack and stores it in the table at the given
+		/// index under the given name.
+		/// </summary>
+		/// <param name="index">Table stack index</param>
+		/// <param name="key">Key string</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetField(int index, ReadOnlySpan<char> key) => SetField(index, MemoryUtil.StackallocUTF8(key, stackalloc byte[1024]));
 
+		/// <summary>
+		/// Pops a value off the stack and stores it in the table at the given
+		/// index under the given name.
+		/// </summary>
+		/// <param name="index">Table stack index</param>
+		/// <param name="key">Key string</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetField(int index, ReadOnlySpan<byte> key) {
 			unsafe {
-				fixed(byte* pKey = CheckStr(key, stackalloc byte[1024])) {
+				fixed (byte* pKey = CheckStr(key, stackalloc byte[1024])) {
 					Lua.Functions.lua_setfield(L, index, (IntPtr)pKey);
 				}
 			}
 		}
 
+		/// <summary>
+		/// Identical to <see cref="SetTable(int)"/> but bypasses any metamethods.
+		/// </summary>
+		/// <param name="index">Table stack index</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void RawSet(int index) {
 			unsafe {
@@ -806,6 +827,13 @@ namespace Tesseract.LuaJIT {
 			}
 		}
 
+		/// <summary>
+		/// Pops a value off the stack and stores it in the table at the given
+		/// stack index with the number specifying the index in the table to store at,
+		/// and bypassing any metamethods.
+		/// </summary>
+		/// <param name="index">Table stack index</param>
+		/// <param name="n">Index in table to store at</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void RawSet(int index, int n) {
 			unsafe {
@@ -841,10 +869,163 @@ namespace Tesseract.LuaJIT {
 		// Load and Call Functions //
 		//=========================//
 
+		/// <summary>
+		/// Performs a Lua function call with the given number of arguments to the function just
+		/// below them on the stack.
+		/// </summary>
+		/// <param name="nargs">The number of arguments to pass to the function</param>
+		/// <param name="nresults">The number of results to push</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Call(int nargs = 0, int nresults = Lua.MultRet) {
+			// Do a protected call anyway to make sure things get unwound correctly
+			var status = ProtectedCall(nargs, nresults);
+			string message;
+			switch (status) {
+				case LuaStatus.Ok:
+					return;
+				// Throw exceptions if there was an error
+				case LuaStatus.ErrMem:
+					throw new LuaException("Out of memory");
+				case LuaStatus.ErrRun:
+					message = ToString(-1) ?? "<Unknown Error>";
+					Pop(1);
+					throw new LuaException(message);
+				default:
+					throw new LuaException("Unexpected Lua error: " + status);
+			}
+		}
+
+		/// <summary>
+		/// Performs a protected function call similar to <see cref="Call(int, int)"/>, but
+		/// not unwinding any further on error. An optional error handler function may be
+		/// passed on the stack which is called with the error value if one is generated.
+		/// If there is an error, the apropriate return value is returned and if it is a
+		/// runtime error, the error value is pushed onto the stack instead of the results
+		/// of the function call. If an error handler function is provided it is given this
+		/// value first and may mutate it before returning the error value pushed on the stack.
+		/// </summary>
+		/// <param name="nargs">The number of arguments to pass to the function</param>
+		/// <param name="nresults">The number of results to push</param>
+		/// <param name="errfunc">The stack index of the error handler function, or zero to ignore</param>
+		/// <returns>The status of the protected call</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaStatus ProtectedCall(int nargs = 0, int nresults = Lua.MultRet, int errfunc = 0) {
 			unsafe {
-				Lua.Functions.lua_call(L, nargs, nresults);
+				return (LuaStatus)Lua.Functions.lua_pcall(L, nargs, nresults, errfunc);
+			}
+		}
+
+		[UnmanagedCallersOnly]
+		private static int ProtectedCallTrampoline(IntPtr pState) {
+			LuaState state = Get(pState);
+			GCHandle hFunc = GCHandle.FromIntPtr(state.ToUserdata(1));
+			LuaFunction func = (LuaFunction)hFunc.Target!;
+			try {
+				return func(state);
+			} catch (Exception e) {
+				state.Error("C# exception: " + e.Message);
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Performs a protected call to the given function, passing no arguments and
+		/// discarding all return values. If the function generates a runtime error
+		/// it pushes it on the stack before returning.
+		/// </summary>
+		/// <param name="func">The function to call</param>
+		/// <returns>The status of the protected call</returns>
+		public LuaStatus ProtectedCall(LuaFunction func) {
+			unsafe {
+				GCHandle hFunc = GCHandle.Alloc(func);
+				LuaStatus status = (LuaStatus)Lua.Functions.lua_cpcall(L, &ProtectedCallTrampoline, (nint)hFunc);
+				hFunc.Free();
+				return status;
+			}
+		}
+
+		// Handle holding the memory currently being loaded
+		private GCHandle lastReaderMemory;
+
+		[UnmanagedCallersOnly]
+		private static unsafe IntPtr LoadTrampoline(IntPtr pState, IntPtr ud, nuint* size) {
+			LuaState state = Get(pState);
+			GCHandle hReader = GCHandle.FromIntPtr(ud);
+			LuaReader reader = (LuaReader)hReader.Target!;
+
+			ReadOnlyMemory<byte> data = reader(state);
+			if (state.lastReaderMemory.IsAllocated) state.lastReaderMemory.Free();
+			if (data.IsEmpty) {
+				*size = 0;
+				return IntPtr.Zero;
+			} else {
+				state.lastReaderMemory = GCHandle.Alloc(data, GCHandleType.Pinned);
+				*size = (nuint)data.Length;
+				return state.lastReaderMemory.AddrOfPinnedObject();
+			}
+		}
+
+		/// <summary>
+		/// Attempts to load a chunk of Lua code using the given reader.
+		/// </summary>
+		/// <param name="reader">The reader to read code from</param>
+		/// <param name="chunkName">The name of the chunk being loaded</param>
+		/// <returns>The status of the load operation</returns>
+		public LuaStatus Load(LuaReader reader, ReadOnlySpan<char> chunkName) {
+			unsafe {
+				GCHandle hReader = GCHandle.Alloc(reader);
+				LuaStatus status;
+				fixed (byte* pChunkName = MemoryUtil.StackallocUTF8(chunkName, stackalloc byte[1024])) {
+					status = (LuaStatus)Lua.Functions.lua_load(L, &LoadTrampoline, (nint)hReader, (nint)pChunkName);
+				}
+				hReader.Free();
+				return status;
+			}
+		}
+
+		//=====================//
+		// Coroutine Functions //
+		//=====================//
+
+		/// <summary>
+		/// Yields a coroutine. This should be used as the return expression of a function. When
+		/// called in this way, the running coroutine is suspended and execution returns to the
+		/// <see cref="Resume(int)"/> that started this coroutine.
+		/// </summary>
+		/// <param name="nresults">The number of results to pop and return</param>
+		/// <returns>The return value to pass</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int Yield(int nresults) {
+			unsafe {
+				return Lua.Functions.lua_yield(L, nresults);
+			}
+		}
+
+		/// <summary>
+		/// Starts a new coroutine on the current thread, returning when it yields or finishes
+		/// execution. The given number of arguments are used like a normal invocation of
+		/// <see cref="Call(int, int)"/> and any values returned from <see cref="Yield(int)"/>
+		/// are pushed onto the stack when this function returns. If an error occurs, the stack
+		/// is not unwound and can be debugged.
+		/// </summary>
+		/// <param name="narg">The number of arguments to pass to the coroutine</param>
+		/// <returns>The result status of the coroutine</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaStatus Resume(int narg) {
+			unsafe {
+				return (LuaStatus)Lua.Functions.lua_resume(L, narg);
+			}
+		}
+
+		/// <summary>
+		/// The status of the current thread.
+		/// </summary>
+		public LuaStatus Status {
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get {
+				unsafe {
+					return (LuaStatus)Lua.Functions.lua_status(L);
+				}
 			}
 		}
 
@@ -1007,18 +1188,39 @@ namespace Tesseract.LuaJIT {
 		// Auxiliary Library //
 		//===================//
 
+		/// <summary>
+		/// Registers a metatable under the given type name, pushing it onto the stack and
+		/// returning if this is the first use of the table.
+		/// </summary>
+		/// <param name="tname">Metatable type name</param>
+		/// <returns>If the metatable was just created</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool NewMetatable(ReadOnlySpan<byte> tname) {
 			unsafe {
-				fixed(byte* pName = CheckStr(tname, stackalloc byte[1024])) {
+				fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
 					return Lua.Functions.luaL_newmetatable(L, (IntPtr)pName) != 0;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Registers a metatable under the given type name, pushing it onto the stack and
+		/// returning if this is the first use of the table.
+		/// </summary>
+		/// <param name="tname">Metatable type name</param>
+		/// <returns>If the metatable was just created</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool NewMetatable(ReadOnlySpan<char> tname) => NewMetatable(MemoryUtil.StackallocUTF8(tname, stackalloc byte[1024]));
 
+		/// <summary>
+		/// Checks if the given value on the stack is userdata of the apropriate type,
+		/// generating a Lua error if not. If it is correct, it returns the userdata
+		/// value by reference.
+		/// </summary>
+		/// <typeparam name="T">Userdata type</typeparam>
+		/// <param name="index">Userdata value index</param>
+		/// <param name="tname">Userdata type name</param>
+		/// <returns>Userdata value reference</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T CheckUserdata<T>(int index, ReadOnlySpan<byte> tname) where T : unmanaged {
 			unsafe {
@@ -1028,6 +1230,15 @@ namespace Tesseract.LuaJIT {
 			}
 		}
 
+		/// <summary>
+		/// Checks if the given value on the stack is userdata of the apropriate type,
+		/// generating a Lua error if not. If it is correct, it returns the userdata
+		/// value by reference.
+		/// </summary>
+		/// <typeparam name="T">Userdata type</typeparam>
+		/// <param name="index">Userdata value index</param>
+		/// <param name="tname">Userdata type name</param>
+		/// <returns>Userdata value reference</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T CheckUserdata<T>(int index, ReadOnlySpan<char> tname) where T : unmanaged {
 			ReadOnlySpan<byte> name = MemoryUtil.StackallocUTF8(tname, stackalloc byte[1024]);
@@ -1037,6 +1248,26 @@ namespace Tesseract.LuaJIT {
 				}
 			}
 		}
+
+		/// <summary>
+		/// Loads a string of text as Lua code.
+		/// </summary>
+		/// <param name="str">The string of text to load</param>
+		/// <returns>The status of the load operation</returns>
+		public LuaStatus LoadString(ReadOnlySpan<byte> str) {
+			unsafe {
+				fixed(byte* pStr = CheckStr(str, stackalloc byte[4096])) {
+					return (LuaStatus)Lua.Functions.luaL_loadstring(L, (IntPtr)pStr);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Loads a string of text as Lua code.
+		/// </summary>
+		/// <param name="str">The string of text to load</param>
+		/// <returns>The status of the load operation</returns>
+		public LuaStatus LoadString(ReadOnlySpan<char> str) => LoadString(MemoryUtil.StackallocUTF8(str, stackalloc byte[4096]));
 
 	}
 

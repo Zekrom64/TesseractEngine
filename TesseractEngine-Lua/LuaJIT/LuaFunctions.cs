@@ -12,6 +12,7 @@ namespace Tesseract.LuaJIT {
 
 	//using lua_CFunction = delegate* unmanaged<IntPtr, int>;
 	//using lua_Alloc = delegate* unmanaged<IntPtr, IntPtr, nuint, nuint, IntPtr>;
+	//using lua_Reader = delegate* unmanaged<IntPtr, IntPtr, out nuint, IntPtr>;
 
 	/// <summary>
 	/// A managed Lua function. When invoked the stack will contain all of the
@@ -50,6 +51,16 @@ namespace Tesseract.LuaJIT {
 	/// <param name="nsize">New memory size</param>
 	/// <returns>New memory pointer</returns>
 	public delegate IntPtr LuaAlloc(IntPtr ptr, nuint osize, nuint nsize);
+
+	/// <summary>
+	/// Reader function to load Lua code. The reader must return memory containing
+	/// text to pass to the Lua runtime that remains valid until it is
+	/// invoked again. When the end of text has been reached the reader must
+	/// return empty memory.
+	/// </summary>
+	/// <param name="state">The Lua state loading the text</param>
+	/// <returns>The next chunk of loaded text, or empty memory</returns>
+	public delegate ReadOnlyMemory<byte> LuaReader(LuaState state);
 
 	public unsafe class LuaFunctions {
 
@@ -179,6 +190,17 @@ namespace Tesseract.LuaJIT {
 		public delegate* unmanaged<IntPtr, int, int, void> lua_call;
 		[NativeType("int lua_pcall(lua_State* L, int nargs, int nresults, int errfunc)")]
 		public delegate* unmanaged<IntPtr, int, int, int, int> lua_pcall;
+		[NativeType("int lua_cpcall(lua_State* L, lua_CFunction* func, void* ud)")]
+		public delegate* unmanaged<IntPtr, delegate* unmanaged<IntPtr, int>, IntPtr, int> lua_cpcall;
+		[NativeType("int lua_load(lua_State* L, lua_Reader reader, void* dt, const char* chunkname)")]
+		public delegate* unmanaged<IntPtr, delegate* unmanaged<IntPtr, IntPtr, nuint*, IntPtr>, IntPtr, IntPtr, int> lua_load;
+
+		[NativeType("int lua_yield(lua_State* L, int nresults)")]
+		public delegate* unmanaged<IntPtr, int, int> lua_yield;
+		[NativeType("int lua_resume(lua_State* L, int narg)")]
+		public delegate* unmanaged<IntPtr, int, int> lua_resume;
+		[NativeType("int lua_status(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> lua_status;
 
 		[NativeType("int lua_gc(lua_State* L, int what, int data)")]
 		public delegate* unmanaged<IntPtr, int, int, int> lua_gc;
@@ -203,6 +225,9 @@ namespace Tesseract.LuaJIT {
 		public delegate* unmanaged<IntPtr, IntPtr, int> luaL_newmetatable;
 		[NativeType("void* luaL_checkudata(lua_State* L, const char* tname)")]
 		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> luaL_checkudata;
+
+		[NativeType("int luaL_loadstring(lua_State* L, const char* s)")]
+		public delegate* unmanaged<IntPtr, IntPtr, int> luaL_loadstring;
 
 	}
 
