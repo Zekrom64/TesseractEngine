@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Utilities {
-	
+namespace Tesseract.Core.Utilities.Data {
+
 	/// <summary>
 	/// Interface for objects that can be serialized to binary data.
 	/// </summary>
@@ -30,6 +30,21 @@ namespace Tesseract.Core.Utilities {
 		/// </summary>
 		/// <param name="br">Binary stream reader</param>
 		public void Read(BinaryReader br);
+
+	}
+
+	/// <summary>
+	/// Interface for objects that can be deserialzed via construction from binary data.
+	/// </summary>
+	/// <typeparam name="TSelf"></typeparam>
+	public interface IConstructibleData<TSelf> : IWritableData where TSelf : IConstructibleData<TSelf> {
+
+		/// <summary>
+		/// Constructs an object from a binary stream.
+		/// </summary>
+		/// <param name="br"></param>
+		/// <returns></returns>
+		public static abstract TSelf Construct(BinaryReader br);
 
 	}
 

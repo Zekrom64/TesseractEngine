@@ -75,6 +75,14 @@ namespace Tesseract.Core.Collections {
 		/// </summary>
 		public static readonly IReadOnlyList<T> EmptyList = Array.Empty<T>();
 
+		/// <summary>
+		/// Creates an empty enumerator of the given type.
+		/// </summary>
+		/// <returns>Empty enumerator</returns>
+		public static IEnumerator<T> EmptyEnumerator() {
+			yield break;
+		}
+
 		private static string DefaultFormatter(IReadOnlyList<T> list) {
 			StringBuilder sb = new();
 			sb.Append("{ ");

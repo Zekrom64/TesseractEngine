@@ -2,8 +2,13 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading;
 
@@ -28,7 +33,9 @@ namespace Tesseract.Core.Native {
 	/// </summary>
 	public static class MemoryUtil {
 
-		// Pointer casting
+		//=================//
+		// Pointer casting //
+		//=================//
 
 		/// <summary>
 		/// Recasts a pointer to one type as a pointer to another type. Both of the types
@@ -66,7 +73,9 @@ namespace Tesseract.Core.Native {
 			return new UnmanagedPointer<T2>(ptr.Ptr, count);
 		}
 
-		// Unmanaged type check
+		//======================//
+		// Unmanaged type check //
+		//======================//
 
 		/// <summary>
 		/// Checks if the provided type is unmanaged.
@@ -89,7 +98,9 @@ namespace Tesseract.Core.Native {
 			if (!IsUnmanaged<T>()) throw new ArgumentException("The specified type must be unmanaged", nameof(T));
 		}
 
-		// Unmanaged read/write
+		//======================//
+		// Unmanaged read/write //
+		//======================//
 
 		/// <summary>
 		/// Reads an unmanaged value from a pointer. This avoids the contrivances of the
@@ -111,7 +122,9 @@ namespace Tesseract.Core.Native {
 		/// <param name="value"></param>
 		public static unsafe void WriteUnmanaged<T>(IntPtr ptr, T value) where T : unmanaged { unsafe { *(T*)ptr = value; } }
 
-		// Span <-> Pointer Copying
+		//==========================//
+		// Span <-> Pointer Copying //
+		//==========================//
 
 		/// <summary>
 		/// Copies raw bytes from one pointer to another.
@@ -156,41 +169,109 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
-		// String allocation
+		//===================//
+		// Memory Operations //
+		//===================//
 
 		/// <summary>
-		/// Creates a new managed pointer to an array of encoded string bytes.
+		/// Compares the contents of memory at two locations, checking if the underlying bytes are equal.
 		/// </summary>
-		/// <param name="str">The string to encode</param>
-		/// <param name="encoding">The string encoding to use</param>
-		/// <param name="nullTerminate">If the string should be null-terminated</param>
-		/// <returns>Managed pointer to string bytes</returns>
-		public static ManagedPointer<byte> AllocStringBytes(string str, Encoding encoding, bool nullTerminate = true) {
-			if (nullTerminate && str.Last() != '\0') str += "\0";
-			ManagedPointer<byte> ptr = new(encoding.GetByteCount(str));
+		/// <typeparam name="T">Type of values in memory</typeparam>
+		/// <param name="left">First region of memory</param>
+		/// <param name="right">Second region of memory</param>
+		/// <returns>If the underlying memory of two locations is equal</returns>
+		public static bool MemoryEqual<T>(ReadOnlySpan<T> left, ReadOnlySpan<T> right) where T : unmanaged, IEquatable<T> {
+			int length = Math.Min(left.Length, right.Length);
 			unsafe {
-				encoding.GetBytes(str, new Span<byte>((void*)ptr.Ptr, ptr.ArraySize));
+				fixed(T* pLeft = left) {
+					fixed(T* pRight = right) {
+						return MemoryEqual<T>(
+							new UnmanagedPointer<T>((nint)pLeft, left.Length),
+							new UnmanagedPointer<T>((nint)pRight, right.Length),
+							length
+						);
+					}
+				}
 			}
-			return ptr;
 		}
 
 		/// <summary>
-		/// Creates a new managed pointer to an array of ASCII encoded string bytes.
+		/// Compares the contents of memory at two locations, checking if the underlying bytes are equal.
 		/// </summary>
-		/// <param name="str">The string to encode</param>
-		/// <param name="nullTerminate">If the string should be null-terminated</param>
-		/// <returns>Managed pointer to string bytes</returns>
-		public static ManagedPointer<byte> AllocASCII(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.ASCII, nullTerminate);
+		/// <typeparam name="T">Type of values in memory</typeparam>
+		/// <param name="left">First region of memory</param>
+		/// <param name="right">Second region of memory</param>
+		/// <param name="length">The number of items to compare</param>
+		/// <returns>If the underlying memory of two locations is equal</returns>
+		/// <exception cref="ArgumentException">If an illegal length is provided</exception>
+		public static bool MemoryEqual<T>(IConstPointer<T> left, IConstPointer<T> right, int length) where T : unmanaged, IEquatable<T> {
+			if (left.ArraySize != -1 && left.ArraySize < length) throw new ArgumentException("Requested length exceeds the known array size of a pointer", nameof(length));
+			if (right.ArraySize != -1 && right.ArraySize < length) throw new ArgumentException("Requested length exceeds the known array size of a pointer", nameof(length));
 
-		/// <summary>
-		/// Creates a new managed pointer to an array of UTF-8 encoded string bytes.
-		/// </summary>
-		/// <param name="str">The string to encode</param>
-		/// <param name="nullTerminate">If the string should be null-terminated</param>
-		/// <returns>Managed pointer to string bytes</returns>
-		public static ManagedPointer<byte> AllocUTF8(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.UTF8, nullTerminate);
+			int lengthBytes = length * Marshal.SizeOf<T>();
+			// Only bother advanced operations for >128 byte memory
+			if (lengthBytes > 128) {
+				// Verify 16-byte alignment
+				IntPtr pLeft = left.Ptr, pRight = right.Ptr;
+				if ((pLeft & 0xF) == 0 && (pRight & 0xF) == 0) {
+					if (Sse2.IsSupported) {
+						// Optimized SSE comparison
+						unsafe {
+							byte* pbLeft = (byte*)pLeft, pbRight = (byte*)pRight;
+							Vector128<byte> a, b;
+							while (lengthBytes >= 16) {
+								a = Sse2.LoadAlignedVector128(pbLeft);
+								b = Sse2.LoadAlignedVector128(pbRight);
+								if (Sse2.MoveMask(Sse2.CompareEqual(a, b)) != 0xFF) return false;
+								pbLeft += 16;
+								pbRight += 16;
+								lengthBytes -= 16;
+							}
 
-		// Searches
+							while(lengthBytes-- > 0) {
+								if (*pbLeft++ != *pbRight++) return false;
+							}
+						}
+						return true;
+					} else if (AdvSimd.IsSupported) {
+						// Optimized AdvSIMD comparison
+						unsafe {
+							byte* pbLeft = (byte*)pLeft, pbRight = (byte*)pRight;
+							Vector128<byte> a, b, eq;
+							while (lengthBytes >= 16) {
+								a = AdvSimd.LoadVector128(pbLeft);
+								b = AdvSimd.LoadVector128(pbRight);
+								eq = AdvSimd.CompareEqual(a, b);
+								// We can only use *Across on AArch64, otherwise a more complex sequence is required
+								if (AdvSimd.Arm64.IsSupported && AdvSimd.Arm64.MinAcross(eq.AsUInt32())[0] != 0xFFFFFFFFU) return false;
+								else {
+									// Bitwise and lower and upper 64 bits
+									Vector64<uint> eq2 = AdvSimd.And(eq.GetUpper(), eq.GetLower()).AsUInt32();
+									// Bitwise and 32-bit upper and lower halves of the result
+									// Must have all bits set
+									if ((eq2[1] & eq2[0]) != 0xFFFFFFFFU) return false;
+								}
+								pbLeft += 16;
+								pbRight += 16;
+								lengthBytes -= 16;
+							}
+
+							while (lengthBytes-- > 0) {
+								if (*pbLeft++ != *pbRight++) return false;
+							}
+						}
+						return true;
+					}
+				}
+			}
+
+			// Fallback comparison loop
+			for(int i = 0; i < length; i++) {
+				if (left[i].Equals(right[i])) return false;
+			}
+
+			return true;
+		}
 
 		/// <summary>
 		/// Finds the first value in memory that matches the specified value.
@@ -227,7 +308,71 @@ namespace Tesseract.Core.Native {
 			}
 		}
 
-		// ASCII Encoding
+		/// <summary>
+		/// Fills the memory at the given address with binary zeroes ("zero'ing" it). The number of elements
+		/// to zero must either implicitly be supplied with the pointer or explicitly given.
+		/// </summary>
+		/// <typeparam name="T">The pointer element type</typeparam>
+		/// <param name="ptr">The pointer to elements to zero</param>
+		/// <param name="length">The number of elements to zero, or -1 to use the pointer array size</param>
+		public static void ZeroMemory<T>(IPointer<T> ptr, int length = -1) where T : unmanaged {
+			if (length == -1) length = ptr.ArraySize;
+			if (length == -1) throw new ArgumentException("Cannot zero pointer with no explicit or implicit length", nameof(ptr));
+			unsafe {
+				T* pElem = (T*)ptr.Ptr;
+				for (int i = 0; i < length; i++) pElem[i] = default;
+			}
+		}
+
+		/// <summary>
+		/// Performs a 'bitwise' cast of one type to another, reinterpreting the underlying bytes.
+		/// </summary>
+		/// <typeparam name="T1">Type to cast from</typeparam>
+		/// <typeparam name="T2">Type to cast to</typeparam>
+		/// <param name="x">The value to cast</param>
+		/// <returns>The reinterpreted value</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static T2 BitwiseCast<T1, T2>(T1 x) where T1 : unmanaged where T2 : unmanaged => MemoryMarshal.Cast<T1, T2>(stackalloc T1[] { x })[0];
+
+		//===================//
+		// String allocation //
+		//===================//
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="encoding">The string encoding to use</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocStringBytes(string str, Encoding encoding, bool nullTerminate = true) {
+			if (nullTerminate && str.Last() != '\0') str += "\0";
+			ManagedPointer<byte> ptr = new(encoding.GetByteCount(str));
+			unsafe {
+				encoding.GetBytes(str, new Span<byte>((void*)ptr.Ptr, ptr.ArraySize));
+			}
+			return ptr;
+		}
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of ASCII encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocASCII(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.ASCII, nullTerminate);
+
+		/// <summary>
+		/// Creates a new managed pointer to an array of UTF-8 encoded string bytes.
+		/// </summary>
+		/// <param name="str">The string to encode</param>
+		/// <param name="nullTerminate">If the string should be null-terminated</param>
+		/// <returns>Managed pointer to string bytes</returns>
+		public static ManagedPointer<byte> AllocUTF8(string str, bool nullTerminate = true) => AllocStringBytes(str, Encoding.UTF8, nullTerminate);
+
+		//================//
+		// ASCII Encoding //
+		//================//
 
 		/// <summary>
 		/// Gets an ASCII encoded string from a pointer. If a null pointer is supplied null is returned.
@@ -306,7 +451,9 @@ namespace Tesseract.Core.Native {
 			Encoding.ASCII.GetBytes(str, memory);
 		}
 
-		// UTF-16 Encoding
+		//=================//
+		// UTF-16 Encoding //
+		//=================//
 
 		/// <summary>
 		/// Gets a UTF-16 encoded string from a pointer. If a null pointer is supplied null is returned.
@@ -385,7 +532,9 @@ namespace Tesseract.Core.Native {
 			Encoding.Unicode.GetBytes(str, memory);
 		}
 
-		// UTF-8 Encoding
+		//================//
+		// UTF-8 Encoding //
+		//================//
 
 		/// <summary>
 		/// Gets a UTF-8 encoded string from a pointer. If a null pointer is supplied null is returned.
@@ -463,32 +612,6 @@ namespace Tesseract.Core.Native {
 			if (nullTerminate) str += '\0';
 			Encoding.UTF8.GetBytes(str, memory);
 		}
-
-		/// <summary>
-		/// Fills the memory at the given address with binary zeroes ("zero'ing" it). The number of elements
-		/// to zero must either implicitly be supplied with the pointer or explicitly given.
-		/// </summary>
-		/// <typeparam name="T">The pointer element type</typeparam>
-		/// <param name="ptr">The pointer to elements to zero</param>
-		/// <param name="length">The number of elements to zero, or -1 to use the pointer array size</param>
-		public static void ZeroMemory<T>(IPointer<T> ptr, int length = -1) where T : unmanaged {
-			if (length == -1) length = ptr.ArraySize;
-			if (length == -1) throw new ArgumentException("Cannot zero pointer with no explicit or implicit length", nameof(ptr));
-			unsafe {
-				T* pElem = (T*)ptr.Ptr;
-				for(int i = 0; i < length; i++) pElem[i] = default;
-			}
-		}
-
-		/// <summary>
-		/// Performs a 'bitwise' cast of one type to another, reinterpreting the underlying bytes.
-		/// </summary>
-		/// <typeparam name="T1">Type to cast from</typeparam>
-		/// <typeparam name="T2">Type to cast to</typeparam>
-		/// <param name="x">The value to cast</param>
-		/// <returns>The reinterpreted value</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static T2 BitwiseCast<T1,T2>(T1 x) where T1 : unmanaged where T2 : unmanaged => MemoryMarshal.Cast<T1, T2>(stackalloc T1[] { x })[0];
 
 	}
 
