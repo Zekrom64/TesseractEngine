@@ -7,7 +7,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.LuaJIT {
 
-	using lua_Integer = nint;
+	using lua_Integer = IntPtr;
 	using lua_Number = Double;
 
 	//using lua_CFunction = delegate* unmanaged<IntPtr, int>;

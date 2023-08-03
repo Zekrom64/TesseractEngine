@@ -12,7 +12,7 @@ using Tesseract.Core.Native;
 
 namespace Tesseract.LuaJIT {
 
-	using LuaInteger = nint;
+	using LuaInteger = IntPtr;
 	using LuaNumber = Double;
 
 	/// <summary>
@@ -1139,6 +1139,38 @@ namespace Tesseract.LuaJIT {
 		public void Pop(int n = 1) => Top = -n - 1;
 
 		/// <summary>
+		/// Tests if the value at the given stack index is nil.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>If the value is nil</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsNil(int index) => Type(index) == LuaType.Nil;
+
+		/// <summary>
+		/// Tests if the value at the given stack index is a boolean.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>If the value is a boolean</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsBoolean(int index) => Type(index) == LuaType.Boolean;
+
+		/// <summary>
+		/// Tests if the value at the given stack index is a table.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>If the value is a table</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsTable(int index) => Type(index) == LuaType.Table;
+
+		/// <summary>
+		/// Tests if the value at the given stack index is light userdata.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>If the value is light userdata</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsLightUserdata(int index) => Type(index) == LuaType.LightUserData;
+
+		/// <summary>
 		/// Registers the given function globally under the given name.
 		/// </summary>
 		/// <param name="name">The name to register the function under</param>
@@ -1209,6 +1241,14 @@ namespace Tesseract.LuaJIT {
 		/// <param name="name">Global variable name</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void GetGlobal(ReadOnlySpan<char> name) => GetField(Lua.GlobalsIndex, name);
+
+		/// <summary>
+		/// Converts a potentially top-relative stack index to an absolute index.
+		/// </summary>
+		/// <param name="index">Index to convert</param>
+		/// <returns>Absolute index</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int ToAbsoluteIndex(int index) => index < 0 && index > Lua.RegistryIndex ? Top + index + 1 : index;
 
 		// TODO: Debug functions
 
@@ -1345,6 +1385,99 @@ namespace Tesseract.LuaJIT {
 		//===================//
 
 		/// <summary>
+		/// Generates an error indicating the value at the given index is not of an expected type.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <param name="tname">Expected type name</param>
+		/// <exception cref="LuaException">The Lua error</exception>
+		[DoesNotReturn]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void TypeError(int index, ReadOnlySpan<byte> tname) =>
+			throw new LuaException($"Value #{index} is not of correct type, expected {Encoding.UTF8.GetString(tname)}");
+
+		/// <summary>
+		/// Generates an error indicating the value at the given index is not of an expected type.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <param name="tname">Expected type name</param>
+		/// <exception cref="LuaException">The Lua error</exception>
+		[DoesNotReturn]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void TypeError(int index, ReadOnlySpan<char> tname) =>
+			throw new LuaException($"Value #{index} is not of correct type, expected {new string(tname)}");
+
+		/// <summary>
+		/// Checks if the value at the given index is a string, generating an error if not.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The string value if present</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public string CheckString(int index) {
+			if (!IsString(index)) TypeError(index, "string");
+			return ToString(index)!;
+		}
+
+		/// <summary>
+		/// Checks if the value at the given index is a string, generating an error if not.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The string value if present</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ReadOnlySpan<byte> CheckStringBytes(int index) {
+			if (!IsString(index)) TypeError(index, "string");
+			return ToStringBytes(index);
+		}
+
+		/// <summary>
+		/// Checks if the value at the given index is a string, returning it if so and null otherwise.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The string value or null</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public string? OptString(int index) {
+			if (!IsString(index)) return null;
+			return ToString(index);
+		}
+
+		/// <summary>
+		/// Checks if the value at the given index is a number, generating an error if not.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The number value if present</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaNumber CheckNumber(int index) {
+			if (!IsNumber(index)) TypeError(index, "number");
+			return ToNumber(index);
+		}
+
+		/// <summary>
+		/// Checks if the value at the given index is a number, returning it if so and null otherwise.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The number value or null</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaNumber? OptNumber(int index) => IsNumber(index) ? ToNumber(index) : null;
+
+		/// <summary>
+		/// Checks if the value at the given index is a number, generating an error if not.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The number value (as an integer) if present</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaInteger CheckInteger(int index) {
+			if (!IsNumber(index)) TypeError(index, "number");
+			return ToInteger(index);
+		}
+
+		/// <summary>
+		/// Checks if the value at the given index is a number, returning it if so and null otherwise.
+		/// </summary>
+		/// <param name="index">Stack value index</param>
+		/// <returns>The number value (as an integer) or null</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public LuaInteger? OptInteger(int index) => IsNumber(index) ? ToInteger(index) : null;
+
+		/// <summary>
 		/// Registers a metatable under the given type name, pushing it onto the stack and
 		/// returning if this is the first use of the table.
 		/// </summary>
@@ -1438,7 +1571,7 @@ namespace Tesseract.LuaJIT {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T CheckUserdata<T>(int index, ReadOnlySpan<byte> tname) where T : unmanaged {
 			UnmanagedPointer<T> pData = TestUserdata<T>(index, tname);
-			if (!pData) throw new LuaException($"Value #{index} is not of correct userdata type");
+			if (!pData) TypeError(index, tname);
 			unsafe {
 				return ref *(T*)pData.Ptr;
 			}
