@@ -4,25 +4,26 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tesseract.Core.Utilities;
+using Tesseract.Core.Utilities.Data;
 
-namespace Tesseract.Core.Net {
+namespace Tesseract.Core.Net
+{
 
-	/// <summary>
-	/// <para>
-	/// A packet ID identifies the type of a packet within the context of a <see cref="PacketManager"/>. A
-	/// packet ID is comprised of a module ID and a sub-ID.
-	/// </para>
-	/// <para>
-	/// A module ID identifies the networking module that manages the packet. While module IDs are generally
-	/// managed by the packet manager, there are two fixed IDs, <see cref="ModuleInternal"/> used internally
-	/// by the networking system and <see cref="ModuleApplication"/> which are reserved for the base application
-	/// using the networking system. A packet manager may assign additional modules as necessary such as for
-	/// mods that need networking functionality.
-	/// </para>
-	/// <para>The sub-ID determines the type of packet within a module and is generally hardcoded.</para>
-	/// </summary>
-	public record struct PacketID : IData {
+    /// <summary>
+    /// <para>
+    /// A packet ID identifies the type of a packet within the context of a <see cref="PacketManager"/>. A
+    /// packet ID is comprised of a module ID and a sub-ID.
+    /// </para>
+    /// <para>
+    /// A module ID identifies the networking module that manages the packet. While module IDs are generally
+    /// managed by the packet manager, there are two fixed IDs, <see cref="ModuleInternal"/> used internally
+    /// by the networking system and <see cref="ModuleApplication"/> which are reserved for the base application
+    /// using the networking system. A packet manager may assign additional modules as necessary such as for
+    /// mods that need networking functionality.
+    /// </para>
+    /// <para>The sub-ID determines the type of packet within a module and is generally hardcoded.</para>
+    /// </summary>
+    public record struct PacketID : IData {
 
 		public const int SizeOf = sizeof(ushort) * 2;
 
