@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -978,6 +979,24 @@ namespace Tesseract.LuaJIT {
 		/// <param name="reader">The reader to read code from</param>
 		/// <param name="chunkName">The name of the chunk being loaded</param>
 		/// <returns>The status of the load operation</returns>
+		public LuaStatus Load(LuaReader reader, ReadOnlySpan<byte> chunkName) {
+			unsafe {
+				GCHandle hReader = GCHandle.Alloc(reader);
+				LuaStatus status;
+				fixed (byte* pChunkName = CheckStr(chunkName, stackalloc byte[1024])) {
+					status = (LuaStatus)Lua.Functions.lua_load(L, &LoadTrampoline, (nint)hReader, (nint)pChunkName);
+				}
+				hReader.Free();
+				return status;
+			}
+		}
+
+		/// <summary>
+		/// Attempts to load a chunk of Lua code using the given reader.
+		/// </summary>
+		/// <param name="reader">The reader to read code from</param>
+		/// <param name="chunkName">The name of the chunk being loaded</param>
+		/// <returns>The status of the load operation</returns>
 		public LuaStatus Load(LuaReader reader, ReadOnlySpan<char> chunkName) {
 			unsafe {
 				GCHandle hReader = GCHandle.Alloc(reader);
@@ -1193,6 +1212,134 @@ namespace Tesseract.LuaJIT {
 
 		// TODO: Debug functions
 
+		//==================//
+		// Standard Library //
+		//==================//
+
+		/// <summary>
+		/// Opens the base package.
+		/// Note: There are some functions in the base package that may be undesirable
+		/// for sandboxed code (eg. <c>dofile</c>, <c>loadfile</c>, etc.)
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenBase() {
+			unsafe {
+				Lua.Functions.luaopen_base(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the math package.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenMath() {
+			unsafe {
+				Lua.Functions.luaopen_math(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the string package.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenString() {
+			unsafe {
+				Lua.Functions.luaopen_string(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the table package.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenTable() {
+			unsafe {
+				Lua.Functions.luaopen_table(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the input/output package.
+		/// Note: This may be undesriable for sandboxed environments.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenIO() {
+			unsafe {
+				Lua.Functions.luaopen_io(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the operating system interface package.
+		/// Note: This may be undesriable for sandboxed environments.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenOS() {
+			unsafe {
+				Lua.Functions.luaopen_os(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the package manager package.
+		/// Note: This may be undesriable for sandboxed environments.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenPackage() {
+			unsafe {
+				Lua.Functions.luaopen_package(L);
+			}
+		}
+
+		/// <summary>
+		/// Opens the debugging package, throwing an error if it is not available.
+		/// Note: This may be undesriable for sandboxed environments.
+		/// </summary>
+		/// <exception cref="LuaException">If the debug package is not available</exception>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenDebug() {
+			unsafe {
+				if (Lua.Functions.luaopen_debug != default) Lua.Functions.luaopen_debug(L);
+				else throw new LuaException("Lua library does not support debug package");
+			}
+		}
+
+		/// <summary>
+		/// Opens the bitwise-operator package, throwing an error if it is not available.
+		/// </summary>
+		/// <exception cref="LuaException">If the bitwise-operator package is not available</exception>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void OpenBit() {
+			unsafe {
+				if (Lua.Functions.luaopen_bit != default) Lua.Functions.luaopen_bit(L);
+				else throw new LuaException("Lua library does not support bitwise-operator package");
+			}
+		}
+
+		/// <summary>
+		/// Opens all available packages in the Lua environment.
+		/// Note: This may be undesriable for sandboxed environments.
+		/// </summary>
+		public void OpenAll() {
+			unsafe {
+				var lua = Lua.Functions;
+				// Try luaL_openlibs first
+				if (lua.luaL_openlibs != default) lua.luaL_openlibs(L);
+				// Else if the library doesn't support that do it manually
+				else {
+					lua.luaopen_base(L);
+					lua.luaopen_math(L);
+					lua.luaopen_string(L);
+					lua.luaopen_table(L);
+					lua.luaopen_io(L);
+					lua.luaopen_os(L);
+					lua.luaopen_package(L);
+					if (lua.luaopen_debug != default) lua.luaopen_debug(L);
+					if (lua.luaopen_bit != default) lua.luaopen_bit(L);
+				}
+			}
+		}
+
 		//===================//
 		// Auxiliary Library //
 		//===================//
@@ -1206,8 +1353,24 @@ namespace Tesseract.LuaJIT {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool NewMetatable(ReadOnlySpan<byte> tname) {
 			unsafe {
-				fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
-					return Lua.Functions.luaL_newmetatable(L, (IntPtr)pName) != 0;
+				var lua = Lua.Functions;
+				// Use luaL_newmetatable if available
+				if (lua.luaL_newmetatable != default) {
+					fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
+						return lua.luaL_newmetatable(L, (IntPtr)pName) != 0;
+					}
+				} else {
+					// Else replicate its functionality by instantiating the named table in the registry
+					fixed(byte* pName = CheckStr(tname, stackalloc byte[1024])) {
+						lua.lua_getfield(L, Lua.RegistryIndex, (IntPtr)pName);
+						if (lua.lua_type(L, -1) != (int)LuaType.Table) {
+							lua.lua_settop(L, -2);
+							lua.lua_createtable(L, 0, 0);
+							lua.lua_pushvalue(L, -1);
+							lua.lua_setfield(L, Lua.RegistryIndex, (IntPtr)pName);
+							return true;
+						} else return false;
+					}
 				}
 			}
 		}
@@ -1222,6 +1385,47 @@ namespace Tesseract.LuaJIT {
 		public bool NewMetatable(ReadOnlySpan<char> tname) => NewMetatable(MemoryUtil.StackallocUTF8(tname, stackalloc byte[1024]));
 
 		/// <summary>
+		/// Tests if the value at the given index is userdata of the apropriate type,
+		/// returning a pointer to it if it is correct, else returning null.
+		/// </summary>
+		/// <typeparam name="T">Userdata type</typeparam>
+		/// <param name="index">Userdata value index</param>
+		/// <param name="tname">Userdata type name</param>
+		/// <returns>Userdata pointer, or null</returns>
+		public UnmanagedPointer<T> TestUserdata<T>(int index, ReadOnlySpan<byte> tname) where T : unmanaged {
+			unsafe {
+				var lua = Lua.Functions;
+				// Use luaL_testudata if available
+				if (lua.luaL_testudata != default) {
+					fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
+						return (UnmanagedPointer<T>)lua.luaL_testudata(L, (IntPtr)pName);
+					}
+				} else {
+					// Else emulate the functionality, checking for raw equality of respective metatables
+					if (lua.lua_type(L, index) != (int)LuaType.UserData) return default;
+					lua.lua_getmetatable(L, index);
+					fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
+						lua.lua_getfield(L, Lua.RegistryIndex, (IntPtr)pName);
+					}
+					int eq = lua.lua_rawequal(L, -1, -2);
+					lua.lua_settop(L, -3);
+					return (UnmanagedPointer<T>)(eq == 0 ? IntPtr.Zero : lua.lua_touserdata(L, index));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Tests if the value at the given index is userdata of the apropriate type,
+		/// returning a pointer to it if it is correct, else returning null.
+		/// </summary>
+		/// <typeparam name="T">Userdata type</typeparam>
+		/// <param name="index">Userdata value index</param>
+		/// <param name="tname">Userdata type name</param>
+		/// <returns>Userdata pointer, or null</returns>
+		public UnmanagedPointer<T> TestUserdata<T>(int index, ReadOnlySpan<char> tname) where T : unmanaged =>
+			TestUserdata<T>(index, MemoryUtil.StackallocUTF8(tname, stackalloc byte[1024]));
+
+		/// <summary>
 		/// Checks if the given value on the stack is userdata of the apropriate type,
 		/// generating a Lua error if not. If it is correct, it returns the userdata
 		/// value by reference.
@@ -1230,12 +1434,13 @@ namespace Tesseract.LuaJIT {
 		/// <param name="index">Userdata value index</param>
 		/// <param name="tname">Userdata type name</param>
 		/// <returns>Userdata value reference</returns>
+		/// <exception cref="LuaException">If the value is not the correct type</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T CheckUserdata<T>(int index, ReadOnlySpan<byte> tname) where T : unmanaged {
+			UnmanagedPointer<T> pData = TestUserdata<T>(index, tname);
+			if (!pData) throw new LuaException($"Value #{index} is not of correct userdata type");
 			unsafe {
-				fixed (byte* pName = CheckStr(tname, stackalloc byte[1024])) {
-					return ref *(T*)Lua.Functions.luaL_checkudata(L, (IntPtr)pName);
-				}
+				return ref *(T*)pData.Ptr;
 			}
 		}
 
@@ -1248,13 +1453,13 @@ namespace Tesseract.LuaJIT {
 		/// <param name="index">Userdata value index</param>
 		/// <param name="tname">Userdata type name</param>
 		/// <returns>Userdata value reference</returns>
+		/// <exception cref="LuaException">If the value is not the correct type</exception>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T CheckUserdata<T>(int index, ReadOnlySpan<char> tname) where T : unmanaged {
-			ReadOnlySpan<byte> name = MemoryUtil.StackallocUTF8(tname, stackalloc byte[1024]);
+			UnmanagedPointer<T> pData = TestUserdata<T>(index, tname);
+			if (!pData) throw new LuaException($"Value #{index} is not of correct userdata type");
 			unsafe {
-				fixed (byte* pName = name) {
-					return ref *(T*)Lua.Functions.luaL_checkudata(L, (IntPtr)pName);
-				}
+				return ref *(T*)pData.Ptr;
 			}
 		}
 
@@ -1265,8 +1470,14 @@ namespace Tesseract.LuaJIT {
 		/// <returns>The status of the load operation</returns>
 		public LuaStatus LoadString(ReadOnlySpan<byte> str) {
 			unsafe {
-				fixed(byte* pStr = CheckStr(str, stackalloc byte[4096])) {
-					return (LuaStatus)Lua.Functions.luaL_loadstring(L, (IntPtr)pStr);
+				// Use luaL_loadstring if available, else use a custom function with lua_load
+				if (Lua.Functions.luaL_loadstring != default) {
+					fixed (byte* pStr = CheckStr(str, stackalloc byte[4096])) {
+						return (LuaStatus)Lua.Functions.luaL_loadstring(L, (IntPtr)pStr);
+					}
+				} else {
+					ReadOnlyMemory<byte> text = new byte[str.Length];
+					return Load(state => text, str);
 				}
 			}
 		}

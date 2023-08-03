@@ -47,5 +47,27 @@ namespace Tesseract.LuaJIT {
 		/// <returns>Special stack index for upvalue</returns>
 		public static int UpValueIndex(int i) => GlobalsIndex - i;
 
+		/// <summary>
+		/// If the Lua runtime can load the debug package.
+		/// </summary>
+		public static bool HasDebug {
+			get {
+				unsafe {
+					return Functions.luaopen_debug != default;
+				}
+			}
+		}
+
+		/// <summary>
+		/// If the Lua runtime can load the bitwise-operator package.
+		/// </summary>
+		public static bool HasBit {
+			get {
+				unsafe {
+					return Functions.luaopen_bit != default;
+				}
+			}
+		}
+
 	}
 }

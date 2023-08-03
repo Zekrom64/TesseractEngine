@@ -73,10 +73,6 @@ namespace Tesseract.LuaJIT {
 		[NativeType("lua_State* lua_newthread(lua_State* L)")]
 		public delegate* unmanaged<IntPtr, IntPtr> lua_newthread;
 
-		[ExternFunction(Relaxed = true)]
-		[NativeType("void lua_resetthread(lua_State* L, lua_State* th)")]
-		public delegate* unmanaged<IntPtr, IntPtr, void> lua_resetthread;
-
 		[NativeType("lua_CFunction lua_atpanic(lua_State* L, lua_CFunction panicf)")]
 		public delegate* unmanaged<IntPtr, delegate* unmanaged<IntPtr, int>, delegate* unmanaged<IntPtr, int>> lua_atpanic;
 
@@ -219,14 +215,44 @@ namespace Tesseract.LuaJIT {
 		[ExternFunction(Relaxed = true)]
 		public delegate* unmanaged<IntPtr, IntPtr> lua_getexdata;
 
+		// lualib.h
+
+		[NativeType("int luaopen_base(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_base;
+		[NativeType("int luaopen_math(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_math;
+		[NativeType("int luaopen_string(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_string;
+		[NativeType("int luaopen_table(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_table;
+		[NativeType("int luaopen_io(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_io;
+		[NativeType("int luaopen_os(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_os;
+		[NativeType("int luaopen_package(lua_State* L)")]
+		public delegate* unmanaged<IntPtr, int> luaopen_package;
+		[NativeType("int luaopen_debug(lua_State* L)")]
+		[ExternFunction(Relaxed = true)]
+		public delegate* unmanaged<IntPtr, int> luaopen_debug;
+		[NativeType("int luaopen_bit(lua_State* L)")]
+		[ExternFunction(Relaxed = true)]
+		public delegate* unmanaged<IntPtr, int> luaopen_bit;
+
+		[NativeType("void luaL_openlibs(lua_State* L)")]
+		[ExternFunction(Relaxed = true)]
+		public delegate* unmanaged<IntPtr, void> luaL_openlibs;
+
 		// lauxlib.h
 
 		[NativeType("int luaL_newmetatable(lua_State* L, const char* tname)")]
+		[ExternFunction(Relaxed = true)]
 		public delegate* unmanaged<IntPtr, IntPtr, int> luaL_newmetatable;
-		[NativeType("void* luaL_checkudata(lua_State* L, const char* tname)")]
-		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> luaL_checkudata;
+		[NativeType("void* luaL_testudata(lua_State* L, const char* tname)")]
+		[ExternFunction(Relaxed = true)]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr> luaL_testudata;
 
 		[NativeType("int luaL_loadstring(lua_State* L, const char* s)")]
+		[ExternFunction(Relaxed = true)]
 		public delegate* unmanaged<IntPtr, IntPtr, int> luaL_loadstring;
 
 	}
