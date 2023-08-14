@@ -109,6 +109,46 @@ namespace Tesseract.LuaJIT.Utilities {
 			SetGlobal("loadfile"u8);
 
 			// Hack (x)pcall to rethrow errors when terminating a call
+			GetGlobal("pcall"u8);
+			PushFunction(state => {
+				// Will propagate a LuaSandboxException if one is thrown
+				LuaStatus status = state.ProtectedCall(1);
+				switch(status) {
+					case LuaStatus.Ok:
+						state.PushBoolean(true);
+						return 1;
+					case LuaStatus.ErrRun:
+						state.PushBoolean(false);
+						state.Insert(-2);
+						return 2;
+					case LuaStatus.ErrMem:
+						state.PushBoolean(false);
+						state.PushString("Out of memory"u8);
+						return 2;
+					default:
+						state.PushBoolean(false);
+						state.PushString("Unexpected error"u8);
+						return 2;
+				}
+			});
+			SetGlobal("pcall"u8);
+
+			GetGlobal("xpcall"u8);
+			PushClosure(state => {
+				state.Top = 2;
+				state.PushClosure(state2 => {
+					state2.PushValue(Lua.UpValueIndex(1));
+					state2.Insert(1);
+					// Will propagate a LuaSandboxException if one is thrown
+					state2.Call(state2.Top - 1);
+					return state2.Top;
+				}, 1);
+				state.PushValue(Lua.UpValueIndex(1));
+				state.Insert(1);
+				state.Call(2);
+				return state.Top;
+			}, 1);
+			SetGlobal("xpcall"u8);
 
 			// Hook the runtime to call us every 1000 instructions
 			// This allows us to interrupt execution if it takes too long

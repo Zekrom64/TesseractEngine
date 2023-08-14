@@ -929,7 +929,7 @@ namespace Tesseract.LuaJIT {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public virtual LuaStatus ProtectedCall(int nargs = 0, int nresults = Lua.MultRet, int errfunc = 0) {
 			unsafe {
-				return (LuaStatus)Lua.Functions.lua_pcall(L, nargs, nresults, errfunc);
+				return (LuaStatus)Lua.Functions.lua_pcall(L, nargs, nresults, ToAbsoluteIndex(errfunc));
 			}
 		}
 
