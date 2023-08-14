@@ -19,9 +19,9 @@ namespace Tesseract.LuaJIT {
 	/// arguments passed to the function, and it must return the number of
 	/// values returned from the function (taken from the top of the stack).
 	/// </summary>
-	/// <param name="state">The Lua runtime</param>
+	/// <param name="lua">The Lua interface</param>
 	/// <returns>The number of return values</returns>
-	public delegate int LuaFunction(LuaState state);
+	public delegate int LuaFunction(LuaBase lua);
 
 	/// <summary>
 	/// A custom Lua memory allocation function. When invoked the pointer argument will
@@ -46,11 +46,12 @@ namespace Tesseract.LuaJIT {
 	/// growing the size of memory to indicate an error, and this will be handled
 	/// accordingly in the Lua runtime.
 	/// </summary>
+	/// <param name="lua">The Lua state performing this allocation</param>
 	/// <param name="ptr">Existing memory pointer</param>
 	/// <param name="osize">Old memory size</param>
 	/// <param name="nsize">New memory size</param>
 	/// <returns>New memory pointer</returns>
-	public delegate IntPtr LuaAlloc(IntPtr ptr, nuint osize, nuint nsize);
+	public delegate IntPtr LuaAlloc(LuaState lua, IntPtr ptr, nuint osize, nuint nsize);
 
 	/// <summary>
 	/// Reader function to load Lua code. The reader must return memory containing
@@ -58,9 +59,16 @@ namespace Tesseract.LuaJIT {
 	/// invoked again. When the end of text has been reached the reader must
 	/// return empty memory.
 	/// </summary>
-	/// <param name="state">The Lua state loading the text</param>
+	/// <param name="lua">The Lua interface loading the text</param>
 	/// <returns>The next chunk of loaded text, or empty memory</returns>
-	public delegate ReadOnlyMemory<byte> LuaReader(LuaState state);
+	public delegate ReadOnlyMemory<byte> LuaReader(LuaBase lua);
+
+	/// <summary>
+	/// A debugging hook that is invoked based on certain events defined in <see cref="LuaHookEvent"/>.
+	/// </summary>
+	/// <param name="state">The Lua state that has called the hook</param>
+	/// <param name="debug">The debug information passed to the hook</param>
+	public delegate void LuaHook(LuaState state, LuaDebug debug);
 
 	public unsafe class LuaFunctions {
 
@@ -214,6 +222,17 @@ namespace Tesseract.LuaJIT {
 		[NativeType("void* lua_getexdata(lua_State* L)")]
 		[ExternFunction(Relaxed = true)]
 		public delegate* unmanaged<IntPtr, IntPtr> lua_getexdata;
+
+		[NativeType("int lua_getinfo(lua_State* L, const char* what, lua_Debug* ar)")]
+		public delegate* unmanaged<IntPtr, IntPtr, IntPtr, int> lua_getinfo;
+		[NativeType("const char* lua_getlocal(lua_State* L, lua_Debug* ar, int n)")]
+		public delegate* unmanaged<IntPtr, IntPtr, int, IntPtr> lua_getlocal;
+		[NativeType("int lua_getstack(lua_State* L, int level, lua_Debug* ar)")]
+		public delegate* unmanaged<IntPtr, int, IntPtr, int> lua_getstack;
+		[NativeType("const char* lua_getupvalue(lua_State* L, int funcindex, int n)")]
+		public delegate* unmanaged<IntPtr, int, int, IntPtr> lua_getupvalue;
+		[NativeType("int lua_sethook(lua_State* L, lua_Hook f, int mask, int count)")]
+		public delegate* unmanaged<IntPtr, IntPtr, int, int, int> lua_sethook;
 
 		// lualib.h
 

@@ -11,7 +11,11 @@ namespace Tesseract.LuaJIT {
 	/// </summary>
 	public class LuaException : Exception {
 
+		/// <inheritdoc cref="Exception(string?)"/>
 		public LuaException(string? message) : base(message) { }
+
+		/// <inheritdoc cref="Exception(string?, Exception?)"/>
+		public LuaException(string? message, Exception? innerException) : base(message, innerException) { }
 
 	}
 

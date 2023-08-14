@@ -126,11 +126,29 @@ namespace Tesseract.LuaJIT {
 		IsRunning = 9
 	}
 
-	public enum LuaHook : int {
+	/// <summary>
+	/// Enumeration of Lua debugging event hooks.
+	/// </summary>
+	public enum LuaHookEvent : int {
+		/// <summary>
+		/// The hook is invoked when a function is first called.
+		/// </summary>
 		Call = 0,
+		/// <summary>
+		/// The hook is invoked when a function is about to return.
+		/// </summary>
 		Ret = 1,
+		/// <summary>
+		/// The hook is invoked when the line number of executing code changes.
+		/// </summary>
 		Line = 2,
+		/// <summary>
+		/// The hook is invoked after executing <i>n</i> instructions.
+		/// </summary>
 		Count = 3,
+		/// <summary>
+		/// <i>Unknown</i>
+		/// </summary>
 		TailRet = 4
 	}
 

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -27,9 +29,9 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="lua">This Lua runtime</param>
 		/// <param name="index">Stack index of value to test</param>
 		/// <returns>If the value is a proper array</returns>
-		public static bool IsArray(this LuaState lua, int index) {
+		public static bool IsArray(this LuaBase lua, int index) {
 			// Array must be a table
-			if (lua.Type(index) != LuaType.Table) return false;
+			if (!lua.IsTable(index)) return false;
 
 			// Track the index count and number of indices
 			int count = 0, maxn = 0;
@@ -68,7 +70,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="lua">This Lua state</param>
 		/// <param name="n">The number of times to duplicate the value</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Dup(this LuaState lua, int n = 1) {
+		public static void Dup(this LuaBase lua, int n = 1) {
 			while (n-- > 0) lua.PushValue(-1);
 		}
 
@@ -79,7 +81,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="package">The package name</param>
 		/// <param name="name">The function name</param>
 		/// <param name="func">The function to register</param>
-		public static void Register(this LuaState lua, ReadOnlySpan<byte> package, ReadOnlySpan<byte> name, LuaFunction func) {
+		public static void Register(this LuaBase lua, ReadOnlySpan<byte> package, ReadOnlySpan<byte> name, LuaFunction func) {
 			lua.GetGlobal(package);
 			if (lua.IsNil(-1)) {
 				lua.Pop(1);
@@ -99,7 +101,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="package">The package name</param>
 		/// <param name="name">The function name</param>
 		/// <param name="func">The function to register</param>
-		public static void Register(this LuaState lua, ReadOnlySpan<char> package, ReadOnlySpan<char> name, LuaFunction func) {
+		public static void Register(this LuaBase lua, ReadOnlySpan<char> package, ReadOnlySpan<char> name, LuaFunction func) {
 			lua.GetGlobal(package);
 			if (lua.IsNil(-1)) {
 				lua.Pop(1);
@@ -118,7 +120,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="lua">This Lua state</param>
 		/// <param name="package">The package name</param>
 		/// <param name="funcs">The functions to register</param>
-		public static void Register(this LuaState lua, ReadOnlySpan<byte> package, IEnumerable<KeyValuePair<string, LuaFunction>> funcs) {
+		public static void Register(this LuaBase lua, ReadOnlySpan<byte> package, IEnumerable<KeyValuePair<string, LuaFunction>> funcs) {
 			lua.GetGlobal(package);
 			if (lua.IsNil(-1)) {
 				lua.Pop(1);
@@ -139,7 +141,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="lua">This Lua state</param>
 		/// <param name="package">The package name</param>
 		/// <param name="funcs">The functions to register</param>
-		public static void Register(this LuaState lua, ReadOnlySpan<char> package, IEnumerable<KeyValuePair<string, LuaFunction>> funcs) {
+		public static void Register(this LuaBase lua, ReadOnlySpan<char> package, IEnumerable<KeyValuePair<string, LuaFunction>> funcs) {
 			lua.GetGlobal(package);
 			if (lua.IsNil(-1)) {
 				lua.Pop(1);
@@ -154,7 +156,7 @@ namespace Tesseract.LuaJIT.Utilities {
 			lua.Pop(1);
 		}
 
-		private static int JsonDecode(LuaState lua, JsonElement element) {
+		private static int JsonDecode(LuaBase lua, JsonElement element) {
 			switch (element.ValueKind) {
 				case JsonValueKind.Object: {
 						lua.CreateTable();
@@ -193,7 +195,7 @@ namespace Tesseract.LuaJIT.Utilities {
 			return 1;
 		}
 
-		private static void JsonEncode(LuaState lua, int value, Utf8JsonWriter writer) {
+		private static void JsonEncode(LuaBase lua, int value, Utf8JsonWriter writer) {
 			LuaType type = lua.Type(value);
 			switch (type) {
 				case LuaType.None:
@@ -263,7 +265,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// </list>
 		/// </summary>
 		/// <param name="lua">This Lua state</param>
-		public static void OpenJSON(this LuaState lua) {
+		public static void OpenJSON(this LuaBase lua) {
 			Register(lua, "json"u8, "encode"u8, state => {
 				JsonWriterOptions opts = default;
 				int argc = state.Top;
@@ -338,10 +340,11 @@ namespace Tesseract.LuaJIT.Utilities {
 		}
 
 		/// <summary>
-		/// The maximum size custom serialized data is allowed to be. This can be used to prevent a malicious
-		/// user from trying to deserialize a crafted value with a very large size.
+		/// The maximum size a piece of binary data is allowed to be for extension functions. This can be
+		/// used to prevent a malicious user from trying to allocate an arbitrary amount of memory by crafting
+		/// a specific formatting or serialized string.
 		/// </summary>
-		public static int SerializedDataMaxSize { get; set; } = int.MaxValue;
+		public static int MaxDataSize { get; set; } = int.MaxValue;
 
 		/// <summary>
 		/// Serializes the Lua value at the given stack index into binary data using a <see cref="BinaryWriter"/>.
@@ -350,12 +353,12 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <param name="bw">The writer to serialize data to</param>
 		/// <param name="index">The stack index of the value to serialize</param>
 		/// <exception cref="LuaException">If there was an error during serialization</exception>
-		public static void Serialize(this LuaState lua, BinaryWriter bw, int index) {
+		public static void Serialize(this LuaBase lua, BinaryWriter bw, int index) {
 			bool TrySerializeCustom(int index) {
 				bool isCustom = false;
 				if (lua.GetMetatable(index)) {
 					lua.GetField(-1, "__serialize"u8);
-					if (!(isCustom = lua.Type(-1) == LuaType.Function)) lua.Pop();
+					if (!(isCustom = lua.IsFunction(-1))) lua.Pop();
 				}
 
 				if (isCustom) {
@@ -367,11 +370,11 @@ namespace Tesseract.LuaJIT.Utilities {
 					// Write data to the stream
 					bw.Write((byte)SerialToken.Custom);
 					ReadOnlySpan<byte> key = lua.ToStringBytes(-2);
-					if (key.Length > SerializedDataMaxSize) throw new LuaException("Custom value key too large");
+					if (key.Length > MaxDataSize) throw new LuaException("Custom value key too large");
 					bw.Write7BitEncodedInt(key.Length);
 					bw.Write(key);
 					ReadOnlySpan<byte> data = lua.ToStringBytes(-1);
-					if (data.Length > SerializedDataMaxSize) throw new LuaException("Custom value data too large");
+					if (data.Length > MaxDataSize) throw new LuaException("Custom value data too large");
 					bw.Write7BitEncodedInt(data.Length);
 					bw.Write(data);
 					return true;
@@ -399,7 +402,7 @@ namespace Tesseract.LuaJIT.Utilities {
 					break;
 				case LuaType.String: {
 						ReadOnlySpan<byte> strBytes = lua.ToStringBytes(index);
-						if (strBytes.Length > SerializedDataMaxSize) throw new LuaException("String too large");
+						if (strBytes.Length > MaxDataSize) throw new LuaException("String too large");
 						// <Token:B> <Length:7bI> <Data:nB>
 						bw.Write((byte)SerialToken.String);
 						bw.Write7BitEncodedInt(strBytes.Length);
@@ -459,7 +462,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// <returns>If a value was deserialized and pushed</returns>
 		/// <exception cref="IOException">If there is an error reading the serialized data</exception>
 		/// <exception cref="LuaException">If there is an error decoding the serialized data</exception>
-		public static bool Deserialize(this LuaState lua, BinaryReader br) {
+		public static bool Deserialize(this LuaBase lua, BinaryReader br) {
 			void ReadFully(Span<byte> span) {
 				int offset = 0;
 				do {
@@ -487,7 +490,7 @@ namespace Tesseract.LuaJIT.Utilities {
 					break;
 				case SerialToken.String: {
 						int length = br.Read7BitEncodedInt();
-						if (length > SerializedDataMaxSize) throw new LuaException("String has excessively large size");
+						if (length > MaxDataSize) throw new LuaException("String has excessively large size");
 						Span<byte> buffer = length > 4096 ? new byte[length] : stackalloc byte[length];
 						ReadFully(buffer);
 						lua.PushString(buffer);
@@ -511,7 +514,7 @@ namespace Tesseract.LuaJIT.Utilities {
 						int top = lua.Top;
 						try {
 							int keyLen = br.Read7BitEncodedInt();
-							if (keyLen > SerializedDataMaxSize) throw new LuaException("Custom data has excessively large key");
+							if (keyLen > MaxDataSize) throw new LuaException("Custom data has excessively large key");
 							Span<byte> key = keyLen > 4096 ? new byte[keyLen] : stackalloc byte[keyLen];
 							ReadFully(key);
 
@@ -521,13 +524,13 @@ namespace Tesseract.LuaJIT.Utilities {
 							if (lua.IsTable(-1)) {
 								lua.PushString(key);
 								lua.RawGet(-2);
-								hasDeserial = lua.Type(-1) == LuaType.Function;
+								hasDeserial = lua.IsFunction(-1);
 							}
 
 							if (!hasDeserial) throw new LuaException($"Missing deserializer for custom key \"{Encoding.UTF8.GetString(key)}\"");
 
 							int dataLen = br.Read7BitEncodedInt();
-							if (dataLen > SerializedDataMaxSize) throw new LuaException("Custom data is excessively large");
+							if (dataLen > MaxDataSize) throw new LuaException("Custom data is excessively large");
 							Span<byte> data = dataLen > 4096 ? new byte[dataLen] : stackalloc byte[dataLen];
 							ReadFully(data);
 
@@ -548,11 +551,11 @@ namespace Tesseract.LuaJIT.Utilities {
 
 		/// <summary>
 		/// Adds a custom deserialization handler like with <c>serialize.newdecoder()</c> (see
-		/// <see cref="OpenSerialize(LuaState)"/>).
+		/// <see cref="OpenSerialize(LuaBase)"/>).
 		/// </summary>
 		/// <param name="lua">The Lua interface</param>
 		/// <param name="func">The serialization function</param>
-		public static void AddCustomDeserializer(LuaState lua, string key, LuaFunction func) {
+		public static void AddCustomDeserializer(LuaBase lua, string key, LuaFunction func) {
 			lua.GetField(Lua.RegistryIndex, "__deserial"u8);
 			if (lua.IsNil(-1)) {
 				lua.Pop();
@@ -592,7 +595,7 @@ namespace Tesseract.LuaJIT.Utilities {
 		/// </list>
 		/// </summary>
 		/// <param name="lua">This Lua state</param>
-		public static void OpenSerialize(this LuaState lua) {
+		public static void OpenSerialize(this LuaBase lua) {
 			Register(lua, "serialize"u8, "encode"u8, state => {
 				using MemoryStream ms = new();
 				Serialize(state, new BinaryWriter(ms), 1);
@@ -600,14 +603,14 @@ namespace Tesseract.LuaJIT.Utilities {
 				return 1;
 			});
 			Register(lua, "serialize"u8, "decode"u8, state => {
-				state.CheckString(1);
-				using MemoryStream ms = new(lua.ToStringBytes(1).ToArray());
+				ReadOnlySpan<byte> data = state.CheckStringBytes(1);
+				using MemoryStream ms = new(data.ToArray());
 				if (!Deserialize(lua, new BinaryReader(ms))) state.PushNil();
 				return 1;
 			});
 			Register(lua, "serialize"u8, "newdecoder"u8, state => {
-				state.CheckString(1);
-				if (state.Type(2) != LuaType.Function) state.TypeError(2, "function");
+				state.CheckStringBytes(1);
+				if (state.IsFunction(2)) state.TypeError(2, "function");
 				state.GetField(Lua.RegistryIndex, "__deserial"u8);
 				if (lua.IsNil(-1)) {
 					lua.CreateTable();
@@ -619,6 +622,374 @@ namespace Tesseract.LuaJIT.Utilities {
 				lua.RawSet(-3);
 				return 0;
 			});
+		}
+
+		private static int StructPack(LuaBase lua) {
+			string format = lua.CheckString(1);
+			using MemoryStream ms = new();
+			BinaryWriter bw = new(ms);
+
+			// The index of the next argument to pack
+			int arg = 2;
+			// If the next value should be written in little endian
+			bool isLittleEndian = BitConverter.IsLittleEndian;
+			// If the next value should be aligned to its size
+			bool isAligned = false;
+			// String buffer for count digits
+			StringBuilder countDigits = new();
+
+			// Processes alignment of values
+			void AlignTo(int size) {
+				bw.Flush();
+				long offset = ms.Position;
+				if (isAligned) {
+					int diff = (int)(offset % size);
+					if (diff > 0) {
+						Span<byte> zeros = stackalloc byte[size - diff];
+						zeros.Clear();
+						bw.Write(zeros);
+					}
+				}
+			}
+
+			// Processes count digits
+			int CheckCount() {
+				// If no digits, only a single value
+				if (countDigits.Length == 0) return 1;
+				// Try to parse the count
+				string str = countDigits.ToString();
+				countDigits.Clear();
+				int count = int.Parse(str);
+				if (count > MaxDataSize) throw new ArgumentException("Format string has excessively large count specifier");
+				return count;
+			}
+
+			// Fetches the next number
+			double NextNumber() => lua.CheckNumber(arg++);
+
+			// Fetches the next signed integer
+			long NextInt(long min, long max, string name) {
+				double x = NextNumber();
+				if (!double.IsInteger(x)) throw new LuaException($"Value #{arg - 1} is not an integer");
+				if (x > max || x < min) throw new LuaException($"Value #{arg - 1} does not fit in the range of a {name}");
+				return (long)x;
+			}
+
+			// Fetches the next unsigned integer 
+			ulong NextUInt(ulong max, string name) {
+				double x = NextNumber();
+				if (!double.IsInteger(x)) throw new LuaException($"Value #{arg - 1} is not an integer");
+				if (x > max || x < 0) throw new LuaException($"Value #{arg - 1} does not fit in the range of a {name}");
+				return (ulong)x;
+			}
+
+			Span<byte> zeros = stackalloc byte[256];
+			zeros.Clear();
+
+			foreach (char c in format) {
+				switch (c) {
+					case '@': // Native byte order, native size & align
+						isLittleEndian = BitConverter.IsLittleEndian;
+						isAligned = true;
+						countDigits.Clear();
+						break;
+					case '=': // Native byte order, standard size, no align
+						isLittleEndian = BitConverter.IsLittleEndian;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case '<': // Little endian, standard size, no align
+						isLittleEndian = true;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case '>': // Big endian, standard size, no align
+					case '!': // Network (= big endian)
+						isLittleEndian = false;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case 'b': // signed char (byte)
+						for (int i = CheckCount(); i > 0; i--)
+							bw.Write((byte)NextInt(0, byte.MaxValue, "unsigned byte"));
+						break;
+					case 'B': // unsigned char (byte)
+						for (int i = CheckCount(); i > 0; i--)
+							bw.Write((byte)NextUInt(byte.MaxValue, "unsigned byte"));
+						break;
+					case '?': // _Bool (bool)
+						for (int i = CheckCount(); i > 0; i--)
+							bw.Write((byte)(lua.CheckBoolean(arg++) ? 1 : 0));
+						break;
+					case 'h': // short
+						AlignTo(2);
+						for (int i = CheckCount(); i > 0; i--) {
+							short value = (short)NextInt(short.MinValue, short.MaxValue, "signed short");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'H': // unsigned short
+						AlignTo(2);
+						for (int i = CheckCount(); i > 0; i--) {
+							ushort value = (ushort)NextUInt(ushort.MaxValue, "unsigned short");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'i': // int
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--) {
+							int value = (int)NextInt(int.MinValue, int.MaxValue, "signed int");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'I': // unsigned int
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--) {
+							uint value = (uint)NextUInt(uint.MaxValue, "unsigned int");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'q': // long long
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--) {
+							long value = NextInt(long.MinValue, long.MaxValue, "signed long");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'Q': // unsigned long long
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--) {
+							ulong value = NextUInt(ulong.MaxValue, "unsigned long");
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'f': // float
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--) {
+							double x = NextNumber();
+							if (x > float.MaxValue || x < float.MinValue)
+								throw new LuaException($"Value #{arg - 1} does not fit in the range of a float");
+							int value = BitConverter.SingleToInt32Bits((float)x);
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'd': // double
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--) {
+							long value = BitConverter.DoubleToInt64Bits(NextNumber());
+							if (!isLittleEndian) value = BinaryPrimitives.ReverseEndianness(value);
+							bw.Write(value);
+						}
+						break;
+					case 'x': // padding byte
+						for(int i = CheckCount(); i > 0; i--)
+							bw.Write(0);
+						break;
+					case 's': { // fixed-size string
+							int count = CheckCount();
+							ReadOnlySpan<byte> str = lua.CheckStringBytes(arg++);
+							if (str.Length < count) {
+								bw.Write(str);
+								int diff = count - str.Length;
+								while(diff > 0) {
+									int nwrite = Math.Min(diff, zeros.Length);
+									bw.Write(zeros[..nwrite]);
+									diff -= nwrite;
+								}
+							} else bw.Write(str[..count]);
+						}
+						break;
+					default:
+						// Skip any whitespace
+						if (char.IsWhiteSpace(c)) continue;
+						if (char.IsAsciiDigit(c)) {
+							countDigits.Append(c);
+							continue;
+						}
+						throw new LuaException($"Invalid struct format character '{c}'");
+				}
+			}
+
+			lua.PushString(ms.ToArray());
+			return 1;
+		}
+
+		private static int StructUnpack(LuaBase lua) {
+			string format = lua.CheckString(1);
+			ReadOnlySpan<byte> data = lua.CheckStringBytes(2);
+			int offset = 0;
+			int top = lua.Top;
+
+			// If the next value should be written in little endian
+			bool isLittleEndian = BitConverter.IsLittleEndian;
+			// If the next value should be aligned to its size
+			bool isAligned = false;
+			// String buffer for count digits
+			StringBuilder countDigits = new();
+
+			// Processes alignment of values
+			void AlignTo(int size) {
+				if (isAligned) {
+					int diff = offset % size;
+					if (diff > 0) offset += size - diff;
+				}
+			}
+
+			// Processes count digits
+			int CheckCount() {
+				// If no digits, only a single value
+				if (countDigits.Length == 0) return 1;
+				// Try to parse the count
+				string str = countDigits.ToString();
+				countDigits.Clear();
+				int count = int.Parse(str);
+				if (count > MaxDataSize) throw new ArgumentException("Format string has excessively large count specifier");
+				return count;
+			}
+
+			foreach (char c in format) {
+				switch (c) {
+					case '@': // Native byte order, native size & align
+						isLittleEndian = BitConverter.IsLittleEndian;
+						isAligned = true;
+						countDigits.Clear();
+						break;
+					case '=': // Native byte order, standard size, no align
+						isLittleEndian = BitConverter.IsLittleEndian;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case '<': // Little endian, standard size, no align
+						isLittleEndian = true;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case '>': // Big endian, standard size, no align
+					case '!': // Network (= big endian)
+						isLittleEndian = false;
+						isAligned = false;
+						countDigits.Clear();
+						break;
+					case 'b': // signed char (byte)
+						for (int i = CheckCount(); i > 0; i--) lua.PushInteger((sbyte)data[offset++]);
+						break;
+					case 'B': // unsigned char (byte)
+						for (int i = CheckCount(); i > 0; i--) lua.PushInteger(data[offset++]);
+						break;
+					case '?': // _Bool (bool)
+						for (int i = CheckCount(); i > 0; i--) lua.PushBoolean(data[offset++] != 0);
+						break;
+					case 'h': // short
+						AlignTo(2);
+						for (int i = CheckCount(); i > 0; i--, offset += 2)
+							lua.PushInteger(isLittleEndian ? BinaryPrimitives.ReadInt16LittleEndian(data[offset..]) : BinaryPrimitives.ReadInt16BigEndian(data[offset..]));
+						break;
+					case 'H': // unsigned short
+						AlignTo(2);
+						for (int i = CheckCount(); i > 0; i--, offset += 2)
+							lua.PushInteger(isLittleEndian ? BinaryPrimitives.ReadUInt16LittleEndian(data[offset..]) : BinaryPrimitives.ReadUInt16BigEndian(data[offset..]));
+						break;
+					case 'i': // int
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--, offset += 4)
+							lua.PushInteger(isLittleEndian ? BinaryPrimitives.ReadInt32LittleEndian(data[offset..]) : BinaryPrimitives.ReadInt32BigEndian(data[offset..]));
+						break;
+					case 'I': // unsigned int
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--, offset += 4) {
+							uint x = isLittleEndian ? BinaryPrimitives.ReadUInt32LittleEndian(data[offset..]) : BinaryPrimitives.ReadUInt32BigEndian(data[offset..]);
+							if (x > nint.MaxValue) lua.PushNumber(x);
+							else lua.PushInteger((nint)x);
+						}
+						break;
+					case 'q': // long long
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--, offset += 8) {
+							long x = isLittleEndian ? BinaryPrimitives.ReadInt64LittleEndian(data[offset..]) : BinaryPrimitives.ReadInt64BigEndian(data[offset..]);
+							if (x < nint.MinValue || x > nint.MaxValue) lua.PushNumber(x);
+							else lua.PushInteger((nint)x);
+						}
+						break;
+					case 'Q': // unsigned long long
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--, offset += 8) {
+							ulong x = isLittleEndian ? BinaryPrimitives.ReadUInt64LittleEndian(data[offset..]) : BinaryPrimitives.ReadUInt64BigEndian(data[offset..]);
+							if (x > (ulong)nint.MaxValue) lua.PushNumber(x);
+							else lua.PushInteger((nint)x);
+						}
+						break;
+					case 'f': // float
+						AlignTo(4);
+						for (int i = CheckCount(); i > 0; i--, offset += 4) {
+							int x = isLittleEndian ? BinaryPrimitives.ReadInt32LittleEndian(data[offset..]) : BinaryPrimitives.ReadInt32BigEndian(data[offset..]);
+							lua.PushNumber(BitConverter.Int32BitsToSingle(x));
+						}
+						break;
+					case 'd': // double
+						AlignTo(8);
+						for (int i = CheckCount(); i > 0; i--, offset += 8) {
+							long x = isLittleEndian ? BinaryPrimitives.ReadInt64LittleEndian(data[offset..]) : BinaryPrimitives.ReadInt64BigEndian(data[offset..]);
+							lua.PushNumber(BitConverter.Int64BitsToDouble(x));
+						}
+						break;
+					case 'x': // padding byte
+						offset += CheckCount();
+						break;
+					case 's': { // fixed-size string
+							int count = CheckCount();
+							lua.PushString(data[offset..(offset + count)]);
+							offset += count;
+						}
+						break;
+					default:
+						// Skip any whitespace
+						if (char.IsWhiteSpace(c)) continue;
+						if (char.IsAsciiDigit(c)) {
+							countDigits.Append(c);
+							continue;
+						}
+						throw new LuaException($"Invalid struct format character '{c}'");
+				}
+			}
+
+			return lua.Top - top;
+		}
+
+		/// <summary>
+		/// Adds a structure (un)packing package for converting between Lua values and packed binary data. This is
+		/// heavily based on the <c>struct</c> Python library with the exception that the <b>c</b>, <b>l</b>, <b>L</b>,
+		/// <b>n</b>, <b>N</b>, <b>p</b>, and <b>P</b> formats are not supported. <b>c</b> is redundant as Lua uses
+		/// strings as its byte array object. <b>l</b>, <b>L</b>, <b>n</b>, <b>N</b>, and <b>P</b> are not supported due to
+		/// potential complications with the <see cref="nint"/> type (this may change in the future). <b>p</b> is not supported as
+		/// Pascal strings are not common enough to warrant use. See the <see href="https://docs.python.org/3/library/struct.html">
+		/// Python documentation</see> for apropriate usage.
+		/// <list type="table">
+		/// 
+		/// <item>
+		/// <term><c>struct.pack(format: string, ...) -> string</c></term>
+		/// <description>Packs the trailing arguments into the binary structure described by the format string. The passed values
+		/// are validated to be the correct type and within the apropriate range for their corresponding binary type.</description>
+		/// </item>
+		/// 
+		/// <item>
+		/// <term><c>struct.unpack(format: string, data: string) -> ...</c></term>
+		/// <description>Unpacks the binary data stored in the data string according to the format string, returning as a variable
+		/// number of values.</description>
+		/// </item>
+		/// 
+		/// </list>
+		/// </summary>
+		/// <param name="lua"></param>
+		public static void OpenStruct(this LuaBase lua) {
+			lua.Register("struct"u8, "pack"u8, StructPack);
+			lua.Register("struct"u8, "unpack"u8, StructUnpack);
 		}
 
 	}
