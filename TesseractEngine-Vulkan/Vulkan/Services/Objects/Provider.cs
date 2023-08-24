@@ -152,6 +152,7 @@ namespace Tesseract.Vulkan.Services.Objects {
 	/// <summary>
 	/// A graphics enumerator for the Vulkan API.
 	/// </summary>
+	[GraphicsEnumerator]
 	public class VulkanGraphicsEnumerator : IGraphicsEnumerator {
 
 		public static IGraphicsEnumerator GetEnumerator(GraphicsEnumeratorCreateInfo createInfo) {
