@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics;
 using System.Text;
 
 namespace Tesseract.Core.Native {
@@ -329,6 +332,108 @@ namespace Tesseract.Core.Native {
 					return -1;
 				}
 			}
+		}
+
+		// Memory Operations
+
+		/// <summary>
+		/// Compares the contents of memory at two locations, checking if the underlying bytes are equal.
+		/// </summary>
+		/// <typeparam name="T">Type of values in memory</typeparam>
+		/// <param name="left">First region of memory</param>
+		/// <param name="right">Second region of memory</param>
+		/// <returns>If the underlying memory of two locations is equal</returns>
+		public static bool MemoryEqual<T>(ReadOnlySpan<T> left, ReadOnlySpan<T> right) where T : unmanaged, IEquatable<T> {
+			int length = Math.Min(left.Length, right.Length);
+			unsafe {
+				fixed (T* pLeft = left) {
+					fixed (T* pRight = right) {
+						return MemoryEqual<T>(
+							new UnmanagedPointer<T>((nint)pLeft, left.Length),
+							new UnmanagedPointer<T>((nint)pRight, right.Length),
+							length
+						);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Compares the contents of memory at two locations, checking if the underlying bytes are equal.
+		/// </summary>
+		/// <typeparam name="T">Type of values in memory</typeparam>
+		/// <param name="left">First region of memory</param>
+		/// <param name="right">Second region of memory</param>
+		/// <param name="length">The number of items to compare</param>
+		/// <returns>If the underlying memory of two locations is equal</returns>
+		/// <exception cref="ArgumentException">If an illegal length is provided</exception>
+		public static bool MemoryEqual<T>(IConstPointer<T> left, IConstPointer<T> right, int length) where T : unmanaged, IEquatable<T> {
+			if (left.ArraySize != -1 && left.ArraySize < length) throw new ArgumentException("Requested length exceeds the known array size of a pointer", nameof(length));
+			if (right.ArraySize != -1 && right.ArraySize < length) throw new ArgumentException("Requested length exceeds the known array size of a pointer", nameof(length));
+
+			int lengthBytes = length * Marshal.SizeOf<T>();
+			// Only bother advanced operations for >128 byte memory
+			if (lengthBytes > 128) {
+				// Verify 16-byte alignment
+				IntPtr pLeft = left.Ptr, pRight = right.Ptr;
+				if ((pLeft & 0xF) == 0 && (pRight & 0xF) == 0) {
+					if (Sse2.IsSupported) {
+						// Optimized SSE comparison
+						unsafe {
+							byte* pbLeft = (byte*)pLeft, pbRight = (byte*)pRight;
+							Vector128<byte> a, b;
+							while (lengthBytes >= 16) {
+								a = Sse2.LoadAlignedVector128(pbLeft);
+								b = Sse2.LoadAlignedVector128(pbRight);
+								if (Sse2.MoveMask(Sse2.CompareEqual(a, b)) != 0xFF) return false;
+								pbLeft += 16;
+								pbRight += 16;
+								lengthBytes -= 16;
+							}
+
+							while (lengthBytes-- > 0) {
+								if (*pbLeft++ != *pbRight++) return false;
+							}
+						}
+						return true;
+					} else if (AdvSimd.IsSupported) {
+						// Optimized AdvSIMD comparison
+						unsafe {
+							byte* pbLeft = (byte*)pLeft, pbRight = (byte*)pRight;
+							Vector128<byte> a, b, eq;
+							while (lengthBytes >= 16) {
+								a = AdvSimd.LoadVector128(pbLeft);
+								b = AdvSimd.LoadVector128(pbRight);
+								eq = AdvSimd.CompareEqual(a, b);
+								// We can only use *Across on AArch64, otherwise a more complex sequence is required
+								if (AdvSimd.Arm64.IsSupported && AdvSimd.Arm64.MinAcross(eq.AsUInt32())[0] != 0xFFFFFFFFU) return false;
+								else {
+									// Bitwise and lower and upper 64 bits
+									Vector64<uint> eq2 = AdvSimd.And(eq.GetUpper(), eq.GetLower()).AsUInt32();
+									// Bitwise and 32-bit upper and lower halves of the result
+									// Must have all bits set
+									if ((eq2[1] & eq2[0]) != 0xFFFFFFFFU) return false;
+								}
+								pbLeft += 16;
+								pbRight += 16;
+								lengthBytes -= 16;
+							}
+
+							while (lengthBytes-- > 0) {
+								if (*pbLeft++ != *pbRight++) return false;
+							}
+						}
+						return true;
+					}
+				}
+			}
+
+			// Fallback comparison loop
+			for (int i = 0; i < length; i++) {
+				if (left[i].Equals(right[i])) return false;
+			}
+
+			return true;
 		}
 
 		// ASCII Encoding
