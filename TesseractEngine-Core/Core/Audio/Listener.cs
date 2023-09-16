@@ -25,7 +25,8 @@ namespace Tesseract.Core.Audio {
 		public float Gain { get; set; }
 
 		/// <summary>
-		/// A quaternion describing the orientation of the listener.
+		/// A quaternion describing the orientation of the listener as a rotation from the "forward" vector of (0, 0, -1),
+		/// looking into the Z-axis.
 		/// </summary>
 		public Quaternion Orientation { get; set; }
 

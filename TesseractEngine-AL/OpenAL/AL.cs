@@ -13,7 +13,7 @@ namespace Tesseract.OpenAL {
 
 		public AL11 AL11 { get; }
 
-		public SOFTBufferSamples? SOFTBufferSamples { get; }
+		//public SOFTBufferSamples? SOFTBufferSamples { get; }
 		public EXTEFX? EXTEFX { get; }
 
 		public AL(ALCContext context) {
@@ -21,7 +21,7 @@ namespace Tesseract.OpenAL {
 			context.MakeContextCurrent();
 
 			AL11 = new(this);
-			if (AL11.IsExtensionPresent(SOFTBufferSamples.ExtensionName)) SOFTBufferSamples = new(this);
+			//if (AL11.IsExtensionPresent(SOFTBufferSamples.ExtensionName)) SOFTBufferSamples = new(this);
 			if (AL11.IsExtensionPresent(EXTEFX.ExtensionName)) EXTEFX = new(this);
 		}
 

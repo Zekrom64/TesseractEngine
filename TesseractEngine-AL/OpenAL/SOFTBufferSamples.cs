@@ -70,6 +70,7 @@ namespace Tesseract.OpenAL {
 	}
 #nullable restore
 
+	[Obsolete("No longer supported in OpenAL-Soft")]
 	public class SOFTBufferSamples {
 
 		public const string ExtensionName = "AL_SOFT_buffer_samples";

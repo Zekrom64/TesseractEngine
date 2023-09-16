@@ -67,13 +67,11 @@ namespace Tesseract.Core.Audio {
 	/// emitters can also operate in static mode where only a single buffer will be used for the lifetime of the buffer and
 	/// will store the entire audio clip. This mode may be more useful for short and often-used sound effects.
 	/// </para>
+	/// <para>
+	/// Note that audio systems are always treated as using <i>left-hand</i> coordinates (ie. the Y up-axis is positive).
+	/// </para>
 	/// </summary>
 	public interface IAudioSystem3D : IDisposable {
-
-		/// <summary>
-		/// The range of distances to use in a clamped distance model.
-		/// </summary>
-		public (float, float) DistanceClamp { get; set; }
 
 		/// <summary>
 		/// The model to use for attenuation based on distance.

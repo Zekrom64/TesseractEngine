@@ -55,7 +55,7 @@ namespace Tesseract.Core.Audio {
 	/// <summary>
 	/// An audio format describes how audio samples are stored and processed.
 	/// </summary>
-	public record AudioFormat {
+	public record AudioFormat : IEquatable<AudioFormat> {
 
 		/// <summary>
 		/// Gets the number of bytes per sample for a given audio sample format.
@@ -75,7 +75,7 @@ namespace Tesseract.Core.Audio {
 		/// The list of channels in this format, in the order they are stored either in individual streams for planar formats or
 		/// by their ordering in a block of samples for interleaved formats.
 		/// </summary>
-		public IReadOnlyList<AudioChannel> Channels { get; init; } = Collection<AudioChannel>.EmptyList;
+		public required EquatableList<AudioChannel> Channels { get; init; }
 
 		/// <summary>
 		/// If the audio is accessed in a planar manner, with each channel supplied in an independent stream of samples. Otherwise,

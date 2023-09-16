@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Tesseract.Core.Audio {
@@ -62,15 +63,20 @@ namespace Tesseract.Core.Audio {
 		public Vector3 Velocity { get; set; }
 
 		/// <summary>
-		/// The gain to apply to audio from this emitter.
-		/// </summary>
-		public float Gain { get; set; }
-
-		/// <summary>
 		/// A normalized vector specifying the direction of the emitter. If this is set to a
 		/// zero vector the emitter is not directional and will emit in every direction.
 		/// </summary>
 		public Vector3 Direction { get; set; }
+
+		/// <summary>
+		/// The range of distances from the listener to use in a clamped distance model.
+		/// </summary>
+		public (float Min, float Max) DistanceClamp { get; set; }
+
+		/// <summary>
+		/// The gain to apply to audio from this emitter.
+		/// </summary>
+		public float Gain { get; set; }
 
 		/// <summary>
 		/// The angle of the inner directional cone where there is no attenuation.
@@ -123,13 +129,13 @@ namespace Tesseract.Core.Audio {
 		/// Enqueuest a set of audio buffers for playback.
 		/// </summary>
 		/// <param name="buffers">Buffers to enqueue</param>
-		public void Enqueue(in ReadOnlySpan<IAudioBuffer> buffers);
+		public void Enqueue(IEnumerable<IAudioBuffer> buffers);
 
 		/// <summary>
 		/// Enqueuest a set of audio buffers for playback.
 		/// </summary>
 		/// <param name="buffers">Buffers to enqueue</param>
-		public void Enqueue(params IAudioBuffer[] buffers);
+		public void Enqueue(params IAudioBuffer[] buffers) => Enqueue((IEnumerable<IAudioBuffer>)buffers);
 
 		/// <summary>
 		/// Enqueuest a set of audio buffers for playback.

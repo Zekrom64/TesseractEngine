@@ -143,6 +143,24 @@ namespace Tesseract.OpenAL {
 			if (IsExtensionPresent(SOFTLoopback.ExtensionName)) SOFTLoopback = new();
 		}
 
+		public static string? GetString(ALCGetString pname) => MemoryUtil.GetASCII(ALC.Functions.alcGetString(IntPtr.Zero, (ALCenum)pname));
+
+		public static int GetInteger(ALCGetInteger pname) {
+			int val = 0;
+			unsafe {
+				ALC.Functions.alcGetIntegerv(IntPtr.Zero, (int)pname, 1, (IntPtr)(&val));
+			}
+			return val;
+		}
+
+		public static void GetInteger(ALCGetInteger pname, Span<int> vals) {
+			unsafe {
+				fixed (int* pVals = vals) {
+					ALC.Functions.alcGetIntegerv(IntPtr.Zero, (int)pname, vals.Length, (IntPtr)pVals);
+				}
+			}
+		}
+
 		public static bool IsExtensionPresent(string extname) => Functions.alcIsExtensionPresent(IntPtr.Zero, extname) != 0;
 
 		public static IntPtr GetProcAddress(string name) => Functions.alcGetProcAddress(IntPtr.Zero, name);
