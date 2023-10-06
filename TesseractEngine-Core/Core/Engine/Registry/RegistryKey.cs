@@ -63,6 +63,12 @@ namespace Tesseract.Core.Engine.Registry {
 			key = path;
 		}
 
+		/// <summary>
+		/// Creates a registry key with no registry name, and a namespace and path.
+		/// </summary>
+		/// <param name="nameSpace">The namespace of the key</param>
+		/// <param name="path">The path of the key</param>
+		/// <exception cref="ArgumentException">If the namespace or path are invalid</exception>
 		public RegistryKey(string nameSpace, string path) {
 			if (nameSpace.Contains(':')) throw new ArgumentException("Name space cannot have a ':' in it", nameof(nameSpace));
 			if (path.Contains(':')) throw new ArgumentException("Path cannot have a ':' in it", nameof(path));
@@ -76,6 +82,10 @@ namespace Tesseract.Core.Engine.Registry {
 			return NameSpace == other.NameSpace && Path == other.Path;
 		}
 
+		/// <summary>
+		/// Returns a registry key with the same namespace and path but with no defined the registry name.
+		/// </summary>
+		/// <returns>Key without registry name</returns>
 		public RegistryKey WithoutRegistryName() {
 			if (RegistryName == null) return this;
 			else return new RegistryKey(NameSpace, Path);

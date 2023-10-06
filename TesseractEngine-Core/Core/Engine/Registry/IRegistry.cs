@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Tesseract.Core.Engine.Registry {
 
 	/// <summary>
 	/// A registry object is something that can be registered and referenced by an ID or unlocalized name.
 	/// </summary>
-	public interface IRegistryObject {
+	public abstract class RegistryObject {
 
 		/// <summary>
 		/// The unique unlocalized name of the object.
@@ -19,9 +14,13 @@ namespace Tesseract.Core.Engine.Registry {
 		public RegistryKey UnlocalizedName { get; }
 
 		/// <summary>
-		/// The runtime ID of the object.
+		/// The runtime ID of the object. If the object has not been initialized with one, it will be -1.
 		/// </summary>
-		public int ID { get; set; }
+		public int ID { get; internal set; } = -1;
+
+		protected RegistryObject(RegistryKey unlocalizedName) {
+			UnlocalizedName = unlocalizedName;
+		}
 
 	}
 
@@ -29,7 +28,7 @@ namespace Tesseract.Core.Engine.Registry {
 	/// A registry stores a mapping of objects by their runtime ID and name.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IRegistry<T> where T : IRegistryObject {
+	public interface IRegistry<T> where T : RegistryObject {
 
 		/// <summary>
 		/// The unlocalized name of this registry.
@@ -47,123 +46,86 @@ namespace Tesseract.Core.Engine.Registry {
 		public IReadOnlyCollection<T> Entries { get; }
 
 		/// <summary>
-		/// 
+		/// Gets an object in the regitry by its runtime ID, throwing an exception if it does not exist.
 		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		public T? GetByID(int id);
+		/// <param name="id">The runtime ID of the object</param>
+		/// <returns>The retrieved object</returns>
+		public T GetByID(int id);
 
+		/// <summary>
+		/// Tries to get an object by its runtime ID, returning if it was successful.
+		/// </summary>
+		/// <param name="id">The runtime ID of the object</param>
+		/// <param name="result">The retrieved object</param>
+		/// <returns>If the objet was successfully retrieved</returns>
 		public bool TryGetByID(int id, [NotNullWhen(true)] out T? result);
 
-		public T? GetByKey(RegistryKey key);
+		/// <summary>
+		/// Gets an object in the registry by its unlocalized name, throwing an exception if it does not exist.
+		/// </summary>
+		/// <param name="key">The named key of the object</param>
+		/// <returns>THe retrieved object</returns>
+		public T GetByKey(RegistryKey key);
 
+		/// <summary>
+		/// Tries to get an object by its unlocalized name, returning if it was successful.
+		/// </summary>
+		/// <param name="key">The named key of the object</param>
+		/// <param name="result">The retrieved object</param>
+		/// <returns>If the objet was successfully retrieved</returns>
 		public bool TryGetByKey(RegistryKey key, [NotNullWhen(true)] out T? result);
 
+		/// <summary>
+		/// Begins registering objects within a specific namespace by returning a registrator for said namespace.
+		/// </summary>
+		/// <param name="nameSpace">The namespace of the registrator</param>
+		/// <returns>Registrator to begin registering objects with</returns>
 		public IRegistrator<T> Begin(string nameSpace);
 
+		/// <summary>
+		/// Freezes the entries in the registry, disallowing any further registration, assigning
+		/// IDs for all the entries, and making them available via the <tt>*GetBy*</tt> methods.
+		/// </summary>
 		public void Freeze();
 
 	}
 
-	public interface IRegistrator<T> where T : IRegistryObject {
+	/// <summary>
+	/// A registrator is an interface that allows objects to be added to a registry within a specific namespace.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public interface IRegistrator<T> where T : RegistryObject {
 
+		/// <summary>
+		/// The name space this registrator is assigned to.
+		/// </summary>
+		public string NameSpace { get; }
+
+		/// <summary>
+		/// The registry this registrator belongs to.
+		/// </summary>
 		public IRegistry<T> Registry { get; }
 
+		/// <summary>
+		/// Registers a single entry.
+		/// </summary>
+		/// <param name="entry">Entry to register</param>
 		public void Register(T entry);
 		
+		/// <summary>
+		/// Registers a collection of entries.
+		/// </summary>
+		/// <param name="entries">Entries to register</param>
 		public void Register(params T[] entries) {
 			foreach(T entry in entries) Register(entry);
 		}
 
+		/// <summary>
+		/// Registers a collection of entries.
+		/// </summary>
+		/// <param name="entries">Entries to register</param>
 		public void Register(IEnumerable<T> entries) {
 			foreach (T entry in entries) Register(entry);
-		}
-
-	}
-
-	public class BaseRegistry<T> : IRegistry<T> where T : IRegistryObject {
-
-		public string UnlocalizedName { get; }
-
-		public RegistryIDMap<T> CurrentIDMap { get; }
-
-		public IReadOnlyCollection<T> Entries => byID;
-
-		private readonly Dictionary<RegistryKey, T> byName = new();
-		private readonly List<T> byID = new();
-
-		private class Registrator : IRegistrator<T> {
-
-			private readonly BaseRegistry<T> registry;
-			private readonly string nameSpace;
-			private readonly List<T> itemsToRegister = new();
-
-			public IRegistry<T> Registry => registry;
-
-			public Registrator(BaseRegistry<T> registry, string nameSpace) {
-				this.registry = registry;
-				this.nameSpace = nameSpace;
-			}
-
-			public void Register(T entry) {
-				registry.rwlock.EnterReadLock();
-				try {
-					if (registry.isFrozen) throw new InvalidOperationException("Cannot register an object after the registry was frozen");
-					lock (itemsToRegister) {
-						itemsToRegister.Add(entry);
-					}
-				} finally {
-					registry.rwlock.ExitReadLock();
-				}
-			}
-
-		}
-
-		private readonly Dictionary<string, Registrator> registrators = new();
-		private volatile bool isFrozen = false;
-		private readonly ReaderWriterLockSlim rwlock = new();
-
-		public BaseRegistry(string unlocalizedName) {
-			UnlocalizedName = unlocalizedName;
-			CurrentIDMap = new RegistryIDMap<T>(this);
-		}
-
-		public IRegistrator<T> Begin(string nameSpace) {
-			lock(registrators) {
-				if (!registrators.TryGetValue(nameSpace, out Registrator? registrator))
-					registrator = new Registrator(this, nameSpace);
-				return registrator;
-			}
-		}
-
-		public void Freeze() {
-			rwlock.EnterWriteLock();
-			try {
-				foreach(Registrator registrator in registrators.Values) {
-					
-				}
-			} finally {
-				rwlock.ExitWriteLock();
-				rwlock.Dispose();
-			}
-			isFrozen = true;
-		}
-
-		public T? GetByID(int id) {
-			if (!isFrozen) throw new InvalidOperationException("Cannot access the registry before it is frozen");
-		}
-
-		public bool TryGetByID(int id, [NotNullWhen(true)] out T? result) {
-			if (!isFrozen) throw new InvalidOperationException("Cannot access the registry before it is frozen");
-			throw new NotImplementedException();
-		}
-
-		public T GetByKey(RegistryKey name) {
-
-		}
-
-		public bool TryGetByKey(RegistryKey name, [NotNullWhen(true)] out T? result) {
-
 		}
 
 	}

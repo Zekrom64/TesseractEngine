@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tesseract.Core.Engine.Registry {
-	public class RegistryName {
+namespace Tesseract.Core.Engine.Content {
+	internal class MaterialPhase {
 	}
 }

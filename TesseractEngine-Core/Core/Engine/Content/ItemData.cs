@@ -53,8 +53,10 @@ namespace Tesseract.Core.Engine.Content {
 			Default = Check(defaultValue);
 		}
 
+		/// <inheritdoc cref="Load(DataObject)"/>
 		protected abstract T LoadData(DataObject data);
 
+		/// <inheritdoc cref="Store(object?, IStreamingDataObject)"/>
 		protected abstract void StoreData(T value, IStreamingDataObject data);
 
 		public object? Load(DataObject data) => LoadData(data);

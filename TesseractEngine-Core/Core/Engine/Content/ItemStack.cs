@@ -1,16 +1,23 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Tesseract.Core.Engine.Registry;
 using Tesseract.Core.Utilities.Data;
 
 namespace Tesseract.Core.Engine.Content {
 
 	/// <summary>
-	/// An item stack holds zero or more of a specific item.
+	/// <para>An item stack holds zero or more of a specific item.</para>
+	/// <para>
+	/// The item stack structure holds three primary fields; a reference to the
+	/// item being stored in the stack, the number of items in the stack (as a
+	/// signed 32-bit integer), and an optional item-specific data object. An item
+	/// stack is considered empty when the item is null or the count is zero.
+	/// </para>
 	/// </summary>
 	public struct ItemStack {
 
 		/// <summary>
-		/// The item this stack is holding
+		/// The item this stack is holding, or null if the stack is empty.
 		/// </summary>
 		public Item? Item { get; } = null;
 
@@ -20,10 +27,11 @@ namespace Tesseract.Core.Engine.Content {
 		/// The number of items in the stack.
 		/// </summary>
 		public int Count {
-			get => count;
+			readonly get => count;
 			set {
 				if (Item == null) return;
-				if (value > Item.MaxStackSize) value = Item.MaxStackSize;
+				if (value > Item.Properties.MaxStackSize) value = Item.Properties.MaxStackSize;
+				if (value < 0) value = 0;
 				count = value;
 			}
 		}
@@ -34,7 +42,7 @@ namespace Tesseract.Core.Engine.Content {
 		/// The data for the item in the stack.
 		/// </summary>
 		public object? Data {
-			get => data;
+			readonly get => data;
 			set {
 				if (Item == null) return;
 				if (Item.DataManager == null) return;
@@ -43,9 +51,10 @@ namespace Tesseract.Core.Engine.Content {
 		}
 
 		/// <summary>
-		/// If the item stack is empty.
+		/// If the item stack is empty (when the item is null or the count is zero).
 		/// </summary>
-		public bool IsEmpty => Item == null || count == 0;
+		[MemberNotNullWhen(false, nameof(Item))]
+		public readonly bool IsEmpty => Item == null || count == 0;
 
 		public ItemStack(Item item, int count = 1, object? data = null) {
 			if (count > 0) {
@@ -72,15 +81,18 @@ namespace Tesseract.Core.Engine.Content {
 				// Get the ID from the data
 				var id = data["ID"];
 				if (id.Type == DataType.String) {
-					// If a string then 
-					item = Item.Registry.GetByName((string)id);
+					// If a string then load by name
+					Item.Registry.TryGetByKey((string)id, out item);
 				} else if (id.Type == DataType.Int) {
+					// Else load by ID
 					item = (idmap ?? Item.Registry.CurrentIDMap).Load((int)id);
 				} else return default;
 
 				if (item == null) return default;
 
 				count = (int)data["Count"];
+				if (count < 0) return default;
+				if (count > item.Properties.MaxStackSize) count = item.Properties.MaxStackSize;
 
 				if (item.DataManager != null) {
 					if (data.TryGetValue("Data", out DataBox data2) && data2.Type == DataType.Object) {
@@ -118,10 +130,10 @@ namespace Tesseract.Core.Engine.Content {
 		/// <param name="data">Data object to save the stack to</param>
 		/// <param name="portable">If the stack should be saved in a portable format</param>
 		/// <param name="idmap">The ID map to use for saving non-portably, or null to use the default map</param>
-		public void Save(IStreamingDataObject data, bool portable = true, RegistryIDMap<Item>? idmap = null) {
+		public readonly void Save(IStreamingDataObject data, bool portable = true, RegistryIDMap<Item>? idmap = null) {
 			if (Item != null) {
 				idmap ??= Item.Registry.CurrentIDMap;
-				data["ID"] = portable ? Item.UnlocalizedName : idmap.Store(Item);
+				data["ID"] = portable ? Item.UnlocalizedName.ToString() : idmap.Store(Item);
 				data["Count"] = count;
 				if (Item.DataManager != null && this.data != null) {
 					ItemStack self = this;
@@ -135,7 +147,7 @@ namespace Tesseract.Core.Engine.Content {
 		/// </summary>
 		/// <param name="other">Item stack to check against</param>
 		/// <returns>If both stacks hold the same item</returns>
-		public bool AreItemsEqual(ItemStack other) => Item == other.Item && Equals(Data, other.Data);
+		public readonly bool AreItemsEqual(ItemStack other) => Item == other.Item && Equals(Data, other.Data);
 
 		/// <summary>
 		/// "Applies" another item stack onto this stack, as if it were dropped onto this inside a player's inventory.
@@ -158,7 +170,7 @@ namespace Tesseract.Core.Engine.Content {
 			}
 
 			// Defer to our item how the stack is applied
-			return Item!.ApplyItemStack(ref this, ref other);
+			return Item.ApplyItemStack(ref this, ref other);
 		}
 
 		/// <summary>
@@ -181,7 +193,7 @@ namespace Tesseract.Core.Engine.Content {
 			if (!AreItemsEqual(other)) return false;
 
 			// Either consume the other stack entirely or move enough items to hit the maximum
-			int space = Item!.MaxStackSize - count;
+			int space = Item.Properties.MaxStackSize - count;
 			if (space > other.count) {
 				count += other.count;
 				other = default;
@@ -208,7 +220,7 @@ namespace Tesseract.Core.Engine.Content {
 			}
 
 			this.count -= count;
-			ItemStack split =  new(Item!, count, data);
+			ItemStack split =  new(Item, count, data);
 			if (this.count <= 0) this = default;
 			return split;
 		}

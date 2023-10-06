@@ -19,30 +19,18 @@ namespace Tesseract.Core.Engine.Content {
 	/// </list>
 	/// </para>
 	/// </summary>
-	public class Item : IRegistryObject {
+	public class Item : RegistryObject {
 
 		/// <summary>
 		/// The registry for items.
 		/// </summary>
 		public static IRegistry<Item> Registry { get; } = new BaseRegistry<Item>("item");
 
-		public string UnlocalizedName { get; }
-
-		private int id = -1;
-
-		public int ID {
-			get => id >= 0 ? id : throw new InvalidOperationException("Item has not been initialized with an ID yet");
-			set {
-				if (id < 0) throw new ArgumentException("Cannot assign a negative ID to an item");
-				if (id == -1) id = value;
-				else throw new InvalidOperationException("Item has already been assigned an ID");
-			}
-		}
 
 		/// <summary>
-		/// The maximum number of this item that can exist in an <see cref="ItemStack"/>.
+		/// The properties of this item.
 		/// </summary>
-		public int MaxStackSize { get; protected init; } = 1;
+		public ItemProperties Properties { get; }
 
 		/// <summary>
 		/// The data manager for this item. If null the item does not have additional data.
@@ -50,19 +38,40 @@ namespace Tesseract.Core.Engine.Content {
 		public IItemDataManager? DataManager { get; protected init; } = null;
 
 
-		protected Item(string unlocalizedName) {
-			UnlocalizedName = unlocalizedName;
+		protected Item(string unlocalizedName, ItemProperties properties) : base(unlocalizedName) {
+			Properties = properties;
 		}
 
+		//===================//
+		// Item Interactions //
+		//===================//
 
 		/// <summary>
-		/// Invoked to "apply" and item stack with this item to another stack, as if the player dropped
+		/// Invoked to "apply" an item stack with this item to another stack, as if the player dropped
 		/// it onto the other stack in an inventory.
 		/// </summary>
 		/// <param name="thisStack">Item stack containing this item to apply</param>
 		/// <param name="appliedStack">Item stack to apply this item to</param>
 		/// <returns>If this item overrides the application behavior</returns>
 		public virtual bool ApplyItemStack(ref ItemStack thisStack, ref ItemStack appliedStack) => false;
+
+		//==========================//
+		// Dynamic Property Getters //
+		//==========================//
+
+		/// <summary>
+		/// Computes the currency value for a stack of this item.
+		/// </summary>
+		/// <param name="stack">The stack of this item</param>
+		/// <returns>The currency value of the stack</returns>
+		public virtual double GetCurrencyValue(ItemStack stack) => Properties.BaseCurrencyValue * stack.Count;
+
+		/// <summary>
+		/// Computes the mass of a stack of this item in kilograms.
+		/// </summary>
+		/// <param name="stack">The stack of this item</param>
+		/// <returns>The mass of the stack</returns>
+		public virtual double GetMass(ItemStack stack) => 0;
 
 	}
 
