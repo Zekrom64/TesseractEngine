@@ -9,6 +9,8 @@ using Tesseract.Core.Utilities;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Diagnostics.CodeAnalysis;
+using SixLabors.ImageSharp.Processing;
 
 namespace Tesseract.Core.Graphics.QOI {
 
@@ -74,6 +76,8 @@ namespace Tesseract.Core.Graphics.QOI {
 	}
 
 	public class QOIEncoder : IImageEncoder {
+
+		public bool SkipMetadata { get; init; } = false;
 
 		public void Encode<TPixel>(Image<TPixel> image, Stream stream) where TPixel : unmanaged, IPixel<TPixel> {
 			// Write the magic header
@@ -342,36 +346,69 @@ namespace Tesseract.Core.Graphics.QOI {
 			return header;
 		}
 
-		public Image<TPixel> Decode<TPixel>(Configuration configuration, Stream stream, CancellationToken cancellationToken) where TPixel : unmanaged, IPixel<TPixel> {
-			Header header = ReadHeader(stream);
-			Image<TPixel> img = new((int)header.Width, (int)header.Height);
-			DecodePixels(stream, img);
-			return img;
+
+		public ImageInfo Identify(DecoderOptions options, Stream stream) {
+			var header = ReadHeader(stream);
+
+			PixelTypeInfo ptinfo = new((int)header.Channels * 8);
+
+			return new ImageInfo(
+				ptinfo,
+				new Size((int)header.Width, (int)header.Height),
+				null
+			);
 		}
 
-		public Image Decode(Configuration configuration, Stream stream, CancellationToken cancellationToken) {
+		public Task<ImageInfo> IdentifyAsync(DecoderOptions options, Stream stream, CancellationToken cancellationToken = default) =>
+			Task.Run(() => Identify(options, stream), cancellationToken);
+
+		public Image<TPixel> Decode<TPixel>(DecoderOptions options, Stream stream) where TPixel : unmanaged, IPixel<TPixel> {
+			Image img = Decode(options, stream);
+			if (img is Image<TPixel> timg) return timg;
+			else return img.CloneAs<TPixel>();
+		}
+
+		public Image Decode(DecoderOptions options, Stream stream) {
 			Header header = ReadHeader(stream);
 			Image img = header.Channels switch {
 				QOIChannels.RGB => DecodePixels(stream, new Image<Rgb24>((int)header.Width, (int)header.Height)),
 				QOIChannels.RGBA => DecodePixels(stream, new Image<Rgba32>((int)header.Width, (int)header.Height)),
 				_ => throw new InvalidDataException("Unknown QOI channel value"),
 			};
+			if (options.TargetSize != null) {
+				var newSize = options.TargetSize.Value;
+				if (newSize != img.Size) {
+					img.Mutate(ctx => ctx.Resize(newSize, options.Sampler, false));
+				}
+			}
 			return img;
 		}
 
+		public Task<Image<TPixel>> DecodeAsync<TPixel>(DecoderOptions options, Stream stream, CancellationToken cancellationToken = default) where TPixel : unmanaged, IPixel<TPixel> =>
+			Task.Run(() => Decode<TPixel>(options, stream), cancellationToken);
+
+		public Task<Image> DecodeAsync(DecoderOptions options, Stream stream, CancellationToken cancellationToken = default) =>
+			Task.Run(() => Decode(options, stream), cancellationToken);
 	}
 
 	public class QOIImageFormatDetector : IImageFormatDetector {
 
 		public int HeaderSize => 4;
 
-		public IImageFormat? DetectFormat(ReadOnlySpan<byte> header) =>
-			(header.Length >= 4 &&
-			header[0] == 'q' &&
-			header[1] == 'o' &&
-			header[2] == 'i' &&
-			header[3] == 'f') ? QOIImageFormat.Instance : null;
+		public bool TryDetectFormat(ReadOnlySpan<byte> header, [NotNullWhen(true)] out IImageFormat? format) {
+			format = null;
 
+			if (header.Length >= 4 &&
+				header[0] == 'q' &&
+				header[1] == 'o' &&
+				header[2] == 'i' &&
+				header[3] == 'f') {
+				format = QOIImageFormat.Instance;
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 }
