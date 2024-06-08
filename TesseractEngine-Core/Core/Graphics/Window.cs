@@ -227,6 +227,11 @@ namespace Tesseract.Core.Graphics {
 		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList? attributes = null);
 
 		/// <summary>
+		/// The "primary" display connected to the system, usually the first returned by <see cref="GetDisplays"/>. May be null if the system is headless.
+		/// </summary>
+		public IDisplay? PrimaryDisplay { get; }
+
+		/// <summary>
 		/// Gets the displays which make up the desktop.
 		/// </summary>
 		/// <returns>Desktop displays</returns>

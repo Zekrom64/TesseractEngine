@@ -18,6 +18,13 @@ namespace Tesseract.SDL.Services {
 
 		public IWindow CreateWindow(string title, int w, int h, WindowAttributeList? attributes = null) => new SDLServiceWindow(title, w, h, attributes);
 
+		public IDisplay? PrimaryDisplay {
+			get {
+				var displays = SDL2.Displays;
+				return displays.Length > 0 ? new SDLServiceDisplay(displays[0]) : null;
+			}
+		}
+
 		public IDisplay[] GetDisplays() => SDL2.Displays.ConvertAll(display => new SDLServiceDisplay(display));
 
 		public ICursor CreateCursor(IImage image, Vector2i hotspot) {

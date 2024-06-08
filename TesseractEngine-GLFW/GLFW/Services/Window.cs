@@ -500,6 +500,14 @@ namespace Tesseract.GLFW.Services {
 			return new GLFWServiceWindow(title, w, h, attributes);
 		}
 
+		public IDisplay? PrimaryDisplay {
+			get {
+				var monitor = GLFW3.PrimaryMonitor;
+				if (monitor.Monitor == 0) return null;
+				return new GLFWServiceDisplay(monitor);
+			}
+		}
+
 		public IDisplay[] GetDisplays() {
 			GLFWMonitor[] monitors = GLFW3.Monitors;
 			IDisplay[] displays = new IDisplay[monitors.Length];
