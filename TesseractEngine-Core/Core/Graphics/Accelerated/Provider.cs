@@ -97,7 +97,7 @@ namespace Tesseract.Core.Graphics.Accelerated {
 		/// <summary>
 		/// The supported presentation modes.
 		/// </summary>
-		public IReadOnlyCollection<SwapchainPresentMode> SupportedPresentModes { get; init; }
+		public required IReadOnlyCollection<SwapchainPresentMode> SupportedPresentModes { get; init; }
 
 		/// <summary>
 		/// The type of images used by the swapchain.

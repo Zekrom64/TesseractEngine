@@ -36,7 +36,7 @@ namespace Tesseract.Vulkan {
 		[NativeType("void vkCmdSetRasterizerDiscardEnableEXT(VkCommandBuffer cmdbuf, VkBool32 rasterizerDiscardEnable)")]
 		public delegate* unmanaged<IntPtr, bool, void> vkCmdSetRasterizerDiscardEnableEXT;
 
-		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions2 fn) => fn != null;
+		public static implicit operator bool(EXTExtendedDynamicStateDeviceFunctions2? fn) => fn != null;
 
 	}
 

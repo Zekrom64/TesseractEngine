@@ -337,17 +337,27 @@ namespace Tesseract.ImGui.NET {
 			}
 		}
 
-		public void BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None) {
+		public bool BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None) {
 			unsafe {
 				fixed(byte* pStrID = CheckStr(strId)) {
-					ImGuiNative.igBeginChild_Str(pStrID, size, (byte)(border ? 1 : 0), (ImGuiNET.ImGuiWindowFlags)flags);
+					return ImGuiNative.igBeginChild_Str(pStrID, size, border ? ImGuiNET.ImGuiChildFlags.Border : default, (ImGuiNET.ImGuiWindowFlags)flags) != 0;
 				}
 			}
 		}
 
-		public void BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None) => IM.BeginChild(id, size, border, (ImGuiNET.ImGuiWindowFlags)flags);
+		public bool BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None) => IM.BeginChild(id, size, border ? ImGuiNET.ImGuiChildFlags.Border : default, (ImGuiNET.ImGuiWindowFlags)flags);
 
-		public bool BeginChildFrame(uint id, Vector2 size, ImGuiWindowFlags flags = ImGuiWindowFlags.None) => IM.BeginChildFrame(id, size, (ImGuiNET.ImGuiWindowFlags)flags);
+		public bool BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None, ImGuiWindowFlags flags = 0) {
+			unsafe {
+				fixed(byte* pStrID = CheckStr(strId)) {
+					return ImGuiNative.igBeginChild_Str(pStrID, size, (ImGuiNET.ImGuiChildFlags)childFlags, (ImGuiNET.ImGuiWindowFlags)flags) != 0;
+				}
+			}
+		}
+
+		public bool BeginChild(uint id, Vector2 size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None, ImGuiWindowFlags flags = 0) => IM.BeginChild(id, size, (ImGuiNET.ImGuiChildFlags)childFlags, (ImGuiNET.ImGuiWindowFlags)flags);
+
+		public bool BeginChildFrame(uint id, Vector2 size, ImGuiWindowFlags flags = ImGuiWindowFlags.None) => BeginChild(id, size, ImGuiChildFlags.FrameStyle, flags);
 
 		public bool BeginCombo(ReadOnlySpan<byte> label, ReadOnlySpan<byte> previewValue, ImGuiComboFlags flags = ImGuiComboFlags.None) {
 			unsafe {
@@ -1436,7 +1446,9 @@ namespace Tesseract.ImGui.NET {
 			}
 		}
 
-		public void SetItemAllowOverlap() => IM.SetItemAllowOverlap();
+		public void SetItemAllowOverlap() => throw new NotSupportedException("Obsolete in ImGui 1.90");
+
+		public void SetNextItemAllowOverlap() => IM.SetNextItemAllowOverlap();
 
 		public void SetItemDefaultFocus() => IM.SetItemDefaultFocus();
 
@@ -1564,7 +1576,7 @@ namespace Tesseract.ImGui.NET {
 
 		public void ShowMetricsWindow(ref bool open) => IM.ShowMetricsWindow(ref open);
 
-		public void ShowStackToolWindow(ref bool open) => IM.ShowStackToolWindow(ref open);
+		public void ShowStackToolWindow(ref bool open) => IM.ShowIDStackToolWindow(ref open);
 
 		public void ShowStyleEditor(IImGuiStyle? style = null) {
 			if (style != null) IM.ShowStyleEditor(((ImGuiNETStyle)style).style);

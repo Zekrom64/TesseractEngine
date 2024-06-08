@@ -618,16 +618,18 @@ namespace Tesseract.Core.Graphics {
 			AddFormat(QOIImageFormat.Instance, new QOIEncoder(), new QOIDecoder(), new QOIImageFormatDetector());
 		}
 
-		public bool CanLoad(string mimeType) => Config.ImageFormatsManager.FindFormatByMimeType(mimeType) != null;
+		public bool CanLoad(string mimeType) => Config.ImageFormatsManager.TryFindFormatByMimeType(mimeType, out _);
 
-		public bool CanSave(string mimeType) => Config.ImageFormatsManager.FindFormatByMimeType(mimeType) != null;
+		public bool CanSave(string mimeType) => Config.ImageFormatsManager.TryFindFormatByMimeType(mimeType, out _);
+
+		internal static readonly DecoderOptions DecodeOpts = new DecoderOptions() { Configuration = Config };
 
 		public IImage Load(ResourceLocation location) {
 			using var stream = location.OpenStream();
-			return IImageSharpImage.Create(Image.Load(Config, location.OpenStream()));
+			return IImageSharpImage.Create(Image.Load(DecodeOpts, location.OpenStream()));
 		}
 
-		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(Config, binary));
+		public IImage Load(in ReadOnlySpan<byte> binary, string? mimeType) => IImageSharpImage.Create(Image.Load(DecodeOpts, binary));
 
 		public void Save(IImage image, string mimeType, Stream stream) {
 			Image img;
@@ -637,9 +639,9 @@ namespace Tesseract.Core.Graphics {
 				img = IImageSharpImage.Create(image).AbstractImage;
 				dispose = true;
 			}
+			if (!Config.ImageFormatsManager.TryFindFormatByMimeType(mimeType, out IImageFormat? format))
+				throw new ArgumentException($"Cannot encode image in unsupported mime type {mimeType}");
 			try {
-				IImageFormat? format = Config.ImageFormatsManager.FindFormatByMimeType(mimeType);
-				if (format == null) throw new ArgumentException($"Cannot encode image in unsupported mime type {mimeType}");
 				img.Save(stream, format);
 			} finally {
 				if (dispose) img.Dispose();

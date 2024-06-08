@@ -54,14 +54,18 @@ namespace Tesseract.Core.Graphics.Font {
 	/// </summary>
 	public class ImageSharpFontRenderer : IFontRenderer {
 
+		private readonly SixLabors.Fonts.Font font;
+
 		private readonly TextOptions textOptions;
 
 		public ImageSharpFontRenderer(SixLabors.Fonts.Font font) {
+			this.font = font;
 			textOptions = new(font);
 		}
 
 		public void Layout(in ReadOnlySpan<char> text, Span<Recti> positions) {
-			TextMeasurer.TryMeasureCharacterBounds(text, textOptions, out GlyphBounds[] bounds);
+			ReadOnlySpan<GlyphBounds> bounds;
+			TextMeasurer.TryMeasureCharacterBounds(text, textOptions, out bounds);
 			for(int i = 0; i < bounds.Length; i++) {
 				var area = bounds[i].Bounds;
 				positions[i] = new Recti() {
@@ -72,9 +76,9 @@ namespace Tesseract.Core.Graphics.Font {
 		}
 
 		public IImage Render(string text, Vector4 color) {
-			var rect = TextMeasurer.Measure(text, textOptions);
+			var rect = TextMeasurer.MeasureSize(text, textOptions);
 			Image<Rgba32> image = new((int)rect.Width, (int)rect.Height);
-			image.Mutate(x => x.DrawText(textOptions, text, new Color(color)));
+			image.Mutate(x => x.DrawText(text, font, new Color(color), new PointF()));
 			return new ImageSharpImage<Rgba32>(image);
 		}
 

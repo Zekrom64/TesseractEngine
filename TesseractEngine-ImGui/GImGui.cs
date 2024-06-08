@@ -731,7 +731,7 @@ namespace Tesseract.ImGui {
 		//   wastefully sort your data every frame!
 		// - Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
 
-		public static IImGuiTableSortSpecs TableSortSpecs => Instance.TableSortSpecs;
+		public static IImGuiTableSortSpecs? TableSortSpecs => Instance.TableSortSpecs;
 
 		// Tables: Miscellaneous functions
 		// - Functions args 'int column_n' treat the default value of -1 as the same as passing the current column index.
@@ -876,7 +876,10 @@ namespace Tesseract.ImGui {
 
 		public static Vector2 ItemRectSize => Instance.ItemRectSize;
 
+		[Obsolete("Obsolete in ImGui 1.90")]
 		public static void SetItemAllowOverlap() => Instance.SetItemAllowOverlap();
+
+		public static void SetNextItemAllowOverlap() => Instance.SetNextItemAllowOverlap();
 
 
 		public static ImGuiViewport MainViewport {

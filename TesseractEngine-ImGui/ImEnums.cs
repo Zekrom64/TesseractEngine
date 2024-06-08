@@ -698,4 +698,17 @@ namespace Tesseract.ImGui {
 		OwnedByApp = 1 << 2
 	}
 
+	[Flags]
+	public enum ImGuiChildFlags {
+		None = 0,
+		Border = 1,
+		AlwaysUseWindowPadding = 2,
+		ResizeX = 4,
+		ResizeY = 8,
+		AutoResizeX = 0x10,
+		AutoResizeY = 0x20,
+		AlwaysAutoResize = 0x40,
+		FrameStyle = 0x80
+	}
+
 }

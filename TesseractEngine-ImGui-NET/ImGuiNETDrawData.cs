@@ -19,7 +19,7 @@ namespace Tesseract.ImGui.NET {
 				this.drawData = drawData;
 			}
 
-			public IImDrawList this[int index] => ImGuiNETDrawList.Get(drawData.CmdListsRange[index]);
+			public IImDrawList this[int index] => ImGuiNETDrawList.Get(drawData.CmdLists[index]);
 
 			public int Count => drawData.CmdListsCount;
 

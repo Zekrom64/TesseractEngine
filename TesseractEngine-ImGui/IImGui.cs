@@ -579,9 +579,13 @@ namespace Tesseract.ImGui {
 		//    BeginPopup/EndPopup, etc. where the EndXXX call should only be called if the corresponding BeginXXX function
 		//    returned true. Begin and BeginChild are the only odd ones out. Will be fixed in a future update.]
 
-		public void BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
+		public bool BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
 
-		public void BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
+		public bool BeginChild(uint id, Vector2 size = default, bool border = false, ImGuiWindowFlags flags = 0);
+
+		public bool BeginChild(ReadOnlySpan<byte> strId, Vector2 size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None, ImGuiWindowFlags flags = 0);
+
+		public bool BeginChild(uint id, Vector2 size = default, ImGuiChildFlags childFlags = ImGuiChildFlags.None, ImGuiWindowFlags flags = 0);
 
 		public void EndChild();
 
@@ -1406,7 +1410,10 @@ namespace Tesseract.ImGui {
 
 		public Vector2 ItemRectSize { get; }
 
+		[Obsolete("Obsolete in ImGui 1.90, use `SetNextItemAllowOverlap` instead")]
 		public void SetItemAllowOverlap();
+
+		public void SetNextItemAllowOverlap();
 
 		// Viewports
 		// - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.

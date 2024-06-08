@@ -250,7 +250,7 @@ namespace Tesseract.ImGui.NET {
 
 		public int MetricsActiveWindows => io.MetricsActiveWindows;
 
-		public int MetricsActiveAllocations => io.MetricsActiveAllocations;
+		public int MetricsActiveAllocations => 0;
 
 		public Vector2 MouseDelta => io.MouseDelta;
 
